@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>你的名字 | 作品集</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-brand">Portfolio</div>
+        <ul class="nav-menu">
+            <li><a href="#home" class="nav-link active">首页</a></li>
+            <li><a href="#works" class="nav-link">作品</a></li>
+            <li><a href="#about" class="nav-link">关于</a></li>
+            <li><a href="#contact" class="nav-link">联系</a></li>
+        </ul>
+        <div class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </nav>
+
+    <!-- 首页英雄区 -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <p class="hero-greeting">你好，我是</p>
+            <h1 class="hero-title">你的名字</h1>
+            <p class="hero-subtitle">
+                <span class="typing-text"></span><span class="cursor">|</span>
+            </p>
+            <p class="hero-desc">专注于创造优雅、高效的用户体验</p>
+            <div class="hero-buttons">
+                <a href="#works" class="btn btn-primary">查看作品</a>
+                <a href="#contact" class="btn btn-secondary">联系我</a>
+            </div>
+        </div>
+        <div class="hero-scroll">
+            <span>向下滚动</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- 作品展示 -->
+    <section id="works" class="works">
+        <div class="container">
+            <h2 class="section-title">精选作品</h2>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">全部</button>
+                <button class="filter-btn" data-filter="web">网页设计</button>
+                <button class="filter-btn" data-filter="app">移动应用</button>
+                <button class="filter-btn" data-filter="brand">品牌设计</button>
+            </div>
+            <div class="works-grid">
+                <!-- 作品卡片 1 -->
+                <div class="work-card" data-category="web">
+                    <div class="work-image">
+                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop" alt="项目1">
+                        <div class="work-overlay">
+                            <a href="#" class="work-link"><i class="fas fa-external-link-alt"></i></a>
+                            <a href="#" class="work-link"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                    <div class="work-info">
+                        <h3>电商平台 redesign</h3>
+                        <p>为某电商平台进行的全面 UI/UX 重新设计，提升转化率 35%</p>
+                        <div class="work-tags">
+                            <span>React</span>
+                            <span>Tailwind</span>
+                            <span>Node.js</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作品卡片 2 -->
+                <div class="work-card" data-category="app">
+                    <div class="work-image">
+                        <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop" alt="项目2">
+                        <div class="work-overlay">
+                            <a href="#" class="work-link"><i class="fas fa-external-link-alt"></i></a>
+                            <a href="#" class="work-link"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                    <div class="work-info">
+                        <h3>健康管理 App</h3>
+                        <p>iOS/Android 双平台健康追踪应用，日活用户 10万+</p>
+                        <div class="work-tags">
+                            <span>Flutter</span>
+                            <span>Firebase</span>
+                            <span>AI</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作品卡片 3 -->
+                <div class="work-card" data-category="brand">
+                    <div class="work-image">
+                        <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=400&fit=crop" alt="项目3">
+                        <div class="work-overlay">
+                            <a href="#" class="work-link"><i class="fas fa-external-link-alt"></i></a>
+                        </div>
+                    </div>
+                    <div class="work-info">
+                        <h3>科技公司品牌视觉</h3>
+                        <p>从 Logo 到完整 VI 系统的品牌升级方案</p>
+                        <div class="work-tags">
+                            <span>Figma</span>
+                            <span>Illustrator</span>
+                            <span>品牌策略</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作品卡片 4 -->
+                <div class="work-card" data-category="web">
+                    <div class="work-image">
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop" alt="项目4">
+                        <div class="work-overlay">
+                            <a href="#" class="work-link"><i class="fas fa-external-link-alt"></i></a>
+                            <a href="#" class="work-link"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                    <div class="work-info">
+                        <h3>数据可视化仪表盘</h3>
+                        <p>实时数据监控平台，支持百万级数据秒级渲染</p>
+                        <div class="work-tags">
+                            <span>Vue 3</span>
+                            <span>D3.js</span>
+                            <span>WebSocket</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作品卡片 5 -->
+                <div class="work-card" data-category="app">
+                    <div class="work-image">
+                        <img src="https://images.unsplash.com/photo-1555421689-d68471e189f2?w=600&h=400&fit=crop" alt="项目5">
+                        <div class="work-overlay">
+                            <a href="#" class="work-link"><i class="fas fa-external-link-alt"></i></a>
+                        </div>
+                    </div>
+                    <div class="work-info">
+                        <h3>在线教育平台</h3>
+                        <p>互动式学习平台，支持直播、录播和 AI 答疑</p>
+                        <div class="work-tags">
+                            <span>React Native</span>
+                            <span>GraphQL</span>
+                            <span>AWS</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作品卡片 6 -->
+                <div class="work-card" data-category="brand">
+                    <div class="work-image">
+                        <img src="https://images.unsplash.com/photo-1634942537034-2531766767d1?w=600&h=400&fit=crop" alt="项目6">
+                        <div class="work-overlay">
+                            <a href="#" class="work-link"><i class="fas fa-external-link-alt"></i></a>
+                        </div>
+                    </div>
+                    <div class="work-info">
+                        <h3>咖啡品牌包装设计</h3>
+                        <p>从包装到门店空间的完整视觉体验设计</p>
+                        <div class="work-tags">
+                            <span>包装设计</span>
+                            <span>空间设计</span>
+                            <span>C4D</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于我 -->
+    <section id="about" class="about">
+        <div class="container">
+            <h2 class="section-title">关于我</h2>
+            <div class="about-content">
+                <div class="about-image">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face" alt="个人照片">
+                </div>
+                <div class="about-text">
+                    <h3>全栈设计师 & 开发者</h3>
+                    <p>拥有 5 年设计与开发经验，专注于创造既美观又实用的数字产品。我相信好的设计不仅仅是视觉上的愉悦，更是解决问题的有效方式。</p>
+                    <p>工作之余，我喜欢摄影、阅读和探索新技术。我相信持续学习是保持创造力的关键。</p>
+
+                    <div class="skills">
+                        <h4>技能专长</h4>
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span>UI/UX 设计</span>
+                                <span>95%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" data-width="95"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span>前端开发</span>
+                                <span>90%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" data-width="90"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span>React/Vue</span>
+                                <span>85%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" data-width="85"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info">
+                                <span>品牌设计</span>
+                                <span>80%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" data-width="80"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 时间线 -->
+            <div class="timeline">
+                <h3 class="timeline-title">工作经历</h3>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">2022 - 至今</span>
+                        <h4>高级 UI 设计师</h4>
+                        <p>某知名互联网公司 · 负责核心产品线的视觉设计与用户体验优化</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">2020 - 2022</span>
+                        <h4>全栈开发工程师</h4>
+                        <p>某创业公司 · 独立负责多个项目的前后端开发与部署</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-date">2018 - 2020</span>
+                        <h4>初级设计师</h4>
+                        <p>某设计工作室 · 参与品牌设计与网页设计项目</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系方式 -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title">联系我</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>让我们开始合作</h3>
+                    <p>无论是项目合作、工作机会还是技术交流，都欢迎与我联系。</p>
+                    <div class="contact-items">
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>your.email@example.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>+86 138 0000 0000</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>中国 · 北京</span>
+                        </div>
+                    </div>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-dribbble"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <input type="text" id="name" required placeholder=" ">
+                        <label for="name">你的姓名</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="email" required placeholder=" ">
+                        <label for="email">电子邮箱</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="subject" required placeholder=" ">
+                        <label for="subject">主题</label>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="message" rows="5" required placeholder=" "></textarea>
+                        <label for="message">留言内容</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <span>发送消息</span>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <p> 2026 你的名字. All rights reserved.</p>
+            <p>Designed & Built with <i class="fas fa-heart"></i></p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
