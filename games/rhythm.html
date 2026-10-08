@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🎵 节奏音游</title>
+<meta name="description" content="在线免费玩 4 键下落式节奏音游！Perfect/Great/Good 三档判定，连击加分。挑战你的手速与节奏感。">
+<meta name="keywords" content="节奏音游,音乐游戏,下落式音游,手速挑战,免费小游戏">
+<meta name="theme-color" content="#667eea">
+<link rel="canonical" href="https://dq7866.online/games/rhythm.html">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="欢乐游戏盒">
+<meta property="og:title" content="节奏音游 - 欢乐游戏盒">
+<meta property="og:description" content="在线免费玩 4 键下落式节奏音游！Perfect/Great/Good 三档判定，连击加分。挑战你的手速与节奏感。">
+<meta property="og:url" content="https://dq7866.online/games/rhythm.html">
+<meta property="og:image" content="https://dq7866.online/games/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="节奏音游 - 欢乐游戏盒">
+<meta name="twitter:description" content="在线免费玩 4 键下落式节奏音游！Perfect/Great/Good 三档判定，连击加分。挑战你的手速与节奏感。">
+<meta name="twitter:image" content="https://dq7866.online/games/og-image.png">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #1a0033 0%, #0a0014 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px;
+    user-select: none;
+    overflow: hidden;
+  }
+  .app { width: 100%; max-width: 420px; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 6px; }
+  .back-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 12px; border-radius: 20px; text-decoration: none; font-size: 0.82rem; }
+  .game-title { color: #fff; font-size: 1.2rem; font-weight: 800; text-shadow: 0 0 10px #f093fb, 0 0 20px #f093fb; }
+  .icon-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 10px; border-radius: 20px; cursor: pointer; font-size: 1rem; }
+  .info-row { display: flex; gap: 10px; margin-bottom: 8px; }
+  .info-box { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 6px; text-align: center; color: #fff; }
+  .info-label { font-size: 0.6rem; opacity: 0.5; }
+  .info-val { font-size: 1.2rem; font-weight: 800; }
+  canvas { display: block; margin: 0 auto; background: linear-gradient(180deg, #0a0014, #1a0033); border-radius: 16px; box-shadow: 0 0 40px rgba(240,147,251,0.15); touch-action: none; }
+  .tip { text-align: center; color: rgba(255,255,255,0.4); font-size: 0.72rem; margin-top: 8px; }
+  .hit-text { position: fixed; pointer-events: none; font-size: 1.5rem; font-weight: 900; z-index: 100; opacity: 0; }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+  .modal.show { display: flex; }
+  .modal-box { background: linear-gradient(135deg, #1a0033, #6a0572); border: 1px solid rgba(255,255,255,0.2); border-radius: 24px; padding: 30px 24px; text-align: center; color: #fff; max-width: 340px; width: 100%; position: relative; overflow: hidden; }
+  .modal-box h2 { font-size: 1.6rem; margin-bottom: 10px; }
+  .modal-icon { font-size: 4rem; margin-bottom: 12px; }
+  .modal-btn { width: 100%; padding: 14px; margin-top: 14px; border: none; border-radius: 14px; background: linear-gradient(135deg,#f093fb,#f5576c); color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; }
+  .modal-btn.secondary { background: rgba(255,255,255,0.15); color: #fff; margin-top: 8px; }
+  .fw-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .praise { font-size: 1.1rem; color: #f093fb; font-weight: 800; margin: 8px 0; }
+  .final-score { font-size: 2rem; font-weight: 900; color: #feca57; margin: 10px 0; }
+  .rank-row { display: flex; gap: 8px; justify-content: center; margin: 8px 0; font-size: 0.85rem; }
+  .rank-row span { padding: 2px 10px; border-radius: 10px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top-bar">
+    <a href="index.html" class="back-btn">← 返回</a>
+    <div class="game-title">🎵 RHYTHM</div>
+    <button class="icon-btn" id="soundBtn">🔊</button>
+  </div>
+  <div class="info-row">
+    <div class="info-box"><div class="info-label">分数</div><div class="info-val" id="score">0</div></div>
+    <div class="info-box"><div class="info-label">连击</div><div class="info-val" id="combo">0</div></div>
+    <div class="info-box"><div class="info-label">准确</div><div class="info-val" id="accuracy">100%</div></div>
+  </div>
+  <canvas id="c" width="380" height="500"></canvas>
+  <p class="tip">👆 点击4个轨道按键 · D F J K · 命中音符得分</p>
+</div>
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="fw-layer" id="fw"></div>
+    <div class="modal-icon" id="mIcon">🎵</div>
+    <h2 id="mTitle">演出结束！</h2>
+    <div class="praise" id="mPraise"></div>
+    <div class="final-score" id="mScore">0</div>
+    <div class="rank-row" id="rankRow"></div>
+    <button class="modal-btn" id="mBtn">再来一局</button>
+    <button class="modal-btn secondary" id="mHome">返回首页</button>
+  </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+(() => {
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const LANES = 4;
+  const LANE_W = W / LANES;
+  const HIT_Y = H - 80;
+  const COLORS = ['#ff6b6b','#feca57','#48dbfb','#5fdea0'];
+  const KEYS = ['d','f','j','k'];
+
+  let notes, score, combo, maxCombo, total, perfect, great, good, miss;
+  let started, gameOver, frame, speed, songLen, songTime, song;
+  let particles = [];
+  let laneFlash = [0,0,0,0];
+  let hitFlash = [0,0,0,0];
+  let best = parseInt(localStorage.getItem('rhythmBest')||'0');
+
+  // 生成歌曲（音符序列）
+  function genSong() {
+    const s = [];
+    const len = 120; // 2分钟
+    for (let i = 0; i < len; i++) {
+      const t = i * 40 + Math.random() * 20;
+      const lane = Math.floor(Math.random() * LANES);
+      s.push({ time: t, lane });
+      // 双音符
+      if (Math.random() < 0.15 && i > 10) {
+        let l2;
+        do { l2 = Math.floor(Math.random() * LANES); } while (l2 === lane);
+        s.push({ time: t, lane: l2 });
+      }
+    }
+    return s;
+  }
+
+  function init() {
+    score = 0; combo = 0; maxCombo = 0; total = 0;
+    perfect = 0; great = 0; good = 0; miss = 0;
+    started = false; gameOver = false; frame = 0;
+    speed = 3.5;
+    song = genSong();
+    songTime = 0;
+    notes = song.map(n => ({ ...n, y: -20, hit: false, missed: false }));
+    particles = [];
+    laneFlash = [0,0,0,0];
+    hitFlash = [0,0,0,0];
+    updateInfo();
+  }
+
+  function updateInfo() {
+    document.getElementById('score').textContent = score;
+    document.getElementById('combo').textContent = combo;
+    const acc = total > 0 ? Math.round((perfect + great * 0.7 + good * 0.3) / total * 100) : 100;
+    document.getElementById('accuracy').textContent = acc + '%';
+  }
+
+  function start() {
+    if (started) return;
+    started = true;
+    Sound.click();
+  }
+
+  function hit(lane) {
+    if (!started || gameOver) return;
+    laneFlash[lane] = 10;
+    // 找最近的可命中音符
+    let best = null, bestDist = 50;
+    for (const n of notes) {
+      if (n.hit || n.missed || n.lane !== lane) continue;
+      const dist = Math.abs(n.y - HIT_Y);
+      if (dist < bestDist) { bestDist = dist; best = n; }
+    }
+    if (best) {
+      best.hit = true;
+      total++;
+      if (bestDist < 15) { // Perfect
+        score += 100; combo++; perfect++;
+        showHit('PERFECT', '#feca57', lane);
+        Sound.combo(Math.min(combo, 5));
+      } else if (bestDist < 30) { // Great
+        score += 60; combo++; great++;
+        showHit('GREAT', '#5fdea0', lane);
+        Sound.match(1);
+      } else { // Good
+        score += 30; combo++; good++;
+        showHit('GOOD', '#48dbfb', lane);
+        Sound.select();
+      }
+      if (combo > maxCombo) maxCombo = combo;
+      hitFlash[lane] = 8;
+      // 粒子
+      for (let i = 0; i < 8; i++) {
+        particles.push({
+          x: lane * LANE_W + LANE_W/2, y: HIT_Y,
+          vx: (Math.random()-0.5)*6, vy: -Math.random()*5-2,
+          life: 25, color: COLORS[lane], size: 2+Math.random()*3
+        });
+      }
+    } else {
+      // 空击
+      if (combo > 0) { combo = 0; showHit('MISS', '#ff6b6b', lane); }
+    }
+    updateInfo();
+  }
+
+  function showHit(text, color, lane) {
+    const x = lane * LANE_W + LANE_W/2;
+    const el = document.createElement('div');
+    el.className = 'hit-text';
+    el.textContent = text;
+    el.style.color = color;
+    el.style.textShadow = `0 0 10px ${color}`;
+    const rect = canvas.getBoundingClientRect();
+    el.style.left = (rect.left + x * rect.width / W - 30) + 'px';
+    el.style.top = (rect.top + (HIT_Y - 30) * rect.height / H) + 'px';
+    document.body.appendChild(el);
+    el.animate([
+      { opacity: 0, transform: 'translateY(10px) scale(0.8)' },
+      { opacity: 1, transform: 'translateY(0) scale(1.1)' },
+      { opacity: 0, transform: 'translateY(-20px) scale(1)' }
+    ], { duration: 600, easing: 'ease-out' });
+    setTimeout(() => el.remove(), 600);
+  }
+
+  function loop() {
+    frame++;
+    if (started && !gameOver) {
+      songTime += 1;
+      // 移动音符
+      notes.forEach(n => {
+        if (!n.hit && !n.missed) {
+          n.y += speed;
+          if (n.y > HIT_Y + 40 && !n.missed) {
+            n.missed = true;
+            if (combo > 0) combo = 0;
+            miss++; total++;
+            showHit('MISS', '#ff6b6b', n.lane);
+            updateInfo();
+          }
+        }
+      });
+      // 检查游戏结束
+      const allDone = notes.every(n => n.hit || n.missed);
+      if (allDone && notes.length > 0) endGame();
+    }
+
+    // 清屏
+    ctx.fillStyle = 'rgba(10,0,20,0.3)';
+    ctx.fillRect(0,0,W,H);
+
+    // 画轨道
+    for (let i = 0; i < LANES; i++) {
+      const x = i * LANE_W;
+      // 轨道
+      ctx.fillStyle = `rgba(255,255,255,${0.02 + laneFlash[i]*0.01})`;
+      ctx.fillRect(x, 0, LANE_W, H);
+      // 分隔线
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      ctx.beginPath();
+      ctx.moveTo(x, 0); ctx.lineTo(x, H);
+      ctx.stroke();
+      laneFlash[i] = Math.max(0, laneFlash[i]-1);
+    }
+
+    // 画命中线
+    ctx.strokeStyle = `rgba(240,147,251,${0.5 + Math.sin(frame*0.05)*0.2})`;
+    ctx.lineWidth = 2;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#f093fb';
+    ctx.beginPath();
+    ctx.moveTo(0, HIT_Y); ctx.lineTo(W, HIT_Y);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 1;
+
+    // 画按键区域
+    for (let i = 0; i < LANES; i++) {
+      const x = i * LANE_W;
+      ctx.fillStyle = hitFlash[i] > 0 ? COLORS[i] : 'rgba(255,255,255,0.05)';
+      ctx.fillRect(x + 4, HIT_Y + 10, LANE_W - 8, 50);
+      ctx.fillStyle = hitFlash[i] > 0 ? '#fff' : 'rgba(255,255,255,0.3)';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(KEYS[i].toUpperCase(), x + LANE_W/2, HIT_Y + 40);
+      hitFlash[i] = Math.max(0, hitFlash[i]-1);
+    }
+
+    // 画音符
+    notes.forEach(n => {
+      if (n.hit || n.missed) return;
+      if (n.y < -20 || n.y > H) return;
+      const x = n.lane * LANE_W + LANE_W/2;
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = COLORS[n.lane];
+      const g = ctx.createRadialGradient(x, n.y, 1, x, n.y, LANE_W/2 - 8);
+      g.addColorStop(0, '#fff');
+      g.addColorStop(0.3, COLORS[n.lane]);
+      g.addColorStop(1, shade(COLORS[n.lane], -40));
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.roundRect ? ctx.roundRect(x - LANE_W/2 + 8, n.y - 12, LANE_W - 16, 24, 8) : ctx.rect(x - LANE_W/2 + 8, n.y - 12, LANE_W - 16, 24);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+
+    // 粒子
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.life--;
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.life / 25;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    });
+
+    if (!started) {
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.font = 'bold 22px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🎵 点击开始', W/2, H/2);
+      ctx.font = '14px sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.fillText('D F J K 键或点击轨道', W/2, H/2 + 30);
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  function shade(color, percent) {
+    const num = parseInt(color.slice(1),16);
+    let r = (num>>16)+percent, g = ((num>>8)&0xff)+percent, b = (num&0xff)+percent;
+    r = Math.max(0,Math.min(255,r)); g = Math.max(0,Math.min(255,g)); b = Math.max(0,Math.min(255,b));
+    return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+  }
+
+  function endGame() {
+    gameOver = true;
+    const acc = total > 0 ? Math.round((perfect + great * 0.7 + good * 0.3) / total * 100) : 0;
+    if (score > best) { best = score; localStorage.setItem('rhythmBest', best); }
+    User.addScore(score, true, 0);
+    Sound.win();
+    setTimeout(() => {
+      const m = document.getElementById('modal');
+      document.getElementById('mIcon').textContent = acc >= 95 ? '🏆' : acc >= 80 ? '🎵' : '🎶';
+      document.getElementById('mTitle').textContent = acc >= 95 ? '完美演出！' : acc >= 80 ? '精彩表演！' : '演出结束';
+      document.getElementById('mPraise').textContent = getPraise();
+      document.getElementById('mScore').textContent = score + ' 分';
+      document.getElementById('rankRow').innerHTML = `
+        <span style="background:#feca57;color:#000;">Perfect ${perfect}</span>
+        <span style="background:#5fdea0;color:#000;">Great ${great}</span>
+        <span style="background:#48dbfb;color:#000;">Good ${good}</span>
+        <span style="background:#ff6b6b;color:#fff;">Miss ${miss}</span>
+      `;
+      document.getElementById('mBtn').onclick = () => { m.classList.remove('show'); init(); };
+      if (acc >= 80) { launchFireworks(document.getElementById('fw')); setTimeout(()=>launchFireworks(document.getElementById('fw')),400); }
+      m.classList.add('show');
+    }, 500);
+  }
+
+  // 输入
+  document.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase();
+    const idx = KEYS.indexOf(k);
+    if (idx >= 0) {
+      e.preventDefault();
+      if (!started) start();
+      hit(idx);
+    }
+  });
+
+  canvas.addEventListener('click', e => {
+    if (!started) { start(); return; }
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (W/rect.width);
+    const lane = Math.floor(x / LANE_W);
+    if (lane >= 0 && lane < LANES) hit(lane);
+  });
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    if (!started) { start(); return; }
+    const rect = canvas.getBoundingClientRect();
+    for (const t of e.touches) {
+      const x = (t.clientX - rect.left) * (W/rect.width);
+      const lane = Math.floor(x / LANE_W);
+      if (lane >= 0 && lane < LANES) hit(lane);
+    }
+  }, {passive:false});
+
+  document.getElementById('mHome').onclick = () => location.href = 'index.html';
+  const soundBtn = document.getElementById('soundBtn');
+  function updBtn(){ soundBtn.textContent = Sound.isEnabled()?'🔊':'🔇'; }
+  updBtn();
+  soundBtn.onclick = () => {
+    const on = !Sound.isEnabled();
+    Sound.setEnabled(on); updBtn();
+    if (on) Sound.startBGM(); else Sound.stopBGM();
+  };
+
+  init();
+  loop();
+})();
+</script>
+</body>
+</html>

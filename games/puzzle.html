@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🧩 数字拼图</title>
+<meta name="description" content="在线免费玩数字华容道拼图！滑动方块还原数字顺序，支持 3x3/4x4/5x5 三种规格，还有自动求解。">
+<meta name="keywords" content="数字拼图,华容道,拼图游戏,益智游戏,免费小游戏">
+<meta name="theme-color" content="#667eea">
+<link rel="canonical" href="https://dq7866.online/games/puzzle.html">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="欢乐游戏盒">
+<meta property="og:title" content="数字拼图 - 欢乐游戏盒">
+<meta property="og:description" content="在线免费玩数字华容道拼图！滑动方块还原数字顺序，支持 3x3/4x4/5x5 三种规格，还有自动求解。">
+<meta property="og:url" content="https://dq7866.online/games/puzzle.html">
+<meta property="og:image" content="https://dq7866.online/games/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="数字拼图 - 欢乐游戏盒">
+<meta name="twitter:description" content="在线免费玩数字华容道拼图！滑动方块还原数字顺序，支持 3x3/4x4/5x5 三种规格，还有自动求解。">
+<meta name="twitter:image" content="https://dq7866.online/games/og-image.png">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f953c6, #b91d73);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px;
+    user-select: none;
+  }
+  .app { width: 100%; max-width: 480px; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 6px; }
+  .back-btn { background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5); color: #fff; padding: 7px 12px; border-radius: 20px; text-decoration: none; font-size: 0.82rem; }
+  .game-title { color: #fff; font-size: 1.3rem; font-weight: 800; }
+  .icon-btn { background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5); color: #fff; padding: 7px 10px; border-radius: 20px; cursor: pointer; font-size: 1rem; }
+  .info-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .info-box { flex: 1; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); border-radius: 12px; padding: 8px; text-align: center; color: #fff; }
+  .info-label { font-size: 0.65rem; opacity: 0.8; }
+  .info-val { font-size: 1.3rem; font-weight: 800; }
+  .diff-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .diff-btn { flex: 1; padding: 8px; border: 1px solid rgba(255,255,255,0.4); border-radius: 12px; background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; font-size: 0.8rem; cursor: pointer; }
+  .diff-btn.active { background: #fff; color: #b91d73; }
+  .board {
+    display: grid;
+    gap: 6px;
+    background: rgba(255,255,255,0.15);
+    padding: 10px;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    margin: 0 auto;
+    aspect-ratio: 1;
+  }
+  .tile {
+    background: linear-gradient(135deg, #fff, #ffe0f0);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1.2rem, 8vw, 2rem);
+    font-weight: 800;
+    color: #b91d73;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    transition: transform 0.15s;
+  }
+  .tile:active { transform: scale(0.95); }
+  .tile.empty { background: transparent; box-shadow: none; cursor: default; }
+  .tile.correct { color: #1dd1a1; }
+  .controls { display: flex; gap: 10px; margin-top: 14px; }
+  .ctrl-btn { flex: 1; padding: 12px; border: 1px solid rgba(255,255,255,0.4); border-radius: 14px; background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; cursor: pointer; }
+  .ctrl-btn:hover { background: rgba(255,255,255,0.35); }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+  .modal.show { display: flex; }
+  .modal-box { background: linear-gradient(135deg, #f953c6, #b91d73); border: 1px solid rgba(255,255,255,0.4); border-radius: 24px; padding: 30px 24px; text-align: center; color: #fff; max-width: 340px; width: 100%; position: relative; overflow: hidden; }
+  .modal-box h2 { font-size: 1.8rem; margin-bottom: 10px; }
+  .modal-icon { font-size: 4rem; margin-bottom: 12px; }
+  .modal-btn { width: 100%; padding: 14px; margin-top: 14px; border: none; border-radius: 14px; background: #fff; color: #b91d73; font-weight: 800; font-size: 1rem; cursor: pointer; }
+  .modal-btn.secondary { background: rgba(255,255,255,0.25); color: #fff; margin-top: 8px; }
+  .fw-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .praise { font-size: 1.2rem; color: #fff; font-weight: 800; margin: 8px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top-bar">
+    <a href="index.html" class="back-btn">← 返回</a>
+    <div class="game-title">🧩 数字拼图</div>
+    <button class="icon-btn" id="soundBtn">🔊</button>
+  </div>
+  <div class="info-row">
+    <div class="info-box"><div class="info-label">步数</div><div class="info-val" id="moves">0</div></div>
+    <div class="info-box"><div class="info-label">用时</div><div class="info-val" id="time">00:00</div></div>
+    <div class="info-box"><div class="info-label">最佳</div><div class="info-val" id="best">--</div></div>
+  </div>
+  <div class="diff-row">
+    <button class="diff-btn active" data-n="3">3×3</button>
+    <button class="diff-btn" data-n="4">4×4</button>
+    <button class="diff-btn" data-n="5">5×5</button>
+  </div>
+  <div class="board" id="board"></div>
+  <div class="controls">
+    <button class="ctrl-btn" id="shuffleBtn">🔀 打乱</button>
+    <button class="ctrl-btn" id="solverBtn">💡 自动</button>
+  </div>
+</div>
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="fw-layer" id="fw"></div>
+    <div class="modal-icon" id="mIcon">🎉</div>
+    <h2 id="mTitle">完成！</h2>
+    <div class="praise" id="mPraise"></div>
+    <p id="mMsg"></p>
+    <button class="modal-btn" id="mBtn">再来一局</button>
+    <button class="modal-btn secondary" id="mHome">返回首页</button>
+  </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+(() => {
+  let N = 3, board = [], moves = 0, solved = false;
+  let startTime = 0, timerInt = null, started = false;
+  let bests = JSON.parse(localStorage.getItem('puzzleBest') || '{}');
+  const boardEl = document.getElementById('board');
+
+  function init() {
+    board = [];
+    for (let i = 1; i < N*N; i++) board.push(i);
+    board.push(0);
+    moves = 0; solved = false; started = false;
+    stopTimer();
+    document.getElementById('moves').textContent = '0';
+    document.getElementById('time').textContent = '00:00';
+    document.getElementById('best').textContent = bests[N] ? bests[N] + '步' : '--';
+    shuffle();
+    render();
+  }
+
+  function shuffle() {
+    // 通过随机移动保证可解
+    for (let i = 0; i < N*N*20; i++) {
+      const neighbors = getEmptyNeighbors();
+      const [r, c] = neighbors[Math.floor(Math.random()*neighbors.length)];
+      swapWithEmpty(r, c);
+    }
+    moves = 0;
+  }
+
+  function getEmptyPos() {
+    const idx = board.indexOf(0);
+    return [Math.floor(idx/N), idx % N];
+  }
+
+  function getEmptyNeighbors() {
+    const [er, ec] = getEmptyPos();
+    const res = [];
+    [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc]) => {
+      const r = er+dr, c = ec+dc;
+      if (r>=0 && r<N && c>=0 && c<N) res.push([r,c]);
+    });
+    return res;
+  }
+
+  function swapWithEmpty(r, c) {
+    const [er, ec] = getEmptyPos();
+    const idx1 = er*N+ec, idx2 = r*N+c;
+    [board[idx1], board[idx2]] = [board[idx2], board[idx1]];
+  }
+
+  function render() {
+    boardEl.style.gridTemplateColumns = `repeat(${N}, 1fr)`;
+    boardEl.innerHTML = '';
+    board.forEach((v, i) => {
+      const tile = document.createElement('div');
+      tile.className = 'tile' + (v === 0 ? ' empty' : '');
+      const correct = v === i+1;
+      if (correct && v !== 0) tile.classList.add('correct');
+      tile.textContent = v || '';
+      if (v !== 0) tile.onclick = () => move(i);
+      boardEl.appendChild(tile);
+    });
+  }
+
+  function move(idx) {
+    if (solved) return;
+    const r = Math.floor(idx/N), c = idx % N;
+    const [er, ec] = getEmptyPos();
+    if (Math.abs(r-er) + Math.abs(c-ec) !== 1) { Sound.invalid(); return; }
+    if (!started) { started = true; startTimer(); }
+    swapWithEmpty(r, c);
+    moves++;
+    Sound.click();
+    document.getElementById('moves').textContent = moves;
+    render();
+    if (isSolved()) win();
+  }
+
+  function isSolved() {
+    for (let i = 0; i < N*N-1; i++) if (board[i] !== i+1) return false;
+    return true;
+  }
+
+  function win() {
+    solved = true;
+    stopTimer();
+    const t = getTime();
+    if (!bests[N] || moves < bests[N]) {
+      bests[N] = moves;
+      localStorage.setItem('puzzleBest', JSON.stringify(bests));
+    }
+    User.addScore(Math.max(0, 10000 - moves*50 - t*10), true, t);
+    Sound.win();
+    const m = document.getElementById('modal');
+    document.getElementById('mIcon').textContent = '🧩';
+    document.getElementById('mTitle').textContent = '拼图大师！';
+    document.getElementById('mPraise').textContent = getPraise();
+    document.getElementById('mMsg').textContent = `${moves} 步 · ${formatTime(t)}`;
+    document.getElementById('mBtn').onclick = () => { m.classList.remove('show'); init(); };
+    launchFireworks(document.getElementById('fw'));
+    setTimeout(()=>launchFireworks(document.getElementById('fw')),400);
+    m.classList.add('show');
+  }
+
+  // 自动求解（简单贪心：把数字归位）
+  async function autoSolve() {
+    if (solved) return;
+    started = true; startTimer();
+    for (let target = 1; target < N*N; target++) {
+      const ti = target - 1;
+      // 找到 target 的位置
+      let ci = board.indexOf(target);
+      while (ci !== ti) {
+        const cr = Math.floor(ci/N), cc = ci % N;
+        const tr = Math.floor(ti/N), tc = ti % N;
+        const [er, ec] = getEmptyPos();
+        // 简单策略：移动空格到 target 旁边，然后移动 target
+        let nextMove = null;
+        // 尝试把空格移到 target 旁边
+        if (cr > tr && cr-1 >= 0) nextMove = [cr-1, cc];
+        else if (cr < tr && cr+1 < N) nextMove = [cr+1, cc];
+        else if (cc > tc && cc-1 >= 0) nextMove = [cr, cc-1];
+        else if (cc < tc && cc+1 < N) nextMove = [cr, cc+1];
+        if (nextMove) {
+          // 先把空格移到 nextMove
+          await moveEmptyTo(nextMove[0], nextMove[1]);
+          // 然后 target 移到空格
+          swapWithEmpty(cr, cc);
+          moves++;
+          document.getElementById('moves').textContent = moves;
+          render();
+          await sleep(80);
+          ci = board.indexOf(target);
+        } else break;
+      }
+    }
+    if (isSolved()) win();
+  }
+
+  async function moveEmptyTo(tr, tc) {
+    while (true) {
+      const [er, ec] = getEmptyPos();
+      if (er === tr && ec === tc) return;
+      let nr, nc;
+      if (er > tr) nr = er-1;
+      else if (er < tr) nr = er+1;
+      else nr = er;
+      if (ec > tc) nc = ec-1;
+      else if (ec < tc) nc = ec+1;
+      else nc = ec;
+      swapWithEmpty(nr, nc);
+      moves++;
+      document.getElementById('moves').textContent = moves;
+      render();
+      await sleep(60);
+    }
+  }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  function startTimer() { startTime = Date.now(); timerInt = setInterval(() => document.getElementById('time').textContent = formatTime(getTime()), 1000); }
+  function stopTimer() { if (timerInt) clearInterval(timerInt); }
+  function getTime() { return Math.floor((Date.now() - startTime) / 1000); }
+
+  document.querySelectorAll('.diff-btn').forEach(btn => btn.onclick = () => {
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    N = +btn.dataset.n;
+    init();
+  });
+  document.getElementById('shuffleBtn').onclick = () => { Sound.click(); init(); };
+  document.getElementById('solverBtn').onclick = () => { Sound.click(); autoSolve(); };
+  document.getElementById('mHome').onclick = () => location.href = 'index.html';
+
+  const soundBtn = document.getElementById('soundBtn');
+  function updBtn(){ soundBtn.textContent = Sound.isEnabled()?'🔊':'🔇'; }
+  updBtn();
+  soundBtn.onclick = () => {
+    const on = !Sound.isEnabled();
+    Sound.setEnabled(on); updBtn();
+    if (on) Sound.startBGM(); else Sound.stopBGM();
+  };
+
+  init();
+})();
+</script>
+</body>
+</html>

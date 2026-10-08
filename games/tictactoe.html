@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>⭕ 井字棋</title>
+<meta name="description" content="在线免费玩井字棋！挑战不可战胜的 minimax AI 或与好友双人对战。简单上手的经典策略小游戏。">
+<meta name="keywords" content="井字棋, TicTacToe,人机对战,双人游戏,棋类游戏">
+<meta name="theme-color" content="#667eea">
+<link rel="canonical" href="https://dq7866.online/games/tictactoe.html">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="欢乐游戏盒">
+<meta property="og:title" content="井字棋 - 欢乐游戏盒">
+<meta property="og:description" content="在线免费玩井字棋！挑战不可战胜的 minimax AI 或与好友双人对战。简单上手的经典策略小游戏。">
+<meta property="og:url" content="https://dq7866.online/games/tictactoe.html">
+<meta property="og:image" content="https://dq7866.online/games/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="井字棋 - 欢乐游戏盒">
+<meta name="twitter:description" content="在线免费玩井字棋！挑战不可战胜的 minimax AI 或与好友双人对战。简单上手的经典策略小游戏。">
+<meta name="twitter:image" content="https://dq7866.online/games/og-image.png">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #ee0979, #ff6a00);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px;
+    user-select: none;
+  }
+  .app { width: 100%; max-width: 480px; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 6px; }
+  .back-btn { background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5); color: #fff; padding: 7px 12px; border-radius: 20px; text-decoration: none; font-size: 0.82rem; }
+  .game-title { color: #fff; font-size: 1.3rem; font-weight: 800; }
+  .icon-btn { background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5); color: #fff; padding: 7px 10px; border-radius: 20px; cursor: pointer; font-size: 1rem; }
+  .info-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .info-box { flex: 1; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); border-radius: 12px; padding: 8px; text-align: center; color: #fff; }
+  .info-label { font-size: 0.65rem; opacity: 0.8; }
+  .info-val { font-size: 1.2rem; font-weight: 800; }
+  .mode-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .mode-btn { flex: 1; padding: 8px; border: 1px solid rgba(255,255,255,0.4); border-radius: 12px; background: rgba(255,255,255,0.15); color: #fff; font-weight: 600; font-size: 0.8rem; cursor: pointer; }
+  .mode-btn.active { background: #fff; color: #ee0979; }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    background: rgba(0,0,0,0.15);
+    padding: 12px;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    aspect-ratio: 1;
+  }
+  .cell {
+    background: linear-gradient(135deg, #fff, #ffe0e0);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(2.5rem, 18vw, 4rem);
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .cell:active { transform: scale(0.95); }
+  .cell.x { color: #ee0979; }
+  .cell.o { color: #48dbfb; }
+  .cell.win { background: linear-gradient(135deg, #ffe066, #ffd700); animation: pulse 0.5s ease 3; }
+  @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
+  .controls { display: flex; gap: 10px; margin-top: 14px; }
+  .ctrl-btn { flex: 1; padding: 12px; border: 1px solid rgba(255,255,255,0.4); border-radius: 14px; background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; cursor: pointer; }
+  .ctrl-btn:hover { background: rgba(255,255,255,0.35); }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+  .modal.show { display: flex; }
+  .modal-box { background: linear-gradient(135deg, #ee0979, #ff6a00); border: 1px solid rgba(255,255,255,0.4); border-radius: 24px; padding: 30px 24px; text-align: center; color: #fff; max-width: 340px; width: 100%; position: relative; overflow: hidden; }
+  .modal-box h2 { font-size: 1.8rem; margin-bottom: 10px; }
+  .modal-icon { font-size: 4rem; margin-bottom: 12px; }
+  .modal-btn { width: 100%; padding: 14px; margin-top: 14px; border: none; border-radius: 14px; background: #fff; color: #ee0979; font-weight: 800; font-size: 1rem; cursor: pointer; }
+  .modal-btn.secondary { background: rgba(255,255,255,0.2); color: #fff; margin-top: 8px; }
+  .fw-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .praise { font-size: 1.2rem; color: #fff; font-weight: 800; margin: 8px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top-bar">
+    <a href="index.html" class="back-btn">← 返回</a>
+    <div class="game-title">⭕ 井字棋</div>
+    <button class="icon-btn" id="soundBtn">🔊</button>
+  </div>
+  <div class="info-row">
+    <div class="info-box"><div class="info-label">你</div><div class="info-val" id="playerWin">0</div></div>
+    <div class="info-box"><div class="info-label">平</div><div class="info-val" id="drawCount">0</div></div>
+    <div class="info-box"><div class="info-label">AI</div><div class="info-val" id="aiWin">0</div></div>
+  </div>
+  <div class="mode-row">
+    <button class="mode-btn active" data-mode="ai">🤖 人机</button>
+    <button class="mode-btn" data-mode="pvp">👥 双人</button>
+    <button class="mode-btn" data-mode="easy">😊 简单AI</button>
+  </div>
+  <div class="board" id="board"></div>
+  <div class="controls">
+    <button class="ctrl-btn" id="restartBtn">🔄 重开</button>
+  </div>
+</div>
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="fw-layer" id="fw"></div>
+    <div class="modal-icon" id="mIcon">🎉</div>
+    <h2 id="mTitle">你赢了！</h2>
+    <div class="praise" id="mPraise"></div>
+    <button class="modal-btn" id="mBtn">再来一局</button>
+    <button class="modal-btn secondary" id="mHome">返回首页</button>
+  </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+(() => {
+  let board, current, gameOver, mode;
+  let stats = { player: 0, ai: 0, draw: 0 };
+  const boardEl = document.getElementById('board');
+  const LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+  function init() {
+    board = Array(9).fill(null);
+    current = 'X'; // 玩家是X
+    gameOver = false;
+    mode = document.querySelector('.mode-btn.active').dataset.mode;
+    render();
+  }
+
+  function render() {
+    boardEl.innerHTML = '';
+    board.forEach((v, i) => {
+      const cell = document.createElement('div');
+      cell.className = 'cell' + (v === 'X' ? ' x' : v === 'O' ? ' o' : '');
+      cell.textContent = v || '';
+      cell.onclick = () => play(i);
+      boardEl.appendChild(cell);
+    });
+  }
+
+  function play(i) {
+    if (gameOver || board[i]) return;
+    if (mode === 'ai' || mode === 'easy') {
+      if (current !== 'X') return;
+    }
+    board[i] = current;
+    Sound.select();
+    render();
+    if (checkWin(current)) return endGame(current);
+    if (board.every(v => v)) return endGame('draw');
+    current = current === 'X' ? 'O' : 'X';
+    if ((mode === 'ai' || mode === 'easy') && current === 'O') {
+      setTimeout(aiMove, 300);
+    }
+  }
+
+  function aiMove() {
+    if (gameOver) return;
+    let move;
+    if (mode === 'easy') {
+      // 简单AI：随机+偶尔挡
+      const winMove = findWin('O');
+      const blockMove = findWin('X');
+      if (winMove !== -1) move = winMove;
+      else if (blockMove !== -1 && Math.random() < 0.6) move = blockMove;
+      else {
+        const empty = board.map((v,i)=>v?null:i).filter(v=>v!==null);
+        move = empty[Math.floor(Math.random()*empty.length)];
+      }
+    } else {
+      // 困难AI：minimax
+      move = minimax(board, 'O').index;
+    }
+    board[move] = 'O';
+    Sound.select();
+    render();
+    if (checkWin('O')) return endGame('O');
+    if (board.every(v => v)) return endGame('draw');
+    current = 'X';
+  }
+
+  function findWin(p) {
+    for (const line of LINES) {
+      const vals = line.map(i => board[i]);
+      const cnt = vals.filter(v => v === p).length;
+      const empty = vals.filter(v => v === null).length;
+      if (cnt === 2 && empty === 1) {
+        return line[vals.indexOf(null)];
+      }
+    }
+    return -1;
+  }
+
+  function checkWin(p) {
+    for (const line of LINES) {
+      if (line.every(i => board[i] === p)) {
+        line.forEach(i => boardEl.children[i].classList.add('win'));
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function minimax(b, player) {
+    const empty = b.map((v,i)=>v?null:i).filter(v=>v!==null);
+    if (checkWinBoard(b, 'O')) return { score: 10 };
+    if (checkWinBoard(b, 'X')) return { score: -10 };
+    if (empty.length === 0) return { score: 0 };
+    const moves = [];
+    for (const i of empty) {
+      const nb = [...b];
+      nb[i] = player;
+      const result = minimax(nb, player === 'O' ? 'X' : 'O');
+      moves.push({ index: i, score: result.score });
+    }
+    if (player === 'O') {
+      let best = -Infinity, bestMove;
+      for (const m of moves) if (m.score > best) { best = m.score; bestMove = m; }
+      return bestMove;
+    } else {
+      let best = Infinity, bestMove;
+      for (const m of moves) if (m.score < best) { best = m.score; bestMove = m; }
+      return bestMove;
+    }
+  }
+
+  function checkWinBoard(b, p) {
+    return LINES.some(line => line.every(i => b[i] === p));
+  }
+
+  function endGame(winner) {
+    gameOver = true;
+    const m = document.getElementById('modal');
+    if (winner === 'draw') {
+      stats.draw++;
+      Sound.invalid();
+      document.getElementById('mIcon').textContent = '🤝';
+      document.getElementById('mTitle').textContent = '平局！';
+      document.getElementById('mPraise').textContent = '势均力敌！';
+    } else if (winner === 'X') {
+      stats.player++;
+      User.addScore(100, true, 0);
+      Sound.win();
+      document.getElementById('mIcon').textContent = '🎉';
+      document.getElementById('mTitle').textContent = '你赢了！';
+      document.getElementById('mPraise').textContent = getPraise();
+    } else {
+      stats.ai++;
+      User.addScore(0, false, 0);
+      Sound.lose();
+      document.getElementById('mIcon').textContent = '🤖';
+      document.getElementById('mTitle').textContent = 'AI 获胜';
+      document.getElementById('mPraise').textContent = 'AI 不可战胜...再试试！';
+    }
+    updateStats();
+    document.getElementById('mBtn').onclick = () => { m.classList.remove('show'); init(); };
+    if (winner === 'X') { launchFireworks(document.getElementById('fw')); setTimeout(()=>launchFireworks(document.getElementById('fw')),400); }
+    m.classList.add('show');
+  }
+
+  function updateStats() {
+    document.getElementById('playerWin').textContent = stats.player;
+    document.getElementById('drawCount').textContent = stats.draw;
+    document.getElementById('aiWin').textContent = stats.ai;
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(btn => btn.onclick = () => {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    init();
+  });
+  document.getElementById('restartBtn').onclick = () => { Sound.click(); init(); };
+  document.getElementById('mHome').onclick = () => location.href = 'index.html';
+
+  const soundBtn = document.getElementById('soundBtn');
+  function updBtn(){ soundBtn.textContent = Sound.isEnabled()?'🔊':'🔇'; }
+  updBtn();
+  soundBtn.onclick = () => {
+    const on = !Sound.isEnabled();
+    Sound.setEnabled(on); updBtn();
+    if (on) Sound.startBGM(); else Sound.stopBGM();
+  };
+
+  init();
+})();
+</script>
+</body>
+</html>

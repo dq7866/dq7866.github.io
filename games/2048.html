@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🎯 2048 豪华版</title>
+<meta name="description" content="在线免费玩 2048 豪华版！滑动合并相同数字，挑战合成 2048。经典数字益智小游戏，支持手机触屏与电脑键盘，无需下载即点即玩。">
+<meta name="keywords" content="2048,2048游戏,在线2048,数字合并,益智游戏,免费小游戏">
+<meta name="theme-color" content="#667eea">
+<link rel="canonical" href="https://dq7866.online/games/2048.html">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="欢乐游戏盒">
+<meta property="og:title" content="2048 豪华版 - 欢乐游戏盒">
+<meta property="og:description" content="在线免费玩 2048 豪华版！滑动合并相同数字，挑战合成 2048。经典数字益智小游戏，支持手机触屏与电脑键盘，无需下载即点即玩。">
+<meta property="og:url" content="https://dq7866.online/games/2048.html">
+<meta property="og:image" content="https://dq7866.online/games/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="2048 豪华版 - 欢乐游戏盒">
+<meta name="twitter:description" content="在线免费玩 2048 豪华版！滑动合并相同数字，挑战合成 2048。经典数字益智小游戏，支持手机触屏与电脑键盘，无需下载即点即玩。">
+<meta name="twitter:image" content="https://dq7866.online/games/og-image.png">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    overflow-x: hidden;
+    user-select: none;
+  }
+  .app { position: relative; z-index: 1; width: 100%; max-width: 480px; }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    gap: 6px;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    backdrop-filter: blur(10px);
+  }
+  .game-title {
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 800;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  }
+  .icon-btn {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    padding: 8px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  .score-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .score-box {
+    flex: 1;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 14px;
+    padding: 10px;
+    text-align: center;
+    color: #fff;
+  }
+  .score-label { font-size: 0.7rem; opacity: 0.8; }
+  .score-val { font-size: 1.5rem; font-weight: 800; color: #ffd700; }
+
+  .board {
+    background: rgba(0,0,0,0.25);
+    border-radius: 16px;
+    padding: 10px;
+    position: relative;
+    touch-action: none;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    aspect-ratio: 1;
+  }
+  .cell {
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+  }
+  .tile-layer {
+    position: absolute;
+    inset: 10px;
+    pointer-events: none;
+  }
+  .tile {
+    position: absolute;
+    width: calc((100% - 30px) / 4);
+    height: calc((100% - 30px) / 4);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.6rem;
+    transition: transform 0.15s ease;
+  }
+  .tile.t2 { background: linear-gradient(135deg, #eee4da, #ede0c8); color: #776e65; }
+  .tile.t4 { background: linear-gradient(135deg, #ede0c8, #f2b179); color: #776e65; }
+  .tile.t8 { background: linear-gradient(135deg, #f2b179, #f59563); color: #fff; }
+  .tile.t16 { background: linear-gradient(135deg, #f59563, #f67c5f); color: #fff; }
+  .tile.t32 { background: linear-gradient(135deg, #f67c5f, #f65e3b); color: #fff; }
+  .tile.t64 { background: linear-gradient(135deg, #f65e3b, #edcf72); color: #fff; }
+  .tile.t128 { background: linear-gradient(135deg, #edcf72, #edcc61); color: #fff; font-size: 1.4rem; }
+  .tile.t256 { background: linear-gradient(135deg, #edcc61, #edc850); color: #fff; font-size: 1.4rem; }
+  .tile.t512 { background: linear-gradient(135deg, #edc850, #edc53f); color: #fff; font-size: 1.3rem; }
+  .tile.t1024 { background: linear-gradient(135deg, #edc53f, #edc22e); color: #fff; font-size: 1.1rem; box-shadow: 0 0 20px rgba(237,194,46,0.6); }
+  .tile.t2048 { background: linear-gradient(135deg, #ffd700, #ff6b6b); color: #fff; font-size: 1.1rem; box-shadow: 0 0 30px rgba(255,215,0,0.8); animation: glow2048 1.5s infinite; }
+  @keyframes glow2048 { 0%,100% { box-shadow: 0 0 20px rgba(255,215,0,0.6); } 50% { box-shadow: 0 0 40px rgba(255,215,0,1); } }
+  .tile.t-super { background: linear-gradient(135deg, #a855f7, #ec4899); color: #fff; font-size: 1rem; }
+
+  .tile.new { animation: pop 0.2s ease; }
+  .tile.merged { animation: merge 0.2s ease; }
+  @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+  @keyframes merge { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .ctrl-btn {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  .ctrl-btn:hover { background: rgba(255,255,255,0.25); }
+
+  .tip { text-align: center; color: rgba(255,255,255,0.7); font-size: 0.8rem; margin-top: 12px; }
+
+  .modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  .modal.show { display: flex; }
+  .modal-box {
+    background: linear-gradient(135deg, #2d1b4e, #1a1a2e);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 24px;
+    padding: 30px 24px;
+    text-align: center;
+    color: #fff;
+    max-width: 340px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+  }
+  .modal-box h2 { font-size: 1.8rem; margin-bottom: 10px; }
+  .modal-icon { font-size: 4rem; margin-bottom: 12px; }
+  .modal-btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 14px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ffd700, #ff69b4);
+    color: #1a1a2e;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .modal-btn.secondary { background: rgba(255,255,255,0.1); color: #fff; margin-top: 8px; }
+  .fw-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .praise { font-size: 1.2rem; color: #ffd700; font-weight: 800; margin: 8px 0; }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="top-bar">
+      <a href="index.html" class="back-btn">← 返回</a>
+      <div class="game-title">🎯 2048</div>
+      <button class="icon-btn" id="soundBtn">🔊</button>
+    </div>
+
+    <div class="score-row">
+      <div class="score-box"><div class="score-label">分数</div><div class="score-val" id="score">0</div></div>
+      <div class="score-box"><div class="score-label">最高</div><div class="score-val" id="best">0</div></div>
+    </div>
+
+    <div class="board" id="board">
+      <div class="grid" id="grid"></div>
+      <div class="tile-layer" id="tileLayer"></div>
+    </div>
+
+    <div class="controls">
+      <button class="ctrl-btn" id="newBtn">🔄 新游戏</button>
+      <button class="ctrl-btn" id="helpBtn">❓ 玩法</button>
+    </div>
+    <p class="tip">⌨️ 方向键 / WASD 操作 · 📱 手指滑动操作</p>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-box">
+      <div class="fw-layer" id="fw"></div>
+      <div class="modal-icon" id="mIcon">🎉</div>
+      <h2 id="mTitle">游戏结束</h2>
+      <div class="praise" id="mPraise"></div>
+      <p id="mMsg"></p>
+      <p style="font-size:1.4rem;font-weight:800;color:#ffd700;margin-top:10px;" id="mScore">0</p>
+      <p id="mBest" style="font-size:0.85rem;opacity:0.7;"></p>
+      <button class="modal-btn" id="mBtn">再来一局</button>
+      <button class="modal-btn secondary" id="mHome">返回首页</button>
+    </div>
+  </div>
+
+<script src="js/common.js"></script>
+<script>
+(() => {
+  const SIZE = 4;
+  let grid = [];
+  let score = 0;
+  let best = +localStorage.getItem('2048best') || 0;
+  let won = false;
+  let gameOver = false;
+  const boardEl = document.getElementById('board');
+  const gridEl = document.getElementById('grid');
+  const tileLayer = document.getElementById('tileLayer');
+  const scoreEl = document.getElementById('score');
+  const bestEl = document.getElementById('best');
+
+  function init() {
+    grid = Array.from({length:SIZE}, () => Array(SIZE).fill(0));
+    score = 0; won = false; gameOver = false;
+    addRandom(); addRandom();
+    render();
+    updateScore();
+  }
+
+  function addRandom() {
+    const empty = [];
+    for (let r = 0; r < SIZE; r++)
+      for (let c = 0; c < SIZE; c++)
+        if (grid[r][c] === 0) empty.push({r, c});
+    if (empty.length === 0) return;
+    const {r, c} = empty[Math.floor(Math.random() * empty.length)];
+    grid[r][c] = Math.random() < 0.9 ? 2 : 4;
+  }
+
+  function render() {
+    gridEl.innerHTML = '';
+    for (let i = 0; i < SIZE*SIZE; i++) gridEl.appendChild(Object.assign(document.createElement('div'), {className:'cell'}));
+    tileLayer.innerHTML = '';
+    const cs = getComputedStyle(boardEl);
+    const pad = 10, gap = 10;
+    const size = (boardEl.clientWidth - pad*2 - gap*(SIZE-1)) / SIZE;
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (grid[r][c] === 0) continue;
+        const v = grid[r][c];
+        const t = document.createElement('div');
+        t.className = 'tile t' + (v <= 2048 ? v : 'super');
+        t.textContent = v;
+        t.style.transform = `translate(${c*(size+gap)}px, ${r*(size+gap)}px)`;
+        t.dataset.r = r; t.dataset.c = c;
+        tileLayer.appendChild(t);
+      }
+    }
+  }
+
+  function move(dir) {
+    if (gameOver) return;
+    const before = JSON.stringify(grid);
+
+    if (dir === 'left') {
+      for (let r = 0; r < SIZE; r++) grid[r] = slide(grid[r]);
+    } else if (dir === 'right') {
+      for (let r = 0; r < SIZE; r++) grid[r] = slide(grid[r].reverse()).reverse();
+    } else if (dir === 'up') {
+      for (let c = 0; c < SIZE; c++) {
+        const col = getCol(c);
+        const res = slide(col);
+        setCol(c, res);
+      }
+    } else if (dir === 'down') {
+      for (let c = 0; c < SIZE; c++) {
+        const col = getCol(c).reverse();
+        const res = slide(col).reverse();
+        setCol(c, res);
+      }
+    }
+
+    const after = JSON.stringify(grid);
+    if (before !== after) {
+      Sound.swap();
+      addRandom();
+      render();
+      updateScore();
+      if (won) { setTimeout(showWin, 300); return; }
+      if (isGameOver()) { gameOver = true; setTimeout(showLose, 300); }
+    }
+  }
+
+  function slide(line) {
+    const filtered = line.filter(v => v !== 0);
+    const merged = [];
+    for (let i = 0; i < filtered.length; i++) {
+      if (i+1 < filtered.length && filtered[i] === filtered[i+1]) {
+        const v = filtered[i] * 2;
+        merged.push(v);
+        score += v;
+        if (v === 2048 && !won) won = true;
+        i++;
+      } else merged.push(filtered[i]);
+    }
+    while (merged.length < SIZE) merged.push(0);
+    return merged;
+  }
+
+  function getRow(r) { return [...grid[r]]; }
+  function setRow(r, row) { grid[r] = row; }
+  function getCol(c) { return grid.map(r => r[c]); }
+  function setCol(c, col) { for (let r=0;r<SIZE;r++) grid[r][c] = col[r]; }
+
+  function isGameOver() {
+    for (let r=0;r<SIZE;r++) for (let c=0;c<SIZE;c++) {
+      if (grid[r][c]===0) return false;
+      if (c<SIZE-1 && grid[r][c]===grid[r][c+1]) return false;
+      if (r<SIZE-1 && grid[r][c]===grid[r+1][c]) return false;
+    }
+    return true;
+  }
+
+  function updateScore() {
+    scoreEl.textContent = score;
+    if (score > best) { best = score; localStorage.setItem('2048best', best); }
+    bestEl.textContent = best;
+  }
+
+  function showWin() {
+    Sound.win();
+    User.addScore(score, true, 0);
+    const m = document.getElementById('modal');
+    document.getElementById('mIcon').textContent = '🏆';
+    document.getElementById('mTitle').textContent = '达成 2048！';
+    document.getElementById('mPraise').textContent = getPraise();
+    document.getElementById('mMsg').textContent = '太厉害了！继续挑战更高分数吧';
+    document.getElementById('mScore').textContent = score + ' 分';
+    document.getElementById('mBest').textContent = '最高分: ' + best;
+    document.getElementById('mBtn').textContent = '继续游戏';
+    document.getElementById('mBtn').onclick = () => { m.classList.remove('show'); };
+    launchFireworks(document.getElementById('fw'));
+    setTimeout(()=>launchFireworks(document.getElementById('fw')),500);
+    m.classList.add('show');
+  }
+
+  function showLose() {
+    Sound.lose();
+    User.addScore(score, false, 0);
+    const m = document.getElementById('modal');
+    document.getElementById('mIcon').textContent = '😢';
+    document.getElementById('mTitle').textContent = '游戏结束';
+    document.getElementById('mPraise').textContent = '再试一次，你能行！';
+    document.getElementById('mMsg').textContent = '没有可移动的方块了';
+    document.getElementById('mScore').textContent = score + ' 分';
+    document.getElementById('mBest').textContent = '最高分: ' + best;
+    document.getElementById('mBtn').textContent = '再来一局';
+    document.getElementById('mBtn').onclick = () => { m.classList.remove('show'); init(); };
+    m.classList.add('show');
+  }
+
+  // 键盘
+  document.addEventListener('keydown', e => {
+    const map = {ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down',a:'left',d:'right',w:'up',s:'down'};
+    const dir = map[e.key];
+    if (dir) { e.preventDefault(); move(dir); }
+  });
+
+  // 触摸
+  let sx=0, sy=0;
+  boardEl.addEventListener('touchstart', e => { sx=e.touches[0].clientX; sy=e.touches[0].clientY; });
+  boardEl.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - sx;
+    const dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
+    if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? 'right' : 'left');
+    else move(dy > 0 ? 'down' : 'up');
+  });
+
+  document.getElementById('newBtn').onclick = () => { Sound.click(); init(); };
+  document.getElementById('helpBtn').onclick = () => {
+    Sound.click();
+    alert('玩法：\n用方向键/WASD或滑动屏幕移动所有方块。\n相同数字的方块相撞会合并成它们的和。\n每次移动后会随机出现一个2或4。\n合并出2048即为胜利！');
+  };
+  document.getElementById('mHome').onclick = () => location.href = 'index.html';
+
+  const soundBtn = document.getElementById('soundBtn');
+  function updBtn(){ soundBtn.textContent = Sound.isEnabled()?'🔊':'🔇'; }
+  updBtn();
+  soundBtn.onclick = () => {
+    const on = !Sound.isEnabled();
+    Sound.setEnabled(on); updBtn();
+    if (on) Sound.startBGM(); else Sound.stopBGM();
+  };
+
+  init();
+  window.addEventListener('resize', render);
+})();
+</script>
+</body>
+</html>

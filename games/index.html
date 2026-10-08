@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="欢乐游戏盒 - 23款免费休闲小游戏合集，包含消消乐、2048、俄罗斯方块、贪吃蛇、合成大西瓜、跳一跳、飞刀、涂鸦跳跃、颜色切换等。无广告、无内购、离线可玩，打开即玩。">
+<meta name="keywords" content="小游戏,消消乐,2048,俄罗斯方块,贪吃蛇,合成大西瓜,跳一跳,飞刀,涂鸦跳跃,颜色切换,免费游戏,在线游戏">
+<title>🎮 欢乐游戏盒 · 23款免费休闲小游戏合集</title>
+<meta name="theme-color" content="#667eea">
+<link rel="canonical" href="https://dq7866.online/games/">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="欢乐游戏盒">
+<meta property="og:title" content="欢乐游戏盒 · 23款免费休闲小游戏合集">
+<meta property="og:description" content="欢乐游戏盒 - 23款免费休闲小游戏合集，包含消消乐、2048、俄罗斯方块、贪吃蛇、合成大西瓜、跳一跳、飞刀、涂鸦跳跃、颜色切换等。无广告、无内购、打开即玩。">
+<meta property="og:url" content="https://dq7866.online/games/">
+<meta property="og:image" content="https://dq7866.online/games/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="欢乐游戏盒 · 23款免费休闲小游戏合集">
+<meta name="twitter:description" content="23款免费休闲小游戏合集，无广告、无内购、打开即玩。">
+<meta name="twitter:image" content="https://dq7866.online/games/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "欢乐游戏盒",
+  "alternateName": "Happy Games Box",
+  "url": "https://dq7866.online/games/",
+  "description": "23款免费休闲小游戏合集：消消乐、2048、俄罗斯方块、贪吃蛇、合成大西瓜等，无广告、无内购、打开即玩。",
+  "inLanguage": "zh-CN"
+}
+</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 40px;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: float 20s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(40px, 40px); } }
+  .container { position: relative; z-index: 1; max-width: 1100px; width: 100%; }
+
+  .user-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .user-info {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 8px 14px;
+    color: #fff;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .user-info .lvl {
+    background: linear-gradient(135deg, #ffd700, #ff69b4);
+    color: #1a1a2e;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.75rem;
+  }
+  .btn {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .btn:hover { background: rgba(255,255,255,0.25); }
+  .btn.icon { padding: 8px 10px; font-size: 1.1rem; }
+
+  header { text-align: center; margin-bottom: 30px; }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    color: #fff;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    margin-bottom: 10px;
+    animation: glow 3s ease-in-out infinite alternate;
+  }
+  @keyframes glow {
+    from { text-shadow: 0 0 10px rgba(255,255,255,0.5), 0 4px 20px rgba(0,0,0,0.3); }
+    to { text-shadow: 0 0 25px rgba(255,255,255,0.9), 0 0 40px rgba(255,200,255,0.6), 0 4px 20px rgba(0,0,0,0.3); }
+  }
+  .subtitle { color: rgba(255,255,255,0.9); font-size: 1rem; font-weight: 300; letter-spacing: 2px; }
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: #fff;
+    margin-top: 10px;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+  }
+  .game-card {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 24px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+  .game-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 50px rgba(0,0,0,0.35); }
+  .game-preview {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .gem-preview { background: linear-gradient(135deg, #ff9a9e, #fad0c4, #a18cd1); }
+  .candy-preview { background: linear-gradient(135deg, #ffecd2, #fcb69f, #ff9a9e); }
+  .fruit-preview { background: linear-gradient(135deg, #a8edea, #fed6e3, #fbc2eb); }
+
+  .sys-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 30px; }
+  .sys-card {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 18px;
+    padding: 16px;
+    text-align: center;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+  .sys-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.25); }
+  .sys-card .icon { font-size: 2rem; margin-bottom: 6px; }
+  .sys-card .title { font-weight: 700; font-size: 0.95rem; }
+  .sys-card .sub { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
+  @media (max-width: 600px) { .sys-row { grid-template-columns: repeat(3, 1fr); gap: 8px; } .sys-card { padding: 10px 6px; } .sys-card .icon { font-size: 1.5rem; } .sys-card .title { font-size: 0.8rem; } .sys-card .sub { display: none; } }
+  .game-info { padding: 20px; color: #fff; }
+  .game-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; }
+  .game-desc { font-size: 0.85rem; opacity: 0.9; line-height: 1.6; margin-bottom: 12px; }
+  .game-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-size: 0.72rem;
+    background: rgba(255,255,255,0.25);
+    margin-right: 6px;
+    margin-bottom: 4px;
+  }
+  .play-btn {
+    display: block;
+    width: 100%;
+    padding: 11px;
+    border: none;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.9);
+    color: #333;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+  }
+  .play-btn:hover { background: #fff; transform: scale(1.02); }
+
+  .section-title { color: #fff; font-size: 1.3rem; font-weight: 700; margin-bottom: 14px; text-align: center; }
+  .leaderboard {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .lb-row {
+    display: grid;
+    grid-template-columns: 50px 1fr 80px 80px;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 0.9rem;
+    gap: 8px;
+  }
+  .lb-row.head { opacity: 0.7; font-size: 0.75rem; }
+  .lb-row:not(.head):nth-child(odd) { background: rgba(255,255,255,0.06); }
+  .lb-rank { font-weight: 800; text-align: center; }
+  .lb-rank.gold { color: #ffd700; }
+  .lb-rank.silver { color: #c0c0c0; }
+  .lb-rank.bronze { color: #cd7f32; }
+  .lb-name { font-weight: 600; }
+  .lb-lvl { text-align: center; }
+  .lb-score { text-align: right; color: #ffd700; font-weight: 700; }
+  .empty-lb { text-align: center; color: rgba(255,255,255,0.6); padding: 20px; font-size: 0.9rem; }
+
+  .footer { margin-top: 30px; text-align: center; color: rgba(255,255,255,0.7); font-size: 0.82rem; }
+
+  .modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  .modal.show { display: flex; }
+  .modal-box {
+    background: linear-gradient(135deg, #2d1b4e, #1a1a2e);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 24px;
+    padding: 28px 24px;
+    color: #fff;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal-box h2 { font-size: 1.5rem; margin-bottom: 16px; text-align: center; }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 0.85rem; margin-bottom: 6px; opacity: 0.8; }
+  .form-group input {
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+  }
+  .form-group input:focus { border-color: #ff69b4; }
+  .form-group input::placeholder { color: rgba(255,255,255,0.4); }
+  .modal-btn {
+    width: 100%;
+    padding: 13px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ffd700, #ff69b4);
+    color: #1a1a2e;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .modal-btn:hover { transform: scale(1.02); }
+  .modal-btn.secondary {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+  }
+  .switch-text { text-align: center; margin-top: 14px; font-size: 0.85rem; opacity: 0.8; }
+  .switch-text a { color: #ffd700; cursor: pointer; text-decoration: underline; }
+  .error-msg { color: #ff6b6b; font-size: 0.85rem; text-align: center; margin-top: 8px; min-height: 20px; }
+  .tab-row { display: flex; gap: 8px; margin-bottom: 18px; }
+  .tab {
+    flex: 1;
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .tab.active { background: linear-gradient(135deg, #ffd700, #ff69b4); color: #1a1a2e; }
+  .vol-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .vol-row label { width: 50px; font-size: 0.85rem; }
+  .vol-row input[type=range] { flex: 1; }
+  .vol-row span { width: 36px; text-align: right; font-size: 0.85rem; }
+
+  .filter-bar { position: relative; z-index: 1; max-width: 1100px; width: 100%; margin: 0 auto 22px; }
+  #searchBox {
+    width: 100%;
+    padding: 13px 18px;
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 16px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: background 0.2s;
+  }
+  #searchBox::placeholder { color: rgba(255,255,255,0.6); }
+  #searchBox:focus { background: rgba(255,255,255,0.22); }
+  .cat-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
+  .cat {
+    padding: 8px 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .cat:hover { background: rgba(255,255,255,0.24); }
+  .cat.active { background: rgba(255,255,255,0.92); color: #764ba2; border-color: transparent; }
+  .empty-tip {
+    display: none;
+    text-align: center;
+    color: rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.12);
+    border: 1px dashed rgba(255,255,255,0.35);
+    border-radius: 18px;
+    padding: 34px 20px;
+    font-size: 1rem;
+    margin-bottom: 30px;
+  }
+
+  @media (max-width: 640px) {
+    .games-grid { grid-template-columns: 1fr; }
+    .game-preview { height: 150px; font-size: 3.5rem; }
+    .lb-row { grid-template-columns: 40px 1fr 60px 70px; font-size: 0.82rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="user-bar" id="userBar"></div>
+
+    <header>
+      <h1>🎮 欢乐游戏盒</h1>
+      <p class="subtitle">FREE · NO ADS · NO PAYWALL</p>
+      <div class="badge">✨ 永久免费 · 无广告 · 大部分游戏支持离线游玩</div>
+    </header>
+
+    <div class="filter-bar">
+      <input type="search" id="searchBox" placeholder="🔍 搜索游戏名称…" autocomplete="off">
+      <div class="cat-row" id="catRow">
+        <button class="cat active" data-cat="all">全部</button>
+        <button class="cat" data-cat="match">💎 消除</button>
+        <button class="cat" data-cat="number">🔢 数字</button>
+        <button class="cat" data-cat="action">🎮 动作</button>
+        <button class="cat" data-cat="chess">♟️ 对弈</button>
+        <button class="cat" data-cat="trend">🔥 潮流</button>
+        <button class="cat" data-cat="puzzle">🧩 拼图</button>
+      </div>
+    </div>
+
+    <div class="sys-row">
+      <div class="sys-card" id="achBtn">
+        <div class="icon">🏅</div>
+        <div class="title">成就</div>
+        <div class="sub">解锁徽章得金币</div>
+      </div>
+      <div class="sys-card" id="taskBtn">
+        <div class="icon">📋</div>
+        <div class="title">每日任务</div>
+        <div class="sub">完成领奖励</div>
+      </div>
+      <div class="sys-card" id="shopBtn">
+        <div class="icon">🛒</div>
+        <div class="title">道具商店</div>
+        <div class="sub">购买游戏道具</div>
+      </div>
+    </div>
+
+    <div class="games-grid">
+      <a href="gem-match.html" class="game-card" data-cat="match" data-name="gem-match">
+        <div class="game-preview gem-preview">💎</div>
+        <div class="game-info">
+          <div class="game-title">💎 宝石消消乐</div>
+          <p class="game-desc">华丽宝石主题，流光溢彩的消除特效。挑战高分，解锁关卡，享受璀璨的消除盛宴！</p>
+          <span class="game-tag">华丽特效</span><span class="game-tag">关卡模式</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="candy-match.html" class="game-card" data-cat="match" data-name="candy-match">
+        <div class="game-preview candy-preview">🍬</div>
+        <div class="game-info">
+          <div class="game-title">🍬 糖果消消乐</div>
+          <p class="game-desc">甜蜜糖果世界，可爱缤纷的糖果造型。甜甜的消除体验，让你玩到停不下来！</p>
+          <span class="game-tag">可爱风格</span><span class="game-tag">连击系统</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="fruit-match.html" class="game-card" data-cat="match" data-name="fruit-match">
+        <div class="game-preview fruit-preview">🍎</div>
+        <div class="game-info">
+          <div class="game-title">🍎 水果消消乐</div>
+          <p class="game-desc">清新水果主题，五颜六色的水果图案。轻松愉快的三消体验，休闲时光的最佳选择！</p>
+          <span class="game-tag">清新风格</span><span class="game-tag">休闲益智</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="2048.html" class="game-card" data-cat="number" data-name="2048">
+        <div class="game-preview" style="background:linear-gradient(135deg,#667eea,#764ba2);">🎯</div>
+        <div class="game-info">
+          <div class="game-title">🎯 2048 豪华版</div>
+          <p class="game-desc">经典数字合并游戏！滑动合并相同数字，挑战合成 2048，越玩越上瘾！</p>
+          <span class="game-tag">数字合并</span><span class="game-tag">策略益智</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="tetris.html" class="game-card" data-cat="number" data-name="tetris">
+        <div class="game-preview" style="background:linear-gradient(135deg,#0f0c29,#302b63);">🧱</div>
+        <div class="game-info">
+          <div class="game-title">🧱 俄罗斯方块</div>
+          <p class="game-desc">永不过时的经典！旋转、移动、堆叠方块，消除整行得分，挑战极限！</p>
+          <span class="game-tag">经典消除</span><span class="game-tag">反应速度</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="minesweeper.html" class="game-card" data-cat="number" data-name="minesweeper">
+        <div class="game-preview" style="background:linear-gradient(135deg,#11998e,#38ef7d);">💣</div>
+        <div class="game-info">
+          <div class="game-title">💣 扫雷</div>
+          <p class="game-desc">经典益智游戏！根据数字推理地雷位置，用最少时间扫清所有雷区！</p>
+          <span class="game-tag">逻辑推理</span><span class="game-tag">三种难度</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="memory.html" class="game-card" data-cat="number" data-name="memory">
+        <div class="game-preview" style="background:linear-gradient(135deg,#fa709a,#fee140);">🧠</div>
+        <div class="game-info">
+          <div class="game-title">🧠 记忆翻牌</div>
+          <p class="game-desc">可爱动物配对游戏！翻开卡片找到相同的配对，锻炼你的记忆力！</p>
+          <span class="game-tag">记忆训练</span><span class="game-tag">可爱风格</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="snake.html" class="game-card" data-cat="action" data-name="snake">
+        <div class="game-preview" style="background:linear-gradient(135deg,#134e5e,#71b280);">🐍</div>
+        <div class="game-info">
+          <div class="game-title">🐍 贪吃蛇</div>
+          <p class="game-desc">经典中的经典！控制小蛇吃食物，越吃越长，别撞墙也别咬到自己！</p>
+          <span class="game-tag">经典休闲</span><span class="game-tag">反应速度</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="breakout.html" class="game-card" data-cat="action" data-name="breakout">
+        <div class="game-preview" style="background:linear-gradient(135deg,#4b6cb7,#182848);">🧱</div>
+        <div class="game-info">
+          <div class="game-title">🧱 打砖块</div>
+          <p class="game-desc">挡板弹球打碎所有砖块！角度决定一切，考验你的手眼协调能力！</p>
+          <span class="game-tag">动作休闲</span><span class="game-tag">经典街机</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="sudoku.html" class="game-card" data-cat="chess" data-name="sudoku">
+        <div class="game-preview" style="background:linear-gradient(135deg,#667eea,#764ba2);">🔢</div>
+        <div class="game-info">
+          <div class="game-title">🔢 数独</div>
+          <p class="game-desc">逻辑推理之王！填入1-9使每行每列每宫都不重复，三种难度任你挑战！</p>
+          <span class="game-tag">逻辑推理</span><span class="game-tag">三种难度</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="gomoku.html" class="game-card" data-cat="chess" data-name="gomoku">
+        <div class="game-preview" style="background:linear-gradient(135deg,#d4a574,#b8860b);">⚫</div>
+        <div class="game-info">
+          <div class="game-title">⚫ 五子棋</div>
+          <p class="game-desc">黑白对弈，五子连珠！支持人机对战和双人对战，悔棋功能助你复盘！</p>
+          <span class="game-tag">策略对弈</span><span class="game-tag">人机/双人</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="bubble.html" class="game-card" data-cat="puzzle" data-name="bubble">
+        <div class="game-preview" style="background:linear-gradient(135deg,#00c6fb,#005bea);">🫧</div>
+        <div class="game-info">
+          <div class="game-title">🫧 泡泡龙</div>
+          <p class="game-desc">发射彩色泡泡，三个以上相连即可消除！经典街机玩法，轻松又解压！</p>
+          <span class="game-tag">休闲消除</span><span class="game-tag">经典街机</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="puzzle.html" class="game-card" data-cat="puzzle" data-name="puzzle">
+        <div class="game-preview" style="background:linear-gradient(135deg,#f953c6,#b91d73);">🧩</div>
+        <div class="game-info">
+          <div class="game-title">🧩 数字拼图</div>
+          <p class="game-desc">经典15拼图！滑动方块还原数字顺序，支持3×3/4×4/5×5，还有自动求解！</p>
+          <span class="game-tag">益智拼图</span><span class="game-tag">自动求解</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="whack.html" class="game-card" data-cat="action" data-name="whack">
+        <div class="game-preview" style="background:linear-gradient(135deg,#56ab2f,#a8e063);">🔨</div>
+        <div class="game-info">
+          <div class="game-title">🔨 打地鼠</div>
+          <p class="game-desc">考验反应速度！30秒内尽可能多地敲打地鼠，连击得分翻倍，金色地鼠高分！</p>
+          <span class="game-tag">反应速度</span><span class="game-tag">限时挑战</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="tictactoe.html" class="game-card" data-cat="chess" data-name="tictactoe">
+        <div class="game-preview" style="background:linear-gradient(135deg,#ee0979,#ff6a00);">⭕</div>
+        <div class="game-info">
+          <div class="game-title">⭕ 井字棋</div>
+          <p class="game-desc">经典井字棋！支持人机对战（不可战胜的minimax AI）和双人对战，三连胜！</p>
+          <span class="game-tag">策略对弈</span><span class="game-tag">AI挑战</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="suika.html" class="game-card" data-cat="trend" data-name="suika">
+        <div class="game-preview" style="background:linear-gradient(135deg,#2d1b4e,#6a0572);">🍉</div>
+        <div class="game-info">
+          <div class="game-title">🍉 合成大西瓜</div>
+          <p class="game-desc">爆款物理合成游戏！相同水果碰撞合成升级，从樱桃到大西瓜，看你能合成到哪个级别！</p>
+          <span class="game-tag">物理引擎</span><span class="game-tag">合成进化</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="flappy.html" class="game-card" data-cat="trend" data-name="flappy">
+        <div class="game-preview" style="background:linear-gradient(135deg,#0a0a1a,#1a0a3e);">🐦</div>
+        <div class="game-info">
+          <div class="game-title">🐦 Flappy Neon</div>
+          <p class="game-desc">霓虹风格 Flappy Bird！拖尾粒子+霓虹管道，点击让小鸟穿越，考验反应力！</p>
+          <span class="game-tag">霓虹风格</span><span class="game-tag">一键操作</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="stack.html" class="game-card" data-cat="trend" data-name="stack">
+        <div class="game-preview" style="background:linear-gradient(135deg,#0f0c29,#302b63);">🏗️</div>
+        <div class="game-info">
+          <div class="game-title">🏗️ Stack Tower</div>
+          <p class="game-desc">堆塔游戏！精准投放方块，完美对齐不缩小还能连击，挑战你能堆多高！</p>
+          <span class="game-tag">精准对齐</span><span class="game-tag">连击系统</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="rhythm.html" class="game-card" data-cat="trend" data-name="rhythm">
+        <div class="game-preview" style="background:linear-gradient(135deg,#1a0033,#6a0572);">🎵</div>
+        <div class="game-info">
+          <div class="game-title">🎵 节奏音游</div>
+          <p class="game-desc">4键下落式音游！Perfect/Great/Good 判定，连击加分，挑战你的手速和节奏感！</p>
+          <span class="game-tag">节奏挑战</span><span class="game-tag">4键操作</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="jump.html" class="game-card" data-cat="trend" data-name="jump">
+        <div class="game-preview" style="background:linear-gradient(135deg,#f5f7fa,#c3cfe2);">👆</div>
+        <div class="game-info">
+          <div class="game-title">👆 跳一跳</div>
+          <p class="game-desc">微信爆款小游戏！长按蓄力跳跃，落在平台中央得双倍分，蓄力条可视化，看你能跳多远！</p>
+          <span class="game-tag">蓄力跳跃</span><span class="game-tag">精准落点</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="knife.html" class="game-card" data-cat="trend" data-name="knife">
+        <div class="game-preview" style="background:linear-gradient(135deg,#1a1a2e,#e94560);">🔪</div>
+        <div class="game-info">
+          <div class="game-title">🔪 飞刀</div>
+          <p class="game-desc">旋转木桩上投掷飞刀！不要撞到已有飞刀，关卡递进速度加快，挑战你的眼力和反应！</p>
+          <span class="game-tag">投掷挑战</span><span class="game-tag">关卡递进</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="doodle.html" class="game-card" data-cat="trend" data-name="doodle">
+        <div class="game-preview" style="background:linear-gradient(135deg,#e8e3d3,#26de81);">🦘</div>
+        <div class="game-info">
+          <div class="game-title">🦘 涂鸦跳跃</div>
+          <p class="game-desc">经典无尽弹跳！踩平台向上跳，弹簧平台超级跳，移动/易碎平台考验反应，挑战最高分！</p>
+          <span class="game-tag">无尽跳跃</span><span class="game-tag">涂鸦风格</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+      <a href="color.html" class="game-card" data-cat="trend" data-name="color">
+        <div class="game-preview" style="background:linear-gradient(135deg,#0a0a1a,#6a0572);">🎨</div>
+        <div class="game-info">
+          <div class="game-title">🎨 颜色切换</div>
+          <p class="game-desc">点击切换小球颜色，只穿过相同颜色的旋转障碍！圆环和十字两种障碍，考验反应与节奏！</p>
+          <span class="game-tag">色彩挑战</span><span class="game-tag">反应速度</span>
+          <span class="play-btn">开始游戏 →</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="empty-tip" id="emptyTip">🔍 没有找到匹配的游戏，换个关键词试试吧</div>
+
+    <h2 class="section-title">🏆 排行榜</h2>
+    <div class="leaderboard">
+      <div class="lb-row head">
+        <div>排名</div><div>玩家</div><div>等级</div><div style="text-align:right;">最高分</div>
+      </div>
+      <div id="lbBody"></div>
+    </div>
+
+    <div class="footer">
+      <p>所有游戏永久免费 · 无内购 · 无广告 · 无需注册即可游玩</p>
+      <p style="margin-top:6px;">登录后可保存进度、参与排行榜</p>
+    </div>
+  </div>
+
+  <!-- 登录/注册弹窗 -->
+  <div class="modal" id="authModal">
+    <div class="modal-box">
+      <h2 id="authTitle">用户登录</h2>
+      <div class="tab-row">
+        <button class="tab active" id="tabLogin">登录</button>
+        <button class="tab" id="tabReg">注册</button>
+      </div>
+      <div class="form-group">
+        <label>用户名</label>
+        <input type="text" id="authName" placeholder="输入用户名" maxlength="12">
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" id="authPass" placeholder="输入密码">
+      </div>
+      <div class="error-msg" id="authError"></div>
+      <button class="modal-btn" id="authSubmit">登录</button>
+      <button class="modal-btn secondary" id="authCancel">取消</button>
+    </div>
+  </div>
+
+  <!-- 设置弹窗 -->
+  <div class="modal" id="setModal">
+    <div class="modal-box">
+      <h2>⚙️ 设置</h2>
+      <div class="vol-row">
+        <label>音乐</label>
+        <input type="range" id="bgmVol" min="0" max="100" value="15">
+        <span id="bgmVal">15</span>
+      </div>
+      <div class="vol-row">
+        <label>音效</label>
+        <input type="range" id="sfxVol" min="0" max="100" value="40">
+        <span id="sfxVal">40</span>
+      </div>
+      <div class="vol-row">
+        <label>开关</label>
+        <button class="btn" id="soundToggle" style="flex:1;">🔊 声音开启</button>
+      </div>
+      <button class="modal-btn" id="setClose">完成</button>
+    </div>
+  </div>
+
+<script src="js/common.js"></script>
+<script>
+const userBar = document.getElementById('userBar');
+const lbBody = document.getElementById('lbBody');
+
+function renderUserBar() {
+  const u = User.current();
+  const coins = Coins.get();
+  if (u) {
+    userBar.innerHTML = `
+      <div class="user-info">
+        <span>👤 ${u.name}</span>
+        <span class="lvl">Lv.${u.level}</span>
+      </div>
+      <div class="user-info" style="background:rgba(255,215,0,0.25);">💰 ${coins}</div>
+      <button class="btn icon" id="setBtn" title="设置">⚙️</button>
+      <button class="btn" id="logoutBtn">退出</button>
+    `;
+    document.getElementById('logoutBtn').onclick = () => { User.logout(); renderUserBar(); renderLB(); };
+    document.getElementById('setBtn').onclick = openSetModal;
+  } else {
+    userBar.innerHTML = `
+      <div class="user-info" style="background:rgba(255,215,0,0.25);">💰 ${coins}</div>
+      <button class="btn icon" id="setBtn" title="设置">⚙️</button>
+      <button class="btn" id="loginBtn">登录 / 注册</button>
+    `;
+    document.getElementById('loginBtn').onclick = openAuthModal;
+    document.getElementById('setBtn').onclick = openSetModal;
+  }
+}
+
+function renderLB() {
+  const lb = User.leaderboard(10);
+  if (lb.length === 0) {
+    lbBody.innerHTML = '<div class="empty-lb">暂无排行数据，登录并游玩后即可上榜！</div>';
+    return;
+  }
+  lbBody.innerHTML = lb.map(r => {
+    let cls = '';
+    if (r.rank === 1) cls = 'gold';
+    else if (r.rank === 2) cls = 'silver';
+    else if (r.rank === 3) cls = 'bronze';
+    const medal = r.rank <= 3 ? ['🥇','🥈','🥉'][r.rank-1] : r.rank;
+    return `<div class="lb-row">
+      <div class="lb-rank ${cls}">${medal}</div>
+      <div class="lb-name">${r.name}</div>
+      <div class="lb-lvl">Lv.${r.level}</div>
+      <div class="lb-score">${r.bestScore}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ---- 登录/注册 ---- */
+const authModal = document.getElementById('authModal');
+const authTitle = document.getElementById('authTitle');
+const tabLogin = document.getElementById('tabLogin');
+const tabReg = document.getElementById('tabReg');
+const authName = document.getElementById('authName');
+const authPass = document.getElementById('authPass');
+const authError = document.getElementById('authError');
+const authSubmit = document.getElementById('authSubmit');
+let authMode = 'login';
+
+function openAuthModal() {
+  authModal.classList.add('show');
+  authName.value = ''; authPass.value = ''; authError.textContent = '';
+}
+tabLogin.onclick = () => { authMode='login'; authTitle.textContent='用户登录'; authSubmit.textContent='登录'; tabLogin.classList.add('active'); tabReg.classList.remove('active'); authError.textContent=''; };
+tabReg.onclick = () => { authMode='reg'; authTitle.textContent='用户注册'; authSubmit.textContent='注册'; tabReg.classList.add('active'); tabLogin.classList.remove('active'); authError.textContent=''; };
+authSubmit.onclick = () => {
+  const name = authName.value.trim();
+  const pass = authPass.value;
+  if (!name || !pass) { authError.textContent = '请输入用户名和密码'; return; }
+  const res = authMode === 'login' ? User.login(name, pass) : User.register(name, pass);
+  if (!res.ok) { authError.textContent = res.msg; return; }
+  authModal.classList.remove('show');
+  Sound.levelup();
+  renderUserBar(); renderLB();
+};
+document.getElementById('authCancel').onclick = () => authModal.classList.remove('show');
+authModal.addEventListener('click', e => { if (e.target === authModal) authModal.classList.remove('show'); });
+
+/* ---- 设置 ---- */
+const setModal = document.getElementById('setModal');
+const bgmVol = document.getElementById('bgmVol');
+const sfxVol = document.getElementById('sfxVol');
+const bgmVal = document.getElementById('bgmVal');
+const sfxVal = document.getElementById('sfxVal');
+const soundToggle = document.getElementById('soundToggle');
+
+function openSetModal() {
+  Sound.resume();
+  bgmVol.value = Math.round(parseFloat(localStorage.getItem('bgmVolume') || '0.15') * 100);
+  sfxVol.value = Math.round(parseFloat(localStorage.getItem('sfxVolume') || '0.4') * 100);
+  bgmVal.textContent = bgmVol.value;
+  sfxVal.textContent = sfxVol.value;
+  soundToggle.textContent = Sound.isEnabled() ? '🔊 声音开启' : '🔇 声音关闭';
+  setModal.classList.add('show');
+}
+bgmVol.oninput = () => { const v = bgmVol.value/100; Sound.setBGMVolume(v); bgmVal.textContent = bgmVol.value; if (Sound.isEnabled()) Sound.startBGM(); };
+sfxVol.oninput = () => { const v = sfxVol.value/100; Sound.setSFXVolume(v); sfxVal.textContent = sfxVol.value; Sound.click(); };
+soundToggle.onclick = () => {
+  const on = !Sound.isEnabled();
+  Sound.setEnabled(on);
+  soundToggle.textContent = on ? '🔊 声音开启' : '🔇 声音关闭';
+  if (on) Sound.startBGM();
+};
+document.getElementById('setClose').onclick = () => setModal.classList.remove('show');
+setModal.addEventListener('click', e => { if (e.target === setModal) setModal.classList.remove('show'); });
+
+renderUserBar();
+renderLB();
+
+/* ---- 成就/任务/商店弹窗 ---- */
+function createModal(html) {
+  const m = document.createElement('div');
+  m.className = 'modal show';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;';
+  m.innerHTML = html;
+  m.addEventListener('click', e => { if (e.target === m) m.remove(); });
+  document.body.appendChild(m);
+  return m;
+}
+
+document.getElementById('achBtn').onclick = () => {
+  const list = Achievement.list();
+  const html = `
+    <div style="background:linear-gradient(135deg,#667eea,#764ba2);border:1px solid rgba(255,255,255,0.3);border-radius:24px;padding:24px;max-width:420px;width:100%;max-height:85vh;overflow-y:auto;color:#fff;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="font-size:1.4rem;">🏅 成就 (${list.filter(a=>a.unlocked).length}/${list.length})</h2>
+        <button onclick="this.closest('.modal').remove()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.2rem;">×</button>
+      </div>
+      ${list.map(a => `
+        <div style="background:rgba(255,255,255,${a.unlocked?0.25:0.1});border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;opacity:${a.unlocked?1:0.6};">
+          <div style="font-size:2rem;">${a.unlocked?a.icon:'🔒'}</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;">${a.name}</div>
+            <div style="font-size:0.8rem;opacity:0.8;">${a.desc}</div>
+            <div style="background:rgba(0,0,0,0.2);height:6px;border-radius:3px;margin-top:6px;overflow:hidden;">
+              <div style="background:linear-gradient(90deg,#ffd700,#ff69b4);height:100%;width:${a.progress*100}%;border-radius:3px;"></div>
+            </div>
+            <div style="font-size:0.7rem;margin-top:2px;">${a.current}/${a.target}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  createModal(html);
+};
+
+document.getElementById('taskBtn').onclick = () => {
+  const tasks = DailyTask.list();
+  const html = `
+    <div style="background:linear-gradient(135deg,#f093fb,#f5576c);border:1px solid rgba(255,255,255,0.3);border-radius:24px;padding:24px;max-width:420px;width:100%;color:#fff;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="font-size:1.4rem;">📋 每日任务</h2>
+        <button onclick="this.closest('.modal').remove()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.2rem;">×</button>
+      </div>
+      <div style="font-size:0.8rem;opacity:0.8;margin-bottom:12px;">${DailyTask.todayStr()} · 每日0点重置</div>
+      ${tasks.map((t, i) => {
+        const done = t.progress >= t.target;
+        return `
+        <div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:14px;margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-weight:700;">${t.desc}</div>
+            <div style="font-size:0.85rem;">💰 ${t.reward}</div>
+          </div>
+          <div style="background:rgba(0,0,0,0.2);height:8px;border-radius:4px;margin-top:8px;overflow:hidden;">
+            <div style="background:linear-gradient(90deg,#4ecdc4,#44a08d);height:100%;width:${Math.min(100,t.progress/t.target*100)}%;border-radius:4px;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+            <span style="font-size:0.8rem;">${t.progress}/${t.target}</span>
+            <button ${done && !t.claimed ? '' : 'disabled'} onclick="claimTask(${i})" style="background:${done && !t.claimed ? '#ffd700' : 'rgba(255,255,255,0.15)'};border:none;color:${t.claimed ? '#999' : '#fff'};padding:6px 16px;border-radius:10px;cursor:${done && !t.claimed ? 'pointer' : 'default'};font-weight:700;">
+              ${t.claimed ? '已领取' : done ? '领取' : '进行中'}
+            </button>
+          </div>
+        </div>
+      `}).join('')}
+    </div>
+  `;
+  createModal(html);
+};
+
+window.claimTask = (i) => {
+  const r = DailyTask.claim(i);
+  if (r) {
+    Sound.levelup();
+    renderUserBar();
+    document.getElementById('taskBtn').click();
+  }
+};
+
+document.getElementById('shopBtn').onclick = () => {
+  const defs = Item.list();
+  const inv = Item.inventory();
+  const html = `
+    <div style="background:linear-gradient(135deg,#56ab2f,#a8e063);border:1px solid rgba(255,255,255,0.3);border-radius:24px;padding:24px;max-width:420px;width:100%;color:#2d5016;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="font-size:1.4rem;">🛒 道具商店</h2>
+        <button onclick="this.closest('.modal').remove()" style="background:rgba(0,0,0,0.1);border:none;color:#2d5016;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.2rem;">×</button>
+      </div>
+      <div style="background:rgba(255,255,255,0.3);padding:10px;border-radius:12px;text-align:center;margin-bottom:14px;font-weight:700;">💰 ${Coins.get()} 金币</div>
+      ${Object.entries(defs).map(([id, d]) => `
+        <div style="background:rgba(255,255,255,0.3);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;">
+          <div style="font-size:2rem;">${d.icon}</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;">${d.name} <span style="font-size:0.75rem;opacity:0.7;">x${inv[id]||0}</span></div>
+            <div style="font-size:0.8rem;opacity:0.8;">${d.desc}</div>
+          </div>
+          <button onclick="buyItem('${id}')" style="background:#2d5016;border:none;color:#fff;padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:700;">💰 ${d.price}</button>
+        </div>
+      `).join('')}
+      <div style="font-size:0.75rem;opacity:0.7;text-align:center;margin-top:8px;">💡 道具在对应游戏中使用，完成任务和成就获取金币</div>
+    </div>
+  `;
+  createModal(html);
+};
+
+window.buyItem = (id) => {
+  const r = Item.buy(id);
+  if (r.ok) { Sound.select(); renderUserBar(); document.getElementById('shopBtn').click(); }
+  else { Sound.invalid(); alert(r.msg || '购买失败'); }
+};
+
+/* ---- 分类筛选 + 搜索 ---- */
+const searchBox = document.getElementById('searchBox');
+const emptyTip = document.getElementById('emptyTip');
+const cards = [...document.querySelectorAll('.game-card')];
+let activeCat = 'all';
+
+function applyFilter() {
+  const q = (searchBox.value || '').trim().toLowerCase();
+  let visible = 0;
+  cards.forEach(c => {
+    const okCat = activeCat === 'all' || c.dataset.cat === activeCat;
+    const hay = (c.dataset.name || '') + ' ' + c.textContent.toLowerCase();
+    const okQ = !q || hay.toLowerCase().includes(q);
+    const show = okCat && okQ;
+    c.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  emptyTip.style.display = visible ? 'none' : 'block';
+}
+
+document.getElementById('catRow').addEventListener('click', e => {
+  const b = e.target.closest('.cat');
+  if (!b) return;
+  document.querySelectorAll('.cat').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  activeCat = b.dataset.cat;
+  Sound.click();
+  applyFilter();
+});
+searchBox.addEventListener('input', applyFilter);
+</script>
+</body>
+</html>

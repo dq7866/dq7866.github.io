@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🫧 泡泡龙</title>
+<meta name="description" content="在线免费玩泡泡龙！发射彩色泡泡，三颗以上同色相连即可消除。经典街机消除小游戏，休闲解压，打开即玩。">
+<meta name="keywords" content="泡泡龙,泡泡射击,消除游戏,街机游戏,免费小游戏">
+<meta name="theme-color" content="#667eea">
+<link rel="canonical" href="https://dq7866.online/games/bubble.html">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="欢乐游戏盒">
+<meta property="og:title" content="泡泡龙 - 欢乐游戏盒">
+<meta property="og:description" content="在线免费玩泡泡龙！发射彩色泡泡，三颗以上同色相连即可消除。经典街机消除小游戏，休闲解压，打开即玩。">
+<meta property="og:url" content="https://dq7866.online/games/bubble.html">
+<meta property="og:image" content="https://dq7866.online/games/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="泡泡龙 - 欢乐游戏盒">
+<meta name="twitter:description" content="在线免费玩泡泡龙！发射彩色泡泡，三颗以上同色相连即可消除。经典街机消除小游戏，休闲解压，打开即玩。">
+<meta name="twitter:image" content="https://dq7866.online/games/og-image.png">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #00c6fb, #005bea);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px;
+    user-select: none;
+  }
+  .app { width: 100%; max-width: 480px; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 6px; }
+  .back-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: #fff; padding: 7px 12px; border-radius: 20px; text-decoration: none; font-size: 0.82rem; }
+  .game-title { color: #fff; font-size: 1.3rem; font-weight: 800; }
+  .icon-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: #fff; padding: 7px 10px; border-radius: 20px; cursor: pointer; font-size: 1rem; }
+  .info-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .info-box { flex: 1; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.25); border-radius: 12px; padding: 8px; text-align: center; color: #fff; }
+  .info-label { font-size: 0.65rem; opacity: 0.7; }
+  .info-val { font-size: 1.3rem; font-weight: 800; }
+  canvas { background: rgba(0,0,0,0.3); border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.3); display: block; margin: 0 auto; touch-action: none; }
+  .controls { display: flex; gap: 10px; margin-top: 14px; }
+  .ctrl-btn { flex: 1; padding: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 14px; background: rgba(255,255,255,0.15); color: #fff; font-weight: 600; cursor: pointer; }
+  .ctrl-btn:hover { background: rgba(255,255,255,0.3); }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+  .modal.show { display: flex; }
+  .modal-box { background: linear-gradient(135deg, #00c6fb, #005bea); border: 1px solid rgba(255,255,255,0.3); border-radius: 24px; padding: 30px 24px; text-align: center; color: #fff; max-width: 340px; width: 100%; position: relative; overflow: hidden; }
+  .modal-box h2 { font-size: 1.8rem; margin-bottom: 10px; }
+  .modal-icon { font-size: 4rem; margin-bottom: 12px; }
+  .modal-btn { width: 100%; padding: 14px; margin-top: 14px; border: none; border-radius: 14px; background: #fff; color: #005bea; font-weight: 800; font-size: 1rem; cursor: pointer; }
+  .modal-btn.secondary { background: rgba(255,255,255,0.2); color: #fff; margin-top: 8px; }
+  .fw-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .praise { font-size: 1.2rem; color: #fff; font-weight: 800; margin: 8px 0; }
+  .final-score { font-size: 2rem; font-weight: 900; color: #ffd700; margin: 10px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top-bar">
+    <a href="index.html" class="back-btn">← 返回</a>
+    <div class="game-title">🫧 泡泡龙</div>
+    <button class="icon-btn" id="soundBtn">🔊</button>
+  </div>
+  <div class="info-row">
+    <div class="info-box"><div class="info-label">分数</div><div class="info-val" id="score">0</div></div>
+    <div class="info-box"><div class="info-label">剩余</div><div class="info-val" id="remain">0</div></div>
+    <div class="info-box"><div class="info-label">发射</div><div class="info-val" id="shots">0</div></div>
+  </div>
+  <canvas id="game" width="320" height="420"></canvas>
+  <div class="controls">
+    <button class="ctrl-btn" id="restartBtn">🔄 重开</button>
+  </div>
+</div>
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="fw-layer" id="fw"></div>
+    <div class="modal-icon" id="mIcon">🎉</div>
+    <h2 id="mTitle">通关！</h2>
+    <div class="praise" id="mPraise"></div>
+    <div class="final-score" id="mScore">0 分</div>
+    <button class="modal-btn" id="mBtn">再来一局</button>
+    <button class="modal-btn secondary" id="mHome">返回首页</button>
+  </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const R = 16;
+  const COLS = 10;
+  const ROWS = 12;
+  const COLORS = ['#ff6b6b','#feca57','#48dbfb','#1dd1a1','#ff9ff3'];
+
+  let grid, bubble, angle, shooting, shootX, shootY, shootDx, shootDy;
+  let score, shots, gameOver, nextColor;
+
+  function init() {
+    grid = Array.from({length: ROWS}, () => Array(COLS).fill(null));
+    // 初始填充前几行
+    for (let r = 0; r < 4; r++) for (let c = 0; c < COLS; c++) {
+      if (Math.random() < 0.85) grid[r][c] = COLORS[Math.floor(Math.random()*COLORS.length)];
+    }
+    score = 0; shots = 0; gameOver = false;
+    nextColor = COLORS[Math.floor(Math.random()*COLORS.length)];
+    newBubble();
+    angle = -Math.PI/2;
+    shooting = false;
+    updateInfo();
+    draw();
+  }
+
+  function newBubble() {
+    bubble = { color: nextColor };
+    nextColor = COLORS[Math.floor(Math.random()*COLORS.length)];
+  }
+
+  function getCellPos(r, c) {
+    const offset = (r % 2) * (R * Math.sqrt(3) / 2);
+    return { x: c * R * Math.sqrt(3) + offset + R, y: r * R * 1.5 + R };
+  }
+
+  function updateInfo() {
+    document.getElementById('score').textContent = score;
+    document.getElementById('shots').textContent = shots;
+    let remain = 0;
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (grid[r][c]) remain++;
+    document.getElementById('remain').textContent = remain;
+  }
+
+  function aim(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (W/rect.width);
+    const y = (e.clientY - rect.top) * (H/rect.height);
+    angle = Math.atan2(y - H + 30, x - W/2);
+    if (angle > -0.1) angle = -0.1;
+    if (angle < -Math.PI + 0.1) angle = -Math.PI + 0.1;
+  }
+
+  function shoot() {
+    if (shooting || gameOver) return;
+    shooting = true;
+    shots++;
+    const speed = 10;
+    shootX = W/2;
+    shootY = H - 30;
+    shootDx = Math.cos(angle) * speed;
+    shootDy = Math.sin(angle) * speed;
+    Sound.click();
+  }
+
+  function loop() {
+    if (!shooting) { draw(); requestAnimationFrame(loop); return; }
+    shootX += shootDx;
+    shootY += shootDy;
+    // 左右墙反弹
+    if (shootX < R) { shootX = R; shootDx = -shootDx; }
+    if (shootX > W - R) { shootX = W - R; shootDx = -shootDx; }
+    // 顶部
+    if (shootY < R) { snapBubble(); return; }
+    // 检测与现有泡泡碰撞
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      if (!grid[r][c]) continue;
+      const p = getCellPos(r, c);
+      const dist = Math.hypot(shootX - p.x, shootY - p.y);
+      if (dist < R * 1.6) { snapBubble(); return; }
+    }
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  function snapBubble() {
+    // 找到最近的空位
+    let bestR = 0, bestC = 0, bestDist = Infinity;
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      if (grid[r][c]) continue;
+      const p = getCellPos(r, c);
+      const dist = Math.hypot(shootX - p.x, shootY - p.y);
+      if (dist < bestDist) { bestDist = dist; bestR = r; bestC = c; }
+    }
+    grid[bestR][bestC] = bubble.color;
+    // 检查消除
+    const matches = findMatches(bestR, bestC, bubble.color);
+    if (matches.length >= 3) {
+      matches.forEach(([r, c]) => { grid[r][c] = null; });
+      score += matches.length * 10;
+      Sound.match(Math.min(matches.length, 4));
+      // 消除悬空泡泡
+      removeFloating();
+    }
+    // 检查胜利/失败
+    let remain = 0;
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (grid[r][c]) remain++;
+    if (remain === 0) return endGame(true);
+    if (bestR >= ROWS - 1) return endGame(false);
+    shooting = false;
+    newBubble();
+    updateInfo();
+    draw();
+  }
+
+  function findMatches(r, c, color) {
+    const visited = new Set();
+    const result = [];
+    function dfs(r, c) {
+      if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
+      if (grid[r][c] !== color) return;
+      const key = r + ',' + c;
+      if (visited.has(key)) return;
+      visited.add(key);
+      result.push([r, c]);
+      // 六边形邻居
+      const offsets = (r % 2 === 0)
+        ? [[-1,-1],[-1,0],[0,-1],[0,1],[1,-1],[1,0]]
+        : [[-1,0],[-1,1],[0,-1],[0,1],[1,0],[1,1]];
+      offsets.forEach(([dr, dc]) => dfs(r+dr, c+dc));
+    }
+    dfs(r, c);
+    return result;
+  }
+
+  function removeFloating() {
+    const connected = new Set();
+    function dfs(r, c) {
+      if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
+      if (!grid[r][c]) return;
+      const key = r + ',' + c;
+      if (connected.has(key)) return;
+      connected.add(key);
+      const offsets = (r % 2 === 0)
+        ? [[-1,-1],[-1,0],[0,-1],[0,1],[1,-1],[1,0]]
+        : [[-1,0],[-1,1],[0,-1],[0,1],[1,0],[1,1]];
+      offsets.forEach(([dr, dc]) => dfs(r+dr, c+dc));
+    }
+    for (let c = 0; c < COLS; c++) dfs(0, c);
+    let dropped = 0;
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      if (grid[r][c] && !connected.has(r + ',' + c)) {
+        grid[r][c] = null;
+        dropped++;
+      }
+    }
+    if (dropped > 0) { score += dropped * 20; Sound.combo(3); }
+  }
+
+  function endGame(win) {
+    gameOver = true;
+    shooting = false;
+    if (win) { User.addScore(score, true, 0); Sound.win(); }
+    else { User.addScore(score, false, 0); Sound.lose(); }
+    const m = document.getElementById('modal');
+    document.getElementById('mIcon').textContent = win ? '🏆' : '💥';
+    document.getElementById('mTitle').textContent = win ? '通关！' : '游戏结束';
+    document.getElementById('mPraise').textContent = win ? getPraise() : '泡泡到达底部啦！';
+    document.getElementById('mScore').textContent = score + ' 分';
+    document.getElementById('mBtn').onclick = () => { m.classList.remove('show'); init(); };
+    if (win) { launchFireworks(document.getElementById('fw')); setTimeout(()=>launchFireworks(document.getElementById('fw')),400); }
+    m.classList.add('show');
+  }
+
+  function drawBubble(x, y, color) {
+    const g = ctx.createRadialGradient(x-4, y-4, 1, x, y, R);
+    g.addColorStop(0, '#fff');
+    g.addColorStop(0.3, color);
+    g.addColorStop(1, shade(color, -40));
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, R-1, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  function shade(color, percent) {
+    const num = parseInt(color.slice(1),16);
+    let r = (num>>16)+percent, g = ((num>>8)&0xff)+percent, b = (num&0xff)+percent;
+    r = Math.max(0,Math.min(255,r)); g = Math.max(0,Math.min(255,g)); b = Math.max(0,Math.min(255,b));
+    return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+  }
+
+  function draw() {
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillRect(0,0,W,H);
+    // 已有泡泡
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      if (grid[r][c]) {
+        const p = getCellPos(r, c);
+        drawBubble(p.x, p.y, grid[r][c]);
+      }
+    }
+    // 瞄准线
+    if (!shooting) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.setLineDash([5,5]);
+      ctx.beginPath();
+      ctx.moveTo(W/2, H-30);
+      ctx.lineTo(W/2 + Math.cos(angle)*120, H-30 + Math.sin(angle)*120);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    // 发射中的泡泡
+    if (shooting) drawBubble(shootX, shootY, bubble.color);
+    else drawBubble(W/2, H-30, bubble.color);
+    // 下一个
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('下一个', W-60, H-12);
+    drawBubble(W-22, H-30, nextColor);
+  }
+
+  canvas.addEventListener('mousemove', e => { if (!shooting) aim(e); });
+  canvas.addEventListener('click', () => { if (!shooting) shoot(); });
+  canvas.addEventListener('touchmove', e => { e.preventDefault(); if (!shooting) aim(e.touches[0]); }, {passive:false});
+  canvas.addEventListener('touchend', e => { e.preventDefault(); if (!shooting) shoot(); }, {passive:false});
+
+  document.getElementById('restartBtn').onclick = () => { Sound.click(); init(); };
+  document.getElementById('mHome').onclick = () => location.href = 'index.html';
+
+  const soundBtn = document.getElementById('soundBtn');
+  function updBtn(){ soundBtn.textContent = Sound.isEnabled()?'🔊':'🔇'; }
+  updBtn();
+  soundBtn.onclick = () => {
+    const on = !Sound.isEnabled();
+    Sound.setEnabled(on); updBtn();
+    if (on) Sound.startBGM(); else Sound.stopBGM();
+  };
+
+  init();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

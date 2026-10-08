@@ -2,7 +2,7 @@
 
 
 
-<html lang="en" class="h-full scroll-smooth">
+<html lang="zh-CN" class="h-full scroll-smooth">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -55,7 +55,7 @@
         else if (darkQuery.addListener) darkQuery.addListener(followSystem);
     }
     // Preloader skip: the session collection must contain this page's font-bundle URL.
-    const fontsReadyToken = "https://fonts.googleapis.com/css2?family=Cardo:wght@400;700\u0026family=Yuji+Syuku\u0026family=Zen+Old+Mincho:wght@400;600\u0026family=Cormorant+Garamond:wght@400;600\u0026display=swap";
+    const fontsReadyToken = "https://fonts.googleapis.com/css2?family=Cardo:wght@400;700\u0026family=Yuji+Syuku\u0026family=Zen+Old+Mincho:wght@400;600\u0026family=Cormorant+Garamond:wght@400;600\u0026family=Noto+Serif+SC:wght@400;600\u0026display=swap";
     shiro.fontsReadyToken = fontsReadyToken;
     try {
         const storedFontsReady = sessionStorage.getItem('shiro:fonts-ready');
@@ -87,19 +87,25 @@
 <title>知作坊</title>
 
 
+<meta name="description" content="知作坊——故事、歌词与创作手记。「今世警世百回」系列连载，另有免安装网页小游戏合集。" />
+
 
 <meta name="author" content="尘世悟说" />
 
 
+<meta name="keywords" content="知作坊,今世警世百回,故事,歌词,创作手记,尘世悟说,免费小游戏" />
+
 
 <meta property="og:title" content="知作坊" />
 
-<meta property="og:url" content="http://example.com/index.html" />
+<meta property="og:description" content="知作坊——故事、歌词与创作手记。「今世警世百回」系列连载，另有免安装网页小游戏合集。" />
+
+<meta property="og:url" content="https://dq7866.online/index.html" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="知作坊" />
 
 
-<meta property="og:locale" content="en_US" />
+<meta property="og:locale" content="zh_CN" />
 
 
 
@@ -107,15 +113,17 @@
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:title" content="知作坊" />
 
-
-
-<link rel="canonical" href="http://example.com/index.html" />
-
+<meta name="twitter:description" content="知作坊——故事、歌词与创作手记。「今世警世百回」系列连载，另有免安装网页小游戏合集。" />
 
 
 
+<link rel="canonical" href="https://dq7866.online/index.html" />
 
-<script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebSite","name":"知作坊","url":"http://example.com"}]</script>
+
+
+
+
+<script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebSite","name":"知作坊","url":"https://dq7866.online","description":"知作坊——故事、歌词与创作手记。「今世警世百回」系列连载，另有免安装网页小游戏合集。"}]</script>
 
 
 
@@ -127,7 +135,7 @@
     
 
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Yuji+Syuku&family=Zen+Old+Mincho:wght@400;600&family=Cormorant+Garamond:wght@400;600&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Yuji+Syuku&family=Zen+Old+Mincho:wght@400;600&family=Cormorant+Garamond:wght@400;600&family=Noto+Serif+SC:wght@400;600&display=swap" />
 
 <link rel="stylesheet" href="/css/style.min.css?v=72525358">
 
@@ -146,7 +154,7 @@
             <span class="shiro-preloader-ring"></span>
         </div>
     </div>
-    <a href="#main-content" class="shiro-skip-link">Skip to content</a>
+    <a href="#main-content" class="shiro-skip-link">跳到正文</a>
     
     
 <svg width="0" height="0" class="absolute pointer-events-none" aria-hidden="true">
@@ -206,13 +214,17 @@
                 
             </div>
             
+            <p class="site-subtitle">
+                心灵火花的闪烁
+            </p>
+            
             
             
             <div class="mt-3 sm:mt-4 flex items-center justify-center gap-2">
                 
                 
                 
-                <button id="themeToggle" type="button" class="focus-elegant header-pill-btn" aria-label="Light" data-label-system="System" data-label-light="Light" data-label-dark="Dark" disabled>
+                <button id="themeToggle" type="button" class="focus-elegant header-pill-btn" aria-label="浅色" data-label-system="跟随系统" data-label-light="浅色" data-label-dark="深色" disabled>
                     
 <svg data-icon="system" class="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <rect x="2" y="3" width="20" height="14" rx="2" stroke-width="1.5"/>
@@ -241,14 +253,14 @@
 
 <!-- Navigation -->
 
-<nav class="mt-8 md:mt-10" aria-label="Menu" data-pagefind-ignore>
+<nav class="mt-8 md:mt-10" aria-label="菜单" data-pagefind-ignore>
     <!-- Mobile Toggle -->
     <div class="flex items-center justify-center md:hidden">
         
         <button id="menuBtn" type="button"
             class="focus-elegant inline-flex cursor-pointer items-center gap-2 rounded-full border border-border-strong bg-paper/95 px-4 py-2 text-sm text-text-body shadow-xs"
             aria-expanded="false" aria-controls="mobileMenu" disabled>
-            <span class="text-base leading-none tracking-widest">Menu</span>
+            <span class="text-base leading-none tracking-widest">菜单</span>
             
 <svg class="size-4 text-text-chrome transition-transform duration-200" id="menuChevron"
     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -268,7 +280,7 @@
 
 
 <a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
-    href="/">Home</a>
+    href="/">首页</a>
 </li>
             
             <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
@@ -278,7 +290,7 @@
 
 
 <a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
-    href="/archives">Archives</a>
+    href="/games/">游戏盒</a>
 </li>
             
             <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
@@ -288,7 +300,7 @@
 
 
 <a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
-    href="/categories">Categories</a>
+    href="/archives">归档</a>
 </li>
             
             <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
@@ -298,7 +310,17 @@
 
 
 <a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
-    href="/tags">Tags</a>
+    href="/categories">分类</a>
+</li>
+            
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
+            
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/tags">标签</a>
 </li>
             
             
@@ -314,7 +336,7 @@
 
 
 <a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
-    href="/">Home</a>
+    href="/">首页</a>
 </li>
             
             <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
@@ -324,7 +346,7 @@
 
 
 <a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
-    href="/archives">Archives</a>
+    href="/games/">游戏盒</a>
 </li>
             
             <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
@@ -334,7 +356,7 @@
 
 
 <a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
-    href="/categories">Categories</a>
+    href="/archives">归档</a>
 </li>
             
             <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
@@ -344,7 +366,17 @@
 
 
 <a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
-    href="/tags">Tags</a>
+    href="/categories">分类</a>
+</li>
+            
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
+            
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/tags">标签</a>
 </li>
             
             
@@ -365,128 +397,6 @@
             <main id="main-content" class="section-divider" tabindex="-1">
                 
     
-    
-        
-        
-        
-<article class="py-2">
-    <header class="text-center mb-4">
-        <h2 class="font-bold leading-snug text-text-heading text-[1.35rem] transition-colors hover:text-seal sm:text-[1.45rem] md:text-[1.6rem]">
-            <a href="/2026/09/28/hello/">Hello World</a>
-        </h2>
-        
-
-
-
-
-
-
-
-
-<div class="mt-2 flex flex-wrap items-center justify-center gap-y-1 text-text-chrome gap-x-4 text-sm">
-    <div class="flex items-center gap-1.5">
-        
-<svg class="size-4 text-text-subtle shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-</svg>
-
-        <a href="/archives/2026/" class="oldstyle-nums link-chrome"><time datetime="2026-09-28">2026/09/28</time></a>
-    </div>
-    
-    
-</div>
-
-    </header>
-    
-    <div class="prose-shiro">
-        <p>Welcome to Hexo ! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub ....</p>
-    </div>
-    
-    <div class="mt-6 text-center">
-        <a href="/2026/09/28/hello/"
-            class="focus-elegant btn-ink"
-            aria-label="Read More: Hello World">
-            Read More
-        </a>
-    </div>
-    
-</article>
-
-
-        
-            
-<div class="my-8 flex items-center justify-center gap-3" aria-hidden="true">
-    <div class="h-px flex-1 bg-linear-to-r from-transparent to-text-faint max-w-divider"></div>
-    <svg class="h-4 w-10 shrink-0 text-text-faint" viewBox="0 0 40 10">
-        <circle cx="20" cy="5" r="3" fill="currentColor" opacity="0.9" />
-        <circle cx="4" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
-        <circle cx="36" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
-    </svg>
-    <div class="h-px flex-1 bg-linear-to-l from-transparent to-text-faint max-w-divider"></div>
-</div>
-
-        
-    
-        
-        
-        
-<article class="py-2">
-    <header class="text-center mb-4">
-        <h2 class="font-bold leading-snug text-text-heading text-[1.35rem] transition-colors hover:text-seal sm:text-[1.45rem] md:text-[1.6rem]">
-            <a href="/2026/09/28/hello-world/">Hello World</a>
-        </h2>
-        
-
-
-
-
-
-
-
-
-<div class="mt-2 flex flex-wrap items-center justify-center gap-y-1 text-text-chrome gap-x-4 text-sm">
-    <div class="flex items-center gap-1.5">
-        
-<svg class="size-4 text-text-subtle shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-</svg>
-
-        <a href="/archives/2026/" class="oldstyle-nums link-chrome"><time datetime="2026-09-28">2026/09/28</time></a>
-    </div>
-    
-    
-</div>
-
-    </header>
-    
-    <div class="prose-shiro">
-        <p>Welcome to Hexo ! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub ....</p>
-    </div>
-    
-    <div class="mt-6 text-center">
-        <a href="/2026/09/28/hello-world/"
-            class="focus-elegant btn-ink"
-            aria-label="Read More: Hello World">
-            Read More
-        </a>
-    </div>
-    
-</article>
-
-
-        
-            
-<div class="my-8 flex items-center justify-center gap-3" aria-hidden="true">
-    <div class="h-px flex-1 bg-linear-to-r from-transparent to-text-faint max-w-divider"></div>
-    <svg class="h-4 w-10 shrink-0 text-text-faint" viewBox="0 0 40 10">
-        <circle cx="20" cy="5" r="3" fill="currentColor" opacity="0.9" />
-        <circle cx="4" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
-        <circle cx="36" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
-    </svg>
-    <div class="h-px flex-1 bg-linear-to-l from-transparent to-text-faint max-w-divider"></div>
-</div>
-
-        
     
         
         
@@ -544,8 +454,8 @@
     <div class="mt-6 text-center">
         <a href="/2026/09/28/hello-Friend/"
             class="focus-elegant btn-ink"
-            aria-label="Read More: 《浊世存光》">
-            Read More
+            aria-label="阅读更多: 《浊世存光》">
+            阅读更多
         </a>
     </div>
     
@@ -580,7 +490,7 @@
     </div>
 
     
-    <button id="backToTop" type="button" class="back-to-top" data-visible="false" aria-label="Back to Top" hidden>
+    <button id="backToTop" type="button" class="back-to-top" data-visible="false" aria-label="回到顶部" hidden>
         <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
         </svg>

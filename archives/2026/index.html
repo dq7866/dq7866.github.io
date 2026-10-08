@@ -2,7 +2,7 @@
 
 
 
-<html lang="en" class="h-full scroll-smooth">
+<html lang="zh-CN" class="h-full scroll-smooth">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -55,7 +55,7 @@
         else if (darkQuery.addListener) darkQuery.addListener(followSystem);
     }
     // Preloader skip: the session collection must contain this page's font-bundle URL.
-    const fontsReadyToken = "https://fonts.googleapis.com/css2?family=Cardo:wght@400;700\u0026family=Yuji+Syuku\u0026family=Zen+Old+Mincho:wght@400;600\u0026family=Cormorant+Garamond:wght@400;600\u0026display=swap";
+    const fontsReadyToken = "https://fonts.googleapis.com/css2?family=Cardo:wght@400;700\u0026family=Yuji+Syuku\u0026family=Zen+Old+Mincho:wght@400;600\u0026family=Cormorant+Garamond:wght@400;600\u0026family=Noto+Serif+SC:wght@400;600\u0026display=swap";
     shiro.fontsReadyToken = fontsReadyToken;
     try {
         const storedFontsReady = sessionStorage.getItem('shiro:fonts-ready');
@@ -84,32 +84,40 @@
 
 
 
-<title>Archives: 2026 | 知作坊</title>
+<title>归档: 2026 | 知作坊</title>
 
+
+<meta name="description" content="知作坊——故事、歌词与创作手记。「今世警世百回」系列连载，另有免安装网页小游戏合集。" />
 
 
 <meta name="author" content="尘世悟说" />
 
 
+<meta name="keywords" content="知作坊,今世警世百回,故事,歌词,创作手记,尘世悟说,免费小游戏" />
 
-<meta property="og:title" content="Archives: 2026 | 知作坊" />
 
-<meta property="og:url" content="http://example.com/archives/2026/index.html" />
+<meta property="og:title" content="归档: 2026 | 知作坊" />
+
+<meta property="og:description" content="知作坊——故事、歌词与创作手记。「今世警世百回」系列连载，另有免安装网页小游戏合集。" />
+
+<meta property="og:url" content="https://dq7866.online/archives/2026/index.html" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="知作坊" />
 
 
-<meta property="og:locale" content="en_US" />
+<meta property="og:locale" content="zh_CN" />
 
 
 
 
 <meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="Archives: 2026 | 知作坊" />
+<meta name="twitter:title" content="归档: 2026 | 知作坊" />
+
+<meta name="twitter:description" content="知作坊——故事、歌词与创作手记。「今世警世百回」系列连载，另有免安装网页小游戏合集。" />
 
 
 
-<link rel="canonical" href="http://example.com/archives/2026/index.html" />
+<link rel="canonical" href="https://dq7866.online/archives/2026/index.html" />
 
 
 
@@ -125,7 +133,7 @@
     
 
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Yuji+Syuku&family=Zen+Old+Mincho:wght@400;600&family=Cormorant+Garamond:wght@400;600&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Yuji+Syuku&family=Zen+Old+Mincho:wght@400;600&family=Cormorant+Garamond:wght@400;600&family=Noto+Serif+SC:wght@400;600&display=swap" />
 
 <link rel="stylesheet" href="/css/style.min.css?v=72525358">
 
@@ -144,7 +152,7 @@
             <span class="shiro-preloader-ring"></span>
         </div>
     </div>
-    <a href="#main-content" class="shiro-skip-link">Skip to content</a>
+    <a href="#main-content" class="shiro-skip-link">跳到正文</a>
     
     
 <svg width="0" height="0" class="absolute pointer-events-none" aria-hidden="true">
@@ -202,13 +210,17 @@
                 
             </div>
             
+            <p class="site-subtitle">
+                心灵火花的闪烁
+            </p>
+            
             
             
             <div class="mt-3 sm:mt-4 flex items-center justify-center gap-2">
                 
                 
                 
-                <button id="themeToggle" type="button" class="focus-elegant header-pill-btn" aria-label="Light" data-label-system="System" data-label-light="Light" data-label-dark="Dark" disabled>
+                <button id="themeToggle" type="button" class="focus-elegant header-pill-btn" aria-label="浅色" data-label-system="跟随系统" data-label-light="浅色" data-label-dark="深色" disabled>
                     
 <svg data-icon="system" class="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <rect x="2" y="3" width="20" height="14" rx="2" stroke-width="1.5"/>
@@ -237,14 +249,14 @@
 
 <!-- Navigation -->
 
-<nav class="mt-8 md:mt-10" aria-label="Menu" data-pagefind-ignore>
+<nav class="mt-8 md:mt-10" aria-label="菜单" data-pagefind-ignore>
     <!-- Mobile Toggle -->
     <div class="flex items-center justify-center md:hidden">
         
         <button id="menuBtn" type="button"
             class="focus-elegant inline-flex cursor-pointer items-center gap-2 rounded-full border border-border-strong bg-paper/95 px-4 py-2 text-sm text-text-body shadow-xs"
             aria-expanded="false" aria-controls="mobileMenu" disabled>
-            <span class="text-base leading-none tracking-widest">Menu</span>
+            <span class="text-base leading-none tracking-widest">菜单</span>
             
 <svg class="size-4 text-text-chrome transition-transform duration-200" id="menuChevron"
     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -264,7 +276,7 @@
 
 
 <a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
-    href="/">Home</a>
+    href="/">首页</a>
 </li>
             
             <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
@@ -274,7 +286,7 @@
 
 
 <a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
-    href="/archives">Archives</a>
+    href="/games/">游戏盒</a>
 </li>
             
             <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
@@ -284,7 +296,7 @@
 
 
 <a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
-    href="/categories">Categories</a>
+    href="/archives">归档</a>
 </li>
             
             <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
@@ -294,7 +306,17 @@
 
 
 <a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
-    href="/tags">Tags</a>
+    href="/categories">分类</a>
+</li>
+            
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
+            
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/tags">标签</a>
 </li>
             
             
@@ -310,7 +332,7 @@
 
 
 <a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
-    href="/">Home</a>
+    href="/">首页</a>
 </li>
             
             <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
@@ -320,7 +342,7 @@
 
 
 <a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
-    href="/archives">Archives</a>
+    href="/games/">游戏盒</a>
 </li>
             
             <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
@@ -330,7 +352,7 @@
 
 
 <a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
-    href="/categories">Categories</a>
+    href="/archives">归档</a>
 </li>
             
             <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
@@ -340,7 +362,17 @@
 
 
 <a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
-    href="/tags">Tags</a>
+    href="/categories">分类</a>
+</li>
+            
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
+            
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/tags">标签</a>
 </li>
             
             
@@ -367,7 +399,7 @@
     
 <header class="mb-10 text-center">
     <h1 class="section-title">
-        Archives: 2026
+        归档: 2026
     </h1>
     
 <div class="my-4 flex items-center justify-center gap-3" aria-hidden="true">
@@ -403,32 +435,6 @@
                 
             </h2>
             <div class="space-y-4">
-                
-                
-
-
-<article class="group flex min-w-0 items-baseline gap-6">
-    <time datetime="2026-09-28" class="w-24 shrink-0 text-right text-sm text-text-chrome oldstyle-nums">
-        2026/09/28
-    </time>
-    <h3 class="min-w-0 text-base font-normal text-text-body transition-colors group-hover:text-seal">
-        <a href="/2026/09/28/hello/" class="link-underline break-words">Hello World</a>
-    </h3>
-</article>
-
-                
-                
-
-
-<article class="group flex min-w-0 items-baseline gap-6">
-    <time datetime="2026-09-28" class="w-24 shrink-0 text-right text-sm text-text-chrome oldstyle-nums">
-        2026/09/28
-    </time>
-    <h3 class="min-w-0 text-base font-normal text-text-body transition-colors group-hover:text-seal">
-        <a href="/2026/09/28/hello-world/" class="link-underline break-words">Hello World</a>
-    </h3>
-</article>
-
                 
                 
 

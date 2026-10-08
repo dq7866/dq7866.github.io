@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🧠 记忆翻牌</title>
+<meta name="description" content="在线免费玩记忆翻牌！翻开卡片配对所有相同图案，锻炼记忆力与专注力。可爱风格的益智小游戏。">
+<meta name="keywords" content="记忆翻牌,配对游戏,记忆训练,益智游戏,免费小游戏">
+<meta name="theme-color" content="#667eea">
+<link rel="canonical" href="https://dq7866.online/games/memory.html">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="欢乐游戏盒">
+<meta property="og:title" content="记忆翻牌 - 欢乐游戏盒">
+<meta property="og:description" content="在线免费玩记忆翻牌！翻开卡片配对所有相同图案，锻炼记忆力与专注力。可爱风格的益智小游戏。">
+<meta property="og:url" content="https://dq7866.online/games/memory.html">
+<meta property="og:image" content="https://dq7866.online/games/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="记忆翻牌 - 欢乐游戏盒">
+<meta name="twitter:description" content="在线免费玩记忆翻牌！翻开卡片配对所有相同图案，锻炼记忆力与专注力。可爱风格的益智小游戏。">
+<meta name="twitter:image" content="https://dq7866.online/games/og-image.png">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px;
+    user-select: none;
+  }
+  .app { width: 100%; max-width: 480px; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 6px; }
+  .back-btn { background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.5); color: #8b4513; padding: 7px 12px; border-radius: 20px; text-decoration: none; font-size: 0.82rem; }
+  .game-title { color: #8b4513; font-size: 1.3rem; font-weight: 800; }
+  .icon-btn { background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.5); color: #8b4513; padding: 7px 10px; border-radius: 20px; cursor: pointer; font-size: 1rem; }
+
+  .info-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .info-box { flex: 1; background: rgba(255,255,255,0.35); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); border-radius: 12px; padding: 8px; text-align: center; color: #8b4513; }
+  .info-label { font-size: 0.65rem; opacity: 0.7; }
+  .info-val { font-size: 1.3rem; font-weight: 800; }
+
+  .diff-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .diff-btn { flex: 1; padding: 8px; border: 1px solid rgba(255,255,255,0.5); border-radius: 12px; background: rgba(255,255,255,0.3); color: #8b4513; font-weight: 600; font-size: 0.8rem; cursor: pointer; }
+  .diff-btn.active { background: #8b4513; color: #fff; }
+
+  .board {
+    display: grid;
+    gap: 8px;
+    margin: 0 auto;
+    perspective: 1000px;
+  }
+  .card {
+    aspect-ratio: 1;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    cursor: pointer;
+  }
+  .card.flipped { transform: rotateY(180deg); }
+  .card.matched .front { box-shadow: 0 0 15px #2ecc71; }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1.5rem, 8vw, 2.5rem);
+  }
+  .back {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: 2px solid rgba(255,255,255,0.5);
+    font-size: 1.5rem;
+  }
+  .back::before { content: '❓'; }
+  .front {
+    background: linear-gradient(135deg, #fff, #f0f0f0);
+    border: 2px solid #ddd;
+    transform: rotateY(180deg);
+  }
+
+  .controls { display: flex; gap: 10px; margin-top: 14px; }
+  .ctrl-btn { flex: 1; padding: 12px; border: 1px solid rgba(255,255,255,0.5); border-radius: 14px; background: rgba(255,255,255,0.3); color: #8b4513; font-weight: 600; cursor: pointer; }
+  .ctrl-btn:hover { background: rgba(255,255,255,0.5); }
+
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+  .modal.show { display: flex; }
+  .modal-box { background: linear-gradient(135deg, #fa709a, #fee140); border: 1px solid rgba(255,255,255,0.5); border-radius: 24px; padding: 30px 24px; text-align: center; color: #8b4513; max-width: 340px; width: 100%; position: relative; overflow: hidden; }
+  .modal-box h2 { font-size: 1.8rem; margin-bottom: 10px; }
+  .modal-icon { font-size: 4rem; margin-bottom: 12px; }
+  .modal-btn { width: 100%; padding: 14px; margin-top: 14px; border: none; border-radius: 14px; background: #8b4513; color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; }
+  .modal-btn.secondary { background: rgba(255,255,255,0.5); color: #8b4513; margin-top: 8px; }
+  .fw-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .praise { font-size: 1.2rem; color: #8b4513; font-weight: 800; margin: 8px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top-bar">
+    <a href="index.html" class="back-btn">← 返回</a>
+    <div class="game-title">🧠 记忆翻牌</div>
+    <button class="icon-btn" id="soundBtn">🔊</button>
+  </div>
+
+  <div class="info-row">
+    <div class="info-box"><div class="info-label">步数</div><div class="info-val" id="moves">0</div></div>
+    <div class="info-box"><div class="info-label">配对</div><div class="info-val" id="pairs">0/0</div></div>
+    <div class="info-box"><div class="info-label">用时</div><div class="info-val" id="time">00:00</div></div>
+  </div>
+
+  <div class="diff-row">
+    <button class="diff-btn active" data-pairs="8">简单 4×4</button>
+    <button class="diff-btn" data-pairs="12">中等 6×4</button>
+    <button class="diff-btn" data-pairs="18">困难 6×6</button>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="restartBtn">🔄 重新开始</button>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="fw-layer" id="fw"></div>
+    <div class="modal-icon" id="mIcon">🎉</div>
+    <h2 id="mTitle">完成！</h2>
+    <div class="praise" id="mPraise"></div>
+    <p id="mMsg"></p>
+    <button class="modal-btn" id="mBtn">再来一局</button>
+    <button class="modal-btn secondary" id="mHome">返回首页</button>
+  </div>
+</div>
+
+<script src="js/common.js"></script>
+<script>
+(() => {
+  const EMOJIS = ['🐶','🐱','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🦆','🦉','🦋','🐝'];
+  const LAYOUTS = {8: {cols:4, rows:4}, 12: {cols:6, rows:4}, 18: {cols:6, rows:6}};
+  let pairs = 8, cols = 4, rows = 4;
+  let cards = [], flipped = [], matched = 0, moves = 0;
+  let busy = false, startTime = 0, timerInt = null, started = false;
+
+  const boardEl = document.getElementById('board');
+
+  function init() {
+    ({cols, rows} = LAYOUTS[pairs] || LAYOUTS[8]);
+    const emojis = EMOJIS.slice(0, pairs);
+    cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+    flipped = []; matched = 0; moves = 0; busy = false; started = false;
+    stopTimer();
+    document.getElementById('moves').textContent = '0';
+    document.getElementById('pairs').textContent = `0/${pairs}`;
+    document.getElementById('time').textContent = '00:00';
+    boardEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    render();
+  }
+
+  function render() {
+    boardEl.innerHTML = '';
+    cards.forEach((emoji, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `<div class="card-face back"></div><div class="card-face front">${emoji}</div>`;
+      card.dataset.index = i;
+      card.onclick = () => flip(i);
+      boardEl.appendChild(card);
+    });
+  }
+
+  function flip(i) {
+    if (busy) return;
+    const cardEl = boardEl.children[i];
+    if (cardEl.classList.contains('flipped') || cardEl.classList.contains('matched')) return;
+    if (!started) { started = true; startTimer(); }
+    Sound.select();
+    cardEl.classList.add('flipped');
+    flipped.push(i);
+    if (flipped.length === 2) {
+      moves++;
+      document.getElementById('moves').textContent = moves;
+      busy = true;
+      const [a, b] = flipped;
+      if (cards[a] === cards[b]) {
+        Sound.match(1);
+        setTimeout(() => {
+          boardEl.children[a].classList.add('matched');
+          boardEl.children[b].classList.add('matched');
+          matched++;
+          document.getElementById('pairs').textContent = `${matched}/${pairs}`;
+          flipped = []; busy = false;
+          if (matched === pairs) win();
+        }, 300);
+      } else {
+        Sound.invalid();
+        setTimeout(() => {
+          boardEl.children[a].classList.remove('flipped');
+          boardEl.children[b].classList.remove('flipped');
+          flipped = []; busy = false;
+        }, 800);
+      }
+    }
+  }
+
+  function win() {
+    stopTimer();
+    const t = getTime();
+    User.addScore(Math.max(0, 10000 - moves * 100 - t * 10), true, t);
+    Sound.win();
+    const m = document.getElementById('modal');
+    document.getElementById('mIcon').textContent = '🧠';
+    document.getElementById('mTitle').textContent = '记忆大师！';
+    document.getElementById('mPraise').textContent = getPraise();
+    document.getElementById('mMsg').textContent = `${moves} 步 · ${formatTime(t)}`;
+    document.getElementById('mBtn').onclick = () => { m.classList.remove('show'); init(); };
+    launchFireworks(document.getElementById('fw'));
+    setTimeout(()=>launchFireworks(document.getElementById('fw')), 500);
+    m.classList.add('show');
+  }
+
+  function startTimer() { startTime = Date.now(); timerInt = setInterval(() => document.getElementById('time').textContent = formatTime(getTime()), 1000); }
+  function stopTimer() { if (timerInt) clearInterval(timerInt); }
+  function getTime() { return Math.floor((Date.now() - startTime) / 1000); }
+
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      pairs = +btn.dataset.pairs;
+      init();
+    };
+  });
+  document.getElementById('restartBtn').onclick = () => { Sound.click(); init(); };
+  document.getElementById('mHome').onclick = () => location.href = 'index.html';
+
+  const soundBtn = document.getElementById('soundBtn');
+  function updBtn(){ soundBtn.textContent = Sound.isEnabled()?'🔊':'🔇'; }
+  updBtn();
+  soundBtn.onclick = () => {
+    const on = !Sound.isEnabled();
+    Sound.setEnabled(on); updBtn();
+    if (on) Sound.startBGM(); else Sound.stopBGM();
+  };
+
+  init();
+})();
+</script>
+</body>
+</html>

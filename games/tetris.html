@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🧱 俄罗斯方块</title>
+<meta name="description" content="在线免费玩俄罗斯方块！旋转移动堆叠方块消除整行，经典玩法永不过时。支持触屏与键盘。">
+<meta name="keywords" content="俄罗斯方块,Tetris,经典游戏,怀旧游戏,免费小游戏">
+<meta name="theme-color" content="#667eea">
+<link rel="canonical" href="https://dq7866.online/games/tetris.html">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="欢乐游戏盒">
+<meta property="og:title" content="俄罗斯方块 - 欢乐游戏盒">
+<meta property="og:description" content="在线免费玩俄罗斯方块！旋转移动堆叠方块消除整行，经典玩法永不过时。支持触屏与键盘。">
+<meta property="og:url" content="https://dq7866.online/games/tetris.html">
+<meta property="og:image" content="https://dq7866.online/games/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="俄罗斯方块 - 欢乐游戏盒">
+<meta name="twitter:description" content="在线免费玩俄罗斯方块！旋转移动堆叠方块消除整行，经典玩法永不过时。支持触屏与键盘。">
+<meta name="twitter:image" content="https://dq7866.online/games/og-image.png">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px;
+    user-select: none;
+  }
+  .app { width: 100%; max-width: 480px; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 6px; }
+  .back-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 12px; border-radius: 20px; text-decoration: none; font-size: 0.82rem; }
+  .game-title { color: #fff; font-size: 1.3rem; font-weight: 800; }
+  .icon-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 10px; border-radius: 20px; cursor: pointer; font-size: 1rem; }
+
+  .game-area { display: flex; gap: 12px; }
+  canvas { background: rgba(0,0,0,0.4); border-radius: 12px; box-shadow: 0 0 30px rgba(102,126,234,0.3); }
+  .side { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 0; }
+  .info-card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 10px;
+    color: #fff;
+    text-align: center;
+  }
+  .info-label { font-size: 0.7rem; opacity: 0.7; }
+  .info-val { font-size: 1.3rem; font-weight: 800; }
+  .info-val.score { color: #ffd700; }
+  .info-val.lines { color: #4ecdc4; }
+  .info-val.level { color: #ff6b9d; }
+  #nextCanvas { background: rgba(0,0,0,0.3); border-radius: 8px; display: block; margin: 6px auto 0; }
+
+  .touch-ctrl {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .t-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 16px;
+    border-radius: 14px;
+    font-size: 1.3rem;
+    cursor: pointer;
+    text-align: center;
+  }
+  .t-btn:active { background: rgba(255,255,255,0.25); }
+
+  .controls { display: flex; gap: 10px; margin-top: 12px; }
+  .ctrl-btn { flex: 1; padding: 11px; border: 1px solid rgba(255,255,255,0.2); border-radius: 14px; background: rgba(255,255,255,0.1); color: #fff; font-weight: 600; cursor: pointer; }
+  .ctrl-btn:hover { background: rgba(255,255,255,0.2); }
+
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+  .modal.show { display: flex; }
+  .modal-box { background: linear-gradient(135deg, #2d1b4e, #1a1a2e); border: 1px solid rgba(255,255,255,0.2); border-radius: 24px; padding: 30px 24px; text-align: center; color: #fff; max-width: 340px; width: 100%; position: relative; overflow: hidden; }
+  .modal-box h2 { font-size: 1.8rem; margin-bottom: 10px; }
+  .modal-icon { font-size: 4rem; margin-bottom: 12px; }
+  .modal-btn { width: 100%; padding: 14px; margin-top: 14px; border: none; border-radius: 14px; background: linear-gradient(135deg, #ffd700, #ff69b4); color: #1a1a2e; font-weight: 800; font-size: 1rem; cursor: pointer; }
+  .modal-btn.secondary { background: rgba(255,255,255,0.1); color: #fff; margin-top: 8px; }
+  .fw-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .praise { font-size: 1.2rem; color: #ffd700; font-weight: 800; margin: 8px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top-bar">
+    <a href="index.html" class="back-btn">← 返回</a>
+    <div class="game-title">🧱 俄罗斯方块</div>
+    <button class="icon-btn" id="soundBtn">🔊</button>
+  </div>
+
+  <div class="game-area">
+    <canvas id="game" width="240" height="480"></canvas>
+    <div class="side">
+      <div class="info-card"><div class="info-label">分数</div><div class="info-val score" id="score">0</div></div>
+      <div class="info-card"><div class="info-label">行数</div><div class="info-val lines" id="lines">0</div></div>
+      <div class="info-card"><div class="info-label">等级</div><div class="info-val level" id="level">1</div></div>
+      <div class="info-card"><div class="info-label">下一个</div><canvas id="nextCanvas" width="80" height="80"></canvas></div>
+    </div>
+  </div>
+
+  <div class="touch-ctrl">
+    <div></div>
+    <button class="t-btn" id="rotBtn">🔄</button>
+    <div></div>
+    <button class="t-btn" id="leftBtn">⬅️</button>
+    <button class="t-btn" id="downBtn">⬇️</button>
+    <button class="t-btn" id="rightBtn">➡️</button>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" id="startBtn">▶️ 开始</button>
+    <button class="ctrl-btn" id="dropBtn">⏬ 直降</button>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="fw-layer" id="fw"></div>
+    <div class="modal-icon" id="mIcon">🎮</div>
+    <h2 id="mTitle">游戏结束</h2>
+    <div class="praise" id="mPraise"></div>
+    <p id="mMsg"></p>
+    <p style="font-size:1.4rem;font-weight:800;color:#ffd700;margin-top:10px;" id="mScore">0</p>
+    <button class="modal-btn" id="mBtn">再来一局</button>
+    <button class="modal-btn secondary" id="mHome">返回首页</button>
+  </div>
+</div>
+
+<script src="js/common.js"></script>
+<script>
+(() => {
+  const COLS = 10, ROWS = 20, BLOCK = 24;
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const nextCanvas = document.getElementById('nextCanvas');
+  const nctx = nextCanvas.getContext('2d');
+
+  const SHAPES = {
+    I: [[1,1,1,1]],
+    O: [[1,1],[1,1]],
+    T: [[0,1,0],[1,1,1]],
+    S: [[0,1,1],[1,1,0]],
+    Z: [[1,1,0],[0,1,1]],
+    J: [[1,0,0],[1,1,1]],
+    L: [[0,0,1],[1,1,1]]
+  };
+  const COLORS = {I:'#4ecdc4', O:'#ffd93d', T:'#a78bfa', S:'#26de81', Z:'#ff6b6b', J:'#74c0fc', L:'#ffa502'};
+
+  let board, current, next, score, lines, level, dropInterval, dropTimer, running, gameOver;
+
+  function init() {
+    board = Array.from({length:ROWS}, () => Array(COLS).fill(0));
+    score = 0; lines = 0; level = 1;
+    dropInterval = 800;
+    gameOver = false;
+    current = newPiece();
+    next = newPiece();
+    updateInfo();
+    draw();
+    drawNext();
+  }
+
+  function newPiece() {
+    const keys = Object.keys(SHAPES);
+    const type = keys[Math.floor(Math.random() * keys.length)];
+    return { type, shape: SHAPES[type].map(r=>[...r]), x: Math.floor(COLS/2) - Math.ceil(SHAPES[type][0].length/2), y: 0 };
+  }
+
+  function collide(piece, ox=0, oy=0) {
+    for (let r = 0; r < piece.shape.length; r++) {
+      for (let c = 0; c < piece.shape[r].length; c++) {
+        if (!piece.shape[r][c]) continue;
+        const x = piece.x + c + ox, y = piece.y + r + oy;
+        if (x < 0 || x >= COLS || y >= ROWS) return true;
+        if (y >= 0 && board[y][x]) return true;
+      }
+    }
+    return false;
+  }
+
+  function merge() {
+    current.shape.forEach((row, r) => row.forEach((v, c) => {
+      if (v && current.y + r >= 0) board[current.y + r][current.x + c] = current.type;
+    }));
+  }
+
+  function rotate() {
+    const rotated = current.shape[0].map((_, i) => current.shape.map(row => row[i]).reverse());
+    const old = current.shape;
+    current.shape = rotated;
+    if (collide(current)) {
+      // 墙踢
+      if (!collide(current, -1, 0)) current.x--;
+      else if (!collide(current, 1, 0)) current.x++;
+      else if (!collide(current, -2, 0)) current.x -= 2;
+      else if (!collide(current, 2, 0)) current.x += 2;
+      else current.shape = old;
+    }
+    Sound.click();
+    draw();
+  }
+
+  function move(dx) {
+    if (!collide(current, dx, 0)) { current.x += dx; draw(); Sound.select(); }
+  }
+
+  function softDrop() {
+    if (!collide(current, 0, 1)) { current.y++; draw(); }
+    else lockPiece();
+  }
+
+  function hardDrop() {
+    while (!collide(current, 0, 1)) { current.y++; score += 2; }
+    updateInfo();
+    Sound.swap();
+    lockPiece();
+  }
+
+  function lockPiece() {
+    merge();
+    const cleared = clearLines();
+    if (cleared) {
+      Sound.match(cleared);
+      const pts = [0, 100, 300, 500, 800][cleared] * level;
+      score += pts;
+      lines += cleared;
+      level = Math.floor(lines / 10) + 1;
+      dropInterval = Math.max(100, 800 - (level-1) * 70);
+    }
+    current = next;
+    next = newPiece();
+    if (collide(current)) {
+      gameOver = true;
+      running = false;
+      User.addScore(score, false, 0);
+      Sound.lose();
+      showModal();
+      return;
+    }
+    updateInfo();
+    draw();
+    drawNext();
+  }
+
+  function clearLines() {
+    let cleared = 0;
+    for (let r = ROWS-1; r >= 0; r--) {
+      if (board[r].every(v => v)) {
+        board.splice(r, 1);
+        board.unshift(Array(COLS).fill(0));
+        cleared++;
+        r++;
+      }
+    }
+    return cleared;
+  }
+
+  function draw() {
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // 网格
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    for (let i = 1; i < COLS; i++) { ctx.beginPath(); ctx.moveTo(i*BLOCK, 0); ctx.lineTo(i*BLOCK, canvas.height); ctx.stroke(); }
+    for (let i = 1; i < ROWS; i++) { ctx.beginPath(); ctx.moveTo(0, i*BLOCK); ctx.lineTo(canvas.width, i*BLOCK); ctx.stroke(); }
+    // 已固定
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      if (board[r][c]) drawBlock(ctx, c, r, COLORS[board[r][c]]);
+    }
+    // 当前
+    if (current) {
+      current.shape.forEach((row, r) => row.forEach((v, c) => {
+        if (v) drawBlock(ctx, current.x + c, current.y + r, COLORS[current.type]);
+      }));
+    }
+  }
+
+  function drawBlock(c, x, y, color) {
+    c.fillStyle = color;
+    c.fillRect(x*BLOCK+1, y*BLOCK+1, BLOCK-2, BLOCK-2);
+    c.fillStyle = 'rgba(255,255,255,0.3)';
+    c.fillRect(x*BLOCK+1, y*BLOCK+1, BLOCK-2, 4);
+    c.fillStyle = 'rgba(0,0,0,0.2)';
+    c.fillRect(x*BLOCK+1, y*BLOCK+BLOCK-5, BLOCK-2, 4);
+  }
+
+  function drawNext() {
+    nctx.fillStyle = 'rgba(0,0,0,0.3)';
+    nctx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+    const s = next.shape;
+    const size = 16;
+    const ox = (nextCanvas.width - s[0].length * size) / 2;
+    const oy = (nextCanvas.height - s.length * size) / 2;
+    s.forEach((row, r) => row.forEach((v, c) => {
+      if (v) {
+        nctx.fillStyle = COLORS[next.type];
+        nctx.fillRect(ox + c*size+1, oy + r*size+1, size-2, size-2);
+      }
+    }));
+  }
+
+  function updateInfo() {
+    document.getElementById('score').textContent = score;
+    document.getElementById('lines').textContent = lines;
+    document.getElementById('level').textContent = level;
+  }
+
+  function gameLoop() {
+    if (!running || gameOver) return;
+    const now = Date.now();
+    if (now - dropTimer > dropInterval) {
+      softDrop();
+      dropTimer = now;
+    }
+    requestAnimationFrame(gameLoop);
+  }
+
+  let paused = false;
+  function togglePlay() {
+    Sound.click();
+    if (gameOver) {
+      init();
+      document.getElementById('startBtn').textContent = '▶️ 开始';
+      return;
+    }
+    if (!running) {
+      // 从暂停或初始状态开始
+      if (!paused) init();
+      running = true;
+      paused = false;
+      dropTimer = Date.now();
+      gameLoop();
+      document.getElementById('startBtn').textContent = '⏸️ 暂停';
+    } else {
+      // 暂停
+      running = false;
+      paused = true;
+      document.getElementById('startBtn').textContent = '▶️ 继续';
+    }
+  }
+
+  function showModal() {
+    const m = document.getElementById('modal');
+    document.getElementById('mIcon').textContent = '🎮';
+    document.getElementById('mTitle').textContent = '游戏结束';
+    document.getElementById('mPraise').textContent = lines >= 10 ? '消行大师！' : '再试一次！';
+    document.getElementById('mMsg').textContent = `消除了 ${lines} 行`;
+    document.getElementById('mScore').textContent = score + ' 分';
+    document.getElementById('mBtn').onclick = () => { m.classList.remove('show'); init(); document.getElementById('startBtn').textContent = '▶️ 开始'; };
+    m.classList.add('show');
+  }
+
+  document.addEventListener('keydown', e => {
+    if (!running) return;
+    if (e.key === 'ArrowLeft') move(-1);
+    else if (e.key === 'ArrowRight') move(1);
+    else if (e.key === 'ArrowDown') softDrop();
+    else if (e.key === 'ArrowUp' || e.key === ' ') { e.preventDefault(); rotate(); }
+  });
+
+  document.getElementById('leftBtn').onclick = () => running && move(-1);
+  document.getElementById('rightBtn').onclick = () => running && move(1);
+  document.getElementById('downBtn').onclick = () => running && softDrop();
+  document.getElementById('rotBtn').onclick = () => running && rotate();
+  document.getElementById('dropBtn').onclick = () => running && hardDrop();
+  document.getElementById('startBtn').onclick = togglePlay;
+  document.getElementById('mHome').onclick = () => location.href = 'index.html';
+
+  const soundBtn = document.getElementById('soundBtn');
+  function updBtn(){ soundBtn.textContent = Sound.isEnabled()?'🔊':'🔇'; }
+  updBtn();
+  soundBtn.onclick = () => {
+    const on = !Sound.isEnabled();
+    Sound.setEnabled(on); updBtn();
+    if (on) Sound.startBGM(); else Sound.stopBGM();
+  };
+
+  init();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🏗️ Stack Tower</title>
+<meta name="description" content="在线免费玩 Stack Tower 堆塔！精准投放方块层层堆高，完美对齐触发连击。考验时机把握的休闲小游戏。">
+<meta name="keywords" content="堆塔,Stack游戏,精准对齐,休闲游戏,免费小游戏">
+<meta name="theme-color" content="#667eea">
+<link rel="canonical" href="https://dq7866.online/games/stack.html">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="欢乐游戏盒">
+<meta property="og:title" content="Stack Tower - 欢乐游戏盒">
+<meta property="og:description" content="在线免费玩 Stack Tower 堆塔！精准投放方块层层堆高，完美对齐触发连击。考验时机把握的休闲小游戏。">
+<meta property="og:url" content="https://dq7866.online/games/stack.html">
+<meta property="og:image" content="https://dq7866.online/games/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Stack Tower - 欢乐游戏盒">
+<meta name="twitter:description" content="在线免费玩 Stack Tower 堆塔！精准投放方块层层堆高，完美对齐触发连击。考验时机把握的休闲小游戏。">
+<meta name="twitter:image" content="https://dq7866.online/games/og-image.png">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+    background: #0f0c29;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px;
+    user-select: none;
+    overflow: hidden;
+  }
+  .app { width: 100%; max-width: 420px; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 6px; }
+  .back-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 12px; border-radius: 20px; text-decoration: none; font-size: 0.82rem; }
+  .game-title { color: #fff; font-size: 1.2rem; font-weight: 800; }
+  .icon-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 7px 10px; border-radius: 20px; cursor: pointer; font-size: 1rem; }
+  .info-row { display: flex; gap: 10px; margin-bottom: 8px; }
+  .info-box { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 6px; text-align: center; color: #fff; }
+  .info-label { font-size: 0.6rem; opacity: 0.5; }
+  .info-val { font-size: 1.3rem; font-weight: 800; }
+  #score { color: #feca57; }
+  #best { color: #48dbfb; }
+  canvas { display: block; margin: 0 auto; background: #0f0c29; border-radius: 16px; box-shadow: 0 0 40px rgba(255,255,255,0.05); touch-action: none; }
+  .tip { text-align: center; color: rgba(255,255,255,0.4); font-size: 0.72rem; margin-top: 8px; }
+  .combo-display { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 3rem; font-weight: 900; color: #feca57; text-shadow: 0 0 20px #feca57; pointer-events: none; opacity: 0; z-index: 100; }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+  .modal.show { display: flex; }
+  .modal-box { background: linear-gradient(135deg, #0f0c29, #302b63); border: 1px solid rgba(255,255,255,0.2); border-radius: 24px; padding: 30px 24px; text-align: center; color: #fff; max-width: 340px; width: 100%; position: relative; overflow: hidden; }
+  .modal-box h2 { font-size: 1.6rem; margin-bottom: 10px; }
+  .modal-icon { font-size: 4rem; margin-bottom: 12px; }
+  .modal-btn { width: 100%; padding: 14px; margin-top: 14px; border: none; border-radius: 14px; background: linear-gradient(135deg,#feca57,#ff9f43); color: #0f0c29; font-weight: 800; font-size: 1rem; cursor: pointer; }
+  .modal-btn.secondary { background: rgba(255,255,255,0.15); color: #fff; margin-top: 8px; }
+  .fw-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .praise { font-size: 1.1rem; color: #feca57; font-weight: 800; margin: 8px 0; }
+  .final-score { font-size: 2.2rem; font-weight: 900; color: #feca57; margin: 10px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top-bar">
+    <a href="index.html" class="back-btn">← 返回</a>
+    <div class="game-title">🏗️ STACK TOWER</div>
+    <button class="icon-btn" id="soundBtn">🔊</button>
+  </div>
+  <div class="info-row">
+    <div class="info-box"><div class="info-label">层数</div><div class="info-val" id="score">0</div></div>
+    <div class="info-box"><div class="info-label">连击</div><div class="info-val" id="combo">0</div></div>
+    <div class="info-box"><div class="info-label">最高</div><div class="info-val" id="best">0</div></div>
+  </div>
+  <canvas id="c" width="380" height="500"></canvas>
+  <p class="tip">👆 点击投放 · 对齐越准越好 · 完美对齐不缩小</p>
+</div>
+<div class="combo-display" id="comboPop"></div>
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="fw-layer" id="fw"></div>
+    <div class="modal-icon" id="mIcon">🏗️</div>
+    <h2 id="mTitle">塔倒了！</h2>
+    <div class="praise" id="mPraise"></div>
+    <div class="final-score" id="mScore">0 层</div>
+    <button class="modal-btn" id="mBtn">再来一局</button>
+    <button class="modal-btn secondary" id="mHome">返回首页</button>
+  </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+(() => {
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const BLOCK_H = 22;
+  const COLORS = ['#5fdea0','#48dbfb','#feca57','#ff9ff3','#f093fb','#a55eea','#ff6b6b','#26de81'];
+
+  let tower, moving, dir, score, combo, best, gameOver, scrollOffset, scrollTarget;
+  best = parseInt(localStorage.getItem('stackBest')||'0');
+  document.getElementById('best').textContent = best;
+
+  function init() {
+    tower = [{ x: W/2 - 80, w: 160, color: COLORS[0] }];
+    moving = null;
+    dir = 1;
+    score = 0; combo = 0; gameOver = false;
+    scrollOffset = 0; scrollTarget = 0;
+    spawnMoving();
+    updateInfo();
+  }
+
+  function spawnMoving() {
+    const top = tower[tower.length-1];
+    moving = {
+      x: dir > 0 ? -top.w : W,
+      w: top.w,
+      color: COLORS[tower.length % COLORS.length]
+    };
+  }
+
+  function place() {
+    if (gameOver) return;
+    const top = tower[tower.length-1];
+    const overlap = Math.min(moving.x + moving.w, top.x + top.w) - Math.max(moving.x, top.x);
+    if (overlap <= 0) return endGame();
+    // 切割
+    const left = Math.max(moving.x, top.x);
+    const right = Math.min(moving.x + moving.w, top.x + top.w);
+    const newW = right - left;
+    const offset = left - top.x;
+    const newX = top.x + offset;
+    // 完美对齐（5px容差）
+    const diff = Math.abs(moving.x - top.x);
+    if (diff < 6) {
+      // 完美！
+      combo++;
+      moving.x = top.x;
+      moving.w = top.w;
+      tower.push({ ...moving });
+      Sound.combo(Math.min(combo+1, 5));
+      showCombo(combo);
+      score += combo >= 3 ? 2 : 1;
+    } else {
+      combo = 0;
+      tower.push({ x: newX, w: newW, color: moving.color });
+      // 切下的碎片掉落
+      dropFragments(left, right, moving.x, moving.x + moving.w, top);
+      score++;
+      Sound.match(1);
+      if (newW < 10) return endGame();
+    }
+    dir *= -1;
+    updateInfo();
+    // 滚动
+    if (tower.length > 8) {
+      scrollTarget = (tower.length - 8) * BLOCK_H;
+    }
+    spawnMoving();
+  }
+
+  function dropFragments(left, right, mLeft, mRight, top) {
+    // 简化：只在视觉上画掉落碎片
+    // 不影响游戏逻辑
+  }
+
+  function showCombo(n) {
+    if (n < 2) return;
+    const el = document.getElementById('comboPop');
+    el.textContent = combo >= 5 ? 'PERFECT x' + n + '!' : 'COMBO x' + n;
+    el.style.color = COLORS[n % COLORS.length];
+    el.style.textShadow = `0 0 20px ${COLORS[n % COLORS.length]}`;
+    el.animate([
+      { opacity: 0, transform: 'translate(-50%,-50%) scale(0.5)' },
+      { opacity: 1, transform: 'translate(-50%,-50%) scale(1.2)' },
+      { opacity: 0, transform: 'translate(-50%,-50%) scale(1)' }
+    ], { duration: 800, easing: 'ease-out' });
+  }
+
+  function updateInfo() {
+    document.getElementById('score').textContent = score;
+    document.getElementById('combo').textContent = combo;
+  }
+
+  function endGame() {
+    gameOver = true;
+    if (score > best) { best = score; localStorage.setItem('stackBest', best); document.getElementById('best').textContent = best; }
+    User.addScore(score * 20, false, 0);
+    Sound.lose();
+    setTimeout(() => {
+      const m = document.getElementById('modal');
+      document.getElementById('mIcon').textContent = score >= 15 ? '🏆' : '🏗️';
+      document.getElementById('mTitle').textContent = score >= 15 ? '建塔大师！' : '塔倒了！';
+      document.getElementById('mPraise').textContent = getPraise();
+      document.getElementById('mScore').textContent = score + ' 层';
+      document.getElementById('mBtn').onclick = () => { m.classList.remove('show'); init(); };
+      if (score >= 15) { launchFireworks(document.getElementById('fw')); setTimeout(()=>launchFireworks(document.getElementById('fw')),400); }
+      m.classList.add('show');
+    }, 500);
+  }
+
+  let frame = 0;
+  function loop() {
+    frame++;
+    // 平滑滚动
+    scrollOffset += (scrollTarget - scrollOffset) * 0.1;
+
+    ctx.fillStyle = '#0f0c29';
+    ctx.fillRect(0,0,W,H);
+
+    // 背景星空
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    for (let i = 0; i < 30; i++) {
+      const sx = (i * 37) % W;
+      const sy = (i * 53 + frame * 0.1) % H;
+      ctx.fillRect(sx, sy, 2, 2);
+    }
+
+    const baseY = H - 40;
+    // 画塔
+    tower.forEach((b, i) => {
+      const y = baseY - (i+1) * BLOCK_H + scrollOffset;
+      if (y > H || y < -BLOCK_H) return;
+      // 阴影
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillRect(b.x + 3, y + 3, b.w, BLOCK_H);
+      // 方块
+      const g = ctx.createLinearGradient(b.x, y, b.x, y + BLOCK_H);
+      g.addColorStop(0, b.color);
+      g.addColorStop(1, shade(b.color, -30));
+      ctx.fillStyle = g;
+      ctx.fillRect(b.x, y, b.w, BLOCK_H);
+      // 高光
+      ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      ctx.fillRect(b.x, y, b.w, 3);
+    });
+
+    // 画移动的方块
+    if (moving && !gameOver) {
+      const y = baseY - (tower.length+1) * BLOCK_H + scrollOffset;
+      moving.x += dir * 3;
+      if (moving.x + moving.w > W) { moving.x = W - moving.w; dir = -1; }
+      if (moving.x < 0) { moving.x = 0; dir = 1; }
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillRect(moving.x + 3, y + 3, moving.w, BLOCK_H);
+      const g = ctx.createLinearGradient(moving.x, y, moving.x, y + BLOCK_H);
+      g.addColorStop(0, moving.color);
+      g.addColorStop(1, shade(moving.color, -30));
+      ctx.fillStyle = g;
+      ctx.fillRect(moving.x, y, moving.w, BLOCK_H);
+      ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      ctx.fillRect(moving.x, y, moving.w, 3);
+      // 对齐辅助线
+      const top = tower[tower.length-1];
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.setLineDash([4,4]);
+      ctx.beginPath();
+      ctx.moveTo(top.x, y);
+      ctx.lineTo(top.x, y + BLOCK_H * 2);
+      ctx.moveTo(top.x + top.w, y);
+      ctx.lineTo(top.x + top.w, y + BLOCK_H * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  function shade(color, percent) {
+    const num = parseInt(color.slice(1),16);
+    let r = (num>>16)+percent, g = ((num>>8)&0xff)+percent, b = (num&0xff)+percent;
+    r = Math.max(0,Math.min(255,r)); g = Math.max(0,Math.min(255,g)); b = Math.max(0,Math.min(255,b));
+    return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+  }
+
+  canvas.addEventListener('click', place);
+  canvas.addEventListener('touchend', e => { e.preventDefault(); place(); }, {passive:false});
+  document.addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key === 'ArrowDown') { e.preventDefault(); place(); }
+  });
+
+  document.getElementById('mHome').onclick = () => location.href = 'index.html';
+  const soundBtn = document.getElementById('soundBtn');
+  function updBtn(){ soundBtn.textContent = Sound.isEnabled()?'🔊':'🔇'; }
+  updBtn();
+  soundBtn.onclick = () => {
+    const on = !Sound.isEnabled();
+    Sound.setEnabled(on); updBtn();
+    if (on) Sound.startBGM(); else Sound.stopBGM();
+  };
+
+  init();
+  loop();
+})();
+</script>
+</body>
+</html>

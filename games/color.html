@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🎨 颜色切换</title>
+<meta name="description" content="在线免费玩颜色切换！点击变换小球颜色，穿过相同颜色的旋转障碍。考验反应与节奏的休闲小游戏。">
+<meta name="keywords" content="颜色切换,反应游戏,色彩游戏,休闲游戏,免费小游戏">
+<meta name="theme-color" content="#667eea">
+<link rel="canonical" href="https://dq7866.online/games/color.html">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="欢乐游戏盒">
+<meta property="og:title" content="颜色切换 - 欢乐游戏盒">
+<meta property="og:description" content="在线免费玩颜色切换！点击变换小球颜色，穿过相同颜色的旋转障碍。考验反应与节奏的休闲小游戏。">
+<meta property="og:url" content="https://dq7866.online/games/color.html">
+<meta property="og:image" content="https://dq7866.online/games/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="颜色切换 - 欢乐游戏盒">
+<meta name="twitter:description" content="在线免费玩颜色切换！点击变换小球颜色，穿过相同颜色的旋转障碍。考验反应与节奏的休闲小游戏。">
+<meta name="twitter:image" content="https://dq7866.online/games/og-image.png">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+    background: #0a0a1a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px;
+    user-select: none;
+    overflow: hidden;
+  }
+  .app { width: 100%; max-width: 420px; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 6px; }
+  .back-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 7px 12px; border-radius: 20px; text-decoration: none; font-size: 0.82rem; }
+  .game-title { color: #fff; font-size: 1.2rem; font-weight: 800; }
+  .icon-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 7px 10px; border-radius: 20px; cursor: pointer; font-size: 1rem; }
+  .info-row { display: flex; gap: 10px; margin-bottom: 8px; }
+  .info-box { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 6px; text-align: center; color: #fff; }
+  .info-label { font-size: 0.6rem; opacity: 0.5; }
+  .info-val { font-size: 1.4rem; font-weight: 800; }
+  canvas { display: block; margin: 0 auto; background: #0a0a1a; border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.4); touch-action: none; }
+  .tip { text-align: center; color: rgba(255,255,255,0.4); font-size: 0.72rem; margin-top: 8px; }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+  .modal.show { display: flex; }
+  .modal-box { background: linear-gradient(135deg, #0a0a1a, #6a0572); border: 1px solid rgba(255,255,255,0.2); border-radius: 24px; padding: 30px 24px; text-align: center; color: #fff; max-width: 340px; width: 100%; position: relative; overflow: hidden; }
+  .modal-box h2 { font-size: 1.6rem; margin-bottom: 10px; }
+  .modal-icon { font-size: 4rem; margin-bottom: 12px; }
+  .modal-btn { width: 100%; padding: 14px; margin-top: 14px; border: none; border-radius: 14px; background: linear-gradient(135deg,#feca57,#ff6b9d); color: #0a0a1a; font-weight: 800; font-size: 1rem; cursor: pointer; }
+  .modal-btn.secondary { background: rgba(255,255,255,0.15); color: #fff; margin-top: 8px; }
+  .fw-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .praise { font-size: 1.1rem; color: #feca57; font-weight: 800; margin: 8px 0; }
+  .final-score { font-size: 2.2rem; font-weight: 900; color: #feca57; margin: 10px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top-bar">
+    <a href="index.html" class="back-btn">← 返回</a>
+    <div class="game-title">🎨 COLOR SWITCH</div>
+    <button class="icon-btn" id="soundBtn">🔊</button>
+  </div>
+  <div class="info-row">
+    <div class="info-box"><div class="info-label">分数</div><div class="info-val" id="score">0</div></div>
+    <div class="info-box"><div class="info-label">最高</div><div class="info-val" id="best">0</div></div>
+  </div>
+  <canvas id="c" width="360" height="540"></canvas>
+  <p class="tip">👆 小球自动上升 · 点击切换颜色 · 只穿过相同颜色区域</p>
+</div>
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="fw-layer" id="fw"></div>
+    <div class="modal-icon" id="mIcon">🎨</div>
+    <h2 id="mTitle">游戏结束</h2>
+    <div class="praise" id="mPraise"></div>
+    <div class="final-score" id="mScore">0</div>
+    <button class="modal-btn" id="mBtn">再来一局</button>
+    <button class="modal-btn secondary" id="mHome">返回首页</button>
+  </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+(() => {
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const COLORS = ['#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1'];
+  const RISE_SPEED = 2.2;
+
+  let ball, obstacles, score, best, gameOver, cameraY;
+  let particles = [];
+  let passedObstacles = new Set();
+
+  best = parseInt(localStorage.getItem('colorBest')||'0');
+  document.getElementById('best').textContent = best;
+
+  function init() {
+    ball = { x: W/2, y: H - 80, color: COLORS[0], r: 14, colorIdx: 0 };
+    obstacles = [];
+    score = 0; gameOver = false; cameraY = 0;
+    particles = [];
+    passedObstacles = new Set();
+    // 生成障碍物（首个入口颜色匹配小球且不旋转，给玩家反应时间）
+    const firstObs = genObstacle(H - 280, COLORS[0]);
+    firstObs.rotSpeed = 0;
+    obstacles.push(firstObs);
+    for (let i = 1; i < 8; i++) {
+      obstacles.push(genObstacle(H - 280 - i * 110));
+    }
+    updateInfo();
+  }
+
+  function genObstacle(y, entryColor) {
+    const type = Math.random() < 0.5 ? 'circle' : 'bar';
+    if (type === 'circle') {
+      const o = {
+        type: 'circle',
+        x: W/2, y, r: 70,
+        segments: 4,
+        rotation: 0,
+        rotSpeed: (Math.random() > 0.5 ? 1 : -1) * (0.01 + Math.random() * 0.02),
+        colors: shuffle([...COLORS]),
+        entered: false
+      };
+      if (entryColor) {
+        // 入口在下方（Canvas中下方角度为 PI/2），将对应段设为指定颜色
+        const entrySeg = Math.floor((Math.PI/2 - o.rotation) / (Math.PI*2/o.segments) + o.segments) % o.segments;
+        o.colors[entrySeg] = entryColor;
+      }
+      return o;
+    } else {
+      const o = {
+        type: 'bar',
+        y,
+        rotation: 0,
+        rotSpeed: (Math.random() > 0.5 ? 1 : -1) * (0.015 + Math.random() * 0.02),
+        segments: 4,
+        colors: shuffle([...COLORS]),
+        entered: false
+      };
+      if (entryColor) {
+        // bar 入口在下方臂，将其颜色设为指定颜色
+        o.colors[1] = entryColor;
+      }
+      return o;
+    }
+  }
+
+  function shuffle(a) {
+    for (let i = a.length-1; i > 0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function switchColor() {
+    if (gameOver) return;
+    ball.colorIdx = (ball.colorIdx + 1) % COLORS.length;
+    ball.color = COLORS[ball.colorIdx];
+    Sound.swap();
+  }
+
+  function update() {
+    if (gameOver) return;
+    // 小球持续上升
+    ball.y -= RISE_SPEED;
+
+    // 障碍物旋转
+    obstacles.forEach(o => { o.rotation += o.rotSpeed; });
+
+    // 碰撞检测
+    for (const o of obstacles) {
+      if (o.y > cameraY + H || o.y < cameraY - 100) continue;
+      if (o.type === 'circle') {
+        const dist = Math.hypot(ball.x - o.x, ball.y - o.y);
+        const inRing = dist > o.r - 20 && dist < o.r + 5;
+        if (inRing && !o.entered) {
+          // 首次进入圆环，检查颜色
+          const ang = Math.atan2(ball.y - o.y, ball.x - o.x);
+          let a = ang - o.rotation;
+          while (a < 0) a += Math.PI * 2;
+          while (a >= Math.PI * 2) a -= Math.PI * 2;
+          const seg = Math.floor(a / (Math.PI * 2 / o.segments));
+          const segColor = o.colors[seg];
+          if (segColor !== ball.color) {
+            return endGame();
+          }
+          o.entered = true;
+        } else if (!inRing && o.entered && dist < o.r - 20) {
+          // 已穿过圆环中心，重置以便出口不判定
+        }
+      } else if (o.type === 'bar') {
+        // 旋转的十字条
+        const localY = ball.y - o.y;
+        const localX = ball.x - W/2;
+        const cos = Math.cos(-o.rotation), sin = Math.sin(-o.rotation);
+        const lx = localX * cos - localY * sin;
+        const ly = localX * sin + localY * cos;
+        const barW = 16, barLen = 130;
+        const onH = Math.abs(ly) < barW/2 + ball.r && Math.abs(lx) < barLen;
+        const onV = Math.abs(lx) < barW/2 + ball.r && Math.abs(ly) < barLen;
+        if ((onH || onV) && !o.entered) {
+          let seg;
+          if (onV) seg = ly >= 0 ? 1 : 0;
+          else seg = lx >= 0 ? 3 : 2;
+          const segColor = o.colors[seg];
+          if (segColor !== ball.color) return endGame();
+          o.entered = true;
+        }
+      }
+      // 计分
+      if (!passedObstacles.has(o) && ball.y < o.y - 30) {
+        passedObstacles.add(o);
+        score++;
+        Sound.select();
+        updateInfo();
+      }
+    }
+
+    // 相机跟随
+    const targetCam = ball.y - H * 0.6;
+    if (targetCam < cameraY) cameraY = targetCam;
+
+    // 生成新障碍物
+    while (obstacles.length < 12) {
+      const topY = Math.min(...obstacles.map(o => o.y));
+      obstacles.push(genObstacle(topY - 100 - Math.random() * 60));
+    }
+    obstacles = obstacles.filter(o => o.y < cameraY + H + 200);
+
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life--; });
+  }
+
+  function draw() {
+    ctx.fillStyle = '#0a0a1a';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.save();
+    ctx.translate(0, -cameraY);
+
+    obstacles.forEach(o => {
+      ctx.save();
+      if (o.type === 'circle') {
+        ctx.translate(o.x, o.y);
+        ctx.rotate(o.rotation);
+        for (let i = 0; i < o.segments; i++) {
+          ctx.fillStyle = o.colors[i];
+          ctx.beginPath();
+          ctx.arc(0, 0, o.r, i * Math.PI*2/o.segments, (i+1) * Math.PI*2/o.segments);
+          ctx.lineTo(0, 0);
+          ctx.closePath();
+          ctx.fill();
+        }
+        // 中心透明圆
+        ctx.fillStyle = '#0a0a1a';
+        ctx.beginPath();
+        ctx.arc(0, 0, o.r - 20, 0, Math.PI*2);
+        ctx.fill();
+      } else {
+        ctx.translate(W/2, o.y);
+        ctx.rotate(o.rotation);
+        const barW = 16, barLen = 130;
+        // 四臂
+        ctx.fillStyle = o.colors[0];
+        ctx.fillRect(-barW/2, -barLen, barW, barLen);
+        ctx.fillStyle = o.colors[1];
+        ctx.fillRect(-barW/2, 0, barW, barLen);
+        ctx.fillStyle = o.colors[2];
+        ctx.fillRect(-barLen, -barW/2, barLen, barW);
+        ctx.fillStyle = o.colors[3];
+        ctx.fillRect(0, -barW/2, barLen, barW);
+      }
+      ctx.restore();
+    });
+
+    // 小球
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = ball.color;
+    const g = ctx.createRadialGradient(ball.x-4, ball.y-4, 1, ball.x, ball.y, ball.r);
+    g.addColorStop(0, '#fff');
+    g.addColorStop(0.3, ball.color);
+    g.addColorStop(1, ball.color);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // 粒子
+    particles.forEach(p => {
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.life / 30;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    });
+
+    ctx.restore();
+  }
+
+  function endGame() {
+    gameOver = true;
+    for (let i = 0; i < 25; i++) {
+      particles.push({ x: ball.x, y: ball.y, vx: (Math.random()-0.5)*8, vy: (Math.random()-0.5)*8, life: 30, color: ball.color, size: 3+Math.random()*3 });
+    }
+    if (score > best) { best = score; localStorage.setItem('colorBest', best); document.getElementById('best').textContent = best; }
+    User.addScore(score * 20, false, 0);
+    Sound.lose();
+    setTimeout(() => {
+      const m = document.getElementById('modal');
+      document.getElementById('mIcon').textContent = score >= 15 ? '🏆' : '🎨';
+      document.getElementById('mTitle').textContent = score >= 15 ? '色彩大师！' : '撞色了！';
+      document.getElementById('mPraise').textContent = getPraise();
+      document.getElementById('mScore').textContent = score;
+      document.getElementById('mBtn').onclick = () => { m.classList.remove('show'); init(); };
+      if (score >= 15) { launchFireworks(document.getElementById('fw')); setTimeout(()=>launchFireworks(document.getElementById('fw')),400); }
+      m.classList.add('show');
+    }, 500);
+  }
+
+  function updateInfo() { document.getElementById('score').textContent = score; }
+
+  function loop() { update(); draw(); requestAnimationFrame(loop); }
+
+  canvas.addEventListener('click', switchColor);
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); switchColor(); }, {passive:false});
+  document.addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key === 'ArrowUp') { e.preventDefault(); switchColor(); }
+  });
+
+  document.getElementById('mHome').onclick = () => location.href = 'index.html';
+  const soundBtn = document.getElementById('soundBtn');
+  function updBtn(){ soundBtn.textContent = Sound.isEnabled()?'🔊':'🔇'; }
+  updBtn();
+  soundBtn.onclick = () => {
+    const on = !Sound.isEnabled();
+    Sound.setEnabled(on); updBtn();
+    if (on) Sound.startBGM(); else Sound.stopBGM();
+  };
+
+  init();
+  loop();
+})();
+</script>
+</body>
+</html>
