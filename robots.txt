@@ -4,3 +4,5 @@ Allow: /
 # 站点地图
 Sitemap: https://dq7866.online/sitemap.xml
 Sitemap: https://dq7866.online/games/sitemap.xml
+Sitemap: https://dq7866.online/edu/sitemap.xml
+Sitemap: https://dq7866.online/symbolpass/sitemap.xml
