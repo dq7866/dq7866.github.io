@@ -196,6 +196,7 @@
       '<p class="lead">免费体验已用完。如果这些内容对你有帮助，欢迎微信打赏 <b>' + PRICE + '</b>，即可领取兑换码、再解锁 <b>' + CODE_DAYS + '</b> 次使用（1 天 = 1 次）。</p>' +
       '<img class="qr" src="' + QR_SRC + '" alt="微信二维码">' +
       '<p class="center" style="font-size:13px;color:#4a4238">微信扫码添加：<span class="wxid">' + WECHAT_ID + '</span></p>' +
+      '<p class="center" style="font-size:12px;color:#8a8078;margin-top:-4px">需要把某个栏目装到本地使用、含全部授权内容？同微信找我就行。</p>' +
       '<div class="divider">已有兑换码</div>' +
       '<div class="field"><input id="zhz-redeem" type="text" maxlength="20" placeholder="输入兑换码，如 XXXX-XXXX-XXXX"></div>' +
       '<div class="err" id="zhz-err2"></div>' +

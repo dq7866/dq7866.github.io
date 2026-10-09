@@ -350,6 +350,12 @@
   color: var(--color-text-chrome, #6b7280);
 }
 
+/* 联系我 · 重点提示（跟随主题印章红，明暗模式自动切换） */
+.zhz-contact-hl {
+  color: var(--color-seal, #b0171a);
+  font-weight: 600;
+}
+
 .zhz-qr-wrap {
   flex: 0 0 auto;
   text-align: center;
