@@ -1,0 +1,32 @@
+{
+  "name": "符号通行证 · SymbolPass",
+  "short_name": "符号通行证",
+  "description": "200 个原创图形符号 + 439 条中英对照旅行例句，输入中文即出英文与符号句，可朗读英文，完全离线可用。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "zh-CN",
+  "background_color": "#12253f",
+  "theme_color": "#12253f",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

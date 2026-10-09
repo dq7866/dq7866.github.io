@@ -1,0 +1,2638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#12253f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="符号通行证">
+<meta name="description" content="符号通行证 SymbolPass：200 个原创图形符号 + 426 条中英对照旅行例句，输入中文即出英文与符号句，可朗读英文，完全离线可用。">
+<meta name="format-detection" content="telephone=no">
+<title>符号通行证 · SymbolPass</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2048%2048'%3E%3Crect%20width='48'%20height='48'%20rx='11'%20fill='%2312253f'/%3E%3Cg%20fill='none'%20stroke='%23fff'%20stroke-width='4.4'%20stroke-linecap='round'%20stroke-linejoin='round'%20transform='translate(6.7,7.1)%20scale(0.72)'%3E%3Cpath%20d='M24%205c-6.6%200-12%205.4-12%2012%200%209.5%2012%2025%2012%2025s12-15.5%2012-25c0-6.6-5.4-12-12-12Z'/%3E%3Ccircle%20cx='24'%20cy='17'%20r='4.5'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<style>
+  :root{
+    --bg:#eef1f5; --card:#fff; --ink:#18202b; --ink2:#5b6673; --ink3:#8d97a3;
+    --line:#e2e6ec; --line2:#f0f2f6;
+    --navy:#12253f; --blue:#1f5fd0; --blue-l:#eaf1ff;
+    --red:#c0392b; --red-l:#fdeeec;
+    --green:#1a7a4c; --green-l:#eaf7f0;
+    --amber:#9a6a00; --amber-l:#fdf6e3;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
+    font-size:15px;line-height:1.6}
+  .app{max-width:470px;margin:0 auto;min-height:100vh;min-height:100dvh;background:#fff;display:flex;flex-direction:column;
+    box-shadow:0 0 0 1px var(--line);position:relative}
+
+  /* 符号通用渲染 */
+  .sb{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:3.2;
+      stroke-linecap:round;stroke-linejoin:round}
+  .symbox{flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+      background:#f7f9fc;border:2px solid var(--line);border-radius:13px;color:var(--ink)}
+  .symbox.s{width:60px;height:60px;padding:9px}
+  .symbox.m{width:52px;height:52px;padding:8px}
+  .symbox.l{width:104px;height:104px;padding:15px;border-width:3px;border-radius:18px}
+
+  /* top —— 顶部补齐刘海 / 灵动岛的安全区，加入主屏幕（独立窗口）时标题不会被挡住 */
+  .top{background:var(--navy);color:#fff;padding:calc(12px + env(safe-area-inset-top)) 14px 12px;display:flex;align-items:center;gap:10px;
+       position:sticky;top:0;z-index:30}
+  .top .lg{width:32px;height:32px;border-radius:9px;background:#2a6bb0;padding:5px;color:#fff;flex:0 0 auto}
+  .top .tt{flex:1;min-width:0}
+  .top .tt b{display:block;font-size:15px;line-height:1.25}
+  .top .tt span{font-size:10.5px;opacity:.6;letter-spacing:.04em}
+  .badge{font-size:10px;font-weight:700;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.26);
+         padding:3px 8px;border-radius:20px;white-space:nowrap;cursor:pointer}
+  .badge.dit{background:rgba(46,204,113,.22);border-color:rgba(46,204,113,.45)}
+
+  /* tabs —— 多行自适应换行，保证所有场景按钮始终可见（不截断、不隐藏） */
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px 9px;border-bottom:1px solid var(--line2);
+        position:sticky;top:calc(56px + env(safe-area-inset-top));background:#fff;z-index:20}
+  .tab{flex:0 0 auto;font-size:12.5px;font-weight:600;color:var(--ink2);background:#f3f5f8;border:1px solid transparent;
+       padding:6px 11px;border-radius:18px;cursor:pointer;white-space:nowrap;line-height:1.4}
+  .tab:active{transform:scale(.96)}
+  .tab.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .tab.more{color:var(--blue);background:var(--blue-l)}
+
+  .scroll{flex:1;overflow-y:auto;padding:14px 14px 160px}
+
+  /* input */
+  .inbox{border:1.5px solid var(--line);border-radius:14px;padding:11px 12px;background:#fbfcfe}
+  .inbox textarea{width:100%;border:0;background:transparent;resize:none;font-size:16px;font-family:inherit;
+    color:var(--ink);outline:none;min-height:46px;line-height:1.5}
+  .inbox textarea::placeholder{color:var(--ink3)}
+  .inrow{display:flex;align-items:center;gap:8px;margin-top:8px;border-top:1px solid var(--line2);padding-top:9px}
+  .mic{width:38px;height:38px;border-radius:50%;border:0;background:#eef1f5;display:flex;align-items:center;
+       justify-content:center;cursor:pointer;flex:0 0 auto;padding:9px;color:var(--ink2)}
+  .mic.rec{background:var(--red);color:#fff;animation:pulse 1.1s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,.45)}50%{box-shadow:0 0 0 12px rgba(192,57,43,0)}}
+  .hint{font-size:12px;color:var(--ink3);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hint.wrap{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.5}
+  .hint.err{color:#b3261e}
+  .go{border:0;background:var(--blue);color:#fff;font-weight:700;font-size:14px;padding:9px 20px;border-radius:10px;cursor:pointer}
+  .go:active{transform:scale(.96)}
+
+  /* 语音环境提示条：把「系统缺英文语音包 / 麦克风不可用」这类环境问题直接说清楚 */
+  .vnote{margin-top:10px;border:1px solid #f0d9a8;background:#fffaf0;border-radius:11px;padding:10px 12px;
+         font-size:12.5px;line-height:1.6;color:#7a5400;display:none;position:relative}
+  .vnote.show{display:block}
+  .vnote b{color:#664100}
+  .vnote .vx{position:absolute;top:5px;right:7px;border:0;background:transparent;color:#b09256;
+             font-size:15px;cursor:pointer;line-height:1}
+  .vnote ul{margin:7px 0 0;padding-left:18px}
+  .vnote li{margin-bottom:4px}
+  .vnote .vmore{color:#8a6a1a;text-decoration:underline;cursor:pointer;font-weight:700}
+  .vnote .vhid{display:none}
+  .vnote .vhid.open{display:block}
+  .vnote code{background:#f6ecd2;border-radius:4px;padding:0 3px;font-size:11.5px}
+  /* 手机上字体偏小，提示条放大一档更好读、更好点 */
+  @media (max-width:480px){ .vnote{font-size:13px} .vnote .vmore{padding:2px 0} }
+
+  /* 手机端：中英文必须可以「长按选中 / 复制」——这是朗读失效时最可靠的后备手段 */
+  .zh,.en,.zh2,.en2,.show-zh,.show-en{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+  .chip{font-size:13px;background:#fff;border:1.5px solid var(--line);color:var(--ink2);padding:6px 11px;border-radius:9px;cursor:pointer}
+  .chip:active{background:var(--blue-l);border-color:#c9dcfb}
+  .chip.all{color:var(--blue);border-color:#c9dcfb;background:var(--blue-l);font-weight:700}
+
+  /* 搜索 */
+  .search{display:flex;align-items:center;gap:9px;margin-top:12px;border:1.5px solid var(--line);border-radius:12px;
+          padding:9px 12px;background:#fff}
+  .search .si{width:18px;height:18px;color:var(--ink3);flex:0 0 auto}
+  .search input{flex:1;border:0;outline:none;font-size:14.5px;background:transparent;color:var(--ink);min-width:0}
+  .search input::placeholder{color:var(--ink3)}
+  .search .clr{border:0;background:#f2f4f7;width:24px;height:24px;border-radius:50%;font-size:13px;cursor:pointer;
+               color:var(--ink2);flex:0 0 auto;display:none}
+
+  /* 英文朗读 */
+  .tts{display:flex;gap:8px;padding:0 15px 13px}
+  .tts-b{flex:0 0 auto;display:flex;align-items:center;gap:6px;border:1.5px solid #c9dcfb;background:var(--blue-l);
+         color:var(--blue);font-size:13px;font-weight:700;padding:8px 13px;border-radius:10px;cursor:pointer}
+  .tts-b:active{transform:scale(.97)}
+  .tts-b .sb{width:16px;height:16px;stroke-width:3.6}
+  .tts-b.busy{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .lrow .sp.busy{background:var(--blue);border-color:var(--blue);color:#fff}
+  .show-play.busy{background:#12448f}
+
+  /* 例句列表浮层 */
+  .list{padding:10px 14px 40px;overflow-y:auto;flex:1}
+  .lrow{display:flex;align-items:center;gap:11px;padding:11px 4px;border-bottom:1px solid var(--line2);cursor:pointer}
+  .lrow:active{background:#f7f9fc}
+  .lrow .syms{padding:0;display:flex;flex:0 0 auto}
+  .lrow .symbox{width:34px;height:34px;padding:5px;border-width:1.5px;border-radius:9px}
+  .lrow .tx{flex:1;min-width:0}
+  .lrow .zh2{font-size:14.5px;font-weight:700;line-height:1.4}
+  .lrow .en2{font-size:13px;color:var(--blue);font-weight:600;line-height:1.4;margin-top:2px}
+  .lrow .sp{flex:0 0 auto;width:34px;height:34px;border:1.5px solid var(--line);border-radius:50%;
+            display:flex;align-items:center;justify-content:center;color:var(--blue);background:#fff;cursor:pointer}
+  .lrow .sp .sb{width:16px;height:16px;stroke-width:3.6}
+  .lcount{font-size:12.5px;color:var(--ink3);padding:6px 2px 12px}
+
+  /* result */
+  .res{margin-top:16px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;
+       box-shadow:0 2px 10px rgba(20,35,60,.05)}
+  .res-top{padding:14px 15px 4px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .res-cat{font-size:11.5px;font-weight:700;color:var(--blue);background:var(--blue-l);padding:3px 9px;border-radius:20px}
+  .conf{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px}
+  .conf.hi{background:var(--green-l);color:var(--green)}
+  .conf.mid{background:var(--amber-l);color:var(--amber)}
+  .conf.lo{background:var(--red-l);color:var(--red)}
+
+  .syms{display:flex;flex-wrap:wrap;align-items:center;gap:9px;padding:16px 15px 8px}
+  .syms .op{font-size:15px;color:var(--ink3);font-weight:700}
+
+  .zh{padding:10px 15px 2px;font-size:15.5px;font-weight:700;line-height:1.55}
+  .en{padding:2px 15px 12px;font-size:14.5px;color:var(--blue);font-weight:600;line-height:1.5}
+  .amb{margin:0 15px 13px;background:var(--amber-l);border:1px solid #f0e2b8;border-radius:10px;
+       padding:9px 11px;font-size:12.5px;color:#7a5600;line-height:1.6}
+  .amb b{display:block;font-size:11.5px;margin-bottom:3px}
+  .acts{display:flex;gap:8px;border-top:1px solid var(--line2);padding:11px 13px;background:#fbfcfe}
+  .act{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px 6px;font-size:13px;
+       font-weight:600;color:var(--ink2);cursor:pointer;text-align:center}
+  .act:active{transform:scale(.97)}
+  .act.pri{background:var(--navy);border-color:var(--navy);color:#fff}
+
+  /* 逐符对照：把「符号 → 词」摊开，是这套系统真正被学会的地方 */
+  .map{margin:2px 15px 12px;border:1px solid var(--line2);border-radius:10px;background:#fbfcfe}
+  .map summary{font-size:12.5px;font-weight:700;color:var(--ink2);padding:9px 11px;cursor:pointer;list-style:none}
+  .map summary::-webkit-details-marker{display:none}
+  .map summary::before{content:"▸ ";color:var(--ink3)}
+  .map[open] summary::before{content:"▾ "}
+  .map summary .cnt{color:var(--ink3);font-weight:600}
+  .map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:7px;padding:0 10px 11px}
+  .map-item{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line2);border-radius:9px;padding:6px 8px}
+  .map-item .symbox{width:34px;height:34px;padding:5px;border-width:1.5px;border-radius:9px}
+  .map-item .w{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.3;text-align:left;min-width:0}
+  .map-item .w small{display:block;font-size:10.5px;font-weight:600;color:var(--ink3)}
+  .map-item.neg .w{color:var(--red)}
+
+  /* 最近用过（独占一行，与「常用例句」区分开） */
+  .hist{flex:1 0 100%;display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:3px}
+  .hist .hlabel{font-size:11.5px;color:var(--ink3);font-weight:700}
+  .hist .chip{background:#f7f9fc}
+  .hist .hclr{font-size:11.5px;color:var(--ink3);cursor:pointer;text-decoration:underline;padding:4px 2px}
+
+  /* 符号详解浮层 */
+  .symdetail{max-width:380px;width:100%}
+  .sd-sym{width:132px;height:132px;margin:0 auto 16px;color:var(--ink);border:3px solid var(--line);
+          border-radius:22px;padding:18px;background:#fbfcfe}
+  .sd-cn{font-size:22px;font-weight:800;line-height:1.35}
+  .sd-en{font-size:14.5px;color:var(--blue);font-weight:600;margin-top:5px}
+  .sd-kv{display:flex;gap:9px;justify-content:center;margin:14px 0 0;flex-wrap:wrap}
+  .sd-kv div{background:#f2f5f9;border-radius:9px;padding:6px 12px;text-align:center}
+  .sd-kv dt{font-size:10.5px;color:var(--ink3);font-weight:700}
+  .sd-kv dd{margin:1px 0 0;font-size:13px;font-weight:700;color:var(--ink2)}
+  .sd-spec{margin-top:16px;background:var(--amber-l);border:1px solid #f0e2b8;border-radius:11px;padding:11px 13px;
+           font-size:13px;line-height:1.7;color:#7a5600;text-align:left}
+  .sd-spec b{display:block;font-size:11.5px;margin-bottom:4px;color:#664100}
+  .sd-acts{display:flex;gap:9px;margin-top:18px;width:100%;max-width:380px}
+  .sd-b{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:11px;padding:11px 8px;font-size:13px;
+        font-weight:700;color:var(--ink2);cursor:pointer}
+  .sd-b:active{transform:scale(.97)}
+  .sd-b.pri{background:var(--navy);border-color:var(--navy);color:#fff}
+
+  .empty{text-align:center;padding:40px 24px;color:var(--ink3);font-size:13.5px;line-height:1.8}
+  .empty .big{width:56px;height:56px;margin:0 auto 14px;color:#c3cbd6}
+
+  /* bottom */
+  .bottom{position:fixed;left:0;right:0;bottom:0;max-width:470px;margin:0 auto;background:rgba(255,255,255,.96);
+    backdrop-filter:blur(10px);border-top:1px solid var(--line);
+    padding:9px 14px calc(9px + env(safe-area-inset-bottom));display:flex;gap:9px;z-index:25}
+  .bottom button{flex:1;border-radius:11px;border:1.5px solid var(--line);background:#fff;padding:12px 4px;
+    font-size:13.5px;font-weight:700;color:var(--ink2);cursor:pointer;display:flex;align-items:center;
+    justify-content:center;gap:6px}
+  .bottom button .sb{width:20px;height:20px}
+  .bottom button.main{background:var(--blue);border-color:var(--blue);color:#fff}
+  .bottom button.dim{opacity:.42}
+
+  /* overlay */
+  .ov{position:fixed;inset:0;background:#fff;z-index:100;display:none;flex-direction:column}
+  .ov.show{display:flex}
+  .ov-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line2);flex:0 0 auto}
+  .ov-head b{font-size:14px}
+  .ov-x{border:0;background:#f2f4f7;width:38px;height:38px;border-radius:50%;font-size:16px;cursor:pointer;color:var(--ink2)}
+  /* 居中用「子元素 margin:auto」而不是 justify-content:center——
+     后者在内容高于容器时会把顶部裁掉且滚不上去（对方回应页在矮屏手机上必现） */
+  .ov-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+           padding:22px 16px calc(22px + env(safe-area-inset-bottom));text-align:center;overflow-y:auto}
+  .ov-body > :first-child{margin-top:auto}
+  .ov-body > :last-child{margin-bottom:auto}
+
+  .show-syms{display:flex;flex-wrap:wrap;justify-content:center;gap:13px;margin-bottom:26px}
+  .show-zh{font-size:18px;font-weight:700;margin-bottom:12px;line-height:1.5;max-width:400px}
+  .show-en{font-size:25px;font-weight:800;color:var(--blue);line-height:1.35}
+  .show-play{display:flex;align-items:center;gap:10px;margin-top:20px;border:0;background:var(--blue);color:#fff;
+             font-size:16.5px;font-weight:700;padding:14px 26px;border-radius:14px;cursor:pointer}
+  .show-play:active{transform:scale(.97)}
+  .show-play.alt{background:#fff;color:var(--blue);border:1.5px solid #c9dcfb;font-size:14px;padding:9px 18px}
+  .show-play .sb{width:22px;height:22px;stroke-width:3.4}
+  .show-note{font-size:12.5px;color:var(--ink3);max-width:330px;margin-top:18px;line-height:1.75}
+
+  .reply-q{font-size:14.5px;color:var(--ink2);margin-bottom:22px;font-weight:600}
+  .reply-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;width:100%;max-width:400px}
+  .rb{border:3px solid var(--line);background:#fff;border-radius:18px;padding:18px 6px 14px;cursor:pointer;color:var(--ink)}
+  .rb:active{transform:scale(.95)}
+  .rb .symbox{width:52px;height:52px;margin:0 auto 9px;background:transparent;border:0;padding:0}
+  .rb .l{font-size:12.5px;color:var(--ink2);font-weight:700}
+  .rb.yes{border-color:#b9e3cd;background:var(--green-l)}
+  .rb.no{border-color:#f0cdc7;background:var(--red-l)}
+  .rb.un{border-color:#f0e2b8;background:var(--amber-l)}
+
+  .numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;width:100%;max-width:330px;margin-top:26px}
+  .nk{border:2px solid var(--line);background:#fff;border-radius:13px;padding:14px 0;font-size:21px;font-weight:700;cursor:pointer;color:var(--ink)}
+  .nk:active{background:var(--blue-l)}
+  .nval{margin-top:18px;font-size:34px;font-weight:800;color:var(--blue);min-height:46px}
+  .reply-out{margin-top:22px;font-size:15.5px;font-weight:700;line-height:1.65;max-width:400px}
+
+  /* dictionary */
+  .dict{padding:14px 16px 40px;overflow-y:auto;flex:1}
+  .dgroup{margin-bottom:22px}
+  .dgroup h4{margin:0 0 10px;font-size:13px;color:var(--ink3);font-weight:700;letter-spacing:.05em}
+  .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:9px}
+  .dcard{background:#fbfcfe;border:1.5px solid var(--line);border-radius:11px;padding:9px 4px 7px;text-align:center;cursor:pointer;color:var(--ink)}
+  .dcard .symbox{width:44px;height:44px;margin:0 auto 6px;background:transparent;border:0;padding:0}
+  .dcard .n{font-size:11.5px;color:var(--ink2);font-weight:600;line-height:1.3}
+
+  .note{font-size:12px;color:var(--ink3);line-height:1.75;padding:16px 2px 0;border-top:1px solid var(--line2);margin-top:20px}
+  .note b{color:var(--ink2)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="lg" id="logo"></div>
+    <div class="tt"><b>符号通行证</b><span id="subline">SymbolPass</span></div>
+    <div class="badge dit" id="dictBtn">符号表</div>
+  </div>
+
+  <div class="tabs" id="tabs" role="tablist" aria-label="场景分类"></div>
+
+  <div class="scroll" id="scroll">
+    <div class="search">
+      <span class="si" id="searchIcon" aria-hidden="true"></span>
+      <input id="search" placeholder="搜例句：过敏、退税、退房、救护车…" autocomplete="off" aria-label="搜索例句">
+      <button class="clr" id="clr" aria-label="清空搜索">&#10005;</button>
+    </div>
+    <div class="inbox">
+      <textarea id="q" rows="2" placeholder="用中文说你要表达的意思，例如：我肚子疼，需要看医生" aria-label="输入中文"></textarea>
+      <div class="inrow">
+        <button class="mic" id="mic" title="语音输入（需联网 + 麦克风权限）" aria-label="语音输入"></button>
+        <div class="hint" id="hint" role="status" aria-live="polite">按话筒语音说，或直接打字</div>
+        <button class="go" id="go">转换</button>
+      </div>
+    </div>
+    <div class="vnote" id="vnote" role="alert"></div>
+    <div class="chips" id="chips"></div>
+    <div id="out" aria-live="polite"></div>
+    <div class="note">
+      <b>关于本原型</b>：全部符号为原创矢量绘制（48×48 栅格、统一线宽），可在任意设备离线渲染，不依赖任何第三方字体或图片，可安全用于印刷与商业产品。
+      <br><br><b>英文朗读</b>：用浏览器自带的本地语音合成，不需要联网。前提是<b>系统里装有英文语音包</b>——Windows 在「设置 → 时间和语言 → 语言和区域」里给英语勾选「语音」，Android / iOS / macOS 分别在文字转语音、朗读内容里下载英文声音。系统没有英文语音时，本页会在输入框下方给出提示。
+      <br><br><b>语音输入</b>：中文语音识别由浏览器云端完成，必须<b>联网 + 允许麦克风</b>，且在应用内嵌预览窗口里通常会被浏览器策略禁止。它只是便利功能——离线时请直接打字，符号、例句、朗读都不受影响。
+      <br><br><b>引擎</b>：意图模板匹配，非自由翻译。命中模板即输出人工校对的固定结果，因此可控、可离线、不会出错。未命中时降级为符号组合，并明确提示结果不可依赖。
+      <br><br><b>两个省事的细节</b>：结果卡里的「逐符对照」会把每个符号对应哪个词摊开给你看，用来核对方便、也顺便记住符号；用过的句子会自动记进「最近用过」，下次一键回到那一句（只存在本机，不上传）。
+    </div>
+    <div class="note" id="noteMobile" style="display:none"></div>
+    <div class="note" id="webLinks" style="display:none"></div>
+  </div>
+
+  <div class="bottom">
+    <button id="btnShow" class="dim"><span id="iShow" style="display:flex;width:18px;height:18px"></span>给对方看</button>
+    <button id="btnReply" class="dim"><span id="iReply" style="display:flex;width:18px;height:18px"></span>对方回应</button>
+  </div>
+</div>
+
+<div class="ov" id="ovShow">
+  <div class="ov-head"><b>给对方看 · Show this</b><button class="ov-x" data-close aria-label="关闭">&#10005;</button></div>
+  <div class="ov-body" id="showBody"></div>
+</div>
+
+<div class="ov" id="ovReply">
+  <div class="ov-head"><b>对方回应 · Your answer</b><button class="ov-x" data-close aria-label="关闭">&#10005;</button></div>
+  <div class="ov-body" id="replyBody"></div>
+</div>
+
+<div class="ov" id="ovDict">
+  <div class="ov-head"><b>符号表 · 点击查看绘制规范</b><button class="ov-x" data-close aria-label="关闭">&#10005;</button></div>
+  <div class="dict" id="dictBody"></div>
+</div>
+
+<div class="ov" id="ovList">
+  <div class="ov-head"><b id="listTitle">例句</b><button class="ov-x" data-close aria-label="关闭">&#10005;</button></div>
+  <div class="list" id="listBody"></div>
+</div>
+
+<div class="ov" id="ovSym">
+  <div class="ov-head"><b>符号详解 · Details</b><button class="ov-x" data-close aria-label="关闭">&#10005;</button></div>
+  <div class="ov-body" id="symBody"></div>
+</div>
+
+<noscript>
+  <div style="padding:24px 18px;font-size:15px;line-height:1.8">
+    <b>本应用需要启用 JavaScript。</b><br>
+    请在浏览器设置中允许本页运行脚本后重新打开。<br>
+    纸质使用方式不受影响：符号总表可直接打印，书稿可直接阅读。
+  </div>
+</noscript>
+
+<script>
+/* ============================================================
+   符号通行证 · 核心符号库 v2.0
+   共 200 个符号，全部自绘，原创版权归作者所有
+     一级核心   60 个（必学，覆盖 80% 紧急与高频场景）
+     二级拓展   20 个（忌口、过敏、旅行随身物品）
+     三级场景  120 个（日常生活与旅行的方方面面）
+   ------------------------------------------------------------
+   绘制规范：
+     · 栅格 48 × 48，安全边距 4，主线条宽度统一 3.2
+     · 线端与拐角一律圆头（stroke-linecap/linejoin: round）
+     · 描边式为主（stroke），仅"强调/定位/实心程度"使用填充
+     · 形状编码词类：闭合轮廓=实体 / 带箭头=动作 /
+                    实心填涂=属性强调 / 外框=修饰
+     · 不使用手势、宗教、动物、自然语言文字
+   ============================================================ */
+
+const SYMBOLS = [
+/* ================= G1 指代与疑问 ================= */
+{id:'me', cn:'我', en:'I / me', cat:'指代', cls:'实体',
+ spec:'人形轮廓，头部为实心圆（第一人称强调标记）',
+ svg:'<circle cx="24" cy="13" r="6.2" style="fill:currentColor;stroke:none"/><path d="M24 21.5c6.6 0 10.8 6.2 10.8 18.5H13.2C13.2 27.7 17.4 21.5 24 21.5Z"/>'},
+
+{id:'you', cn:'你', en:'you', cat:'指代', cls:'实体',
+ spec:'人形轮廓（空心头），右侧一支箭头指向该人',
+ svg:'<circle cx="20" cy="13" r="6"/><path d="M20 21.5c5.9 0 9.8 5 10.6 15H9.4c.8-10 4.7-15 10.6-15Z"/><path d="M43 13h-7M39.5 9.5 36 13l3.5 3.5"/>'},
+
+{id:'person', cn:'人 / 他', en:'person / he', cat:'指代', cls:'实体',
+ spec:'人形轮廓，空心头，第三人称与泛指共用',
+ svg:'<circle cx="24" cy="13" r="6"/><path d="M24 21.5c6.6 0 10.8 6.2 10.8 18.5H13.2C13.2 27.7 17.4 21.5 24 21.5Z"/>'},
+
+{id:'this', cn:'这个', en:'this', cat:'指代', cls:'动作',
+ spec:'方形实体，右下角一支箭头指向它（指示）',
+ svg:'<rect x="12" y="12" width="19" height="19" rx="3"/><path d="M34 34 43 43M34 34l7-1M34 34l-1 7"/>'},
+
+{id:'here', cn:'这里 / 地点', en:'here / place', cat:'指代', cls:'实体',
+ spec:'定位针：水滴状外形，中心一个圆孔',
+ svg:'<path d="M24 5c-6.6 0-12 5.4-12 12 0 9.5 12 25 12 25s12-15.5 12-25c0-6.6-5.4-12-12-12Z"/><circle cx="24" cy="17" r="4.5"/>'},
+
+{id:'q', cn:'疑问', en:'question', cat:'指代', cls:'修饰',
+ spec:'问号。作为修饰符号叠加在其他符号外框上即可表示提问',
+ svg:'<path d="M16.5 15c0-5.3 3.5-8.6 8-8.6 4.7 0 7.9 3.1 7.9 7.6 0 4.1-2.5 5.8-4.7 7.6-1.9 1.5-2.7 2.9-2.7 5.4"/><circle cx="24.5" cy="36" r="2.7" style="fill:currentColor;stroke:none"/>'},
+
+/* ================= G2 时间与量度 ================= */
+{id:'time', cn:'时间 / 几点', en:'time / o\'clock', cat:'时间', cls:'实体',
+ spec:'圆形钟面，时针指向 12、分针指向 4',
+ svg:'<circle cx="24" cy="24" r="17"/><path d="M24 13v11l8 5"/>'},
+
+{id:'today', cn:'今天 / 日期', en:'today / date', cat:'时间', cls:'实体',
+ spec:'日历：方形外框，顶部两个挂环，中间一个实心点表示当日',
+ svg:'<rect x="6" y="11" width="36" height="31" rx="4"/><path d="M6 20h36M16 5v9M32 5v9"/><circle cx="24" cy="31" r="3.4" style="fill:currentColor;stroke:none"/>'},
+
+{id:'night', cn:'夜晚', en:'night', cat:'时间', cls:'实体',
+ spec:'月牙：外弧与内弧相接',
+ svg:'<path d="M30 6a18 18 0 1 0 0 36A22 22 0 0 1 30 6Z"/>'},
+
+{id:'count', cn:'数量 / 几个', en:'number / how many', cat:'时间', cls:'实体',
+ spec:'骰子式五点排布，表示"可数的量"',
+ svg:'<circle cx="15" cy="15" r="3.4" style="fill:currentColor;stroke:none"/><circle cx="33" cy="15" r="3.4" style="fill:currentColor;stroke:none"/><circle cx="24" cy="24" r="3.4" style="fill:currentColor;stroke:none"/><circle cx="15" cy="33" r="3.4" style="fill:currentColor;stroke:none"/><circle cx="33" cy="33" r="3.4" style="fill:currentColor;stroke:none"/>'},
+
+{id:'dur', cn:'时长 / 多久', en:'duration / how long', cat:'时间', cls:'实体',
+ spec:'沙漏：上下两个三角相对，中间细颈',
+ svg:'<path d="M9 5h30M9 43h30M11 5c0 12 10 15 13 19 3-4 13-7 13-19M11 43c0-12 10-15 13-19 3 4 13 7 13 19"/>'},
+
+{id:'far', cn:'距离 / 多远', en:'distance / how far', cat:'时间', cls:'属性',
+ spec:'双向箭头，两端箭头相对，表示可测量的跨度',
+ svg:'<path d="M7 24h34M13 18l-6 6 6 6M35 18l6 6-6 6"/>'},
+
+/* ================= G3 动作 ================= */
+{id:'eat', cn:'吃', en:'eat', cat:'动作', cls:'动作',
+ spec:'下方一只碗（浅弧容器），上方一支匙，表示"把食物送入口中"',
+ svg:'<path d="M5 28h38c0 9-8.5 15-19 15S5 37 5 28Z"/><ellipse cx="31" cy="10" rx="4.6" ry="5.6"/><path d="M31 15.6V28"/>'},
+
+{id:'drink', cn:'喝', en:'drink', cat:'动作', cls:'动作',
+ spec:'杯体（上宽下窄），正上方一滴水',
+ svg:'<path d="M13 19h22l-2.6 24H15.6L13 19Z"/><path d="M24 4c0 4 5 6.2 5 10.2a5 5 0 0 1-10 0C19 10.2 24 8 24 4Z"/>'},
+
+{id:'walk', cn:'走 / 步行', en:'walk', cat:'动作', cls:'动作',
+ spec:'侧行人形，两腿分开、手臂前后摆动（公共信息图标的通用走姿）',
+ svg:'<circle cx="28" cy="8.5" r="4.6"/><path d="M26 14.5 23 26M23 26l-7 13M23 26l8 8M26 18l9 4.5M26 18l-8 4"/>'},
+
+{id:'go', cn:'去 / 方向', en:'go / direction', cat:'动作', cls:'动作',
+ spec:'粗箭头向右，表示移动方向。可旋转表示任意方向',
+ svg:'<path d="M7 24h28M25 12l12 12-12 12"/>'},
+
+{id:'say', cn:'说', en:'say / speak', cat:'动作', cls:'动作',
+ spec:'对话气泡，内有三个点表示言语',
+ svg:'<rect x="5" y="11" width="38" height="23" rx="5"/><path d="M16 34v8l9-8"/><circle cx="16" cy="22.5" r="2.3" style="fill:currentColor;stroke:none"/><circle cx="24" cy="22.5" r="2.3" style="fill:currentColor;stroke:none"/><circle cx="32" cy="22.5" r="2.3" style="fill:currentColor;stroke:none"/>'},
+
+{id:'give', cn:'给 / 递', en:'give', cat:'动作', cls:'动作',
+ spec:'左侧一个方形物体，右侧箭头将其送出',
+ svg:'<rect x="4" y="16" width="13" height="16" rx="2.5"/><path d="M21 24h20M33 16l8 8-8 8"/>'},
+
+/* ================= G4 意愿与判断 ================= */
+{id:'want', cn:'要 / 请', en:'want / please', cat:'意愿', cls:'动作',
+ spec:'下方一只托起的手（向上的弧），托住上方一个圆，表示索取或奉上',
+ svg:'<path d="M8 36c0-13 32-13 32 0"/><circle cx="24" cy="15" r="6.5"/>'},
+
+{id:'yes', cn:'是 / 可以', en:'yes / ok', cat:'意愿', cls:'判断',
+ spec:'对勾',
+ svg:'<path d="M9 26l11 11L40 12"/>'},
+
+{id:'no', cn:'不是 / 不行', en:'no', cat:'意愿', cls:'判断',
+ spec:'禁止圈：圆加一道贯穿斜杠。同时用作"否定"修饰符号',
+ svg:'<circle cx="24" cy="24" r="16"/><path d="M13 13l22 22"/>'},
+
+{id:'have', cn:'有', en:'have / there is', cat:'意愿', cls:'判断',
+ spec:'方形外框内一个实心块，表示"装满了"',
+ svg:'<rect x="7" y="7" width="34" height="34" rx="5"/><rect x="15" y="15" width="18" height="18" rx="3" style="fill:currentColor;stroke:none"/>'},
+
+{id:'none', cn:'没有', en:'do not have / empty', cat:'意愿', cls:'判断',
+ spec:'方形外框，内部为空（与"有"成对）',
+ svg:'<rect x="7" y="7" width="34" height="34" rx="5" stroke-dasharray="4 4"/><path d="M17 17l14 14M31 17 17 31"/>'},
+
+{id:'help', cn:'帮助', en:'help', cat:'意愿', cls:'动作',
+ spec:'两道向上的弧线相互托举，形似两只手合抱',
+ svg:'<path d="M6 30c3-9 11-13 18-13s15 4 18 13"/><path d="M11 40c3-7 8-10 13-10s10 3 13 10"/>'},
+
+/* ================= G5 身体与状态 ================= */
+{id:'body', cn:'身体', en:'body', cat:'身体', cls:'实体',
+ spec:'完整人形，头与躯干一线相连',
+ svg:'<circle cx="24" cy="9" r="5"/><path d="M12 44V28c0-7 5-10 12-10s12 3 12 10v16"/>'},
+
+{id:'head', cn:'头', en:'head', cat:'身体', cls:'实体',
+ spec:'正面头部轮廓，内含两眼与嘴',
+ svg:'<circle cx="24" cy="24" r="17"/><circle cx="18" cy="21" r="2.2" style="fill:currentColor;stroke:none"/><circle cx="30" cy="21" r="2.2" style="fill:currentColor;stroke:none"/><path d="M18 31c3 3 9 3 12 0"/>'},
+
+{id:'belly', cn:'肚子', en:'stomach / belly', cat:'身体', cls:'实体',
+ spec:'人形躯干，腹部一个实心圆表示该部位',
+ svg:'<circle cx="24" cy="7.5" r="4.6"/><path d="M13 44V28c0-6.5 4.5-9.5 11-9.5S35 21.5 35 28v16"/><circle cx="24" cy="31" r="5.6" style="fill:currentColor;stroke:none"/>'},
+
+{id:'injury', cn:'受伤 / 破损', en:'injury / broken', cat:'身体', cls:'属性',
+ spec:'圆形轮廓被一道锯齿裂缝贯穿，表示物品或身体被破坏',
+ svg:'<circle cx="24" cy="24" r="16"/><path d="M27 8.5 20 20l5 4-4 5 3 10.5"/>'},
+
+{id:'pain', cn:'痛', en:'pain', cat:'身体', cls:'属性',
+ spec:'闪电形，用尖锐感表示疼痛。程度可在外侧叠加刻度条',
+ svg:'<path d="M27 5 13 26h8.5l-4 17 14-22h-8.5L27 5Z"/>'},
+
+{id:'hot', cn:'热 / 发烧', en:'hot / fever', cat:'身体', cls:'属性',
+ spec:'温度计：管身圆头在下，内部一条水银柱',
+ svg:'<path d="M20 11a4 4 0 0 1 8 0v17a7.5 7.5 0 1 1-8 0V11Z"/><path d="M24 32V15"/>'},
+
+/* ================= G6 医疗 ================= */
+{id:'doctor', cn:'医生 / 看病', en:'doctor / medical', cat:'医疗', cls:'实体',
+ spec:'听诊器：双耳管下接一个圆头听筒',
+ svg:'<path d="M14 6v13a10 10 0 0 0 20 0V6"/><path d="M14 6h-3M37 6h-3"/><path d="M24 29v5"/><circle cx="24" cy="39" r="5.5"/>'},
+
+{id:'hospital', cn:'医院', en:'hospital', cat:'医疗', cls:'实体',
+ spec:'建筑轮廓加门，顶部为国际通用医疗标识（非宗教符号，请勿误读）',
+ svg:'<path d="M5 43V19L24 6l19 13v24Z"/><path d="M18 43V30h12v13"/><path d="M19.5 17h9M24 12.5v9"/>'},
+
+{id:'medicine', cn:'药', en:'medicine', cat:'医疗', cls:'实体',
+ spec:'横向胶囊，中间一道分割线',
+ svg:'<rect x="6" y="17" width="36" height="14" rx="7"/><path d="M24 17v14"/>'},
+
+{id:'bleed', cn:'出血', en:'bleeding', cat:'医疗', cls:'属性',
+ spec:'主血滴加下方两颗滴落的小血珠（与符号「水」区分：水是单一水滴，无滴落）',
+ svg:'<path d="M24 4c0 8.5 11.5 13 11.5 22.5a11.5 11.5 0 0 1-23 0C12.5 17 24 12.5 24 4Z"/><circle cx="16.5" cy="42" r="2.4" style="fill:currentColor;stroke:none"/><circle cx="24" cy="44.5" r="2.4" style="fill:currentColor;stroke:none"/><circle cx="31.5" cy="42" r="2.4" style="fill:currentColor;stroke:none"/>'},
+
+{id:'warn', cn:'警告 / 过敏', en:'warning / allergy', cat:'医疗', cls:'判断',
+ spec:'等边三角外框内一个感叹号，用于所有需要高度注意的信息',
+ svg:'<path d="M24 5 45 41H3L24 5Z"/><path d="M24 18v11"/><circle cx="24" cy="35" r="2.6" style="fill:currentColor;stroke:none"/>'},
+
+{id:'ambulance', cn:'救护车', en:'ambulance', cat:'医疗', cls:'实体',
+ spec:'厢式车辆轮廓，车身带医疗标识，下有两个车轮',
+ svg:'<path d="M3 38V14h23l9 9h10v15Z"/><path d="M9 24h9M13.5 19.5v9"/><circle cx="14" cy="38" r="5"/><circle cx="34" cy="38" r="5"/>'},
+
+/* ================= G7 交通 ================= */
+{id:'car', cn:'车 / 出租车', en:'car / taxi', cat:'交通', cls:'实体',
+ spec:'轿车侧影，车顶一弧，两个车轮',
+ svg:'<path d="M4 31V24l5-9h30l5 9v7Z"/><path d="M12 15v9M36 15v9M9 24h30"/><circle cx="14" cy="33" r="5"/><circle cx="34" cy="33" r="5"/>'},
+
+{id:'train', cn:'火车', en:'train', cat:'交通', cls:'实体',
+ spec:'车厢正面，上有一扇窗，下有两段轨道',
+ svg:'<rect x="9" y="5" width="30" height="29" rx="5"/><path d="M9 19h30"/><path d="M18 34l-5 9M30 34l5 9M15 27h4M29 27h4"/>'},
+
+{id:'plane', cn:'飞机', en:'plane', cat:'交通', cls:'实体',
+ spec:'俯视飞机：机身、两侧主翼、尾部水平尾翼',
+ svg:'<path d="M24 4 27 20l16 8v5l-16-4-1 11 6 5v3l-8-3-8 3v-3l6-5-1-11-16 4v-5l16-8L24 4Z"/>'},
+
+{id:'boat', cn:'船', en:'boat / ferry', cat:'交通', cls:'实体',
+ spec:'帆船：上方三角帆与桅杆，下方船体',
+ svg:'<path d="M5 32h38l-5 10H10L5 32Z"/><path d="M24 5v27M24 9h9l5 15H24"/>'},
+
+{id:'ticket', cn:'票', en:'ticket', cat:'交通', cls:'实体',
+ spec:'长方形票券，两侧内凹，中间一条虚线撕口',
+ svg:'<path d="M4 15h40v7a4 4 0 0 0 0 8v7H4v-7a4 4 0 0 0 0-8v-7Z"/><path d="M19 15v26" stroke-dasharray="3.5 3.5"/>'},
+
+{id:'toilet', cn:'洗手间', en:'toilet / restroom', cat:'交通', cls:'实体',
+ spec:'中间一条竖分隔线，左侧男性人形，右侧裙装人形',
+ svg:'<circle cx="14" cy="11" r="4.2"/><path d="M7.5 40V26c0-3.8 2.9-6 6.5-6s6.5 2.2 6.5 6v14"/><circle cx="34" cy="11" r="4.2"/><path d="M34 16.5 25 33h18L34 16.5Z"/><path d="M24 7v30"/>'},
+
+/* ================= G8 住宿与餐饮 ================= */
+{id:'house', cn:'住宿 / 酒店', en:'lodging / hotel', cat:'住宿', cls:'实体',
+ spec:'坡顶房屋轮廓，正面一扇门',
+ svg:'<path d="M5 43V20L24 6l19 14v23Z"/><path d="M18 43V30h12v13"/>'},
+
+{id:'sleep', cn:'睡 / 床', en:'sleep / bed', cat:'住宿', cls:'实体',
+ spec:'床侧影：床头板、床面、枕头',
+ svg:'<path d="M5 41V15"/><path d="M5 30h38v11"/><path d="M9 30v-7h13v7"/><circle cx="15" cy="20" r="4.2"/>'},
+
+{id:'water', cn:'水', en:'water', cat:'餐饮', cls:'实体',
+ spec:'水滴，上方尖下方圆',
+ svg:'<path d="M24 4c0 9 13 14 13 24a13 13 0 0 1-26 0C11 18 24 13 24 4Z"/>'},
+
+{id:'food', cn:'食物 / 餐', en:'food / meal', cat:'餐饮', cls:'实体',
+ spec:'下方一只浅盘，上方三缕热气',
+ svg:'<path d="M3 28h42a21 21 0 0 1-42 0Z"/><path d="M16 21c0-3.5 3-3.5 3-7M24 21c0-3.5 3-3.5 3-7M32 21c0-3.5 3-3.5 3-7"/>'},
+
+{id:'utensil', cn:'餐具', en:'utensils', cat:'餐饮', cls:'实体',
+ spec:'左侧一把叉（三齿），右侧一把刀',
+ svg:'<path d="M13 5v11a4 4 0 0 0 8 0V5M17 16v27"/><path d="M36 5c-4 2.5-5.5 8-5.5 13.5 0 3.5 2 5.5 5.5 5.5V43"/>'},
+
+{id:'bill', cn:'账单 / 收据', en:'bill / receipt', cat:'餐饮', cls:'实体',
+ spec:'底边锯齿的纸单，内有三行记录线',
+ svg:'<path d="M9 4h30v40l-3.7-2.8-3.7 2.8-3.8-2.8-3.7 2.8-3.8-2.8-3.7 2.8L9 44V4Z"/><path d="M16 13h16M16 21h16M16 29h9"/>'},
+
+/* ================= G9 金钱与购物 ================= */
+{id:'money', cn:'钱 / 费用', en:'money / cost', cat:'金钱', cls:'实体',
+ spec:'纸币外框，中心一个圆',
+ svg:'<rect x="3" y="12" width="42" height="24" rx="4"/><circle cx="24" cy="24" r="6"/>'},
+
+{id:'card', cn:'信用卡', en:'card', cat:'金钱', cls:'实体',
+ spec:'卡片轮廓，上方一条磁条，左下一个小方块',
+ svg:'<rect x="4" y="10" width="40" height="28" rx="4"/><path d="M4 19h40"/><path d="M10 31h9"/>'},
+
+{id:'expensive', cn:'贵', en:'expensive', cat:'金钱', cls:'属性',
+ spec:'硬币圆形，内部一支上升箭头',
+ svg:'<circle cx="24" cy="24" r="16"/><path d="M24 36V14M17 21l7-7 7 7"/>'},
+
+{id:'cheap', cn:'便宜', en:'cheap', cat:'金钱', cls:'属性',
+ spec:'硬币圆形，内部一支下降箭头',
+ svg:'<circle cx="24" cy="24" r="16"/><path d="M24 12v22M17 27l7 7 7-7"/>'},
+
+{id:'buy', cn:'买 / 购物', en:'buy / shopping', cat:'金钱', cls:'动作',
+ spec:'手推车：把手、车筐、两个轮',
+ svg:'<path d="M4 6h6l6 25h23l5-18H13"/><circle cx="18" cy="40" r="3.6"/><circle cx="33" cy="40" r="3.6"/>'},
+
+{id:'exchange', cn:'退 / 换', en:'return / exchange', cat:'金钱', cls:'动作',
+ spec:'两个方向相反的循环箭头首尾相接',
+ svg:'<path d="M13 15h21a9 9 0 0 1 0 18H18"/><path d="M17 9l-5 6 5 6M25 39l5-6-5-6"/>'},
+
+/* ================= G10 求助与礼仪 ================= */
+{id:'sos', cn:'求救 / 帮帮我', en:'SOS / help me', cat:'求助', cls:'动作',
+ spec:'人形双手高举过头，是无需识字即可理解的呼救姿态',
+ svg:'<circle cx="24" cy="9" r="4.8"/><path d="M24 14v15M24 19l-10-9M24 19l10-9M24 29l-7 12M24 29l7 12"/>'},
+
+{id:'police', cn:'警察', en:'police', cat:'求助', cls:'实体',
+ spec:'盾牌轮廓，内部一个十字分隔',
+ svg:'<path d="M24 4 42 11v13c0 11-7.5 18.5-18 22-10.5-3.5-18-11-18-22V11L24 4Z"/><path d="M24 16v14M17 23h14"/>'},
+
+{id:'passport', cn:'护照', en:'passport', cat:'求助', cls:'实体',
+ spec:'本册轮廓，上部一个圆形肖像位，下部两行文字位',
+ svg:'<rect x="8" y="4" width="32" height="40" rx="3"/><circle cx="24" cy="17" r="6"/><path d="M14 32h20M14 38h13"/>'},
+
+{id:'phone', cn:'手机', en:'mobile phone', cat:'求助', cls:'实体',
+ spec:'竖版圆角矩形，顶部听筒线，底部一个实心圆键',
+ svg:'<rect x="12" y="4" width="24" height="40" rx="5"/><path d="M20 9h8"/><circle cx="24" cy="38" r="2.6" style="fill:currentColor;stroke:none"/>'},
+
+{id:'thanks', cn:'谢谢', en:'thank you', cat:'礼仪', cls:'动作',
+ spec:'双手合十：上尖下圆的掌形，中缝一条竖线。源自亚洲礼仪，在欧美建议配合点头使用',
+ svg:'<path d="M24 4C17.5 13 14.5 23 14.5 32c0 6.5 4 10.5 9.5 10.5s9.5-4 9.5-10.5c0-9-3-19-9.5-28Z"/><path d="M24 4v38.5"/>'},
+
+{id:'sorry', cn:'对不起', en:'sorry', cat:'礼仪', cls:'动作',
+ spec:'弯腰鞠躬的人形，头部前倾',
+ svg:'<circle cx="29" cy="12" r="4.8"/><path d="M29 17 16 27M16 27v15M16 27l15 11"/>'}
+];
+
+/* ============================================================
+   二级拓展符号（20 个，旅行高频物品）
+   与一级共用同一套栅格与线宽规范，只是使用频率更低
+   ============================================================ */
+const TIER2 = [
+{id:'chili', cn:'辣', en:'spicy', cat:'餐饮', cls:'实体',
+ spec:'辣椒：弯曲的果实加一截蒂',
+ svg:'<path d="M11 13c6-6 16-5 21 2 5 8 0 18-8 20-8 2-15-4-15-12 0-4 1-7 2-10Z"/><path d="M29 11c0-4 2-6.5 5-7.5"/>'},
+
+{id:'peanut', cn:'花生 / 坚果', en:'peanut / nut', cat:'餐饮', cls:'实体',
+ spec:'两颗圆相接的荚果外形，各有一条横纹',
+ svg:'<circle cx="24" cy="15" r="10"/><circle cx="24" cy="33" r="10"/><path d="M18 15h12M18 33h12"/>'},
+
+{id:'seafood', cn:'海鲜 / 鱼', en:'seafood / fish', cat:'餐饮', cls:'实体',
+ spec:'侧视鱼形，左为头右为尾鳍，头部一个实心眼',
+ svg:'<path d="M29 24c0-7-6-13-13-13-3 0-5.5 1-7.5 2.5v21C10.5 36 13 37 16 37c7 0 13-6 13-13Z"/><path d="M29 24l13-9v18l-13-9Z"/><circle cx="15" cy="20" r="1.8" style="fill:currentColor;stroke:none"/>'},
+
+{id:'pork', cn:'猪肉', en:'pork', cat:'餐饮', cls:'实体',
+ spec:'猪头正面轮廓，两只尖耳与椭圆鼻',
+ svg:'<circle cx="24" cy="25" r="16"/><path d="M15 12l3.5 6.5M33 12l-3.5 6.5"/><ellipse cx="24" cy="29" rx="6" ry="4.4"/><circle cx="20" cy="20" r="1.7" style="fill:currentColor;stroke:none"/><circle cx="28" cy="20" r="1.7" style="fill:currentColor;stroke:none"/>'},
+
+{id:'beef', cn:'牛肉', en:'beef', cat:'餐饮', cls:'实体',
+ spec:'牛头正面轮廓，两侧一对弯角，下方椭圆鼻',
+ svg:'<path d="M13 13C8.5 11 6 6.5 6 3c4.5 0 9 2.5 11 6M35 13c4.5-2 7-6.5 7-10-4.5 0-9 2.5-11 6"/><path d="M24 8c-7.5 0-13 5.5-13 13v6c0 8.5 5.5 15 13 15s13-6.5 13-15v-6c0-7.5-5.5-13-13-13Z"/><ellipse cx="24" cy="31" rx="6" ry="4.2"/><circle cx="19" cy="22" r="1.7" style="fill:currentColor;stroke:none"/><circle cx="29" cy="22" r="1.7" style="fill:currentColor;stroke:none"/>'},
+
+{id:'veg', cn:'素 / 蔬菜', en:'vegetarian / vegetable', cat:'餐饮', cls:'实体',
+ spec:'两片对称的叶，中轴一条茎',
+ svg:'<path d="M24 44V22"/><path d="M24 26C12.5 26 6 18 6 7.5 16.5 7.5 24 15 24 26Z"/><path d="M24 26c11.5 0 18-8 18-18.5C31.5 7.5 24 15 24 26Z"/>'},
+
+{id:'ice', cn:'冰', en:'ice', cat:'餐饮', cls:'属性',
+ spec:'六角雪花，三条主轴加六根短枝',
+ svg:'<path d="M24 5v38M7.5 14.5l33 19M40.5 14.5l-33 19"/><path d="M24 12l-5.5-5.5M24 12l5.5-5.5M24 36l-5.5 5.5M24 36l5.5 5.5"/>'},
+
+{id:'wifi', cn:'网络 / 上网', en:'Wi-Fi / internet', cat:'住宿', cls:'实体',
+ spec:'自下而上三层同心圆弧，下方一个实心点',
+ svg:'<circle cx="24" cy="38" r="2.6" style="fill:currentColor;stroke:none"/><path d="M16 30a11.5 11.5 0 0 1 16 0"/><path d="M10 24a20 20 0 0 1 28 0"/><path d="M4 18a28 28 0 0 1 40 0"/>'},
+
+{id:'key', cn:'钥匙', en:'key', cat:'住宿', cls:'实体',
+ spec:'圆形匙柄（内有一孔）连接一根斜向匙杆',
+ svg:'<circle cx="13" cy="13" r="9"/><circle cx="13" cy="13" r="3.4"/><path d="M19.5 19.5 43 43M34 34l6 6"/>'},
+
+{id:'luggage', cn:'行李', en:'luggage', cat:'交通', cls:'实体',
+ spec:'箱体加顶部提手，箱面两条竖带',
+ svg:'<rect x="8" y="15" width="32" height="27" rx="4"/><path d="M18 15v-5.5a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3V15"/><path d="M17 15v27M31 15v27"/>'},
+
+{id:'map', cn:'地图 / 地址', en:'map / address', cat:'交通', cls:'实体',
+ spec:'折叠地图：三段面组成，两条折缝',
+ svg:'<path d="M4 10 17 5l14 6 13-5v27l-13 5-14-6-13 5V10Z"/><path d="M17 5v27M31 11v27"/>'},
+
+{id:'coffee', cn:'咖啡', en:'coffee', cat:'餐饮', cls:'实体',
+ spec:'方形杯身带把手，上方三缕直蒸汽',
+ svg:'<path d="M7 14h26v13a13 13 0 0 1-26 0V14Z"/><path d="M33 18h4.5a6 6 0 0 1 0 11H33"/><path d="M15 9V4M22 9V4M29 9V4"/>'},
+
+{id:'tea', cn:'茶', en:'tea', cat:'餐饮', cls:'实体',
+ spec:'宽口杯带把手，上方三缕弯曲蒸汽（与咖啡区分）',
+ svg:'<path d="M7 20h28v9a14 14 0 0 1-28 0V20Z"/><path d="M35 23h4.5a5.5 5.5 0 0 1 0 10H35"/><path d="M15 15c0-3.5 3.5-3.5 3.5-7M23 15c0-3.5 3.5-3.5 3.5-7M31 15c0-3.5 3.5-3.5 3.5-7"/>'},
+
+{id:'rice', cn:'米饭', en:'rice', cat:'餐饮', cls:'实体',
+ spec:'碗体加堆出碗口的饭形',
+ svg:'<path d="M4 27h40a20 20 0 0 1-40 0Z"/><path d="M10 27c0-8.5 6.3-13.5 14-13.5S38 18.5 38 27"/>'},
+
+{id:'noodle', cn:'面条', en:'noodles', cat:'餐饮', cls:'实体',
+ spec:'碗体上方四根竖直面条',
+ svg:'<path d="M4 27h40a20 20 0 0 1-40 0Z"/><path d="M13 27v-6M20 27v-9M28 27v-9M35 27v-6"/>'},
+
+{id:'egg', cn:'鸡蛋', en:'egg', cat:'餐饮', cls:'实体',
+ spec:'竖立的蛋形椭圆',
+ svg:'<ellipse cx="24" cy="25" rx="12.5" ry="17"/>'},
+
+{id:'alcohol', cn:'酒 / 啤酒', en:'alcohol / beer', cat:'餐饮', cls:'实体',
+ spec:'啤酒杯，杯口一层泡沫，右侧把手',
+ svg:'<path d="M10 14h24v26a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V14Z"/><path d="M34 20h4a3.5 3.5 0 0 1 3.5 3.5v11A3.5 3.5 0 0 1 38 38h-4"/><path d="M10 14c0-4.5 5.4-7.5 12-7.5S34 9.5 34 14"/>'},
+
+{id:'smoke', cn:'烟', en:'cigarette / smoking', cat:'餐饮', cls:'实体',
+ spec:'香烟（虚线烟身）加一缕上升的烟。表示禁止时叠加否定杠',
+ svg:'<rect x="4" y="31" width="34" height="8" rx="3.5"/><path d="M9 35h24" stroke-dasharray="3 3"/><path d="M31 27c0-4 6-5 6-9a5.5 5.5 0 0 0-6-5.5"/>'},
+
+{id:'camera', cn:'拍照 / 相机', en:'camera / photo', cat:'礼仪', cls:'实体',
+ spec:'相机机身加顶部凸起取景器，中心一个镜头圆',
+ svg:'<path d="M4 17h8l3-5h18l3 5h8v23H4V17Z"/><circle cx="24" cy="28" r="7.5"/>'},
+
+{id:'pen', cn:'写字 / 笔', en:'write / pen', cat:'礼仪', cls:'实体',
+ spec:'斜置的笔：锥形笔尖、笔身、笔尾',
+ svg:'<path d="M5 43l3-9L33 9l6 6L14 40l-9 3Z"/><path d="M29 13l6 6M9 34l6 6"/>'}
+];
+
+/* ============================================================
+   三级拓展符号 · 上半（60 个）
+   语法指代 / 时间 / 数量度量 / 方向位置 / 通用动作 / 交通
+   目的：把符号系统的覆盖范围从「能问路、能点餐」扩展到
+        日常生活的方方面面。规范与一、二级完全一致。
+   ============================================================ */
+const TIER3A = [
+/* -------- 3-A 语法与指代（11） -------- */
+{id:'we', cn:'我们', en:'we / us', cat:'指代', cls:'实体',
+ spec:'两个人形轮廓并排，共用一条基线',
+ svg:'<circle cx="15" cy="13" r="5.2"/><path d="M5 41V29c0-6 4.4-9 10-9s10 3 10 9v12"/><circle cx="34" cy="13" r="5.2"/><path d="M24 41V29c0-6 4.4-9 10-9s10 3 10 9v12"/>'},
+
+{id:'they', cn:'他们 / 她们', en:'they / them', cat:'指代', cls:'实体',
+ spec:'三个人形轮廓并排，中间一个略高',
+ svg:'<circle cx="12" cy="14" r="4.4"/><path d="M4 40V30c0-5 3.6-7.6 8-7.6s8 2.6 8 7.6v10"/><circle cx="24" cy="11" r="5"/><path d="M15 40V29c0-5.6 4-8.5 9-8.5s9 2.9 9 8.5v11"/><circle cx="36" cy="14" r="4.4"/><path d="M28 40V30c0-5 3.6-7.6 8-7.6s8 2.6 8 7.6v10"/>'},
+
+{id:'thing', cn:'东西 / 物品', en:'thing / object', cat:'指代', cls:'实体',
+ spec:'立方体（等轴测视角），表示可指认的具体物件',
+ svg:'<path d="M24 5 42 14v20L24 43 6 34V14L24 5Z"/><path d="M6 14l18 9 18-9M24 23v20"/>'},
+
+{id:'all', cn:'全部 / 都', en:'all / everything', cat:'指代', cls:'判断',
+ spec:'四格方阵全部画满，表示「所有的、全部」',
+ svg:'<rect x="6" y="6" width="15" height="15" rx="3"/><rect x="27" y="6" width="15" height="15" rx="3"/><rect x="6" y="27" width="15" height="15" rx="3"/><rect x="27" y="27" width="15" height="15" rx="3"/>'},
+
+{id:'more', cn:'更多 / 再', en:'more', cat:'指代', cls:'属性',
+ spec:'三根递增的柱子，右侧一支上升箭头',
+ svg:'<path d="M8 40V30M18 40V22M28 40V14"/><path d="M36 40V6M31 11l5-5 5 5"/>'},
+
+{id:'less', cn:'更少', en:'less', cat:'指代', cls:'属性',
+ spec:'三根递减的柱子，右侧一支下降箭头（与「更多」成对）',
+ svg:'<path d="M8 10v10M18 10v12M28 10v12"/><path d="M36 10v28M31 33l5 5 5-5"/>'},
+
+{id:'very', cn:'很 / 非常', en:'very / extremely', cat:'指代', cls:'属性',
+ spec:'两道叠加的向上尖角，借用「加倍」的视觉表示程度加强',
+ svg:'<path d="M10 24l14-14 14 14M10 42l14-14 14 14"/>'},
+
+{id:'maybe', cn:'也许 / 大概', en:'maybe / perhaps', cat:'指代', cls:'属性',
+ spec:'两条波浪线，取自数学中「约等于」的记法',
+ svg:'<path d="M7 17c5-6 11-6 17 0s11 6 17 0"/><path d="M7 31c5-6 11-6 17 0s11 6 17 0"/>'},
+
+{id:'other', cn:'其他 / 另外的', en:'other / another', cat:'指代', cls:'属性',
+ spec:'两个前后错开的方框，后面那个用虚线，表示「另一个」',
+ svg:'<rect x="6" y="14" width="24" height="24" rx="4" stroke-dasharray="3.5 3.5"/><rect x="18" y="8" width="24" height="24" rx="4"/>'},
+
+{id:'can', cn:'能 / 可以', en:'can / possible', cat:'意愿', cls:'判断',
+ spec:'开启的挂锁（锁梁未扣合），表示「可行、允许」',
+ svg:'<rect x="10" y="22" width="28" height="20" rx="4"/><path d="M17 22v-6a7 7 0 0 1 14 0"/><circle cx="24" cy="32" r="2.6" style="fill:currentColor;stroke:none"/>'},
+
+{id:'must', cn:'必须 / 一定要', en:'must / required', cat:'意愿', cls:'判断',
+ spec:'锁闭的挂锁（锁梁扣紧），表示「必须、强制」',
+ svg:'<rect x="10" y="22" width="28" height="20" rx="4"/><path d="M17 22v-7a7 7 0 0 1 14 0v7"/><circle cx="24" cy="32" r="2.6" style="fill:currentColor;stroke:none"/>'},
+
+/* -------- 3-B 时间（10） -------- */
+{id:'morning', cn:'早上 / 上午', en:'morning', cat:'时间', cls:'实体',
+ spec:'地平线上一轮升起的太阳，带三条向上的辐射线',
+ svg:'<path d="M6 32h36"/><path d="M10 32a14 14 0 0 1 28 0"/><path d="M24 6V2M11 13l-3-3M37 13l3-3"/>'},
+
+{id:'evening', cn:'傍晚 / 日落', en:'evening / sunset', cat:'时间', cls:'实体',
+ spec:'地平线上的半轮太阳加地平线下的虚线半轮，表示太阳正在落下（与「早上」成对）',
+ svg:'<path d="M6 30h36"/><path d="M10 30a14 14 0 0 1 28 0"/><path d="M10 30a14 14 0 0 0 28 0" stroke-dasharray="3 3"/>'},
+
+{id:'week', cn:'周 / 星期', en:'week', cat:'时间', cls:'实体',
+ spec:'日历外框内六个实心圆点，表示一周的多天',
+ svg:'<rect x="6" y="11" width="36" height="31" rx="4"/><path d="M6 20h36M16 5v9M32 5v9"/><circle cx="15" cy="27" r="2" style="fill:currentColor;stroke:none"/><circle cx="24" cy="27" r="2" style="fill:currentColor;stroke:none"/><circle cx="33" cy="27" r="2" style="fill:currentColor;stroke:none"/><circle cx="15" cy="35" r="2" style="fill:currentColor;stroke:none"/><circle cx="24" cy="35" r="2" style="fill:currentColor;stroke:none"/><circle cx="33" cy="35" r="2" style="fill:currentColor;stroke:none"/>'},
+
+{id:'now', cn:'现在 / 此刻', en:'now', cat:'时间', cls:'实体',
+ spec:'钟面加一支自上而下的指示箭头，表示「就在此刻」',
+ svg:'<path d="M24 3v6M19 7l5 5 5-5"/><circle cx="24" cy="28" r="14"/><path d="M24 20v8l6 4"/>'},
+
+{id:'after', cn:'之后 / 以后', en:'after / later', cat:'时间', cls:'实体',
+ spec:'时间轴上从左向右的箭头，左端一个实心起点',
+ svg:'<path d="M4 24h40M34 14l10 10-10 10"/><circle cx="13" cy="24" r="3.4" style="fill:currentColor;stroke:none"/>'},
+
+{id:'open', cn:'开 / 营业', en:'open', cat:'时间', cls:'实体',
+ spec:'门框加一扇向外敞开的门板（梯形）与一支向外的箭头',
+ svg:'<path d="M6 44V6h24v38"/><path d="M6 6 22 12v24L6 44"/><path d="M34 24h8M38 20l4 4-4 4"/>'},
+
+{id:'close', cn:'关 / 停业', en:'close / closed', cat:'时间', cls:'实体',
+ spec:'门框加一扇闭合的门板与门把手（与「开」成对）',
+ svg:'<path d="M6 44V6h24v38"/><rect x="6" y="6" width="18" height="38" rx="2"/><circle cx="20" cy="27" r="1.8" style="fill:currentColor;stroke:none"/><path d="M2 44h44"/>'},
+
+{id:'wait', cn:'等 / 稍等', en:'wait / one moment', cat:'时间', cls:'动作',
+ spec:'圆圈内两条竖杠，借用播放器的「暂停」记号表示等待',
+ svg:'<circle cx="24" cy="24" r="17"/><path d="M19 16v16M29 16v16"/>'},
+
+{id:'fast', cn:'快', en:'fast', cat:'时间', cls:'属性',
+ spec:'速度表盘，指针偏向右上方，表示速度快',
+ svg:'<path d="M6 38a20 20 0 0 1 36 0"/><path d="M24 34 37 20"/><circle cx="24" cy="36" r="3.4" style="fill:currentColor;stroke:none"/>'},
+
+{id:'slow', cn:'慢', en:'slow', cat:'时间', cls:'属性',
+ spec:'速度表盘，指针偏向左下方，表示速度慢（与「快」成对）',
+ svg:'<path d="M6 38a20 20 0 0 1 36 0"/><path d="M24 34 13 24"/><circle cx="24" cy="36" r="3.4" style="fill:currentColor;stroke:none"/>'},
+
+/* -------- 3-C 数量与度量（8） -------- */
+{id:'big', cn:'大', en:'big / large', cat:'度量', cls:'属性',
+ spec:'一个几乎占满整个栅格的大方块，表示尺寸大',
+ svg:'<rect x="3" y="3" width="42" height="42" rx="5"/>'},
+
+{id:'small', cn:'小', en:'small', cat:'度量', cls:'属性',
+ spec:'同一参照外框（虚线）内只有一个小方块，表示尺寸小',
+ svg:'<rect x="3" y="3" width="42" height="42" rx="5" stroke-dasharray="4 3"/><rect x="16" y="16" width="16" height="16" rx="3"/>'},
+
+{id:'heavy', cn:'重', en:'heavy', cat:'度量', cls:'属性',
+ spec:'哑铃侧视：两端配重片加中间横杆',
+ svg:'<path d="M4 17v14M10 15v18M38 15v18M44 17v14M10 24h28"/>'},
+
+{id:'full', cn:'满 / 够了', en:'full / enough', cat:'度量', cls:'属性',
+ spec:'电池外框内填充至满格，表示「满了、够了」',
+ svg:'<rect x="4" y="14" width="36" height="20" rx="4"/><path d="M42 20h3v8h-3"/><rect x="8" y="18" width="28" height="12" style="fill:currentColor;stroke:none"/>'},
+
+{id:'empty', cn:'空 / 空的', en:'empty', cat:'度量', cls:'属性',
+ spec:'电池外框内为空（虚线轮廓），与「满」成对',
+ svg:'<rect x="4" y="14" width="36" height="20" rx="4"/><path d="M42 20h3v8h-3"/><rect x="8" y="18" width="28" height="12" stroke-dasharray="3 3"/>'},
+
+{id:'half', cn:'一半', en:'half', cat:'度量', cls:'属性',
+ spec:'圆形左半填充、右半留白，表示「一半」',
+ svg:'<circle cx="24" cy="24" r="17"/><path d="M24 7a17 17 0 0 1 0 34Z" style="fill:currentColor;stroke:none"/>'},
+
+{id:'size', cn:'尺寸 / 尺码', en:'size', cat:'度量', cls:'实体',
+ spec:'一把带刻度的直尺，表示可测量的尺寸与尺码',
+ svg:'<rect x="3" y="16" width="42" height="16" rx="3"/><path d="M11 16v8M19 16v12M27 16v8M35 16v12M43 16v8"/>'},
+
+{id:'percent', cn:'折扣 / 百分比', en:'percent / discount', cat:'度量', cls:'属性',
+ spec:'两个圆加一条对角线，即通用百分号，也用于表示打折',
+ svg:'<circle cx="14" cy="14" r="6.5"/><circle cx="34" cy="34" r="6.5"/><path d="M41 7 7 41"/>'},
+
+/* -------- 3-D 方向与位置（8） -------- */
+{id:'left', cn:'左', en:'left', cat:'方位', cls:'动作',
+ spec:'两个向左的尖角（双箭头），与「右」成对',
+ svg:'<path d="M40 8 20 24l20 16M26 8 6 24l20 16"/>'},
+
+{id:'right', cn:'右', en:'right', cat:'方位', cls:'动作',
+ spec:'两个向右的尖角（双箭头），与「左」成对',
+ svg:'<path d="M8 8l20 16-20 16M22 8l20 16-20 16"/>'},
+
+{id:'up', cn:'上 / 上面', en:'up / above', cat:'方位', cls:'动作',
+ spec:'单向箭头指向上方',
+ svg:'<path d="M24 43V6M12 18 24 6l12 12"/>'},
+
+{id:'down', cn:'下 / 下面', en:'down / below', cat:'方位', cls:'动作',
+ spec:'单向箭头指向下方',
+ svg:'<path d="M24 5v37M12 30l12 12 12-12"/>'},
+
+{id:'straight', cn:'直走 / 一直往前', en:'straight ahead', cat:'方位', cls:'动作',
+ spec:'向远处收拢的道路两条边线，中间一支向前箭头',
+ svg:'<path d="M13 44 19 8M35 44 29 8"/><path d="M24 40V16M18 22l6-6 6 6"/>'},
+
+{id:'enter', cn:'进 / 进入', en:'enter / go in', cat:'方位', cls:'动作',
+ spec:'开口方框在右侧，箭头从左侧穿入',
+ svg:'<path d="M22 6h20v36H22"/><path d="M2 24h18M12 16l8 8-8 8"/>'},
+
+{id:'exit', cn:'出 / 出口', en:'exit / go out', cat:'方位', cls:'动作',
+ spec:'开口方框在左侧，箭头从框内向外离开（与「进」成对）',
+ svg:'<path d="M6 6h20v36H6"/><path d="M28 24h18M38 16l8 8-8 8"/>'},
+
+{id:'turn', cn:'拐弯 / 转弯', en:'turn', cat:'方位', cls:'动作',
+ spec:'一条向右直角折弯的路线，末端带箭头',
+ svg:'<path d="M12 42V22a10 10 0 0 1 10-10h13"/><path d="M29 5l8 7-8 7"/>'},
+
+/* -------- 3-E 通用动作（14） -------- */
+{id:'come', cn:'来 / 到这边', en:'come / come here', cat:'动作', cls:'动作',
+ spec:'箭头指向右侧一个圆点（目标点），表示「到这边来」',
+ svg:'<path d="M3 24h30M21 14l12 10-12 10"/><circle cx="40" cy="24" r="4.5"/>'},
+
+{id:'take', cn:'拿 / 取', en:'take / pick up', cat:'动作', cls:'动作',
+ spec:'上方一件物品，向下箭头指向一条承托线，表示「取下、拿到」',
+ svg:'<rect x="14" y="5" width="20" height="13" rx="3"/><path d="M24 20v7M18 23l6 6 6-6"/><path d="M7 41h34"/>'},
+
+{id:'find', cn:'找 / 寻找', en:'find / look for', cat:'动作', cls:'动作',
+ spec:'放大镜：圆环加向右下的手柄',
+ svg:'<circle cx="20" cy="20" r="13"/><path d="M29.5 29.5 43 43"/>'},
+
+{id:'look', cn:'看 / 眼睛', en:'look / eye', cat:'动作', cls:'动作',
+ spec:'眼睛：上下两条弧构成眼形，中间一个瞳孔。同时用作「眼睛」',
+ svg:'<path d="M4 24c6-9 13-13 20-13s14 4 20 13c-6 9-13 13-20 13s-14-4-20-13Z"/><circle cx="24" cy="24" r="5.5"/>'},
+
+{id:'listen', cn:'听 / 耳朵', en:'listen / ear', cat:'动作', cls:'动作',
+ spec:'人形侧面加右侧三道声波弧，表示「听」。同时用作「耳朵」',
+ svg:'<circle cx="17" cy="13" r="8"/><path d="M4 44c0-8 6-13 13-13s13 5 13 13"/><path d="M32 12c3.5 1.8 5.5 4.6 5.5 8s-2 6.2-5.5 8M38 6c5.5 2.8 9 7.5 9 14s-3.5 11.2-9 14"/>'},
+
+{id:'read', cn:'读 / 阅读', en:'read', cat:'动作', cls:'动作',
+ spec:'摊开的书：左右两页对称，中间一条书脊',
+ svg:'<path d="M4 10c6-3 12-3 20 2 8-5 14-5 20-2v28c-6-3-12-3-20 2-8-5-14-5-20-2V10Z"/><path d="M24 12v28"/>'},
+
+{id:'pay', cn:'付钱 / 付款', en:'pay', cat:'动作', cls:'动作',
+ spec:'纸币轮廓加一支向外的箭头，表示「把钱付出去」',
+ svg:'<rect x="4" y="14" width="24" height="20" rx="3"/><path d="M4 21h24" stroke-dasharray="3 3"/><path d="M32 24h12M38 18l6 6-6 6"/>'},
+
+{id:'send', cn:'寄 / 送', en:'send / mail', cat:'动作', cls:'动作',
+ spec:'信封加一支向外的箭头（与「收」成对）',
+ svg:'<rect x="3" y="14" width="26" height="20" rx="3"/><path d="M3 17l13 10 13-10"/><path d="M34 24h11M39 19l5 5-5 5"/>'},
+
+{id:'receive', cn:'收 / 接到', en:'receive', cat:'动作', cls:'动作',
+ spec:'信封加一支向内的箭头（与「寄」成对）',
+ svg:'<rect x="19" y="14" width="26" height="20" rx="3"/><path d="M19 17l13 10 13-10"/><path d="M3 24h11M9 19l-5 5 5 5"/>'},
+
+{id:'call', cn:'打电话', en:'call / phone', cat:'动作', cls:'动作',
+ spec:'手机侧影加右侧两道呼叫电波',
+ svg:'<rect x="6" y="6" width="20" height="36" rx="4"/><circle cx="16" cy="36" r="2" style="fill:currentColor;stroke:none"/><path d="M32 12c4 3 6 7 6 12s-2 9-6 12M38 6c6 5 9 11 9 18s-3 13-9 18"/>'},
+
+{id:'show', cn:'出示 / 给看', en:'show / display', cat:'动作', cls:'动作',
+ spec:'虚线框内一只眼睛，表示「把东西拿给对方看」',
+ svg:'<rect x="4" y="12" width="40" height="24" rx="4" stroke-dasharray="4 3"/><path d="M11 24c4-5 8.5-7.5 13-7.5S33 19 37 24c-4 5-8.5 7.5-13 7.5S15 29 11 24Z"/><circle cx="24" cy="24" r="3.2"/>'},
+
+{id:'cut', cn:'剪 / 切', en:'cut', cat:'动作', cls:'动作',
+ spec:'剪刀：两个圆环手柄加交叉的两片刀刃',
+ svg:'<circle cx="10" cy="38" r="5"/><circle cx="10" cy="10" r="5"/><path d="M14 36 41 9M14 12 41 39"/>'},
+
+{id:'wash', cn:'洗 / 洗衣', en:'wash / laundry', cat:'动作', cls:'动作',
+ spec:'洗衣机：机身、顶部控制条与圆形滚筒门',
+ svg:'<rect x="8" y="4" width="32" height="40" rx="4"/><path d="M8 15h32"/><circle cx="15" cy="9.5" r="1.8" style="fill:currentColor;stroke:none"/><circle cx="24" cy="30" r="9"/><path d="M17 30c2 3.5 6.5 4.5 9.5 1.5"/>'},
+
+{id:'fix', cn:'修 / 维修', en:'repair / fix', cat:'动作', cls:'动作',
+ spec:'扳手：开口钳头加斜向手柄',
+ svg:'<path d="M30 5a9 9 0 0 0-8.6 11.7L5.6 32.5a4 4 0 1 0 5.7 5.7l15.8-15.8A9 9 0 0 0 39 12.4l-6.2 6.2-5-5L30 5Z"/>'},
+
+/* -------- 3-F 交通（9） -------- */
+{id:'bus', cn:'公交车 / 大巴', en:'bus / coach', cat:'交通', cls:'实体',
+ spec:'公交车正面：上部车窗被两条竖线分隔，下有两个车轮',
+ svg:'<rect x="6" y="6" width="36" height="32" rx="5"/><path d="M6 21h36M15 21V6M33 21V6"/><circle cx="14" cy="42" r="4"/><circle cx="34" cy="42" r="4"/>'},
+
+{id:'subway', cn:'地铁', en:'subway / metro', cat:'交通', cls:'实体',
+ spec:'拱形隧道内的列车正面，用以与普通列车区分',
+ svg:'<path d="M3 44V24a21 21 0 0 1 42 0v20"/><rect x="13" y="15" width="22" height="21" rx="4"/><path d="M13 25h22"/><path d="M18 36v4M30 36v4"/>'},
+
+{id:'bicycle', cn:'自行车', en:'bicycle', cat:'交通', cls:'实体',
+ spec:'两个车轮加三角车架、车座与车把',
+ svg:'<circle cx="11" cy="33" r="8.5"/><circle cx="37" cy="33" r="8.5"/><path d="M11 33 20 18h10l7 15"/><path d="M20 18 26 33"/><path d="M30 18l7 2"/>'},
+
+{id:'station', cn:'车站 / 站台', en:'station', cat:'交通', cls:'实体',
+ spec:'站房坡顶加一节车厢，表示车站、站台',
+ svg:'<path d="M2 21h44"/><path d="M8 21 24 6l16 15"/><rect x="14" y="27" width="20" height="14" rx="3"/><path d="M14 35h20"/>'},
+
+{id:'trafficlight', cn:'红绿灯', en:'traffic light', cat:'交通', cls:'实体',
+ spec:'竖排三灯的信号灯，最上面的灯为实心（红灯）',
+ svg:'<rect x="15" y="3" width="18" height="33" rx="6"/><circle cx="24" cy="12" r="3.6" style="fill:currentColor;stroke:none"/><circle cx="24" cy="22" r="3.6"/><circle cx="24" cy="32" r="3.6"/><path d="M24 36v9"/>'},
+
+{id:'fuel', cn:'加油 / 汽油', en:'fuel / petrol', cat:'交通', cls:'实体',
+ spec:'油桶：桶身加顶部提手与侧面出油口',
+ svg:'<path d="M10 14h28v26a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4V14Z"/><path d="M20 14v-6h8v6"/><path d="M38 21h4v11h-4"/>'},
+
+{id:'road', cn:'路 / 道路', en:'road', cat:'交通', cls:'实体',
+ spec:'向远处收拢的两条路边线，中间是分段的车道分隔线',
+ svg:'<path d="M10 44 20 6M38 44 28 6"/><path d="M24 14v5M24 25v5M24 36v5"/>'},
+
+{id:'arrive', cn:'到达', en:'arrive', cat:'交通', cls:'动作',
+ spec:'定位针内一个对勾，表示「已经到了」',
+ svg:'<path d="M24 4c-7.7 0-14 6.3-14 14 0 11 14 26 14 26s14-15 14-26c0-7.7-6.3-14-14-14Z"/><path d="M17 18l5 5 9-10"/>'},
+
+{id:'delay', cn:'延误 / 晚点', en:'delay', cat:'交通', cls:'属性',
+ spec:'钟面加一支向右下的箭头，表示时间被推后',
+ svg:'<circle cx="19" cy="17" r="12"/><path d="M19 10v7l5 3"/><path d="M35 26v13M29 33l6 6 6-6"/>'}
+];
+
+/* ============================================================
+   三级拓展符号 · 下半（60 个）
+   住宿设施 / 餐饮物品 / 医疗 / 求助法规 / 通讯科技 / 观光游玩 / 生活服务
+   ============================================================ */
+const TIER3B = [
+/* -------- 3-G 住宿设施与用品（10） -------- */
+{id:'room', cn:'房间', en:'room', cat:'住宿', cls:'实体',
+ spec:'方框中一张床的侧影，表示「房间」这个空间',
+ svg:'<rect x="3" y="6" width="42" height="36" rx="4"/><path d="M9 35v-9h30v9"/><path d="M9 26v-4h11v4"/><circle cx="15" cy="21" r="3.6"/>'},
+
+{id:'elevator', cn:'电梯', en:'elevator / lift', cat:'住宿', cls:'实体',
+ spec:'电梯轿厢加中间分隔线，两侧分别为上、下箭头',
+ svg:'<rect x="10" y="3" width="28" height="42" rx="4"/><path d="M24 3v42"/><path d="M17 17v-7M13.5 13.5 17 10l3.5 3.5"/><path d="M31 31v7M27.5 34.5 31 38l3.5-3.5"/>'},
+
+{id:'floor', cn:'楼层', en:'floor / storey', cat:'住宿', cls:'实体',
+ spec:'楼体被横线分成多层，右侧一支向下的箭头表示所选楼层',
+ svg:'<rect x="12" y="4" width="24" height="40" rx="3"/><path d="M12 14h24M12 24h24M12 34h24"/><path d="M42 30v10M38 35l4 5 4-5"/>'},
+
+{id:'towel', cn:'毛巾', en:'towel', cat:'住宿', cls:'实体',
+ spec:'搭在横杆上的毛巾，两侧自然下垂',
+ svg:'<path d="M4 10h40"/><path d="M12 10v22a5 5 0 0 0 5 5h14a5 5 0 0 0 5-5V10"/>'},
+
+{id:'soap', cn:'洗漱用品', en:'toiletries / soap', cat:'住宿', cls:'实体',
+ spec:'一块肥皂加三个漂浮的泡沫圆',
+ svg:'<rect x="6" y="22" width="28" height="15" rx="7"/><circle cx="36" cy="12" r="4"/><circle cx="43" cy="19" r="2.4"/><circle cx="29" cy="7" r="2.4"/>'},
+
+{id:'shower', cn:'淋浴 / 洗澡', en:'shower', cat:'住宿', cls:'实体',
+ spec:'半圆形的莲蓬头加下方四道水流',
+ svg:'<path d="M10 16a10 10 0 0 1 20 0Z"/><path d="M20 8V3"/><path d="M13 23v6M20 23v10M27 23v6M34 23v10"/>'},
+
+{id:'aircon', cn:'空调', en:'air conditioner', cat:'住宿', cls:'实体',
+ spec:'壁挂机体加下方四道冷气流线',
+ svg:'<rect x="4" y="8" width="40" height="13" rx="4"/><path d="M10 14h28"/><path d="M8 27c3 4 0 8 3 12M18 27c3 4 0 8 3 12M28 27c3 4 0 8 3 12M38 27c3 4 0 8 3 12"/>'},
+
+{id:'socket', cn:'插座 / 电', en:'socket / power', cat:'住宿', cls:'实体',
+ spec:'圆形面板上两个插孔与一条接地线',
+ svg:'<circle cx="24" cy="24" r="17"/><circle cx="18" cy="20" r="2.8" style="fill:currentColor;stroke:none"/><circle cx="30" cy="20" r="2.8" style="fill:currentColor;stroke:none"/><path d="M24 30v6"/>'},
+
+{id:'blanket', cn:'被子 / 被褥', en:'blanket / quilt', cat:'住宿', cls:'实体',
+ spec:'三层叠放的被褥，用逐渐收窄的方形表示厚度',
+ svg:'<rect x="5" y="27" width="38" height="12" rx="3"/><rect x="8" y="17" width="32" height="10" rx="3"/><rect x="11" y="8" width="26" height="9" rx="3"/>'},
+
+{id:'deposit', cn:'押金 / 预付款', en:'deposit', cat:'住宿', cls:'实体',
+ spec:'左侧一张单据，右侧一枚硬币，表示「先付的保证金」',
+ svg:'<rect x="5" y="5" width="22" height="38" rx="3"/><path d="M11 15h10M11 23h10M11 31h6"/><circle cx="35" cy="31" r="9"/><path d="M35 26v10"/>'},
+
+/* -------- 3-H 餐饮物品与食材（14） -------- */
+{id:'menu', cn:'菜单', en:'menu', cat:'餐饮', cls:'实体',
+ spec:'一本小册子：封面上缘一条横带，下面三行菜名示意线',
+ svg:'<rect x="8" y="4" width="32" height="40" rx="3"/><path d="M8 13h32"/><path d="M15 21h18M15 29h18M15 37h11"/>'},
+
+{id:'cup', cn:'杯子', en:'cup', cat:'餐饮', cls:'实体',
+ spec:'直筒杯体加右侧把手',
+ svg:'<path d="M8 12h26v14a13 13 0 0 1-26 0V12Z"/><path d="M34 16h4a6 6 0 0 1 0 12h-4"/>'},
+
+{id:'bottle', cn:'瓶子', en:'bottle', cat:'餐饮', cls:'实体',
+ spec:'瓶身加收窄的瓶颈与瓶盖，中间一条液面线',
+ svg:'<path d="M19 3h10v6l3 6v25a4 4 0 0 1-4 4h-8a4 4 0 0 1-4-4V15l3-6V3Z"/><path d="M16 24h16"/>'},
+
+{id:'spoon', cn:'勺子', en:'spoon', cat:'餐饮', cls:'实体',
+ spec:'上方椭圆勺头，下方直柄',
+ svg:'<ellipse cx="24" cy="13" rx="8" ry="10"/><path d="M24 23v22"/>'},
+
+{id:'chopsticks', cn:'筷子', en:'chopsticks', cat:'餐饮', cls:'实体',
+ spec:'两根平行斜置的细长棍',
+ svg:'<path d="M12 44 34 5M22 44 43 6"/>'},
+
+{id:'sugar', cn:'糖', en:'sugar', cat:'餐饮', cls:'实体',
+ spec:'三块方形糖块堆成品字形',
+ svg:'<rect x="5" y="21" width="16" height="16" rx="2"/><rect x="25" y="21" width="16" height="16" rx="2"/><rect x="15" y="5" width="16" height="15" rx="2"/>'},
+
+{id:'salt', cn:'盐 / 调料', en:'salt / seasoning', cat:'餐饮', cls:'实体',
+ spec:'调味瓶：瓶身加弧形的撒粉盖',
+ svg:'<path d="M13 16h22v24a4 4 0 0 1-4 4H17a4 4 0 0 1-4-4V16Z"/><path d="M13 16a11 11 0 0 1 22 0"/>'},
+
+{id:'milk', cn:'牛奶 / 乳制品', en:'milk / dairy', cat:'餐饮', cls:'实体',
+ spec:'利乐纸盒：盒身加顶部斜折的屋顶形折角',
+ svg:'<path d="M14 14h20v30H14Z"/><path d="M14 14 20 4h8l6 10"/><path d="M14 24h20"/>'},
+
+{id:'bread', cn:'面包 / 面食', en:'bread', cat:'餐饮', cls:'实体',
+ spec:'长条面包：上部为圆弧，表面三道人字纹',
+ svg:'<path d="M6 20a12 12 0 0 1 12-12h12a12 12 0 0 1 12 12v16a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V20Z"/><path d="M16 14v9M24 12v9M32 14v9"/>'},
+
+{id:'fruit', cn:'水果', en:'fruit', cat:'餐饮', cls:'实体',
+ spec:'苹果轮廓加顶部一片叶与短柄',
+ svg:'<path d="M24 15c-4.5-4-14-4-14 7.5C10 34 16 45 24 45s14-11 14-22.5C38 11 28.5 11 24 15Z"/><path d="M24 15v-5c0-3 2-5.5 5.5-5.5"/>'},
+
+{id:'chicken', cn:'鸡肉 / 禽肉', en:'chicken / poultry', cat:'餐饮', cls:'实体',
+ spec:'鸡的侧面简化轮廓：小头、圆身、尾部翘起',
+ svg:'<circle cx="13" cy="15" r="7"/><path d="M7 21c0-4 4-6 9-6 9 0 15 6 15 14 0 7-5 11-12 11-9 0-14-8-14-18Z"/><path d="M17 8c1.5-3 5-3.5 6.5-.5"/><path d="M40 20 32 16v9"/>'},
+
+{id:'soup', cn:'汤', en:'soup', cat:'餐饮', cls:'实体',
+ spec:'碗体加碗中斜插的一把勺（与「食物」区分）',
+ svg:'<path d="M4 26h40a20 20 0 0 1-40 0Z"/><ellipse cx="31" cy="12" rx="5" ry="6"/><path d="M31 18v8"/>'},
+
+{id:'juice', cn:'果汁 / 饮料', en:'juice / soft drink', cat:'餐饮', cls:'实体',
+ spec:'上宽下窄的玻璃杯，杯中斜插一支吸管',
+ svg:'<path d="M10 14h24l-3 30H13L10 14Z"/><path d="M35 4 26 41"/>'},
+
+{id:'cake', cn:'蛋糕 / 甜点', en:'cake / dessert', cat:'餐饮', cls:'实体',
+ spec:'切块蛋糕：梯形侧面加一条奶油分层线，顶部一颗圆点代表樱桃',
+ svg:'<path d="M6 22 24 11l18 11v12a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V22Z"/><path d="M6 30h36"/><circle cx="24" cy="8" r="4"/>'},
+
+/* -------- 3-I 医疗（9） -------- */
+{id:'cough', cn:'咳 / 咳嗽', en:'cough', cat:'医疗', cls:'属性',
+ spec:'人形头部与躯干，右侧三点表示咳出的飞沫',
+ svg:'<circle cx="16" cy="11" r="7.5"/><path d="M4 44V33c0-6.5 5-11 12-11 5 0 8.5 2.5 10 7"/><circle cx="36" cy="15" r="2.6" style="fill:currentColor;stroke:none"/><circle cx="43" cy="24" r="2.6" style="fill:currentColor;stroke:none"/><circle cx="33" cy="25" r="2.6" style="fill:currentColor;stroke:none"/>'},
+
+{id:'tooth', cn:'牙齿 / 牙', en:'tooth', cat:'医疗', cls:'实体',
+ spec:'牙冠加两条牙根，用于牙痛与看牙医',
+ svg:'<path d="M11 13c0-5.5 5.5-9 13-9s13 3.5 13 9c0 6-2 9-3 14-1 5-2.5 8-4.5 8s-2.5-4-2.5-8c0-3-1-5-3-5s-3 2-3 5c0 4-1 8-2.5 8S16 32 15 27c-1-5-4-8-4-14Z"/>'},
+
+{id:'heart', cn:'心脏 / 心', en:'heart', cat:'医疗', cls:'实体',
+ spec:'心形轮廓，用于心脏相关症状，也用于表达「喜欢」',
+ svg:'<path d="M24 43C14 35 4 27.5 4 17.5A10.5 10.5 0 0 1 24 13 10.5 10.5 0 0 1 44 17.5C44 27.5 34 35 24 43Z"/>'},
+
+{id:'bandage', cn:'创可贴 / 包扎', en:'bandage / plaster', cat:'医疗', cls:'实体',
+ spec:'横向创可贴：两端圆角的长条，中间一块方形药垫',
+ svg:'<rect x="9" y="14" width="30" height="20" rx="10"/><rect x="19" y="16" width="10" height="16" rx="2"/>'},
+
+{id:'injection', cn:'打针 / 注射', en:'injection / shot', cat:'医疗', cls:'实体',
+ spec:'斜置的注射器：筒身、推杆、针头，筒身一道刻度',
+ svg:'<path d="M9 30 29 10l9 9-20 20Z"/><path d="M29 10l6-6 9 9-6 6"/><path d="M9 30 3 36"/><path d="M23 19l5 5"/>'},
+
+{id:'tablet', cn:'药片', en:'tablet / pill', cat:'医疗', cls:'实体',
+ spec:'圆形药片加中间一条分割线（与胶囊「药」区分）',
+ svg:'<circle cx="24" cy="24" r="16"/><path d="M24 8v32"/>'},
+
+{id:'dentist', cn:'牙医', en:'dentist', cat:'医疗', cls:'实体',
+ spec:'上方一颗牙齿，右下方医疗十字，表示牙科诊疗',
+ svg:'<path d="M6 22c0-4.5 4.5-7.5 10.5-7.5S27 17.5 27 22c0 5-1.5 7.5-2.5 11.5-.8 3.5-2 5.5-3.5 5.5s-2-3-2-6c0-2.5-.8-4-2.5-4s-2.5 1.5-2.5 4c0 3-.5 6-2 6s-2.7-2-3.5-5.5C7.5 29.5 6 27 6 22Z"/><path d="M38 26v14M31 33h14"/>'},
+
+{id:'insurance', cn:'保险', en:'insurance', cat:'医疗', cls:'实体',
+ spec:'盾形轮廓内一个对勾，表示保单与保障',
+ svg:'<path d="M24 4 42 11v13c0 11-7.5 18.5-18 22-10.5-3.5-18-11-18-22V11L24 4Z"/><path d="M17 23l5 5 10-11"/>'},
+
+{id:'wheelchair', cn:'轮椅 / 行动不便', en:'wheelchair', cat:'医疗', cls:'实体',
+ spec:'大轮加座椅、靠背与脚踏',
+ svg:'<circle cx="20" cy="32" r="11"/><circle cx="20" cy="9" r="4.5"/><path d="M20 15v14h11l8 11M9 20h11"/>'},
+
+/* -------- 3-J 求助、法规与紧急（8） -------- */
+{id:'fire', cn:'火 / 火灾', en:'fire', cat:'求助', cls:'实体',
+ spec:'火焰轮廓：外焰宽、内焰细，底部一条地面线',
+ svg:'<path d="M24 4c2.5 9 10 12 10 21a10 10 0 0 1-20 0c0-6.5 4-9.5 5.5-14 1.5 3.5 5 5.5 5 5.5S24 11 24 4Z"/><path d="M13 44h22"/>'},
+
+{id:'thief', cn:'小偷 / 盗窃', en:'thief / theft', cat:'求助', cls:'实体',
+ spec:'蒙面人形：头部一条粗横带覆住眼部',
+ svg:'<circle cx="20" cy="13" r="8.5"/><path d="M11.5 11h17" style="stroke-width:7"/><path d="M4 44V32c0-6.5 6-11 16-11s16 4.5 16 11v12"/>'},
+
+{id:'report', cn:'报案 / 登记', en:'report', cat:'求助', cls:'实体',
+ spec:'一份登记表：三行文字位加右下角盖了章的对勾圆圈',
+ svg:'<rect x="7" y="4" width="34" height="40" rx="3"/><path d="M14 14h20M14 22h20M14 30h11"/><circle cx="32" cy="36" r="6.5"/><path d="M29 36l2.5 2.5 5-5"/>'},
+
+{id:'customs', cn:'海关 / 边检', en:'customs / border', cat:'求助', cls:'实体',
+ spec:'左侧证件（含肖像位），右侧两道关卡立柱与横闸',
+ svg:'<rect x="3" y="8" width="16" height="24" rx="2"/><circle cx="11" cy="17" r="3.6"/><path d="M6 28h9"/><path d="M28 4v40M41 4v40M28 22h13"/>'},
+
+{id:'embassy', cn:'大使馆 / 领事馆', en:'embassy / consulate', cat:'求助', cls:'实体',
+ spec:'建筑轮廓加顶部旗杆与旗帜（不含任何具体国徽）',
+ svg:'<path d="M6 44V22L24 8l18 14v22"/><path d="M16 44V32h16v12"/><path d="M24 8V2"/><path d="M24 2h12l-3 4 3 4H24"/>'},
+
+{id:'fine', cn:'罚款 / 罚单', en:'fine / penalty', cat:'求助', cls:'实体',
+ spec:'左侧一张罚单（两行文字位），右侧一枚硬币',
+ svg:'<rect x="3" y="9" width="22" height="30" rx="3"/><path d="M9 19h10M9 27h10"/><circle cx="35" cy="24" r="10"/><path d="M35 18v12"/>'},
+
+{id:'missing', cn:'走失 / 失踪', en:'missing / lost', cat:'求助', cls:'实体',
+ spec:'虚线勾勒的人形（表示「不在原处」）加右侧的问号',
+ svg:'<circle cx="16" cy="14" r="7.5" stroke-dasharray="3 3"/><path d="M3 43V31c0-6.5 5.5-11 13-11s13 4.5 13 11v12" stroke-dasharray="3 3"/><path d="M31 17c0-3.6 2.4-6 5.6-6S42 13.4 42 16.4c0 2.6-1.6 3.6-2.9 4.8-.8.8-1.2 1.6-1.2 2.8"/><circle cx="37.9" cy="27" r="1.9" style="fill:currentColor;stroke:none"/>'},
+
+{id:'idcard', cn:'证件 / 身份证', en:'ID card', cat:'求助', cls:'实体',
+ spec:'横向证件卡：左侧肖像位，右侧两行信息位',
+ svg:'<rect x="3" y="12" width="42" height="24" rx="4"/><circle cx="14" cy="22" r="4.4"/><path d="M8 31h12"/><path d="M25 20h16M25 27h16"/>'},
+
+/* -------- 3-K 通讯与科技（8） -------- */
+{id:'sim', cn:'手机卡 / SIM 卡', en:'SIM card', cat:'通讯', cls:'实体',
+ spec:'一角被切去的卡片外形，中间是芯片方格与触点线',
+ svg:'<path d="M11 4h17l11 11v27a2 2 0 0 1-2 2H11a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><rect x="15" y="16" width="18" height="15" rx="2"/><path d="M24 16v15M15 23.5h18"/>'},
+
+{id:'message', cn:'短信 / 文字消息', en:'message / SMS', cat:'通讯', cls:'实体',
+ spec:'对话气泡下方的尾角，气泡内两行文字线',
+ svg:'<rect x="3" y="9" width="42" height="24" rx="5"/><path d="M13 33v9l10-9"/><path d="M12 18h24M12 25h15"/>'},
+
+{id:'email', cn:'邮件 / 电子邮件', en:'email', cat:'通讯', cls:'实体',
+ spec:'信封：矩形外框加一个 V 形封口折线',
+ svg:'<rect x="3" y="12" width="42" height="26" rx="4"/><path d="M3 15l21 15 21-15"/>'},
+
+{id:'photo', cn:'照片', en:'photo', cat:'通讯', cls:'实体',
+ spec:'相框：左上角一个小圆（太阳），下方一道折线（山）',
+ svg:'<rect x="4" y="8" width="40" height="30" rx="3"/><circle cx="15" cy="18" r="3.6"/><path d="M4 34 16 24l8 7 7-6 13 9"/>'},
+
+{id:'video', cn:'视频 / 录像', en:'video', cat:'通讯', cls:'实体',
+ spec:'方形画框内一个向右的实心播放三角',
+ svg:'<rect x="3" y="10" width="42" height="28" rx="4"/><path d="M20 17v14l13-7-13-7Z"/>'},
+
+{id:'laptop', cn:'电脑', en:'computer / laptop', cat:'通讯', cls:'实体',
+ spec:'屏幕加梯形底座',
+ svg:'<rect x="9" y="9" width="30" height="21" rx="2"/><path d="M3 36h42l-3-6H6l-3 6Z"/>'},
+
+{id:'translate', cn:'翻译', en:'translate', cat:'通讯', cls:'动作',
+ spec:'上左、下右两个对话气泡，尾角方向相反，表示双向翻译',
+ svg:'<rect x="3" y="5" width="25" height="17" rx="4"/><path d="M16 22v6l7-6"/><rect x="20" y="26" width="25" height="17" rx="4"/><path d="M32 43v6l-7-6"/>'},
+
+{id:'music', cn:'音乐', en:'music', cat:'通讯', cls:'实体',
+ spec:'双音符：两个实心符头加符杆与符梁',
+ svg:'<circle cx="13" cy="37" r="6" style="fill:currentColor;stroke:none"/><circle cx="35" cy="32" r="6" style="fill:currentColor;stroke:none"/><path d="M19 37V10l22-5v27"/>'},
+
+/* -------- 3-L 观光与游玩（6） -------- */
+{id:'sight', cn:'景点 / 名胜', en:'sight / attraction', cat:'游玩', cls:'实体',
+ spec:'五角星，作为地图与导览册上的「看点」标记',
+ svg:'<path d="M24 4l6.2 13.4 14.8 1.9-10.8 10.2 2.7 14.5L24 37.1 11.1 44l2.7-14.5L3 19.3l14.8-1.9L24 4Z"/>'},
+
+{id:'museum', cn:'博物馆', en:'museum', cat:'游玩', cls:'实体',
+ spec:'带山墙与四根立柱的建筑正面',
+ svg:'<path d="M4 17 24 5l20 12v4H4v-4Z"/><path d="M10 24v16M18 24v16M26 24v16M34 24v16"/><path d="M4 42h40"/>'},
+
+{id:'park', cn:'公园 / 绿地', en:'park / garden', cat:'游玩', cls:'实体',
+ spec:'树冠圆加树干，底部一条草地线',
+ svg:'<circle cx="24" cy="15" r="11"/><path d="M24 26v18"/><path d="M5 44h38"/>'},
+
+{id:'beach', cn:'海滩 / 海边', en:'beach', cat:'游玩', cls:'实体',
+ spec:'沙滩伞（半圆伞面加伞杆）与底部一道海浪',
+ svg:'<path d="M24 7a17 17 0 0 1 17 17H7A17 17 0 0 1 24 7Z"/><path d="M24 24v14"/><path d="M3 40c4-3.5 8-3.5 12 0s8 3.5 12 0 8-3.5 12 0"/>'},
+
+{id:'mountain', cn:'山 / 山区', en:'mountain', cat:'游玩', cls:'实体',
+ spec:'两座前后错落的山峰轮廓，底部一条地面线',
+ svg:'<path d="M2 42 17 15l8 14 6-9 15 22H2Z"/><path d="M2 42h44"/>'},
+
+{id:'swim', cn:'游泳', en:'swim', cat:'游玩', cls:'动作',
+ spec:'人形头部加两道水波，表示在水中游动',
+ svg:'<circle cx="15" cy="22" r="5.5"/><path d="M24 27c6-4 12-6 19-6"/><path d="M3 33c4-3.5 8-3.5 12 0s8 3.5 12 0 8-3.5 12 0"/><path d="M6 42c4-3.5 8-3.5 12 0s8 3.5 12 0 8-3.5 12 0"/>'},
+
+/* -------- 3-M 生活服务（5） -------- */
+{id:'post', cn:'邮局', en:'post office', cat:'生活', cls:'实体',
+ spec:'建筑轮廓内一个信封，表示「办邮政的地方」',
+ svg:'<path d="M6 44V24L24 10l18 14v20"/><rect x="14" y="28" width="20" height="14" rx="2"/><path d="M14 30l10 7 10-7"/>'},
+
+{id:'bank', cn:'银行', en:'bank', cat:'生活', cls:'实体',
+ spec:'带山墙与立柱的建筑，山墙内一个圆（货币标记）',
+ svg:'<path d="M4 18 24 6l20 12v4H4v-4Z"/><circle cx="24" cy="13" r="3.6"/><path d="M10 24v16M18 24v16M26 24v16M34 24v16"/><path d="M4 41h40"/>'},
+
+{id:'barber', cn:'理发 / 美发', en:'haircut / barber', cat:'生活', cls:'实体',
+ spec:'左侧剪刀（两个圆环加交叉刀刃），右侧一把梳子',
+ svg:'<circle cx="8" cy="35" r="4.4"/><circle cx="8" cy="13" r="4.4"/><path d="M11.5 32.5 32 12M11.5 15.5 32 36"/><path d="M30 20h14v4H30Z"/><path d="M33 24v5M36.5 24v5M40 24v5M43.5 24v5"/>'},
+
+{id:'parcel', cn:'包裹 / 快递', en:'parcel / package', cat:'生活', cls:'实体',
+ spec:'纸箱：箱体加十字封箱胶带与顶部提绳',
+ svg:'<rect x="5" y="13" width="38" height="30" rx="3"/><path d="M5 23h38M24 13v30"/><path d="M17 13 24 5l7 8"/>'},
+
+{id:'copy', cn:'复印 / 复制', en:'copy / photocopy', cat:'生活', cls:'实体',
+ spec:'两张前后错开的纸张，前面一张完整、后面一张露出上缘与左缘',
+ svg:'<path d="M3 33V6h27v9"/><rect x="18" y="15" width="27" height="28" rx="3"/>'}
+];
+
+const TIER3 = TIER3A.concat(TIER3B);
+const ALL = SYMBOLS.concat(TIER2, TIER3);
+const BY_ID = {};
+ALL.forEach(s => { BY_ID[s.id] = s; });
+
+/* ---------- 修饰符号：由程序叠加，不单独成卡 ---------- */
+const MODIFIERS = {
+  neg: {cn:'否定叠加', spec:'在符号上覆盖一道 45° 粗斜杠，表示"不 / 没有 / 不要"'},
+  q:   {cn:'疑问叠加', spec:'在符号外加一个圆角外框并在右上角加问号'}
+};
+
+
+/* ============================================================
+   符号通行证 · 意图模板库 v3.0
+   ------------------------------------------------------------
+   设计原则：模板优先，不做自由翻译。
+   每条模板的中文释义与英文句子均经人工校对，
+   命中即输出固定结果 —— 可控、可离线、不会出错。
+
+   16 个场景，440+ 条人工校对的旅行与生活例句。
+
+   符号序列写法：
+     'me'        → 使用符号库中 id 为 me 的符号
+     '-chili'    → 该符号叠加否定斜杠（不 / 没有 / 不要）
+     'q'         → 句中疑问符，通常置于序列末位
+   ============================================================ */
+
+const CATS = [
+  {id:'all',   name:'全部'},
+  {id:'tr',    name:'交通'},
+  {id:'hot',   name:'住宿'},
+  {id:'food',  name:'餐饮'},
+  {id:'shop',  name:'购物'},
+  {id:'money', name:'金融'},
+  {id:'med',   name:'医疗'},
+  {id:'help',  name:'求助'},
+  {id:'emerg', name:'紧急'},
+  {id:'comm',  name:'通讯'},
+  {id:'sight', name:'游玩'},
+  {id:'social',name:'社交'},
+  {id:'life',  name:'生活服务'},
+  {id:'daily', name:'日常'},
+  {id:'law',   name:'法规礼仪'},
+  {id:'num',   name:'数字时间'}
+];
+
+const INTENTS = [
+/* ==================== 交通 ==================== */
+{cat:'tr',k:['怎么去','怎么走','如何去','怎样到','怎么过去'],s:['me','go','here','q'],zh:'请问这个地方怎么走？',en:'How do I get to this place?',amb:'单看符号对方可能读成「我要去这里」。出示时请同时用手指向地图或地址。'},
+{cat:'tr',k:['洗手间','厕所','卫生间','解手','方便一下'],s:['toilet','here','q'],zh:'洗手间在哪里？',en:'Where is the toilet?',amb:'这套符号里全球通用度最高的一条，基本不会误读。'},
+{cat:'tr',k:['打车','出租车','taxi','打的'],s:['me','want','car'],zh:'我要坐出租车。',en:'I need a taxi.',amb:'也可能被读成「我要买车」。配合指路边的车辆即可消除歧义。'},
+{cat:'tr',k:['帮我叫车','帮我叫一辆','帮我叫出租'],s:['car','call','want'],zh:'请帮我叫一辆出租车。',en:'Please call a taxi for me.',amb:''},
+{cat:'tr',k:['打表','计价器','按表'],s:['car','money','count','q'],zh:'出租车打表吗？',en:'Does the taxi use the meter?',amb:''},
+{cat:'tr',k:['机场','机场在哪','飞机场'],s:['plane','here','q'],zh:'机场在哪里？',en:'Where is the airport?',amb:''},
+{cat:'tr',k:['去机场','机场怎么走'],s:['me','go','plane'],zh:'我要去机场。',en:'I want to go to the airport.',amb:''},
+{cat:'tr',k:['去火车站','火车站怎么走'],s:['me','go','train'],zh:'我要去火车站。',en:'I want to go to the train station.',amb:''},
+{cat:'tr',k:['火车票','高铁票','买车票','车票'],s:['train','ticket','buy'],zh:'我要买火车票。',en:'I would like to buy a train ticket.',amb:''},
+{cat:'tr',k:['几点','发车','起飞','开车时间','什么时候走'],s:['train','time','q'],zh:'几点出发？',en:'What time does it depart?',amb:'「时间+疑问」比较宽泛，建议配合时刻表指认。'},
+{cat:'tr',k:['站台','几号站台','哪个站台'],s:['train','here','q'],zh:'在哪个站台？',en:'Which platform?',amb:''},
+{cat:'tr',k:['几号车厢','车厢','哪节车厢'],s:['train','count','here','q'],zh:'在几号车厢？',en:'Which carriage?',amb:''},
+{cat:'tr',k:['行李','寄存','存包','放行李'],s:['luggage','here','q'],zh:'行李可以寄存在哪里？',en:'Where can I store my luggage?',amb:''},
+{cat:'tr',k:['托运','行李托运'],s:['luggage','give','want'],zh:'我要托运行李。',en:'I would like to check in my luggage.',amb:''},
+{cat:'tr',k:['取行李','行李转盘','行李在哪'],s:['luggage','here','q'],zh:'在哪里取行李？',en:'Where can I collect my luggage?',amb:''},
+{cat:'tr',k:['超重','行李超重'],s:['luggage','heavy','warn'],zh:'行李超重了吗？',en:'Is my luggage overweight?',amb:''},
+{cat:'tr',k:['安检','安全检查'],s:['thing','give','want'],zh:'需要检查我的行李吗？',en:'Do you need to check my luggage?',amb:''},
+{cat:'tr',k:['值机','check in','办理登机'],s:['plane','ticket','q'],zh:'在哪里办理登机？',en:'Where can I check in?',amb:''},
+{cat:'tr',k:['登机口','出发厅','候机'],s:['plane','go','here','q'],zh:'出发厅（登机口）在哪里？',en:'Where is the departure area?',amb:''},
+{cat:'tr',k:['到达','接机','到达厅'],s:['plane','arrive','here','q'],zh:'到达厅在哪里？',en:'Where is the arrivals area?',amb:''},
+{cat:'tr',k:['多久','多长时间','要多久','多长时间能到'],s:['dur','q'],zh:'需要多长时间？',en:'How long does it take?',amb:'建议接着让对方在数字盘上回填。'},
+{cat:'tr',k:['多远','还有多远','距离'],s:['far','q'],zh:'还有多远？',en:'How far is it?',amb:''},
+{cat:'tr',k:['迷路','找不到路','不知道在哪'],s:['me','map','q'],zh:'我迷路了。',en:'I am lost.',amb:'也可以用「求救」符号，但语气更强。'},
+{cat:'tr',k:['这趟车','能到吗','到这个吗','到不到'],s:['train','here','q'],zh:'这趟车到这个站吗？',en:'Does this train go to this place?',amb:'务必翻到回应页让对方点头或摇头。'},
+{cat:'tr',k:['地铁','metro','subway'],s:['subway','here','q'],zh:'地铁站在哪里？',en:'Where is the subway station?',amb:''},
+{cat:'tr',k:['地铁口','地铁出口','进站口','地铁入口'],s:['subway','enter','here','q'],zh:'地铁入口在哪里？',en:'Where is the subway entrance?',amb:''},
+{cat:'tr',k:['公交','巴士','公交车','公交站'],s:['bus','here','q'],zh:'公交车站在哪里？',en:'Where is the bus stop?',amb:''},
+{cat:'tr',k:['大巴','长途车','客车','班车'],s:['bus','ticket','buy'],zh:'我要买长途汽车票。',en:'A bus ticket, please.',amb:''},
+{cat:'tr',k:['船','轮渡','坐船'],s:['boat','ticket','buy'],zh:'我要买船票。',en:'A ferry ticket, please.',amb:''},
+{cat:'tr',k:['护照','过关','登机'],s:['passport'],zh:'这是我的护照。',en:'Here is my passport.',amb:''},
+{cat:'tr',k:['方向','往哪走','这边还是那边'],s:['go','q'],zh:'往哪个方向走？',en:'Which direction?',amb:''},
+{cat:'tr',k:['右转','向右拐','右拐'],s:['straight','turn','right'],zh:'是直走然后右转吗？',en:'Straight ahead and then turn right?',amb:''},
+{cat:'tr',k:['左转','向左拐','左拐'],s:['straight','turn','left'],zh:'是直走然后左转吗？',en:'Straight ahead and then turn left?',amb:''},
+{cat:'tr',k:['红绿灯','过马路','斑马线'],s:['trafficlight','here','q'],zh:'红绿灯在哪里？',en:'Where is the traffic light?',amb:''},
+{cat:'tr',k:['加油站','加油','加油站在'],s:['fuel','here','q'],zh:'加油站在哪里？',en:'Where is a gas station?',amb:''},
+{cat:'tr',k:['加油多少钱','油价','一升油'],s:['fuel','money','q'],zh:'油是多少钱？',en:'How much is the fuel?',amb:''},
+{cat:'tr',k:['加满','油加满'],s:['fuel','full','want'],zh:'请加满。',en:'Fill it up, please.',amb:''},
+{cat:'tr',k:['停车场','哪里停车','停车在哪'],s:['car','enter','here','q'],zh:'停车场在哪里？',en:'Where is the parking lot?',amb:''},
+{cat:'tr',k:['停车费'],s:['car','money','q'],zh:'停车费是多少？',en:'How much is the parking fee?',amb:''},
+{cat:'tr',k:['租车','自驾'],s:['car','key','money','want'],zh:'我想租车。',en:'I would like to rent a car.',amb:'「车+钥匙+钱」的组合在多数国家能被理解为租车。'},
+{cat:'tr',k:['自行车','共享单车','骑车'],s:['bicycle','money','want'],zh:'我想租一辆自行车。',en:'I would like to rent a bicycle.',amb:''},
+{cat:'tr',k:['下车','这里下','让我下车'],s:['me','exit','here'],zh:'请在这里让我下车。',en:'Please let me off here.',amb:''},
+{cat:'tr',k:['停车','停这里','路口停','在这停'],s:['car','here','want'],zh:'请在这里停车。',en:'Please stop here.',amb:''},
+{cat:'tr',k:['开慢点','开慢一点','慢点开'],s:['car','slow','want'],zh:'请开慢一点。',en:'Please drive more slowly.',amb:''},
+{cat:'tr',k:['等我','在这里等','等我一下'],s:['wait','here','me'],zh:'请在这里等我。',en:'Please wait for me here.',amb:''},
+{cat:'tr',k:['这个地址','去这个地址','到这个地方','我要去这里'],s:['me','go','map','here'],zh:'我要去这个地址。',en:'I want to go to this address.',amb:''},
+{cat:'tr',k:['晚点','误点','延误','火车晚点','航班晚点'],s:['train','delay','q'],zh:'车晚点了吗？',en:'Is it delayed?',amb:''},
+{cat:'tr',k:['错过','没赶上','误了车'],s:['me','train','none'],zh:'我错过了车。',en:'I missed my train.',amb:''},
+{cat:'tr',k:['换乘','转车','中转'],s:['train','exchange','want'],zh:'我需要换乘。',en:'I need to change trains.',amb:''},
+{cat:'tr',k:['直达','不换乘','直达车'],s:['train','straight','have','q'],zh:'有直达车吗？',en:'Is there a direct train?',amb:''},
+{cat:'tr',k:['带上车','能带上去','可以带吗'],s:['luggage','enter','train','q'],zh:'这件行李可以带上车吗？',en:'Can I take this luggage on the train?',amb:''},
+{cat:'tr',k:['车票丢','票丢了','车票不见'],s:['ticket','none'],zh:'我的车票丢了。',en:'I have lost my ticket.',amb:''},
+{cat:'tr',k:['改签','改时间','换票'],s:['ticket','exchange','can','q'],zh:'可以改签吗？',en:'Can I change my ticket?',amb:''},
+{cat:'tr',k:['退票'],s:['ticket','exchange','money','can','q'],zh:'可以退票吗？',en:'Can I get a refund on my ticket?',amb:''},
+{cat:'tr',k:['儿童票','小孩票','半价票'],s:['person','small','ticket','q'],zh:'有儿童票吗？',en:'Is there a child ticket?',amb:''},
+{cat:'tr',k:['轮椅','无障碍'],s:['wheelchair','want'],zh:'我需要轮椅。',en:'I need a wheelchair.',amb:''},
+
+/* ==================== 住宿 ==================== */
+{cat:'hot',k:['预订','订了房','有预订','预约了'],s:['me','house','have'],zh:'我有预订。',en:'I have a reservation.',amb:'最可靠的方式是同时出示订单截图或确认号。'},
+{cat:'hot',k:['入住','办理入住','check in 酒店'],s:['house','enter','want'],zh:'我要办理入住。',en:'I would like to check in.',amb:''},
+{cat:'hot',k:['有空房','还有房间','有房间吗','有空房间'],s:['house','have','q'],zh:'还有空房吗？',en:'Do you have a room available?',amb:'典型的需要确认场景，务必翻到回应页。'},
+{cat:'hot',k:['一晚多少钱','房间多少钱','房价','住一晚'],s:['house','sleep','money','q'],zh:'住一晚多少钱？',en:'How much is one night?',amb:'对方通常会直接写数字，或按数字盘。'},
+{cat:'hot',k:['住两晚','两晚','住几晚','住三个晚上'],s:['house','sleep','count'],zh:'我要住几晚。（数字用角标表示）',en:'I want to stay for several nights.',amb:'数字由右上角角标给出，避免为每个数字单独造符号。'},
+{cat:'hot',k:['退房','结账走人','check out'],s:['house','go'],zh:'我要退房。',en:'I would like to check out.',amb:''},
+{cat:'hot',k:['延迟退房','晚点退房'],s:['house','go','after','can','q'],zh:'可以延迟退房吗？',en:'Can I check out later?',amb:''},
+{cat:'hot',k:['房间在哪','我的房间','几号房'],s:['room','here','q'],zh:'我的房间在哪里？',en:'Where is my room?',amb:''},
+{cat:'hot',k:['几楼','哪一层','在几楼'],s:['me','floor','q'],zh:'我的房间在几楼？',en:'Which floor is my room on?',amb:''},
+{cat:'hot',k:['电梯'],s:['elevator','here','q'],zh:'电梯在哪里？',en:'Where is the elevator?',amb:''},
+{cat:'hot',k:['房间冷','屋里冷','房里冷'],s:['ice','house'],zh:'房间太冷了。',en:'The room is too cold.',amb:'也可能指天气或饮料，出示时请指向房间。'},
+{cat:'hot',k:['房间热','屋里热','房里热'],s:['hot','house'],zh:'房间太热了。',en:'The room is too hot.',amb:''},
+{cat:'hot',k:['空调坏','空调不冷','空调不工作'],s:['aircon','injury','q'],zh:'空调坏了。',en:'The air conditioner is broken.',amb:''},
+{cat:'hot',k:['有空调吗','带空调','是不是有空调'],s:['aircon','have','q'],zh:'有空调吗？',en:'Is there air conditioning?',amb:''},
+{cat:'hot',k:['wifi','wi-fi','无线上网','网络密码','上网密码'],s:['wifi','key','q'],zh:'Wi-Fi 密码是什么？',en:'What is the Wi-Fi password?',amb:'对方一般会直接写给你看。'},
+{cat:'hot',k:['有热水','热水洗澡','淋浴','洗澡'],s:['shower','hot','water','q'],zh:'有热水洗澡吗？',en:'Is there hot water for shower?',amb:''},
+{cat:'hot',k:['没有热水','水不热'],s:['hot','water','none'],zh:'没有热水。',en:'There is no hot water.',amb:''},
+{cat:'hot',k:['毛巾','再给毛巾'],s:['towel','want'],zh:'请再给一条毛巾。',en:'One more towel, please.',amb:''},
+{cat:'hot',k:['牙刷','牙膏','洗漱','一次性用品'],s:['soap','want'],zh:'请给我洗漱用品。',en:'Toiletries, please.',amb:''},
+{cat:'hot',k:['被子','加床','再给被子'],s:['blanket','want'],zh:'请再给一床被子。',en:'One more blanket, please.',amb:''},
+{cat:'hot',k:['枕头','再给枕头'],s:['sleep','more','want'],zh:'请再给一个枕头。',en:'One more pillow, please.',amb:''},
+{cat:'hot',k:['插座','插头','转换插头'],s:['socket','here','q'],zh:'插座在哪里？',en:'Where is the power socket?',amb:''},
+{cat:'hot',k:['灯坏','灯不亮','灯不亮了'],s:['socket','injury','q'],zh:'灯坏了。',en:'The light is broken.',amb:''},
+{cat:'hot',k:['打扫','清洁','收拾房间'],s:['room','wash','want'],zh:'请打扫房间。',en:'Please clean the room.',amb:''},
+{cat:'hot',k:['不要打扫','不用打扫','今天不用'],s:['-wash','room'],zh:'今天不用打扫。',en:'No cleaning today, please.',amb:''},
+{cat:'hot',k:['太吵','吵','噪音','隔音差'],s:['listen','pain','house'],zh:'房间太吵了。',en:'The room is too noisy.',amb:'「耳朵+痛」表示吵。也可以直接指耳朵摇头。'},
+{cat:'hot',k:['洗衣机','洗衣服吗','自助洗衣吗'],s:['wash','have','q'],zh:'有洗衣机吗？',en:'Is there a washing machine?',amb:''},
+{cat:'hot',k:['押金','保证金'],s:['deposit','money','q'],zh:'押金是多少？',en:'How much is the deposit?',amb:''},
+{cat:'hot',k:['退押金','还押金'],s:['deposit','exchange','money'],zh:'请退还押金。',en:'Please return my deposit.',amb:''},
+{cat:'hot',k:['发票','收据','凭证'],s:['bill','want'],zh:'请给我收据。',en:'A receipt, please.',amb:''},
+{cat:'hot',k:['早餐','早饭','含早'],s:['food','morning','time','q'],zh:'早餐几点开始？',en:'What time is breakfast?',amb:''},
+{cat:'hot',k:['钥匙','房卡','开门卡'],s:['key','want'],zh:'请给我房间钥匙。',en:'The room key, please.',amb:''},
+{cat:'hot',k:['换房间','换一间房'],s:['room','exchange'],zh:'我想换一间房。',en:'I would like to change rooms.',amb:''},
+{cat:'hot',k:['叫醒','morning call','几点叫我'],s:['me','sleep','time','want'],zh:'请按时叫醒我。',en:'Please wake me up at this time.',amb:'配合数字盘说明时间。'},
+{cat:'hot',k:['保险箱','保险柜','寄存贵重'],s:['money','have','here','q'],zh:'有保险箱吗？',en:'Is there a safe?',amb:''},
+{cat:'hot',k:['刷卡','能刷','信用卡'],s:['card','yes','q'],zh:'可以刷信用卡吗？',en:'Can I pay by credit card?',amb:''},
+
+/* ==================== 餐饮 ==================== */
+{cat:'food',k:['菜单','看看菜单'],s:['menu','want'],zh:'请给我菜单。',en:'The menu, please.',amb:''},
+{cat:'food',k:['吃这个','要这个','点这个','来一份这个'],s:['me','eat','this'],zh:'我要吃这个。',en:'I would like this one.',amb:'最有效的用法：同时用手指菜单上的图片。'},
+{cat:'food',k:['这是什么','这是什么菜'],s:['this','q'],zh:'这是什么？',en:'What is this?',amb:''},
+{cat:'food',k:['里面有什么','含什么','配料'],s:['thing','have','q'],zh:'这里面有什么？',en:'What is inside?',amb:''},
+{cat:'food',k:['不要辣','不辣','别放辣'],s:['-chili'],zh:'不要辣。',en:'Not spicy, please.',amb:'「否定+具体物」是最好懂的一类组合，误读风险极低。'},
+{cat:'food',k:['微辣','一点点辣','少辣'],s:['chili','less'],zh:'请少辣。',en:'Mildly spicy, please.',amb:''},
+{cat:'food',k:['很辣','特辣','重辣','辣一点'],s:['chili','very'],zh:'请做辣一点。',en:'Very spicy, please.',amb:''},
+{cat:'food',k:['这道菜辣','辣吗','这个辣吗'],s:['this','chili','q'],zh:'这道菜辣吗？',en:'Is this dish spicy?',amb:''},
+{cat:'food',k:['花生','坚果'],s:['warn','-peanut'],zh:'我对花生过敏，不要放花生。',en:'I am allergic to peanuts. No peanuts, please.',amb:'过敏是高风险场景。出示时请用手势强调，并确认对方点头。'},
+{cat:'food',k:['含花生','有花生','里面有花生'],s:['this','peanut','q'],zh:'这里面有花生吗？',en:'Does this contain peanuts?',amb:''},
+{cat:'food',k:['海鲜','不吃海鲜','鱼虾'],s:['-seafood'],zh:'不要海鲜。',en:'No seafood, please.',amb:''},
+{cat:'food',k:['含海鲜','有海鲜','里面有海鲜'],s:['this','seafood','q'],zh:'这里面有海鲜吗？',en:'Does this contain seafood?',amb:''},
+{cat:'food',k:['不要猪肉','不吃猪肉','清真'],s:['-pork'],zh:'我不吃猪肉。',en:'No pork, please.',amb:'清真饮食请用「不要猪肉」表达，本书不使用宗教符号。'},
+{cat:'food',k:['不要牛肉','不吃牛肉'],s:['-beef'],zh:'不要牛肉。',en:'No beef, please.',amb:''},
+{cat:'food',k:['不吃鸡肉','不要鸡肉','禽类'],s:['-chicken'],zh:'不要鸡肉。',en:'No chicken, please.',amb:''},
+{cat:'food',k:['吃素','素食','不吃肉','斋'],s:['veg','eat'],zh:'我吃素。',en:'I am vegetarian.',amb:''},
+{cat:'food',k:['是素的吗','含肉吗','有肉吗'],s:['this','veg','q'],zh:'这是素的吗？',en:'Is this vegetarian?',amb:''},
+{cat:'food',k:['麸质','面筋','gluten','小麦过敏'],s:['warn','-bread'],zh:'我对麸质过敏，不要小麦制品。',en:'I am gluten intolerant. No wheat products, please.',amb:''},
+{cat:'food',k:['乳糖','不喝奶','奶制品过敏'],s:['warn','-milk'],zh:'我不能喝牛奶。',en:'I cannot drink milk.',amb:''},
+{cat:'food',k:['鸡蛋过敏','不吃蛋','不要蛋'],s:['warn','-egg'],zh:'我对鸡蛋过敏。',en:'I am allergic to eggs.',amb:''},
+{cat:'food',k:['含蛋','有鸡蛋','里面有蛋'],s:['this','egg','q'],zh:'这里面有鸡蛋吗？',en:'Does this contain egg?',amb:''},
+{cat:'food',k:['含奶','有牛奶','里面有奶'],s:['this','milk','q'],zh:'这里面有牛奶吗？',en:'Does this contain milk?',amb:''},
+{cat:'food',k:['不要糖','无糖','不加糖'],s:['-sugar'],zh:'不要糖。',en:'No sugar, please.',amb:''},
+{cat:'food',k:['少糖','半糖','糖少'],s:['sugar','less'],zh:'请少放糖。',en:'Less sugar, please.',amb:''},
+{cat:'food',k:['不要盐','少盐','清淡'],s:['-salt'],zh:'不要盐，请做得清淡一点。',en:'No salt, please. Bland is fine.',amb:''},
+{cat:'food',k:['不要加','别放','不要放'],s:['-thing'],zh:'请不要加这个。',en:'Please do not add this.',amb:'配合手指具体食材使用。'},
+{cat:'food',k:['全熟','熟一点','煮熟','做熟'],s:['hot','more','food'],zh:'请做熟一点。',en:'Well cooked, please.',amb:''},
+{cat:'food',k:['加热','热一下','微波'],s:['hot','food','want'],zh:'请帮我加热。',en:'Could you heat this up, please?',amb:''},
+{cat:'food',k:['筷子'],s:['chopsticks','want'],zh:'请给我筷子。',en:'Chopsticks, please.',amb:''},
+{cat:'food',k:['勺子','汤匙'],s:['spoon','want'],zh:'请给我勺子。',en:'A spoon, please.',amb:''},
+{cat:'food',k:['刀叉','叉子'],s:['utensil','want'],zh:'请给我刀叉。',en:'A knife and fork, please.',amb:''},
+{cat:'food',k:['喝水','要水','白水','一杯水'],s:['water','want'],zh:'请给我水。',en:'Water, please.',amb:''},
+{cat:'food',k:['开水','热水喝','热开水'],s:['hot','water','want'],zh:'请给我热水。',en:'Hot water, please.',amb:''},
+{cat:'food',k:['水能喝吗','自来水','饮用水'],s:['water','drink','can','q'],zh:'这里的水可以喝吗？',en:'Is the water safe to drink?',amb:''},
+{cat:'food',k:['水免费吗','免费的水'],s:['water','money','none','q'],zh:'水是免费的吗？',en:'Is the water free?',amb:''},
+{cat:'food',k:['不要冰','去冰','不加冰'],s:['-ice'],zh:'不要冰。',en:'No ice, please.',amb:''},
+{cat:'food',k:['加冰','要冰的','冰的'],s:['ice','want'],zh:'我要冰的。',en:'I would like it iced.',amb:''},
+{cat:'food',k:['咖啡'],s:['coffee','want'],zh:'请给我咖啡。',en:'Coffee, please.',amb:''},
+{cat:'food',k:['加奶','拿铁','咖啡加奶'],s:['coffee','milk'],zh:'咖啡加牛奶。',en:'Coffee with milk, please.',amb:''},
+{cat:'food',k:['茶','喝茶'],s:['tea','want'],zh:'请给我茶。',en:'Tea, please.',amb:''},
+{cat:'food',k:['热茶','泡茶'],s:['hot','tea','want'],zh:'请给我热茶。',en:'Hot tea, please.',amb:''},
+{cat:'food',k:['牛奶','一杯牛奶'],s:['milk','want'],zh:'请给我牛奶。',en:'Milk, please.',amb:''},
+{cat:'food',k:['果汁','饮料'],s:['juice','want'],zh:'请给我果汁。',en:'Juice, please.',amb:''},
+{cat:'food',k:['啤酒','酒','喝酒'],s:['alcohol','want'],zh:'请给我酒。',en:'Beer / wine, please.',amb:''},
+{cat:'food',k:['米饭','白饭'],s:['rice','want'],zh:'请给我米饭。',en:'Rice, please.',amb:''},
+{cat:'food',k:['面条','面','拉面'],s:['noodle','want'],zh:'请给我面条。',en:'Noodles, please.',amb:''},
+{cat:'food',k:['面包'],s:['bread','want'],zh:'请给我面包。',en:'Bread, please.',amb:''},
+{cat:'food',k:['汤','一碗汤','例汤'],s:['soup','want'],zh:'请给我汤。',en:'Soup, please.',amb:''},
+{cat:'food',k:['水果','来点水果'],s:['fruit','want'],zh:'请给我水果。',en:'Fruit, please.',amb:''},
+{cat:'food',k:['甜点','甜品','饭后甜点'],s:['cake','want'],zh:'请给我甜点。',en:'Dessert, please.',amb:''},
+{cat:'food',k:['再来一份','两份','双份'],s:['more','food'],zh:'请再来一份。',en:'One more, please.',amb:''},
+{cat:'food',k:['几个人','两位','三位','四个人'],s:['person','count'],zh:'我们有（数字）个人。',en:'We are (number) people.',amb:'人数用数字角标或数字盘表示。'},
+{cat:'food',k:['订位','订餐位','预订座位'],s:['person','count','time','want'],zh:'我要订位（几个人，几点）。',en:'I would like to make a reservation.',amb:''},
+{cat:'food',k:['等多久','排队多久','还要等'],s:['wait','person','count','q'],zh:'需要等多久？',en:'How long is the wait?',amb:''},
+{cat:'food',k:['儿童椅','宝宝椅','高脚椅'],s:['person','small','want'],zh:'有儿童椅吗？',en:'Do you have a high chair?',amb:''},
+{cat:'food',k:['饿','想吃东西'],s:['me','eat','want'],zh:'我饿了，想吃饭。',en:'I am hungry and would like to eat.',amb:''},
+{cat:'food',k:['渴'],s:['me','drink','want'],zh:'我渴了，想喝水。',en:'I am thirsty and would like a drink.',amb:''},
+{cat:'food',k:['吃饱了','饱了','吃不下了'],s:['me','full'],zh:'我吃饱了。',en:'I am full, thank you.',amb:''},
+{cat:'food',k:['买单','结账','付钱','算账'],s:['bill','want'],zh:'请买单。',en:'The bill, please.',amb:''},
+{cat:'food',k:['服务费','含服务费'],s:['bill','more','money','q'],zh:'账单里含服务费吗？',en:'Is service charge included?',amb:''},
+{cat:'food',k:['小费','给小费'],s:['money','give','want'],zh:'这是小费。',en:'This is a tip.',amb:''},
+{cat:'food',k:['打包','带走','外卖'],s:['food','go'],zh:'请帮我打包带走。',en:'Take away, please.',amb:''},
+{cat:'food',k:['送到','配送','外卖到'],s:['food','send','here'],zh:'请送到这里。',en:'Delivery to here, please.',amb:''},
+{cat:'food',k:['好吃','很好吃','味道不错'],s:['food','yes'],zh:'很好吃！',en:'It is delicious!',amb:''},
+{cat:'food',k:['太咸','太甜','味道重'],s:['food','warn'],zh:'味道太重了。',en:'It is too salty / too sweet.',amb:''},
+{cat:'food',k:['推荐','什么好吃','特色菜','招牌'],s:['menu','q'],zh:'你推荐什么？',en:'What do you recommend?',amb:'较抽象，成功率一般。可改为用手指菜单等对方指。'},
+{cat:'food',k:['抽烟','吸烟','可以抽烟'],s:['smoke','q'],zh:'可以抽烟吗？',en:'May I smoke here?',amb:'多数场所禁烟，此问常得到否定回答。'},
+{cat:'food',k:['吸烟区','抽烟的地方'],s:['smoke','here','q'],zh:'吸烟区在哪里？',en:'Where is the smoking area?',amb:''},
+{cat:'food',k:['餐厅','吃饭的地方','哪里能吃'],s:['food','here','q'],zh:'哪里有餐厅？',en:'Where is a restaurant?',amb:''},
+{cat:'food',k:['超市','便利店','买东西的地方'],s:['buy','here','q'],zh:'超市在哪里？',en:'Where is a supermarket?',amb:''},
+
+/* ==================== 购物 ==================== */
+{cat:'shop',k:['多少钱','价格','怎么卖','这个贵吗'],s:['this','money','q'],zh:'这个多少钱？',en:'How much is this?',amb:'通用性最高的一条。配合手指商品，建议让对方用数字盘回填。'},
+{cat:'shop',k:['太贵','贵了','有点贵'],s:['expensive'],zh:'太贵了。',en:'That is too expensive.',amb:''},
+{cat:'shop',k:['便宜一点','能便宜','打折','优惠'],s:['cheap','q'],zh:'能便宜一点吗？',en:'Can you make it cheaper?',amb:''},
+{cat:'shop',k:['几折','打几折','折扣多少'],s:['percent','q'],zh:'打几折？',en:'What is the discount?',amb:''},
+{cat:'shop',k:['试穿','试试','能不能试'],s:['this','want','q'],zh:'可以试一下吗？',en:'Can I try it on?',amb:'配合指衣物。'},
+{cat:'shop',k:['试衣间','更衣室','试穿的地方'],s:['enter','here','q'],zh:'试衣间在哪里？',en:'Where is the fitting room?',amb:''},
+{cat:'shop',k:['大一号','更大的','大码','大一点'],s:['big','more','have','q'],zh:'有大一号的吗？',en:'Do you have a bigger size?',amb:''},
+{cat:'shop',k:['小一号','更小的','小码','小一点'],s:['small','more','have','q'],zh:'有小一号的吗？',en:'Do you have a smaller size?',amb:''},
+{cat:'shop',k:['换一个','换一件','再拿一个'],s:['exchange'],zh:'请给我换一个。',en:'Please give me another one.',amb:''},
+{cat:'shop',k:['退货','退钱','退款','不要了'],s:['exchange','money'],zh:'我要退货退款。',en:'I want to return this and get a refund.',amb:''},
+{cat:'shop',k:['袋子','包装','装起来'],s:['thing','want'],zh:'请给我一个袋子。',en:'A bag, please.',amb:''},
+{cat:'shop',k:['退税','免税店','duty free'],s:['money','none','buy','here','q'],zh:'哪里可以退税（免税）？',en:'Where can I get a tax refund / duty-free?',amb:''},
+{cat:'shop',k:['可以退税吗','能退税'],s:['money','exchange','q'],zh:'这个可以退税吗？',en:'Can I get a tax refund on this?',amb:''},
+{cat:'shop',k:['刷卡','能刷','可以刷卡'],s:['card','yes','q'],zh:'可以刷卡吗？',en:'Can I pay by card?',amb:''},
+{cat:'shop',k:['支付宝','微信支付','扫码付','手机支付'],s:['card','phone','can','q'],zh:'可以手机支付吗？',en:'Can I pay by mobile payment?',amb:''},
+{cat:'shop',k:['现金'],s:['money'],zh:'现金。',en:'Cash.',amb:''},
+{cat:'shop',k:['营业时间','几点关门','几点开门'],s:['open','time','q'],zh:'几点开门 / 关门？',en:'What are your opening hours?',amb:''},
+{cat:'shop',k:['关门了吗','还开门吗','现在营业吗'],s:['open','q'],zh:'现在还营业吗？',en:'Are you still open?',amb:''},
+{cat:'shop',k:['别的颜色','其他颜色'],s:['other','have','q'],zh:'有别的颜色吗？',en:'Do you have another color?',amb:''},
+{cat:'shop',k:['别的款式','其他款式','另一种'],s:['other','have','q'],zh:'有别的款式吗？',en:'Do you have another style?',amb:''},
+{cat:'shop',k:['假货','正品','真的吗'],s:['this','yes','q'],zh:'这是正品吗？',en:'Is this genuine?',amb:'敏感问题。用符号问比开口问更礼貌、更不冒犯。'},
+{cat:'shop',k:['买','我要买','购买'],s:['me','buy','this'],zh:'我要买这个。',en:'I will take this one.',amb:''},
+{cat:'shop',k:['请给我','帮我拿','给我一个'],s:['give','want','this'],zh:'请给我这个。',en:'This one, please.',amb:'万能索取句：配合手指具体物品使用。'},
+{cat:'shop',k:['随便看看','只是看看','逛逛'],s:['me','look','want'],zh:'我只是看看。',en:'I am just looking, thank you.',amb:''},
+{cat:'shop',k:['开箱','看一下里面','可以打开'],s:['open','look','can','q'],zh:'可以打开看一下吗？',en:'May I open it and take a look?',amb:''},
+{cat:'shop',k:['保修','质保','保修期'],s:['fix','time','have','q'],zh:'有保修吗？',en:'Is there a warranty?',amb:''},
+{cat:'shop',k:['邮寄','能寄','可以寄吗'],s:['post','send','can','q'],zh:'这个可以邮寄吗？',en:'Can you ship this?',amb:''},
+{cat:'shop',k:['学生折扣','学生证','优惠价'],s:['percent','idcard','q'],zh:'有学生折扣吗？',en:'Is there a student discount?',amb:''},
+{cat:'shop',k:['充电器','数据线','充电线','转换插头'],s:['socket','want'],zh:'我需要一个充电器（转换插头）。',en:'I need a charger / power adapter.',amb:''},
+{cat:'shop',k:['一斤','每斤','怎么称','一公斤'],s:['count','heavy','money','q'],zh:'多少钱一斤（一公斤）？',en:'How much per kilogram?',amb:''},
+
+/* ==================== 金融 ==================== */
+{cat:'money',k:['换钱','兑换','外币','exchange'],s:['money','exchange','want'],zh:'我想换钱。',en:'I would like to exchange money.',amb:''},
+{cat:'money',k:['汇率','兑换率'],s:['money','count','q'],zh:'汇率是多少？',en:'What is the exchange rate?',amb:''},
+{cat:'money',k:['手续费'],s:['money','more','q'],zh:'有手续费吗？',en:'Is there a service fee?',amb:''},
+{cat:'money',k:['atm','取款机','提款机','自动取款','取款的地方'],s:['bank','here','q'],zh:'ATM 在哪里？',en:'Where is an ATM?',amb:''},
+{cat:'money',k:['取钱','取款','withdraw'],s:['money','take','want'],zh:'我要取钱。',en:'I would like to withdraw money.',amb:''},
+{cat:'money',k:['银行'],s:['bank','here','q'],zh:'银行在哪里？',en:'Where is a bank?',amb:''},
+{cat:'money',k:['吞卡','卡取不出来','卡被吃了'],s:['card','injury','warn'],zh:'我的卡被机器吞了。',en:'My card got stuck in the machine.',amb:''},
+{cat:'money',k:['密码','pin','口令'],s:['count','key','q'],zh:'密码是什么？',en:'What is the password?',amb:''},
+{cat:'money',k:['收现金吗','只收现金'],s:['money','can','q'],zh:'收现金吗？',en:'Do you accept cash?',amb:''},
+{cat:'money',k:['没电','手机没电','电量没了'],s:['phone','empty'],zh:'我的手机没电了。',en:'My phone is out of battery.',amb:''},
+{cat:'money',k:['能充电吗','可以充电','哪里能充电'],s:['socket','can','q'],zh:'这里可以充电吗？',en:'Can I charge my phone here?',amb:''},
+{cat:'money',k:['付钱','付款','怎么付'],s:['pay','want'],zh:'我想付款。',en:'I would like to pay.',amb:''},
+{cat:'money',k:['刷卡付','用卡付'],s:['card','pay','want'],zh:'我想刷卡付。',en:'I would like to pay by card.',amb:''},
+{cat:'money',k:['现金付','用现金'],s:['money','pay','want'],zh:'我想用现金付。',en:'I would like to pay in cash.',amb:''},
+
+/* ==================== 医疗 ==================== */
+{cat:'med',k:['肚子疼','肚子痛','胃疼','腹痛'],s:['me','pain','belly'],zh:'我肚子疼。',en:'I have a stomachache.',amb:'「人+痛+肚子」是最直观的组合之一。程度可另加刻度条。'},
+{cat:'med',k:['头疼','头痛'],s:['me','pain','head'],zh:'我头疼。',en:'I have a headache.',amb:''},
+{cat:'med',k:['头晕','眩晕','站不稳','头昏'],s:['me','head','warn'],zh:'我头晕。',en:'I feel dizzy.',amb:''},
+{cat:'med',k:['牙疼','牙痛'],s:['me','pain','tooth'],zh:'我牙疼。',en:'I have a toothache.',amb:''},
+{cat:'med',k:['看牙医','牙医','拔牙'],s:['dentist','want'],zh:'我需要看牙医。',en:'I need a dentist.',amb:''},
+{cat:'med',k:['眼睛疼','眼睛痛','眼睛不舒服'],s:['me','pain','look'],zh:'我眼睛疼。',en:'My eyes hurt.',amb:''},
+{cat:'med',k:['耳朵疼','耳朵痛'],s:['me','pain','listen'],zh:'我耳朵疼。',en:'My ear hurts.',amb:''},
+{cat:'med',k:['心脏','心口疼','胸闷'],s:['me','pain','heart'],zh:'我胸口疼，心脏不舒服。',en:'I have chest pain.',amb:''},
+{cat:'med',k:['咳嗽','咳得'],s:['me','cough'],zh:'我咳嗽。',en:'I have a cough.',amb:''},
+{cat:'med',k:['感冒','着凉','鼻塞'],s:['me','cough','head','pain'],zh:'我感冒了。',en:'I have a cold.',amb:''},
+{cat:'med',k:['发烧','发热','体温高','烧了'],s:['me','hot','body'],zh:'我发烧了。',en:'I have a fever.',amb:''},
+{cat:'med',k:['拉肚子','腹泻','拉稀'],s:['me','belly','water','pain'],zh:'我拉肚子。',en:'I have diarrhea.',amb:''},
+{cat:'med',k:['呕吐','吐了','恶心'],s:['me','belly','pain','warn'],zh:'我恶心想吐。',en:'I feel nauseous.',amb:''},
+{cat:'med',k:['医生','看病','就诊','诊'],s:['doctor','want'],zh:'我需要看医生。',en:'I need a doctor.',amb:'紧急场景。建议直接出示并同时说出 "Doctor!"。'},
+{cat:'med',k:['医院'],s:['hospital','here','q'],zh:'医院在哪里？',en:'Where is the hospital?',amb:''},
+{cat:'med',k:['药店','买药','药房'],s:['medicine','here','q'],zh:'药店在哪里？',en:'Where is the pharmacy?',amb:''},
+{cat:'med',k:['过敏'],s:['warn'],zh:'我过敏。',en:'I have an allergy.',amb:''},
+{cat:'med',k:['青霉素','药物过敏','penicillin'],s:['warn','medicine'],zh:'我对某些药物过敏。',en:'I am allergic to some medicine.',amb:'请务必用文字写明具体药物名称，符号只能引起注意。'},
+{cat:'med',k:['受伤','摔了','擦伤','扭到'],s:['me','injury'],zh:'我受伤了。',en:'I am injured.',amb:''},
+{cat:'med',k:['出血','流血','在流血'],s:['me','bleed'],zh:'我在出血。',en:'I am bleeding.',amb:'最高紧急级别，建议同时出示「救护车」或「求救」。'},
+{cat:'med',k:['救护车','急救','叫医生来'],s:['ambulance','want'],zh:'请叫救护车！',en:'Call an ambulance!',amb:''},
+{cat:'med',k:['骨折','骨头断'],s:['me','injury','very'],zh:'我可能骨折了。',en:'I think I have a fracture.',amb:''},
+{cat:'med',k:['烫伤','烧伤'],s:['me','hot','injury'],zh:'我烫伤了。',en:'I have a burn.',amb:''},
+{cat:'med',k:['中暑','热射病'],s:['me','hot','warn'],zh:'我可能中暑了。',en:'I think I have heatstroke.',amb:''},
+{cat:'med',k:['绷带','包扎','创可贴'],s:['bandage','want'],zh:'请给我绷带（创可贴）。',en:'A bandage, please.',amb:''},
+{cat:'med',k:['打针','注射','输液'],s:['injection','want'],zh:'需要打针吗？',en:'Do I need an injection?',amb:''},
+{cat:'med',k:['药片','止痛药','退烧药'],s:['tablet','want'],zh:'请给我药片。',en:'Tablets, please.',amb:''},
+{cat:'med',k:['吃药','要药','给我药'],s:['medicine','want'],zh:'请给我药。',en:'Medicine, please.',amb:''},
+{cat:'med',k:['保险','旅行保险','保险单'],s:['insurance','this'],zh:'这是我的保险。',en:'Here is my insurance.',amb:''},
+{cat:'med',k:['怀孕','孕妇','有了'],s:['person','belly','big'],zh:'我怀孕了。',en:'I am pregnant.',amb:''},
+{cat:'med',k:['慢性病','糖尿病','高血压','心脏病史'],s:['me','have','warn','body'],zh:'我有慢性病。',en:'I have a chronic condition.',amb:'具体病名请用文字写明。'},
+{cat:'med',k:['很疼','疼得厉害','非常疼'],s:['pain','very'],zh:'非常疼。',en:'It hurts a lot.',amb:''},
+{cat:'med',k:['有点疼','轻微疼','不太疼'],s:['pain','less'],zh:'有一点疼。',en:'It hurts a little.',amb:''},
+{cat:'med',k:['医生翻译','看病翻译','陪同看病'],s:['doctor','translate','want'],zh:'请帮我找一位能翻译的人陪我去看病。',en:'Please help me find someone who can translate for the doctor.',amb:''},
+
+/* ==================== 求助 ==================== */
+{cat:'help',k:['帮帮我','帮帮忙','求救','救命','帮助我'],s:['sos'],zh:'请帮帮我！',en:'Please help me!',amb:'全球可识别度最高的图形姿态之一，无需任何学习。'},
+{cat:'help',k:['护照丢了','护照掉','护照不见','护照没'],s:['passport','none'],zh:'我的护照丢了。',en:'I have lost my passport.',amb:''},
+{cat:'help',k:['钱包丢了','钱包掉','钱包不见'],s:['money','none'],zh:'我的钱包丢了。',en:'I have lost my wallet.',amb:''},
+{cat:'help',k:['手机丢了','手机不见'],s:['phone','none'],zh:'我的手机丢了。',en:'I have lost my phone.',amb:''},
+{cat:'help',k:['行李丢','行李不见','行李没了'],s:['luggage','none'],zh:'我的行李丢了。',en:'I have lost my luggage.',amb:''},
+{cat:'help',k:['丢了','不见了','找不到了'],s:['none','sos'],zh:'我的东西丢了。',en:'I have lost my belongings.',amb:'宽泛表达，需配合指向具体物品。'},
+{cat:'help',k:['失物招领','丢东西去哪'],s:['find','here','q'],zh:'失物招领处在哪里？',en:'Where is the lost and found?',amb:''},
+{cat:'help',k:['报警','叫警察','找警察'],s:['police','want'],zh:'请报警。',en:'Please call the police.',amb:''},
+{cat:'help',k:['我要报案'],s:['police','report','want'],zh:'我要报案。',en:'I want to report a crime.',amb:''},
+{cat:'help',k:['警察局','派出所'],s:['police','here','q'],zh:'警察局在哪里？',en:'Where is the police station?',amb:''},
+{cat:'help',k:['大使馆','领事馆'],s:['embassy','here','q'],zh:'中国大使馆在哪里？',en:'Where is the Chinese embassy?',amb:'「建筑+旗帜」表达使馆。'},
+{cat:'help',k:['联系大使馆','给大使馆打电话'],s:['embassy','call','want'],zh:'请帮我联系大使馆。',en:'Please contact the embassy for me.',amb:''},
+{cat:'help',k:['不会说','听不懂','语言不通','不懂这里的话'],s:['say','none'],zh:'我不会说这里的语言，也听不懂。',en:'I do not speak your language and cannot understand.',amb:'这几乎是每次沟通的开场白，建议做成常驻快捷按钮。'},
+{cat:'help',k:['会说英语吗','讲英文','english吗'],s:['you','say','q'],zh:'你会说英语吗？',en:'Do you speak English?',amb:''},
+{cat:'help',k:['翻译','帮我翻译','能不能翻译'],s:['translate','want'],zh:'能帮我翻译一下吗？',en:'Could you help me translate?',amb:'用来启动降级路径（切翻译软件）。'},
+{cat:'help',k:['被偷','钱包被偷','小偷偷了'],s:['money','thief'],zh:'我的钱包被偷了。',en:'My wallet was stolen.',amb:''},
+{cat:'help',k:['手机被偷','手机被抢'],s:['phone','thief'],zh:'我的手机被偷了。',en:'My phone was stolen.',amb:''},
+{cat:'help',k:['被抢','抢劫','小偷','被抢了'],s:['sos','police'],zh:'我被抢了，请报警！',en:'I have been robbed. Please call the police!',amb:''},
+{cat:'help',k:['走散','找不到朋友','朋友不见','失散'],s:['missing','sos'],zh:'我和朋友走散了。',en:'I am separated from my friend.',amb:''},
+{cat:'help',k:['孩子丢','小孩不见','孩子走丢'],s:['person','small','missing'],zh:'我的孩子走丢了。',en:'My child is missing.',amb:'走失儿童时，请务必请对方联系警方，不要自行寻找。'},
+{cat:'help',k:['找不到同伴','同伴不见'],s:['we','none','sos'],zh:'我找不到我的同伴了。',en:'I cannot find my companion.',amb:''},
+{cat:'help',k:['借手机','借电话','用一下手机'],s:['phone','give','want'],zh:'请借我手机用一下。',en:'May I borrow your phone?',amb:''},
+{cat:'help',k:['帮我照相','帮我拍','帮我拍照','帮我们拍'],s:['camera','give','want'],zh:'请帮我们拍张照。',en:'Could you take a photo for us?',amb:''},
+{cat:'help',k:['有网络吗','能上网吗','这里上网'],s:['wifi','have','q'],zh:'这里有网络吗？',en:'Is there internet here?',amb:''},
+{cat:'help',k:['我在找','帮我找','寻找'],s:['find','q'],zh:'我在找这个。',en:'I am looking for this.',amb:'配合出示要找的东西的图片或实物。'},
+
+/* ==================== 紧急 ==================== */
+{cat:'emerg',k:['着火','火灾','失火'],s:['fire','sos'],zh:'着火了！',en:'Fire!',amb:''},
+{cat:'emerg',k:['危险','小心','当心'],s:['warn'],zh:'危险！小心！',en:'Danger! Be careful!',amb:''},
+{cat:'emerg',k:['地震'],s:['sos','warn'],zh:'地震！请帮助我！',en:'Earthquake! Please help!',amb:''},
+{cat:'emerg',k:['车祸','交通事故','撞车'],s:['car','injury','sos'],zh:'发生车祸了！',en:'There has been a car accident!',amb:''},
+{cat:'emerg',k:['有人受伤','他受伤','她受伤'],s:['person','injury','sos'],zh:'有人受伤了！',en:'Someone is injured!',amb:''},
+{cat:'emerg',k:['昏迷','晕倒','没有知觉'],s:['person','none','sos'],zh:'他 / 她晕倒了。',en:'He / She has fainted.',amb:''},
+{cat:'emerg',k:['不要靠近','别过来','离我远点'],s:['-come','me'],zh:'请不要靠近我。',en:'Please stay away from me.',amb:''},
+{cat:'emerg',k:['被跟踪','有人跟着我','有人尾随','跟踪'],s:['me','person','warn'],zh:'我觉得有人跟踪我。',en:'I think someone is following me.',amb:''},
+{cat:'emerg',k:['避难','躲避','安全的地方'],s:['me','house','must'],zh:'我需要找一个安全的地方。',en:'I need a safe place.',amb:''},
+{cat:'emerg',k:['快叫警察','快报警','赶紧报警'],s:['police','call','fast'],zh:'快叫警察！',en:'Call the police, quickly!',amb:''},
+{cat:'emerg',k:['停电','没电了','断电'],s:['socket','none'],zh:'停电了。',en:'The power is out.',amb:''},
+{cat:'emerg',k:['燃气','煤气','天然气','漏气'],s:['warn','fire','none'],zh:'可能有燃气泄漏！',en:'Possible gas leak!',amb:''},
+{cat:'emerg',k:['水淹','漏水','进水了'],s:['water','injury','warn'],zh:'这里漏水 / 进水了。',en:'There is a water leak.',amb:''},
+{cat:'emerg',k:['被困','出不去了','打不开'],s:['me','exit','none','sos'],zh:'我被困住了。',en:'I am trapped.',amb:''},
+{cat:'emerg',k:['摔倒了','起不来了','爬不起来'],s:['me','down','sos'],zh:'我摔倒了，起不来。',en:'I have fallen and cannot get up.',amb:''},
+{cat:'emerg',k:['救我','快救我','帮帮我快'],s:['sos','fast'],zh:'快救我！',en:'Help me, quickly!',amb:''},
+
+/* ==================== 通讯 ==================== */
+{cat:'comm',k:['wifi','wi-fi','无线上网','这里上网','有网络'],s:['wifi','have','q'],zh:'这里有 Wi-Fi 吗？',en:'Is there Wi-Fi here?',amb:''},
+{cat:'comm',k:['电话卡','sim卡','手机卡','流量卡'],s:['sim','want'],zh:'我想买一张电话卡。',en:'I would like to buy a SIM card.',amb:''},
+{cat:'comm',k:['流量','多少流量','数据'],s:['sim','count','q'],zh:'这个套餐有多少流量？',en:'How much data does this plan include?',amb:''},
+{cat:'comm',k:['充值','缴费','top up'],s:['sim','money','give'],zh:'我要给手机卡充值。',en:'I would like to top up my SIM card.',amb:''},
+{cat:'comm',k:['国际长途','打回中国','长途电话'],s:['call','money','q'],zh:'打国际长途多少钱？',en:'How much is an international call?',amb:''},
+{cat:'comm',k:['发短信','短信','text'],s:['message','send','want'],zh:'请帮我发一条短信。',en:'Please send a text message for me.',amb:''},
+{cat:'comm',k:['发邮件','邮箱','电子邮件'],s:['email','send','want'],zh:'请帮我发一封邮件。',en:'Please send an email for me.',amb:''},
+{cat:'comm',k:['复印','打印','扫描'],s:['copy','want'],zh:'我想复印 / 打印。',en:'I would like to make a copy / print.',amb:''},
+{cat:'comm',k:['没信号','无服务','信号不好','没有信号','信号差'],s:['phone','none'],zh:'我的手机没有信号。',en:'My phone has no signal.',amb:''},
+{cat:'comm',k:['手机坏','手机碎屏','手机进水'],s:['phone','injury'],zh:'我的手机坏了。',en:'My phone is broken.',amb:''},
+{cat:'comm',k:['修手机','手机维修','手机修理'],s:['phone','fix','here','q'],zh:'哪里可以修手机？',en:'Where can I get my phone repaired?',amb:''},
+{cat:'comm',k:['翻译软件','用翻译','翻译器'],s:['translate','phone','want'],zh:'请帮我用一下翻译软件。',en:'Could you use a translation app for me?',amb:''},
+{cat:'comm',k:['读给我听','念给我听','念一下'],s:['read','say','want'],zh:'请把这个念给我听。',en:'Please read this out loud for me.',amb:''},
+{cat:'comm',k:['看这个','请看','给你看'],s:['show','want'],zh:'请看这个。',en:'Please look at this.',amb:''},
+
+/* ==================== 游玩 ==================== */
+{cat:'sight',k:['景点','名胜','景区','好玩的地方'],s:['sight','here','q'],zh:'景点在哪里？',en:'Where is the attraction?',amb:''},
+{cat:'sight',k:['门票','票价','门票多少钱'],s:['ticket','money','q'],zh:'门票多少钱？',en:'How much is the admission?',amb:''},
+{cat:'sight',k:['开放到几点','闭馆','闭园','开放时间'],s:['open','time','q'],zh:'开放到几点？',en:'Until what time is it open?',amb:''},
+{cat:'sight',k:['老年票','老人票','优惠票'],s:['percent','ticket','q'],zh:'有优惠票吗？',en:'Is there a discount ticket?',amb:''},
+{cat:'sight',k:['导游','讲解员','向导'],s:['person','say','want'],zh:'有导游吗？',en:'Is there a guide available?',amb:'用「人+说」表示导游，最好同时指向导览册。'},
+{cat:'sight',k:['中文讲解','中文导览','中文语音'],s:['say','we','want'],zh:'有中文讲解吗？',en:'Is there a Chinese-language guide?',amb:''},
+{cat:'sight',k:['博物馆','美术馆','展览馆'],s:['museum','here','q'],zh:'博物馆在哪里？',en:'Where is the museum?',amb:''},
+{cat:'sight',k:['公园','绿地','花园'],s:['park','here','q'],zh:'公园在哪里？',en:'Where is the park?',amb:''},
+{cat:'sight',k:['海滩','海边','沙滩'],s:['beach','here','q'],zh:'海滩在哪里？',en:'Where is the beach?',amb:''},
+{cat:'sight',k:['可以游泳吗','能游泳','游泳安全'],s:['swim','can','q'],zh:'这里可以游泳吗？',en:'Is it safe to swim here?',amb:''},
+{cat:'sight',k:['爬山','登山','徒步'],s:['mountain','go','want'],zh:'我想去爬山。',en:'I would like to go hiking.',amb:''},
+{cat:'sight',k:['演出','表演','show','几点开始'],s:['music','time','q'],zh:'演出几点开始？',en:'What time does the show start?',amb:''},
+{cat:'sight',k:['纪念品','伴手礼','特产'],s:['sight','buy','want'],zh:'哪里可以买纪念品？',en:'Where can I buy souvenirs?',amb:''},
+{cat:'sight',k:['可以进去吗','能进吗','参观'],s:['enter','can','q'],zh:'可以进去吗？',en:'May I go in?',amb:''},
+{cat:'sight',k:['可以录视频吗','录视频','拍视频','录像'],s:['video','can','q'],zh:'可以录视频吗？',en:'May I record a video?',amb:''},
+{cat:'sight',k:['门票还有吗','还有票吗','售罄'],s:['ticket','have','q'],zh:'还有票吗？',en:'Are tickets still available?',amb:''},
+{cat:'sight',k:['我在哪里','这是哪里','现在在哪'],s:['here','q'],zh:'我现在的位置在哪里？',en:'Where am I now?',amb:'配合地图使用，请对方在地图上指出来。'},
+{cat:'sight',k:['离这里多远','远不远'],s:['far','here','q'],zh:'离这里远吗？',en:'Is it far from here?',amb:''},
+
+/* ==================== 社交 ==================== */
+{cat:'social',k:['你好','您好','打招呼','hello','hi'],s:['you','yes'],zh:'你好。',en:'Hello.',amb:''},
+{cat:'social',k:['很高兴认识','认识你','初次见面'],s:['me','you','thanks'],zh:'很高兴认识你。',en:'Nice to meet you.',amb:''},
+{cat:'social',k:['中国人','我是中国','从中国来','来自中国'],s:['me','map'],zh:'我从中国来。',en:'I am from China.',amb:''},
+{cat:'social',k:['名字','叫什么','你叫什么'],s:['you','q'],zh:'你叫什么名字？',en:'What is your name?',amb:''},
+{cat:'social',k:['这是我朋友','这是我同伴','这是我同事'],s:['person','we'],zh:'这是我的朋友（同伴）。',en:'This is my friend / companion.',amb:''},
+{cat:'social',k:['一家人','全家','我和家人'],s:['we','house'],zh:'我们是一家人。',en:'We are a family.',amb:''},
+{cat:'social',k:['可以一起吗','一起走','一起吗'],s:['we','go','can','q'],zh:'我们可以一起吗？',en:'Can we go together?',amb:''},
+{cat:'social',k:['我请客','我来付','算我的'],s:['me','pay'],zh:'我请客。',en:'It is on me.',amb:''},
+{cat:'social',k:['aa','各付各的','分开付'],s:['we','pay'],zh:'我们各付各的。',en:'Let us split the bill.',amb:''},
+{cat:'social',k:['太感谢','非常感谢','感激','多谢'],s:['thanks','very'],zh:'太感谢了！',en:'Thank you so much!',amb:''},
+{cat:'social',k:['谢谢','感谢'],s:['thanks'],zh:'谢谢！',en:'Thank you!',amb:''},
+{cat:'social',k:['真对不起','非常抱歉','很抱歉'],s:['sorry','very'],zh:'非常抱歉。',en:'I am very sorry.',amb:''},
+{cat:'social',k:['对不起','抱歉','不好意思','打扰了'],s:['sorry'],zh:'对不起。',en:'I am sorry.',amb:''},
+{cat:'social',k:['没关系','没事'],s:['yes'],zh:'没关系。',en:'It is fine.',amb:''},
+{cat:'social',k:['很好','太棒了','不错'],s:['yes','very'],zh:'很好！',en:'Very good!',amb:''},
+{cat:'social',k:['你真好','你很热情','你人真好'],s:['you','yes','very'],zh:'你真好。',en:'You are very kind.',amb:''},
+{cat:'social',k:['漂亮','好看','美丽'],s:['this','yes','very'],zh:'这个很漂亮。',en:'This is beautiful.',amb:'配合表情与手势效果更好。'},
+{cat:'social',k:['喜欢你','我爱你'],s:['me','heart','you'],zh:'我喜欢你。',en:'I like you.',amb:'文化差异大，慎用。'},
+{cat:'social',k:['再见','拜拜','走了'],s:['you','go'],zh:'再见。',en:'Goodbye.',amb:''},
+{cat:'social',k:['明天见','明天','改天见'],s:['after','today','you'],zh:'明天见。',en:'See you tomorrow.',amb:''},
+{cat:'social',k:['旅途愉快','一路顺风','祝你好运'],s:['you','go','yes'],zh:'祝你旅途愉快。',en:'Have a good trip!',amb:''},
+{cat:'social',k:['天气很好','晴天','好天气'],s:['today','yes','very'],zh:'今天天气很好。',en:'The weather is nice today.',amb:''},
+{cat:'social',k:['下雨','雨天'],s:['today','water'],zh:'今天下雨。',en:'It is raining today.',amb:''},
+{cat:'social',k:['下雪','雪天'],s:['today','ice','down'],zh:'今天下雪。',en:'It is snowing today.',amb:''},
+{cat:'social',k:['天气冷','好冷','很冷','外面冷'],s:['today','ice'],zh:'今天很冷。',en:'It is cold today.',amb:''},
+{cat:'social',k:['天气热','好热','很热','外面热'],s:['today','hot'],zh:'今天很热。',en:'It is hot today.',amb:''},
+{cat:'social',k:['天气怎么样','天气如何','天气预报'],s:['today','q'],zh:'今天天气怎么样？',en:'What is the weather like today?',amb:''},
+{cat:'social',k:['可以拍照吗','照相','拍一张'],s:['camera','can','q'],zh:'可以拍照吗？',en:'May I take a photo?',amb:''},
+
+/* ==================== 生活服务 ==================== */
+{cat:'life',k:['邮局','寄信','寄包裹','寄件'],s:['post','here','q'],zh:'邮局在哪里？',en:'Where is the post office?',amb:''},
+{cat:'life',k:['寄这个包裹','寄快递','帮寄'],s:['parcel','send','want'],zh:'我想寄这个包裹。',en:'I would like to send this parcel.',amb:''},
+{cat:'life',k:['邮票多少钱','邮票'],s:['post','money','q'],zh:'邮票多少钱？',en:'How much is the stamp?',amb:''},
+{cat:'life',k:['洗衣店','干洗','自助洗衣店'],s:['wash','here','q'],zh:'洗衣店在哪里？',en:'Where is a laundromat?',amb:''},
+{cat:'life',k:['洗衣服','洗这些'],s:['wash','want','this'],zh:'我想洗这些衣服。',en:'I would like to wash these.',amb:''},
+{cat:'life',k:['理发','剪头发','美发'],s:['barber','want'],zh:'我想理发。',en:'I would like a haircut.',amb:''},
+{cat:'life',k:['修鞋','修包','修理','修一下'],s:['fix','want'],zh:'我想修这个。',en:'I would like to get this repaired.',amb:''},
+{cat:'life',k:['修车','修自行车','补胎'],s:['bicycle','fix','want'],zh:'我的自行车坏了，哪里可以修？',en:'My bicycle is broken. Where can I get it fixed?',amb:''},
+{cat:'life',k:['母婴室','哺乳室','换尿布'],s:['person','small','room','q'],zh:'有母婴室吗？',en:'Is there a baby room?',amb:''},
+{cat:'life',k:['帮我拿','帮我提','帮我搬'],s:['help','give','want'],zh:'请帮我拿一下。',en:'Please help me carry this.',amb:''},
+{cat:'life',k:['搬行李','帮忙搬行李'],s:['luggage','help','want'],zh:'请帮我搬行李。',en:'Please help me with my luggage.',amb:''},
+{cat:'life',k:['帮我开门','打不开','帮我打开'],s:['open','help','want'],zh:'请帮我打开这个。',en:'Please help me open this.',amb:''},
+{cat:'life',k:['停车费多少','停车收费'],s:['car','money','q'],zh:'停车费是多少？',en:'How much is the parking?',amb:''},
+{cat:'life',k:['垃圾','扔垃圾','垃圾桶'],s:['none','here','q'],zh:'垃圾扔在哪里？',en:'Where should I throw this away?',amb:'配合手指垃圾，符号本身不表意，靠指认完成。'},
+{cat:'life',k:['理发店','美发店','剪头发的地方'],s:['barber','here','q'],zh:'理发店在哪里？',en:'Where is a barber?',amb:''},
+{cat:'life',k:['照相馆','冲印照片','洗照片'],s:['photo','here','q'],zh:'哪里可以冲印照片？',en:'Where can I print photos?',amb:''},
+{cat:'life',k:['修电脑','电脑坏了'],s:['laptop','injury'],zh:'我的电脑坏了。',en:'My computer is broken.',amb:''},
+{cat:'life',k:['有插座吗','能用插座'],s:['socket','have','q'],zh:'这里有插座吗？',en:'Is there a power socket here?',amb:''},
+{cat:'life',k:['热水在哪','开水在哪'],s:['hot','water','here','q'],zh:'热水在哪里？',en:'Where is hot water?',amb:''},
+{cat:'life',k:['毯子','被子冷'],s:['blanket','want'],zh:'请给我一条毯子。',en:'A blanket, please.',amb:''},
+{cat:'life',k:['钥匙丢了','进不去','锁外面'],s:['key','none','sos'],zh:'我的钥匙丢了，进不去。',en:'I have lost my key and cannot get in.',amb:''},
+{cat:'life',k:['请帮我叫医生','帮我找医生'],s:['doctor','call','want'],zh:'请帮我叫医生。',en:'Please call a doctor for me.',amb:''},
+
+/* ==================== 日常 ==================== */
+{cat:'daily',k:['请等一下','稍等','请等'],s:['wait','want'],zh:'请等一下。',en:'One moment, please.',amb:''},
+{cat:'daily',k:['说慢一点','慢点说','说慢些'],s:['say','slow','want'],zh:'请说慢一点。',en:'Please speak more slowly.',amb:''},
+{cat:'daily',k:['再说一遍','没听清','pardon','再说一次'],s:['say','more','want'],zh:'请再说一遍。',en:'Could you say that again?',amb:''},
+{cat:'daily',k:['写下来','写给我','写一下'],s:['pen','want'],zh:'请写下来给我。',en:'Please write it down for me.',amb:'实用度极高，是符号卡与翻译软件之间的桥梁。'},
+{cat:'daily',k:['写慢一点','写大一点','字写大'],s:['pen','slow','want'],zh:'请写慢一点、写大一点。',en:'Please write slowly and in large letters.',amb:''},
+{cat:'daily',k:['现在几点','几点了','时间'],s:['time','q'],zh:'现在几点？',en:'What time is it?',amb:''},
+{cat:'daily',k:['今天几号','几号','日期'],s:['today','count','q'],zh:'今天几号？',en:'What is the date today?',amb:''},
+{cat:'daily',k:['星期几','周几','礼拜几'],s:['week','count','q'],zh:'今天星期几？',en:'What day is it today?',amb:''},
+{cat:'daily',k:['现在几点了要等','等多长时间'],s:['wait','time','q'],zh:'要等多长时间？',en:'How long is the wait?',amb:''},
+{cat:'daily',k:['不会说','听不懂','语言不通','不懂这里的话'],s:['say','none'],zh:'我不会说这里的语言，也听不懂。',en:'I do not speak your language and cannot understand.',amb:''},
+{cat:'daily',k:['我明白','懂了','知道了'],s:['yes','look'],zh:'我明白了。',en:'I understand.',amb:''},
+{cat:'daily',k:['不知道','不清楚'],s:['none'],zh:'我不知道。',en:'I do not know.',amb:''},
+{cat:'daily',k:['打扰一下','excuse me','借过一下'],s:['sorry','q'],zh:'打扰一下。',en:'Excuse me.',amb:''},
+{cat:'daily',k:['没问题','可以的','行'],s:['yes','can'],zh:'没问题。',en:'No problem.',amb:''},
+{cat:'daily',k:['不行','不可以','不能'],s:['-can'],zh:'不行。',en:'No, that is not possible.',amb:''},
+{cat:'daily',k:['我同意','赞成','好的'],s:['yes','we'],zh:'我同意。',en:'I agree.',amb:''},
+{cat:'daily',k:['不同意','反对'],s:['we','no'],zh:'我不同意。',en:'I do not agree.',amb:''},
+{cat:'daily',k:['可以吗','行不行','能不能'],s:['can','q'],zh:'可以吗？',en:'Is that okay?',amb:'配合指向具体事情。'},
+{cat:'daily',k:['这是我的','我的东西'],s:['this','me'],zh:'这是我的。',en:'This is mine.',amb:''},
+{cat:'daily',k:['不是我的'],s:['this','me','no'],zh:'这不是我的。',en:'This is not mine.',amb:''},
+{cat:'daily',k:['你的电话','联系方式','微信号'],s:['you','phone','q'],zh:'可以给我你的联系方式吗？',en:'May I have your contact?',amb:''},
+{cat:'daily',k:['我的电话','我的号码'],s:['me','phone'],zh:'这是我的电话。',en:'Here is my number.',amb:''},
+{cat:'daily',k:['一起吃饭','一起吃'],s:['we','eat','can','q'],zh:'可以一起吃饭吗？',en:'Would you like to eat together?',amb:''},
+{cat:'daily',k:['请坐','坐这里'],s:['you','down','here'],zh:'请坐。',en:'Please sit here.',amb:''},
+{cat:'daily',k:['我先走','我先走了','得走了'],s:['me','go','thanks'],zh:'我先走了。',en:'I have to go now.',amb:''},
+{cat:'daily',k:['我查一下','让我查查'],s:['phone','time'],zh:'我查一下（手机）。',en:'Let me check my phone.',amb:'为使用翻译软件留出时间，是非常实在的一句。'},
+{cat:'daily',k:['请帮帮我','需要帮助'],s:['help','want'],zh:'请帮帮我。',en:'Please help me.',amb:''},
+{cat:'daily',k:['我需要这个','需要这个'],s:['me','want','this'],zh:'我需要这个。',en:'I need this.',amb:''},
+{cat:'daily',k:['不要','不用','别'],s:['-this'],zh:'不要这个。',en:'Not this one, please.',amb:''},
+{cat:'daily',k:['再多一点','再给我一些'],s:['more','want'],zh:'请再多给我一些。',en:'A little more, please.',amb:''},
+{cat:'daily',k:['少一点','不要那么多'],s:['less','want'],zh:'请少给我一些。',en:'A little less, please.',amb:''},
+{cat:'daily',k:['一样的','相同的','和这个一样'],s:['this','yes'],zh:'请给我和这个一样的。',en:'The same as this one, please.',amb:'配合手指参照物使用。'},
+
+/* ==================== 法规礼仪 ==================== */
+{cat:'law',k:['签证','visa'],s:['passport','can','q'],zh:'我需要办签证。',en:'I need a visa.',amb:''},
+{cat:'law',k:['这里允许','这里可以吗','是否允许'],s:['here','can','q'],zh:'这里允许吗？',en:'Is this allowed here?',amb:''},
+{cat:'law',k:['禁止','不允许','不许','这里禁止'],s:['-can','here'],zh:'这里禁止什么？',en:'What is not allowed here?',amb:''},
+{cat:'law',k:['申报','报关','有要申报的'],s:['customs','report','want'],zh:'我有物品要申报。',en:'I have something to declare.',amb:''},
+{cat:'law',k:['没有申报','无申报'],s:['customs','none'],zh:'没有要申报的物品。',en:'Nothing to declare.',amb:''},
+{cat:'law',k:['出示护照','请给我护照','查护照'],s:['passport','show','want'],zh:'请出示护照。',en:'Please show your passport.',amb:''},
+{cat:'law',k:['这是谁的','谁的'],s:['this','you','q'],zh:'这是谁的？',en:'Whose is this?',amb:''},
+{cat:'law',k:['签字','签名','签个名'],s:['pen','here','want'],zh:'请让我在这里签字。',en:'Please let me sign here.',amb:''},
+{cat:'law',k:['填表','填一下','表格'],s:['pen','this','want'],zh:'请帮我填这张表。',en:'Please help me fill in this form.',amb:''},
+{cat:'law',k:['律师'],s:['idcard','say','want'],zh:'我需要律师。',en:'I need a lawyer.',amb:''},
+{cat:'law',k:['投诉','要投诉'],s:['report','warn','want'],zh:'我要投诉。',en:'I would like to make a complaint.',amb:''},
+{cat:'law',k:['罚单','被开罚单','罚款了'],s:['fine','warn'],zh:'我收到了罚单。',en:'I received a fine.',amb:''},
+{cat:'law',k:['不能拍照','禁止拍照'],s:['-camera'],zh:'这里不能拍照。',en:'No photos here, please.',amb:''},
+{cat:'law',k:['禁烟','禁止吸烟','不准抽烟'],s:['-smoke'],zh:'这里禁止吸烟。',en:'No smoking here.',amb:''},
+{cat:'law',k:['排队','请排队','插队'],s:['wait','person'],zh:'请排队。',en:'Please wait in line.',amb:''},
+{cat:'law',k:['驾照','驾驶证','中国驾照'],s:['idcard','car','can','q'],zh:'我的驾照在这里可以用吗？',en:'Can I use my driver license here?',amb:''},
+{cat:'law',k:['证件','身份证','查证件'],s:['idcard','show','want'],zh:'请看我的证件。',en:'Here is my ID.',amb:''},
+
+/* ==================== 数字时间 ==================== */
+{cat:'num',k:['几个','多少个','几只'],s:['count','q'],zh:'有几个？',en:'How many?',amb:''},
+{cat:'num',k:['多重','重量','几公斤'],s:['heavy','q'],zh:'有多重？',en:'How heavy is it?',amb:''},
+{cat:'num',k:['多大','尺寸','什么尺寸'],s:['size','q'],zh:'多大尺寸？',en:'What size is it?',amb:''},
+{cat:'num',k:['太大了','大了一点'],s:['big','warn'],zh:'太大了。',en:'It is too big.',amb:''},
+{cat:'num',k:['太小了','小了一点'],s:['small','warn'],zh:'太小了。',en:'It is too small.',amb:''},
+{cat:'num',k:['一半','一半就够了'],s:['half'],zh:'一半就够了。',en:'Half is enough.',amb:''},
+{cat:'num',k:['一整天','全天','全天开放'],s:['today','all'],zh:'一整天。',en:'The whole day.',amb:''},
+{cat:'num',k:['明天','后天'],s:['after','today'],zh:'明天。',en:'Tomorrow.',amb:''},
+{cat:'num',k:['昨天','前天'],s:['today','far'],zh:'昨天。',en:'Yesterday.',amb:'「时间上的远」近似表示过去，配合手势向后指。'},
+{cat:'num',k:['下午','午后'],s:['morning','after'],zh:'下午。',en:'In the afternoon.',amb:''},
+{cat:'num',k:['晚上','夜里'],s:['night'],zh:'晚上。',en:'At night.',amb:''},
+{cat:'num',k:['一小时','两个小时','几个小时'],s:['time','count'],zh:'（数字）小时。',en:'(Number) hours.',amb:'数字用角标或数字盘表示。'},
+{cat:'num',k:['一分钟','几分钟','等一会'],s:['time','count','less'],zh:'（数字）分钟。',en:'(Number) minutes.',amb:''},
+{cat:'num',k:['全部','都要','所有的'],s:['all'],zh:'全部都要。',en:'All of them, please.',amb:''},
+
+/* ---- 三级符号的例句覆盖补齐（此前这批符号从未被任何例句用到，等于「死符号」） ---- */
+{cat:'tr',   k:['步行去','走路去','可以步行','走路过去'],s:['here','walk','q'],zh:'这里步行能到吗？',en:'Can I walk there?',amb:''},
+{cat:'tr',   k:['车站在哪里','车站在哪','站台在哪里'],s:['station','q'],zh:'车站在哪里？',en:'Where is the station?',amb:''},
+{cat:'tr',   k:['走这条路','这条路对','这条路'],s:['this','road','q'],zh:'是走这条路吗？',en:'Is this the right road?',amb:''},
+{cat:'tr',   k:['大概几点到','大概什么时候到','还要多久到'],s:['maybe','time','arrive','q'],zh:'大概几点能到？',en:'About what time will we arrive?',amb:''},
+{cat:'hot',  k:['傍晚有空房','晚上有空房','傍晚'],s:['evening','room','q'],zh:'傍晚有空房吗？',en:'Is there a room available this evening?',amb:''},
+{cat:'hot',  k:['空调调高','温度调高','冷了调'],s:['aircon','up','want'],zh:'请把空调调高一点。',en:'Could you turn the air conditioning up, please?',amb:''},
+{cat:'food', k:['给我一个杯子','要个杯子','有杯子吗'],s:['give','me','cup','want'],zh:'请给我一个杯子。',en:'May I have a cup, please?',amb:''},
+{cat:'food', k:['一瓶水','来瓶水','要瓶水'],s:['give','me','bottle','water'],zh:'请给我一瓶水。',en:'A bottle of water, please.',amb:''},
+{cat:'comm', k:['没有收到','没收到消息','没收到短信'],s:['message','receive','no'],zh:'我没有收到消息。',en:'I did not receive the message.',amb:''},
+{cat:'life', k:['剪短一点','剪短些','再短一点'],s:['cut','small','want'],zh:'请剪短一点。',en:'Please cut it a bit shorter.',amb:'在理发店说。'},
+{cat:'sight',k:['几点关门','什么时候关门','关门时间'],s:['this','time','close','q'],zh:'这里几点关门？',en:'What time does this place close?',amb:''},
+{cat:'social',k:['他们在哪里','他们在哪','他们'],s:['they','q'],zh:'他们两个人在哪里？',en:'Where are they?',amb:''},
+{cat:'daily',k:['现在可以吗','现在能进吗','现在'],s:['now','can','q'],zh:'现在可以进去吗？',en:'Can I go in now?',amb:''}
+];
+
+
+
+const $ = id => document.getElementById(id);
+
+/* ---------- 运行环境判断 ----------
+   手机和电脑上「为什么不能朗读 / 不能用语音」的答案完全不同，
+   所以这里先把平台认出来，后面才能给出真正能照做的步骤，而不是笼统的一句「失败」。 */
+const UA = (typeof navigator !== 'undefined' && navigator.userAgent) ? navigator.userAgent : '';
+const IS_IOS = /iPad|iPhone|iPod/.test(UA) || (/Macintosh/.test(UA) && typeof navigator !== 'undefined' && (navigator.maxTouchPoints || 0) > 1);
+const IS_ANDROID = /Android|HarmonyOS|MiuiBrowser|HuaweiBrowser|HeytapBrowser/i.test(UA);
+const IS_MOBILE = IS_IOS || IS_ANDROID || /Mobile|Windows Phone/i.test(UA);
+/* 微信 / QQ / 各类 App 内置浏览器：麦克风与语音合成常被宿主阉割，要单独提示「用系统浏览器打开」 */
+const IS_INAPP = /MicroMessenger|QQ\/|Weibo|Alipay|DingTalk|Feishu|Lark|UCBrowser|Quark/i.test(UA);
+const PROTO = (typeof location !== 'undefined' && location.protocol) ? location.protocol : '';
+const IS_FILE = PROTO === 'file:';
+const IS_SECURE = (typeof window !== 'undefined') && window.isSecureContext !== false;
+const SR_CTOR = (typeof window !== 'undefined') ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
+
+/* 网页麦克风要能工作，需要同时满足：浏览器支持 + 安全上下文（https / localhost）+ 不是 file:// */
+function micEnvOk(){ return !!SR_CTOR && IS_SECURE && !IS_FILE; }
+
+/* ---------- 复制文本（手机上的关键后备手段） ----------
+   手机上常以 file:// 方式打开，此时 navigator.clipboard 往往不存在或直接抛错。
+   以前复制失败也会显示「已复制」，用户以为成功、粘出来是空的。这里补上降级实现。 */
+function legacyCopy(txt, done){
+  let ta = null, ok = false;
+  try{
+    ta = document.createElement('textarea');
+    ta.value = txt;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;padding:0;border:0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try{ ta.setSelectionRange(0, txt.length); }catch(e){}
+    ok = document.execCommand('copy');
+  }catch(e){ ok = false; }
+  finally{ if(ta && ta.parentNode) ta.parentNode.removeChild(ta); }
+  if(done) done(!!ok);
+}
+function copyText(txt, done){
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(() => { if(done) done(true); },
+        () => legacyCopy(txt, done));
+      return;
+    }
+  }catch(e){}
+  legacyCopy(txt, done);
+}
+
+/* ---------- 符号渲染 ---------- */
+/* deco:true 用于「成排出现、内容由邻近文字已经说明」的装饰性符号，
+   加上 aria-hidden 避免读屏软件把几十个图形名念成一串（列表页尤其明显） */
+function symbolSVG(id, opts){
+  opts = opts || {};
+  const s = BY_ID[id];
+  if(!s) return '';
+  let layer = '';
+  if(opts.neg) layer += '<circle cx="24" cy="24" r="21"/><path d="M9 39 39 9"/>';
+  const a11y = opts.deco
+    ? ' aria-hidden="true" focusable="false"'
+    : ' role="img" aria-label="' + esc(String(s.cn).replace(/"/g,'')) + '"';
+  return '<svg class="sb" viewBox="0 0 48 48"' + a11y + '>' + s.svg + layer + '</svg>';
+}
+function symBox(id, opts, size){
+  const neg = id.charAt(0) === '-';
+  const real = neg ? id.slice(1) : id;
+  return '<div class="symbox ' + (size||'m') + '">' + symbolSVG(real, {neg:neg, deco: opts && opts.deco}) + '</div>';
+}
+function symRow(list, deco){ return list.map(t => symBox(t, {deco:!!deco}, 's')).join(''); }
+
+/* ---------- 网络状态 ---------- */
+/* 默认提示必须按平台给：手机上「按话筒语音说」是错的引导（网页麦克风在那里基本不可用），
+   以前断网/联网事件触发 syncNet 会把手机端专门写好的提示覆盖掉，这里统一走 defaultHint。 */
+function defaultHint(){
+  if(IS_MOBILE){
+    return micEnvOk()
+      ? '按话筒说，或用键盘上的话筒键听写'
+      : '点输入框，用键盘上的话筒键听写，或直接打字';
+  }
+  return '按话筒语音说，或直接打字';
+}
+function syncNet(){
+  const b = $('hint');
+  if(!b) return;
+  b.textContent = (navigator.onLine === false)
+    ? '无网络：打字、符号、例句、对方看全部正常'
+    : defaultHint();
+  b.classList.add('wrap');
+  b.classList.remove('err');
+}
+window.addEventListener('online', syncNet);
+window.addEventListener('offline', syncNet);
+
+/* ---------- 分类标签 ---------- */
+let currentCat = 'all';
+function renderTabs(){
+  $('tabs').innerHTML = CATS.map(c =>
+    '<div class="tab' + (c.id===currentCat?' on':'') + '" data-cat="' + c.id + '">' + c.name + '</div>').join('');
+}
+$('tabs').addEventListener('click', e => {
+  const t = e.target.closest('.tab'); if(!t) return;
+  currentCat = t.dataset.cat; renderTabs(); renderChips();
+});
+
+/* ---------- 例句快捷与搜索 ---------- */
+const SAMPLES = {
+  all:   ['我肚子疼，需要看医生','这个多少钱','洗手间在哪里','我不会说这里的语言','能便宜一点吗','请写下来给我'],
+  tr:    ['这趟车到这个站吗','几点出发','打车','行李可以寄存在哪里','我迷路了','还有多远','我错过了车','可以退票吗'],
+  hot:   ['还有空房吗','住一晚多少钱','房间太冷了','Wi-Fi 密码是什么','我要退房','可以刷卡吗','押金是多少','请打扫房间'],
+  food:  ['不要辣','我对花生过敏','我吃素','请给我热水','不要冰','请买单','可以抽烟吗','这里面有花生吗'],
+  shop:  ['这个多少钱','太贵了','可以试穿吗','我要退货','可以退税吗','这是正品吗','请给我这个','我只是看看'],
+  money: ['我想换钱','汇率是多少','ATM 在哪里','我要取钱','收现金吗','我的手机没电了','我想付款','有手续费吗'],
+  med:   ['我头疼','我发烧了','医院在哪里','我受伤了','请叫救护车','我在出血','我咳嗽','我拉肚子'],
+  help:  ['我的护照丢了','请帮帮我','警察局在哪里','我被抢了','能帮我翻译一下吗','我和朋友走散了','请借我手机用一下'],
+  emerg: ['着火了','危险','发生车祸了','有人受伤了','请不要靠近我','我觉得有人跟踪我','我被困住了'],
+  comm:  ['这里有 Wi-Fi 吗','我想买一张电话卡','我想复印 / 打印','我的手机没有信号','请帮我用一下翻译软件','请把这个念给我听'],
+  sight: ['景点在哪里','门票多少钱','开放到几点','博物馆在哪里','海滩在哪里','这里可以游泳吗','有中文讲解吗'],
+  social:['你好','很高兴认识你','我从中国来','太感谢了','我请客','我们各付各的','今天天气怎么样','可以拍照吗'],
+  life:  ['邮局在哪里','我想寄这个包裹','洗衣店在哪里','我想理发','请帮我拿一下','有母婴室吗','哪里可以冲印照片'],
+  daily: ['请说慢一点','请再说一遍','请写下来给我','现在几点','今天星期几','我明白了','没问题','请等一下'],
+  law:   ['我需要办签证','这里允许吗','我有物品要申报','请出示护照','我要投诉','这里禁止吸烟','我需要律师'],
+  num:   ['有几个','有多大尺寸','打几折','明天','一整天','太大了','太小了','一半就够了']
+};
+/* ---------- 最近用过（只存在本机，不上传、不需要网络） ---------- */
+const HIST_KEY = 'symbolpass.hist.v1';
+function histLoad(){
+  try{
+    const a = JSON.parse(localStorage.getItem(HIST_KEY) || '[]');
+    return Array.isArray(a) ? a.filter(x => typeof x === 'string').slice(0, 12) : [];
+  }catch(e){ return []; }
+}
+function histSave(a){ try{ localStorage.setItem(HIST_KEY, JSON.stringify(a.slice(0, 12))); }catch(e){} }
+function histAdd(zh){
+  if(!zh) return;
+  const a = histLoad().filter(x => x !== zh);
+  a.unshift(zh);
+  histSave(a);
+}
+function histClear(){ histSave([]); }
+
+function renderChips(){
+  const q = ($('search').value || '').trim();
+  if(q){
+    const hay = q.replace(/[\s，。！？、,.!?]/g,'');
+    const hits = INTENTS.filter(it =>
+      it.zh.replace(/[\s，。！？、,.!?]/g,'').indexOf(hay) >= 0 ||
+      it.k.some(k => k.indexOf(hay) >= 0));
+    $('chips').innerHTML = hits.length
+      ? hits.slice(0,40).map(s => '<div class="chip" data-q="' + esc(s.zh) + '">' + esc(s.zh) + '</div>').join('')
+        + (hits.length > 40 ? '<div class="chip all" data-list="' + esc(q) + '">还有 ' + (hits.length-40) + ' 条…</div>' : '')
+      : '<div class="chip" style="pointer-events:none">没有找到，换个词试试</div>';
+    return;
+  }
+  const n = INTENTS.filter(i => currentCat === 'all' || i.cat === currentCat).length;
+  const hist = currentCat === 'all' ? histLoad().slice(0, 6) : [];
+  $('chips').innerHTML =
+    (SAMPLES[currentCat] || SAMPLES.all).map(s => '<div class="chip" data-q="' + esc(s) + '">' + esc(s) + '</div>').join('')
+    + '<div class="chip all" data-list="">浏览全部 ' + n + ' 条例句 ›</div>'
+    + (hist.length
+        ? '<div class="hist"><span class="hlabel">最近用过</span>'
+          + hist.map(s => '<div class="chip" data-q="' + esc(s) + '">' + esc(s) + '</div>').join('')
+          + '<span class="hclr" data-hclr="1">清空</span></div>'
+        : '');
+}
+$('chips').addEventListener('click', e => {
+  if(e.target.closest('[data-hclr]')){ histClear(); renderChips(); return; }
+  const c = e.target.closest('.chip'); if(!c) return;
+  if(c.dataset.list !== undefined){ openList(c.dataset.list); return; }
+  $('q').value = c.dataset.q; run();
+  $('scroll').scrollTop = 0;
+});
+$('search').addEventListener('input', () => {
+  $('clr').style.display = $('search').value ? 'flex' : 'none';
+  renderChips();
+});
+$('clr').addEventListener('click', () => { $('search').value = ''; $('clr').style.display = 'none'; renderChips(); });
+
+/* ---------- 例句列表浮层 ---------- */
+function renderList(list, title, tip){
+  $('listTitle').textContent = title;
+  $('listBody').innerHTML =
+    '<div class="lcount">' + (tip || '点句子直接转换；点右侧喇叭可以把英文读出来。') + '</div>' +
+    list.map(it => {
+      const i = INTENTS.indexOf(it);
+      return '<div class="lrow" data-i="' + i + '" role="button" tabindex="0">' +
+        '<div class="syms" aria-hidden="true">' + symRow(it.s, true) + '</div>' +
+        '<div class="tx"><div class="zh2">' + esc(it.zh) + '</div><div class="en2">' + esc(it.en) + '</div></div>' +
+        '<div class="sp" data-spk="' + i + '" role="button" tabindex="0" aria-label="朗读：' + esc(it.en).replace(/"/g,'') + '">' + speakerSVG() + '</div>' +
+      '</div>';
+    }).join('');
+  $('ovList').classList.add('show');
+}
+function openList(query){
+  const catName = (CATS.filter(c => c.id === currentCat)[0] || {}).name || '全部';
+  if(query){
+    const hay = query.replace(/[\s，。！？、,.!?]/g,'');
+    const list = INTENTS.filter(it =>
+      it.zh.replace(/[\s，。！？、,.!?]/g,'').indexOf(hay) >= 0 || it.k.some(k => k.indexOf(hay) >= 0));
+    renderList(list, '搜索「' + query + '」· ' + list.length + ' 条',
+      list.length ? '点句子直接转换；点右侧喇叭可以把英文读出来。' : '没有找到。换个更短的词试试，比如「钱」「厕所」。');
+  }else{
+    const list = currentCat === 'all' ? INTENTS.slice() : INTENTS.filter(i => i.cat === currentCat);
+    renderList(list, catName + '例句 · ' + list.length + ' 条');
+  }
+}
+/* 反过来查：这个符号被哪些例句用到（学符号时最有用的一条路径） */
+function openSymList(id){
+  const s = BY_ID[id];
+  if(!s) return;
+  const list = INTENTS.filter(it => it.s.some(x => (x.charAt(0) === '-' ? x.slice(1) : x) === id));
+  renderList(list, '用到「' + s.cn + '」的例句 · ' + list.length + ' 条',
+    list.length
+      ? '下面这些句子都会用到这个符号。点句子直接转换。'
+      : '暂时没有例句用到这个符号——它属于留作备用的符号，可先记住形状。');
+}
+$('listBody').addEventListener('click', e => {
+  const sp = e.target.closest('[data-spk]');
+  if(sp){
+    e.stopPropagation();
+    speak(INTENTS[+sp.dataset.spk].en, 1, sp);
+    return;
+  }
+  const r = e.target.closest('.lrow'); if(!r) return;
+  const it = INTENTS[+r.dataset.i];
+  $('q').value = it.zh;
+  current = {mode:'template', conf:'hi', intent:it, text:it.zh};
+  paint(it, 'hi');
+  $('btnShow').className = ''; $('btnReply').className = '';
+  document.querySelectorAll('.ov').forEach(o => o.classList.remove('show'));
+  $('scroll').scrollTop = 0;
+});
+
+/* ============================================================
+   匹配引擎：模板优先，未命中降级为组合模式
+   ============================================================ */
+function scoreIntent(hay, it){
+  let best = 0, hits = 0;
+  for(let i=0;i<it.k.length;i++){
+    const k = it.k[i].toLowerCase();
+    if(hay.indexOf(k) >= 0){
+      hits++;
+      const w = k.length >= 5 ? 3.2 : k.length >= 4 ? 3 : k.length >= 3 ? 2.4 : 2;
+      if(w > best) best = w;
+    }
+  }
+  /* 多个关键词同时命中时加分，让更具体的模板胜出 */
+  return best + (hits > 1 ? Math.min(hits - 1, 3) * 0.5 : 0);
+}
+function match(text){
+  const hay = text.toLowerCase().replace(/[\s，。！？、,.!?·]/g,'');
+  let hit = null, sc = 0;
+  const pool = currentCat === 'all' ? INTENTS : INTENTS.filter(i => i.cat === currentCat);
+  for(let i=0;i<pool.length;i++){ const v = scoreIntent(hay, pool[i]); if(v > sc){ sc = v; hit = pool[i]; } }
+  if(!hit){
+    for(let i=0;i<INTENTS.length;i++){ const v = scoreIntent(hay, INTENTS[i]); if(v > sc){ sc = v; hit = INTENTS[i]; } }
+  }
+  if(hit && sc >= 2) return {mode:'template', conf: sc >= 3 ? 'hi' : 'mid', intent: hit};
+  return {mode:'compose', conf:'lo', tokens: compose(hay)};
+}
+
+/* ---------- 组合兜底：从词典里抽符号并按语序排 ---------- */
+const DICT = [
+  ['洗手间','toilet'],['厕所','toilet'],['医院','hospital'],['药店','medicine'],['警察','police'],
+  ['大使馆','passport'],['出租车','car'],['打车','car'],['公交车','car'],['地铁','train'],['火车','train'],
+  ['飞机','plane'],['机场','plane'],['船','boat'],['票','ticket'],['酒店','house'],['旅馆','house'],
+  ['房间','house'],['水','water'],['米饭','rice'],['面条','noodle'],['鸡蛋','egg'],['鱼','seafood'],
+  ['海鲜','seafood'],['猪肉','pork'],['牛肉','beef'],['蔬菜','veg'],['素','veg'],['水果','food'],
+  ['咖啡','coffee'],['茶','tea'],['啤酒','alcohol'],['酒','alcohol'],['面包','food'],['食物','food'],
+  ['药','medicine'],['医生','doctor'],['救护车','ambulance'],['钱','money'],['价钱','money'],['价格','money'],
+  ['信用卡','card'],['现金','money'],['发票','bill'],['收据','bill'],['护照','passport'],['手机','phone'],
+  ['行李','luggage'],['包','luggage'],['地图','map'],['地址','map'],['钥匙','key'],['网络','wifi'],['密码','key'],
+  ['时间','time'],['几点','time'],['今天','today'],['晚上','night'],['冰','ice'],['辣','chili'],['花生','peanut'],
+  ['烟','smoke'],['拍照','camera'],['照片','camera'],['笔','pen'],['纸','pen'],
+  ['我','me'],['你','you'],['人','person'],['这个','this'],['这里','here'],
+  ['吃','eat'],['喝','drink'],['走','walk'],['去','go'],['说','say'],['给','give'],['要','want'],['请','want'],
+  ['买','buy'],['换','exchange'],['退','exchange'],['帮助','help'],['救','sos'],['谢谢','thanks'],['对不起','sorry'],
+  ['疼','pain'],['痛','pain'],['受伤','injury'],['出血','bleed'],['发烧','hot'],['热','hot'],['冷','ice'],
+  ['肚子','belly'],['头','head'],['身体','body'],
+  ['可以','yes'],['是','yes'],['不是','no'],['没有','none'],['不懂','none'],['不会','none'],['不知道','none'],
+  ['不','no'],['别','no'],['不要','no'],
+  ['多少','money'],['几','count'],['多久','dur'],['多远','far'],
+  ['哪里','q'],['在哪','q'],['什么','q'],['怎么','q'],['吗','q']
+];
+const ORDER = {me:0,you:0,person:0,this:1,here:1,time:1,today:1,night:1,wifi:1,card:1,
+               eat:2,drink:2,walk:2,go:2,say:2,give:2,want:2,buy:2,exchange:2,help:2,sos:2,
+               no:3,none:3,pain:3,injury:3,bleed:3,hot:3,ice:3,warn:3,q:9};
+function compose(hay){
+  let rest = hay;
+  const taken = [];
+  const sorted = DICT.slice().sort((a,b) => b[0].length - a[0].length);
+  for(let i=0;i<sorted.length;i++){
+    const w = sorted[i][0], sym = sorted[i][1];
+    let idx = rest.indexOf(w);
+    while(idx >= 0){
+      taken.push({pos: idx, sym: sym});
+      rest = rest.slice(0, idx) + '#'.repeat(w.length) + rest.slice(idx + w.length);
+      idx = rest.indexOf(w);
+    }
+  }
+  taken.sort((a,b) => a.pos - b.pos);
+  const seen = {}, out = [];
+  for(let i=0;i<taken.length;i++){
+    if(seen[taken[i].sym]) continue;
+    seen[taken[i].sym] = 1; out.push(taken[i].sym);
+  }
+  out.sort((a,b) => (ORDER[a] === undefined ? 5 : ORDER[a]) - (ORDER[b] === undefined ? 5 : ORDER[b]));
+  return out;
+}
+
+/* ---------- 英文朗读（Web Speech API，本地合成，无需网络） ---------- */
+function speakerSVG(){
+  return '<svg class="sb" viewBox="0 0 48 48" role="img" aria-label="播放">'
+    + '<path d="M7 19h8l11-9v28l-11-9H7Z"/><path d="M32 18c3.2 3.2 3.2 8.8 0 12M38 13c5.6 5.6 5.6 16.4 0 22"/></svg>';
+}
+const TTS_OK = !!window.speechSynthesis && typeof window.SpeechSynthesisUtterance !== 'undefined';
+let VOICES = [];
+let voicesReady = false;
+let voicePollDone = false;
+function loadVoices(){
+  if(!TTS_OK) return;
+  try{ VOICES = speechSynthesis.getVoices() || []; }catch(e){ VOICES = []; }
+  if(VOICES.length) voicesReady = true;
+}
+/* 音色表在不同浏览器里可能异步才就绪，且 onvoiceschanged 未必触发：这里主动轮询几次 */
+if(TTS_OK){
+  loadVoices();
+  document.addEventListener('DOMContentLoaded', loadVoices);
+  window.addEventListener('load', loadVoices);
+  try{ speechSynthesis.addEventListener('voiceschanged', loadVoices); }catch(e){}
+  speechSynthesis.onvoiceschanged = loadVoices;
+  [120, 400, 900, 1600, 2600, 4000].forEach((ms, i, arr) => setTimeout(() => {
+    loadVoices();
+    if(i === arr.length - 1){ voicePollDone = true; showVoiceNotice(); }
+  }, ms));
+}
+function enVoices(){
+  return VOICES.filter(v => /^en([-_]|$)/i.test(String(v.lang || '').replace('_', '-')));
+}
+function pickVoice(){
+  const en = enVoices();
+  if(!en.length) return null;
+  const order = ['en-US','en-GB','en-AU','en-CA','en-IN','en-NZ','en'];
+  for(const p of order){
+    const hit = en.filter(v => String(v.lang || '').replace('_', '-').toLowerCase().indexOf(p.toLowerCase()) === 0);
+    if(hit.length) return hit.filter(x => x.localService)[0] || hit[0];
+  }
+  return en[0];
+}
+/* 提示串：一次只显示一条，多行展示；不再用单行省略号把关键信息吃掉 */
+function hintMsg(text, isErr, wrap){
+  const h = $('hint');
+  if(!h) return;
+  h.textContent = text;
+  h.classList.toggle('err', !!isErr);
+  h.classList.toggle('wrap', wrap !== false);
+}
+let speaking = false;
+function speak(text, rate, btn){
+  if(!TTS_OK){
+    hintMsg('此浏览器没有语音合成功能，无法朗读。请改用 Chrome / Edge / Safari 打开本页。', true);
+    return false;
+  }
+  if(!voicesReady) loadVoices();
+  const v = pickVoice();
+  if(!v){
+    hintMsg('系统里没有可用的英文语音，朗读会读不出来或读不准。点下方提示条可看安装方法。', true);
+    showVoiceNotice();
+    return false;
+  }
+  try{
+    /* Chrome 有个老毛病：cancel() 之后立刻 speak() 会被丢弃，中间留一拍 */
+    speechSynthesis.cancel();
+    const go = () => {
+      let started = false, done = false, watch = null;
+      /* 先把按钮切到「播放中」——任何后续异常都不能让按钮永远转圈 */
+      if(btn) btn.classList.add('busy');
+      const finish = (msg, isErr) => {
+        if(done) return;
+        done = true; speaking = false;
+        if(watch) clearTimeout(watch);
+        if(btn) btn.classList.remove('busy');
+        if(msg) hintMsg(msg, !!isErr);
+        else if(!started) hintMsg('朗读没能启动（系统语音引擎无响应）。可以试试点「慢速朗读」，或换 Chrome / Edge 打开。', true);
+      };
+      watch = setTimeout(() => finish(), 1800);
+
+      let u;
+      try{
+        u = new SpeechSynthesisUtterance(String(text));
+      }catch(e){ finish('朗读启动失败：' + e.message, true); return; }
+      u.lang = v.lang || 'en-US';
+      /* 个别实现会拒绝非本机音色对象：这里单独兜住，退化为仅按 lang 朗读 */
+      try{ u.voice = v; }catch(e){ /* ignore */ }
+      u.rate = rate || 1; u.pitch = 1; u.volume = 1;
+      u.onstart = () => { started = true; speaking = true; if(watch) clearTimeout(watch); };
+      u.onend = () => finish();
+      u.onerror = ev => {
+        const code = ev && ev.error ? ev.error : '';
+        const soft = code === 'interrupted' || code === 'canceled';
+        finish(soft
+          ? '上一次朗读被新的朗读打断了，已切到新的一句。'
+          : '朗读出错（' + (code || '未知') + '）。请重试，或换 Chrome / Edge 打开。', !soft);
+      };
+      try{ speechSynthesis.speak(u); }
+      catch(e){ finish('朗读失败：' + e.message, true); }
+    };
+    setTimeout(go, 80);
+    return true;
+  }catch(e){
+    if(btn) btn.classList.remove('busy');
+    hintMsg('朗读启动失败：' + e.message, true);
+    return false;
+  }
+}
+/* iOS / 部分 Android 浏览器：首次播报必须由用户手势触发，这里静音播一个空格完成解锁 */
+let ttsArmed = false;
+document.addEventListener('click', () => {
+  if(ttsArmed || !TTS_OK) return;
+  ttsArmed = true;
+  try{
+    const u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0; speechSynthesis.speak(u);
+  }catch(e){}
+}, {once:true});
+
+/* ---------- 语音环境提示条 ----------
+   同步自检两块环境依赖最强的功能，并把「为什么不行 + 这台设备上该怎么做」写清楚。
+   手机与电脑的答案完全不同，所以下面按平台分支。 */
+let vnoteDismissed = false;
+function showVoiceNotice(){
+  const box = $('vnote');
+  if(!box || vnoteDismissed) return;
+  /* 这一段在极简环境（无 location/navigator 的测试桩）里也必须安全 */
+  try{
+    const en = enVoices();
+    const online = (typeof navigator === 'undefined') || navigator.onLine !== false;
+    const items = [];
+
+    /* ① 英文朗读：系统里没有英文语音包（手机与电脑各有各的安装入口） */
+    if(TTS_OK && !en.length && (VOICES.length > 0 || voicePollDone)){
+      const list = VOICES.length
+        ? '本机可用音色 ' + VOICES.length + ' 个（' + VOICES.map(v => v.lang).join('、') + '），其中没有 <code>en-*</code>。'
+        : '本机一个语音音色都没读到。';
+      let steps;
+      if(IS_IOS){
+        steps = '<li><b>iPhone / iPad</b>：设置 → 辅助功能 → 朗读内容 → 声音 → 英语，下载一个英文声音（如 Samantha）。</li>'
+          + '<li>装完请<b>完全关掉本页再重新打开</b>，语音列表才会刷新。</li>'
+          + '<li>另外检查手机左侧的<b>静音拨键</b>：它在静音档时，网页朗读可能完全没有声音。</li>';
+      }else if(IS_ANDROID){
+        steps = '<li><b>Android</b>：设置 → 系统 → 语言和输入 → 文字转语音输出，选「Google 语音服务」，再点「安装语音数据」，装 <b>English (United States)</b>。</li>'
+          + '<li>小米 / 华为 / OPPO / vivo 等机型路径相近，搜关键词「文字转语音」或「TTS」即可找到。</li>'
+          + '<li>装完请<b>完全关掉本页再重新打开</b>。</li>';
+      }else{
+        steps = '<li><b>Windows</b>：设置 → 时间和语言 → 语言和区域 → 添加语言 → 英语（美国），勾选「语音」。</li>'
+          + '<li><b>macOS</b>：系统设置 → 辅助功能 → 朗读内容 → 系统声音 → 管理声音，下载英语声音。</li>';
+      }
+      items.push('<b>英文朗读不可用：这台设备的系统里没装英文语音包。</b>' + list
+        + '朗读英文必须有系统级英文语音，按下面装一次即可（只需装一次）：<ul>' + steps + '</ul>'
+        + '<b>不想装或一时装不了？</b>点结果里的「复制英文」，把英文粘到任何能出声的地方（微信输入框、备忘录、翻译 App）都能读；'
+        + '手机上也可以直接<b>长按英文句子选中后复制</b>。');
+    }
+    if(!TTS_OK){
+      items.push((IS_INAPP || IS_MOBILE)
+        ? '<b>当前浏览器没有语音合成功能。</b>如果你用的是微信 / QQ 等 App 的内置浏览器，请点右上角「···」→「在浏览器打开」，改用系统自带的 Chrome（安卓）或 Safari（iPhone）再试。'
+        : '<b>本浏览器没有语音合成功能。</b>请改用 Chrome / Edge / Safari 打开本页。');
+    }
+
+    /* ② 语音输入：网页麦克风门槛高，先讲清楚原因，再给手机上能立刻用的替代方案 */
+    if(!micEnvOk()){
+      const why = [];
+      if(!SR_CTOR) why.push('这个浏览器没有语音识别接口');
+      if(IS_FILE) why.push('当前是用 <code>file://</code> 直接打开的本地文件');
+      if(!IS_SECURE) why.push('当前不是安全上下文（需要 https 或 localhost）');
+      if(!online) why.push('当前没有网络');
+      let advice;
+      if(IS_IOS){
+        advice = '<b>iPhone / iPad 上请直接用键盘听写</b>：点一下输入框调出键盘，按键盘上的<b>话筒键</b>（在空格键右侧），说完话文字会直接打进输入框。'
+          + '这样不需要网页麦克风权限、也不受打开方式限制，是最可靠的手机语音输入办法。'
+          + '<br>如果一定要用页面上的话筒按钮，只能把本页放到 <b>https</b> 地址上并用 Safari 打开——以本地文件方式打开是做不到的。';
+      }else if(IS_ANDROID){
+        advice = '<b>安卓上推荐用输入法键盘的听写</b>：点一下输入框调出键盘，按 Gboard / 搜狗 / 百度输入法键盘上的<b>麦克风键</b>，说中文即可。'
+          + '<br>如果一定要用页面上的话筒按钮，必须同时满足：用 <b>Chrome</b> 打开、页面是 <b>https 或 localhost</b>、并且已允许麦克风——'
+          + '以 file:// 方式打开的本地文件一律不行。';
+      }else{
+        advice = '建议把本页放到本地 http 服务（打开 <code>localhost</code>）或用 Chrome / Edge 打开，并允许麦克风。';
+      }
+      if(IS_INAPP){
+        advice = '<b>你可能正在微信 / QQ 等 App 的内置浏览器里。</b>请点右上角「···」→「在浏览器打开」，换到系统浏览器，麦克风才有机会被允许。<br>' + advice;
+      }
+      items.push('<b>语音输入不可用</b>：' + why.join('，') + '。' + advice
+        + '<br><b>直接打字完全不受影响</b>——符号、例句、朗读都不需要联网。');
+    }
+
+    if(!items.length){
+      box.classList.remove('show');
+      return;
+    }
+    box.innerHTML = '<button class="vx" id="vnoteX" title="关闭">&#10005;</button>' + items.join('<br><br>');
+    box.classList.add('show');
+    const x = $('vnoteX');
+    if(x) x.addEventListener('click', () => { vnoteDismissed = true; box.classList.remove('show'); });
+  }catch(e){ /* 提示条只是锦上添花，任何环境下都不允许它抛错 */ }
+}
+
+/* ---------- 输出 ---------- */
+let current = null;
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* 逐符对照：符号序列本身不说话。把它摊成「符号 = 词」的清单，
+   用户才知道自己看到的每一块是什么意思——这是这套系统真正能被学会的地方。 */
+function mapRow(list){
+  const items = list.map(t => {
+    const neg = t.charAt(0) === '-';
+    const real = neg ? t.slice(1) : t;
+    const s = BY_ID[real];
+    if(!s) return '';
+    const parts = String(s.cn).split(' / ');
+    const main = parts[0], sub = parts.slice(1).join(' / ');
+    return '<div class="map-item' + (neg ? ' neg' : '') + '">' + symBox(real, {deco:true}, 's') +
+      '<div class="w">' + (neg ? '不 · ' : '') + esc(main) +
+      (sub ? '<small>' + esc(sub) + '</small>' : '') + '</div></div>';
+  }).join('');
+  if(!items) return '';
+  return '<details class="map"><summary>逐符对照 <span class="cnt">共 ' + list.length + ' 个符号</span></summary>'
+       + '<div class="map-grid">' + items + '</div></details>';
+}
+
+function paint(it, conf){
+  const catName = (CATS.filter(c => c.id === it.cat)[0] || {}).name || '';
+  $('out').innerHTML =
+    '<div class="res">' +
+      '<div class="res-top">' +
+        '<span class="res-cat">' + esc(catName) + '</span>' +
+        '<span class="conf ' + conf + '">' + (conf === 'hi' ? '高置信 · 已校对模板' : '中置信 · 建议确认') + '</span>' +
+      '</div>' +
+      '<div class="syms">' + symRow(it.s) + '</div>' +
+      '<div class="zh">' + esc(it.zh) + '</div>' +
+      '<div class="en">' + esc(it.en) + '</div>' +
+      mapRow(it.s) +
+      '<div class="tts">' +
+        '<div class="tts-b" data-a="speak">' + speakerSVG() + '朗读英文</div>' +
+        '<div class="tts-b" data-a="speak-slow">' + speakerSVG() + '慢速朗读</div>' +
+      '</div>' +
+      (it.amb ? '<div class="amb"><b>可能的其他读法</b>' + esc(it.amb) + '</div>' : '') +
+      '<div class="acts">' +
+        '<div class="act pri" data-a="show">放大给对方看</div>' +
+        '<div class="act" data-a="reply">让对方回应</div>' +
+        '<div class="act" data-a="copy">复制英文</div>' +
+      '</div>' +
+    '</div>';
+  /* 记一笔「最近用过」，下次打开就能一键回到这句话 */
+  histAdd(it.zh);
+  renderChips();
+}
+
+function run(){
+  const text = $('q').value.trim();
+  if(!text){
+    $('out').innerHTML = '<div class="empty"><div class="big">' + symbolSVG('here') + '</div>输入一句中文，或点上面的例句试试。</div>';
+    return;
+  }
+  const r = match(text);
+  current = Object.assign({text: text}, r);
+
+  if(r.mode === 'template'){
+    paint(r.intent, r.conf);
+  } else {
+    const toks = r.tokens || [];
+    $('out').innerHTML =
+      '<div class="res">' +
+        '<div class="res-top">' +
+          '<span class="res-cat">组合模式</span>' +
+          '<span class="conf lo">低置信 · 未命中模板</span>' +
+        '</div>' +
+        (toks.length
+          ? '<div class="syms">' + symRow(toks) + '</div>'
+          : '<div class="empty" style="padding:24px 16px">未能从这句话里提取到任何符号。</div>') +
+        '<div class="zh">' + esc(text) + '</div>' +
+        '<div class="amb"><b>这是兜底结果，不可依赖</b>组合模式只是把认识的词逐个换成符号再排序，语法靠对方猜。真实产品这里应该：① 提示用户换一种说法；② 或调用大模型把句子归类到已有模板；③ 或直接降级到英文大字。</div>' +
+        '<div class="acts">' +
+          '<div class="act" data-a="reply">让对方回应</div>' +
+          '<div class="act" data-a="copy">复制原文</div>' +
+        '</div>' +
+      '</div>';
+  }
+  $('btnShow').className = r.mode === 'template' ? '' : 'dim';
+  $('btnReply').className = '';
+}
+
+$('go').addEventListener('click', run);
+$('q').addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); run(); } });
+
+$('out').addEventListener('click', e => {
+  const a = e.target.closest('[data-a]'); if(!a) return;
+  const k = a.dataset.a;
+  if(k === 'show') openShow();
+  else if(k === 'reply') openReply();
+  else if(k === 'speak' || k === 'speak-slow'){
+    if(current && current.mode === 'template') speak(current.intent.en, k === 'speak-slow' ? 0.62 : 1, a);
+  }
+  else if(k === 'copy'){
+    const isTpl = !!(current && current.mode === 'template');
+    const txt = isTpl ? current.intent.en : current.text;
+    const label = a.textContent;
+    copyText(txt, ok => {
+      if(ok){
+        a.textContent = '已复制';
+      }else{
+        a.textContent = '请长按英文';
+        hintMsg('复制没能自动完成（浏览器限制）。请直接长按上面那句英文，选「复制」，再粘到任何能朗读的地方。', true);
+      }
+      setTimeout(() => { a.textContent = label || '复制英文'; }, 1600);
+    });
+  }
+});
+
+/* ---------- 给对方看 ---------- */
+function openShow(){
+  if(!current || current.mode !== 'template') return;
+  const it = current.intent;
+  const ttsBad = !TTS_OK || !enVoices().length;
+  $('showBody').innerHTML =
+    '<div class="show-syms">' + it.s.map(t => symBox(t, null, 'l')).join('') + '</div>' +
+    '<div class="show-zh">' + esc(it.zh) + '</div>' +
+    '<div class="show-en">' + esc(it.en) + '</div>' +
+    '<button class="show-play" id="showPlay">' + speakerSVG() + '播放这句英文</button>' +
+    (ttsBad
+      ? '<button class="show-play alt" id="showCopy">复制英文（换个设备朗读）</button>'
+      : '') +
+    '<div class="show-note">请把这屏幕给对方看。点上面的按钮，对方不用看字也能听见英文。'
+    + (ttsBad ? '<br><b>本机朗读不可用</b>：请点「复制英文」，粘到手机里任意能朗读的地方（翻译 App、微信输入框）播放；或直接长按上面那句英文选中复制。' : '')
+    + '<br>如果对方摇头或不理解，请返回并切换到「对方回应」页，用三个符号让对方指认。</div>';
+  $('showPlay').addEventListener('click', () => speak(it.en, 1, $('showPlay')));
+  const sc = $('showCopy');
+  if(sc) sc.addEventListener('click', () => {
+    copyText(it.en, ok => {
+      sc.textContent = ok ? '已复制' : '请长按英文手动复制';
+      setTimeout(() => { sc.textContent = '复制英文（换个设备朗读）'; }, 1600);
+    });
+  });
+  $('ovShow').classList.add('show');
+}
+
+/* ---------- 对方回应 ---------- */
+let numStr = '';
+function openReply(){
+  numStr = '';
+  $('replyBody').innerHTML =
+    '<div class="reply-q">请对方指一下 · Please point to your answer</div>' +
+    '<div class="reply-grid">' +
+      '<div class="rb yes" data-r="yes"><div class="symbox">' + symbolSVG('yes') + '</div><span class="l">懂了 / 可以</span></div>' +
+      '<div class="rb no" data-r="no"><div class="symbox">' + symbolSVG('no') + '</div><span class="l">不行 / 没有</span></div>' +
+      '<div class="rb un" data-r="un"><div class="symbox">' + symbolSVG('q') + '</div><span class="l">不懂 / 不确定</span></div>' +
+    '</div>' +
+    '<div class="nval" id="nval">—</div>' +
+    '<div class="numpad">' +
+      [1,2,3,4,5,6,7,8,9].map(n => '<div class="nk" data-n="' + n + '">' + n + '</div>').join('') +
+      '<div class="nk" data-n="C">C</div><div class="nk" data-n="0">0</div><div class="nk" data-n="ok">确定</div>' +
+    '</div>' +
+    '<div class="reply-out" id="rout"></div>';
+  $('ovReply').classList.add('show');
+}
+$('replyBody').addEventListener('click', e => {
+  const rb = e.target.closest('[data-r]'), nk = e.target.closest('[data-n]'), out = $('rout');
+  if(rb){
+    const k = rb.dataset.r;
+    if(k === 'yes'){ out.style.color = 'var(--green)'; out.innerHTML = '对方表示<b>明白了 / 可以</b>。<br>可以继续问下一件事，或结束。'; }
+    else if(k === 'no'){ out.style.color = 'var(--red)'; out.innerHTML = '对方表示<b>不行 / 没有</b>。<br>请返回换一种符号表达，或改走降级路径。'; }
+    else { out.style.color = 'var(--amber)'; out.innerHTML = '对方<b>没看懂</b>。<br>这正是符号系统的边界。<br><br><b>降级路径：</b><br>① 切英文大字<br>② 打开翻译软件打字<br>③ 用「请写下来给我」<br>④ 手绘简图 + 指实物'; }
+    return;
+  }
+  if(nk){
+    const v = nk.dataset.n;
+    if(v === 'C') numStr = '';
+    else if(v === 'ok'){
+      if(numStr){
+        out.style.color = 'var(--blue)';
+        const isMoney = current && current.mode === 'template' && /钱|价|费/.test(current.intent.zh);
+        out.innerHTML = (isMoney ? '对方回填的价格：<b>' : '对方回填的数字：<b>') + numStr + '</b>'
+          + '<br>' + (isMoney ? '（货币单位请当场确认，符号系统不表示币种）' : '（是小时还是分钟请当场确认）');
+      }
+      return;
+    }
+    else numStr += v;
+    $('nval').textContent = numStr || '—';
+  }
+});
+
+/* ---------- 符号表 ---------- */
+function buildDict(){
+  const groups = {};
+  ALL.forEach(s => { (groups[s.cat] = groups[s.cat] || []).push(s); });
+  let html = '';
+  Object.keys(groups).forEach(cat => {
+    html += '<div class="dgroup"><h4>' + esc(cat) + '（' + groups[cat].length + '）</h4><div class="dgrid">';
+    groups[cat].forEach(s => {
+      html += '<div class="dcard" data-sid="' + s.id + '" role="button" tabindex="0">'
+           +  '<div class="symbox">' + symbolSVG(s.id, {deco:true}) + '</div>'
+           +  '<div class="n">' + esc(s.cn) + '</div></div>';
+    });
+    html += '</div></div>';
+  });
+  $('dictBody').innerHTML = html;
+}
+
+/* 符号详解：以前用 alert()，手机上又丑又会阻塞，在部分内嵌浏览器里还被直接拦掉 */
+let curSym = '';
+function openSym(id){
+  const s = BY_ID[id];
+  if(!s) return;
+  curSym = id;
+  const used = INTENTS.filter(it => it.s.some(x => (x.charAt(0) === '-' ? x.slice(1) : x) === id)).length;
+  $('symBody').innerHTML =
+    '<div class="symdetail">' +
+      '<div class="sd-sym">' + symbolSVG(id) + '</div>' +
+      '<div class="sd-cn">' + esc(s.cn) + '</div>' +
+      '<div class="sd-en">' + esc(s.en) + '</div>' +
+      '<div class="sd-kv">' +
+        '<div><dt>类别</dt><dd>' + esc(s.cat) + '</dd></div>' +
+        '<div><dt>词类</dt><dd>' + esc(s.cls) + '</dd></div>' +
+        '<div><dt>编号</dt><dd>' + esc(s.id) + '</dd></div>' +
+      '</div>' +
+      '<div class="sd-spec"><b>绘制规范（断电也能照着画）</b>' + esc(s.spec) + '</div>' +
+      '<div class="sd-acts">' +
+        '<button class="sd-b" data-sd="spec">复制绘制说明</button>' +
+        '<button class="sd-b pri" data-sd="find">用到它的例句（' + used + '）</button>' +
+      '</div>' +
+    '</div>';
+  $('ovSym').classList.add('show');
+}
+$('dictBody').addEventListener('click', e => {
+  const c = e.target.closest('[data-sid]'); if(!c) return;
+  openSym(c.dataset.sid);
+});
+$('symBody').addEventListener('click', e => {
+  const b = e.target.closest('[data-sd]'); if(!b) return;
+  const s = BY_ID[curSym]; if(!s) return;
+  if(b.dataset.sd === 'spec'){
+    const txt = s.cn + '（' + s.en + '）\n绘制规范：' + s.spec;
+    copyText(txt, ok => {
+      b.textContent = ok ? '已复制' : '请长按选中';
+      setTimeout(() => { b.textContent = '复制绘制说明'; }, 1500);
+    });
+  }else{
+    $('ovSym').classList.remove('show');
+    openSymList(curSym);
+  }
+});
+
+/* ---------- 关闭 ---------- */
+document.addEventListener('click', e => {
+  if(e.target.closest('[data-close]') || e.target.classList.contains('ov')){
+    [].slice.call(document.querySelectorAll('.ov')).forEach(o => o.classList.remove('show'));
+  }
+});
+$('dictBtn').addEventListener('click', () => $('ovDict').classList.add('show'));
+$('btnShow').addEventListener('click', openShow);
+$('btnReply').addEventListener('click', openReply);
+
+/* ---------- 语音输入 ---------- */
+const SR = SR_CTOR;
+$('mic').innerHTML = symbolSVG('say');
+
+/* 把浏览器给的错误码翻译成「原因 + 怎么办」。以前这里一律显示「语音识别失败」，
+   用户无法判断是自己没授权、没联网，还是环境根本不支持。
+   手机上最常见的其实是「打开了 file:// 的本地文件」，所以单独给出键盘听写这个替代方案。 */
+function srErrorText(code){
+  switch(code){
+    case 'not-allowed':
+    case 'service-not-allowed':
+      if(IS_MOBILE){
+        return '麦克风权限被拒绝，或当前浏览器不允许网页使用麦克风。\n· 若在微信 / QQ 等 App 内置浏览器里，请点右上角「···」→「在浏览器打开」\n· 若在浏览器里，请点地址栏的锁形 / 权限图标，把麦克风改为「允许」\n· 最省事：点输入框调出键盘，用键盘上的话筒键听写';
+      }
+      return '麦克风权限被拒绝，或当前窗口不允许使用麦克风。\n· 若在应用内嵌的预览窗口里，请改用 Chrome / Edge 直接打开本文件\n· 若在浏览器里，请点地址栏的权限图标，把麦克风改为「允许」';
+    case 'network':
+      return '语音识别需要联网（识别在系统云端完成），当前网络不可用或无法连通。\n可以直接打字，离线时其他功能完全不受影响';
+    case 'audio-capture':
+      return IS_MOBILE
+        ? '没有读到麦克风。可能是麦克风被其他 App 占用，或系统里关闭了本浏览器的麦克风权限。\n可以直接打字，或用键盘上的话筒键听写。'
+        : '没有检测到麦克风。请检查设备是否插入麦克风并已在系统中启用。';
+    case 'no-speech':
+      return '没有听到声音。请靠近麦克风，按一下话筒再说一次。';
+    case 'language-not-supported':
+      return IS_MOBILE
+        ? '当前浏览器不支持中文语音识别。请改用系统自带的 Chrome（安卓）或 Safari（iPhone），或直接用键盘听写。'
+        : '当前浏览器不支持中文语音识别，请改用 Chrome / Edge 打开。';
+    case 'aborted':
+      return '';
+    default:
+      return '语音识别未能启动' + (code ? '（' + code + '）' : '') + '。可以直接打字。';
+  }
+}
+
+let srRunning = false;
+function srBlockedReason(){
+  if(!SR){
+    return IS_MOBILE
+      ? '当前浏览器没有语音识别功能。请改用系统自带的浏览器打开，或直接用键盘上的话筒键听写。'
+      : '此浏览器没有语音识别功能，请改用 Chrome / Edge 打开——或者直接打字。';
+  }
+  if(IS_FILE){
+    return IS_MOBILE
+      ? '本页是以本地文件方式（file://）打开的，浏览器会禁止网页使用麦克风，语音输入无法启用。\n· 手机上推荐做法：点输入框调出键盘，按键盘上的话筒键听写，效果一样\n· 或直接把本页放到 https 地址上打开'
+      : '当前是以本地文件方式（file://）打开的，浏览器会禁止语音识别。\n· 用 Chrome / Edge 打开仍可能需要放到本地 http 服务下\n· 最省事的办法：直接打字，功能完全一样';
+  }
+  if(!IS_SECURE){
+    return IS_MOBILE
+      ? '当前页面不是安全上下文（需要 https 地址），浏览器会禁用麦克风。\n· 手机上推荐用键盘上的话筒键听写\n· 或把本页放到 https 地址上打开'
+      : '当前页面不是安全上下文（需要 https 或 localhost），语音识别被浏览器禁用。请直接打字。';
+  }
+  if(navigator.onLine === false){
+    return '当前没有网络。语音识别必须在联网状态下使用。\n离线时请直接打字，符号与朗读以外的功能都正常。';
+  }
+  return '';
+}
+
+$('mic').addEventListener('click', () => {
+  if(srRunning){ try{ srRunning.stop(); }catch(e){} return; }
+  const blocked = srBlockedReason();
+  if(blocked){ hintMsg(blocked, true); $('q').focus(); showVoiceNotice(); return; }
+  let rec;
+  try{ rec = new SR(); }catch(e){ hintMsg('语音识别初始化失败：' + e.message + '。请直接打字。', true); return; }
+  rec.lang = 'zh-CN'; rec.interimResults = false; rec.maxAlternatives = 1;
+  let gotResult = false;
+  srRunning = true;
+  $('mic').classList.add('rec');
+  hintMsg('正在听…请说话（约 5 秒内说完）', false);
+  rec.onresult = ev => {
+    gotResult = true;
+    const t = ev.results[0][0].transcript;
+    $('q').value = t;
+    hintMsg('已识别：「' + t + '」', false);
+    run();
+  };
+  rec.onerror = ev => {
+    const msg = srErrorText(ev && ev.error);
+    if(msg) hintMsg(msg, true);
+  };
+  rec.onend = () => {
+    srRunning = false;
+    $('mic').classList.remove('rec');
+    if(!gotResult && !$('hint').classList.contains('err')) hintMsg('没有听到内容，请再说一次，或直接打字。', true);
+    $('q').focus();
+  };
+  try{ rec.start(); }
+  catch(e){
+    srRunning = false;
+    $('mic').classList.remove('rec');
+    hintMsg('语音识别启动失败：' + e.message + '。请直接打字。', true);
+  }
+});
+
+/* ---------- 初始化 ---------- */
+$('logo').innerHTML = symbolSVG('here', {deco:true});
+$('iShow').innerHTML = symbolSVG('this', {deco:true});
+$('iReply').innerHTML = symbolSVG('yes', {deco:true});
+$('searchIcon').innerHTML = '<svg class="sb" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="20" cy="20" r="13"/><path d="M29.5 29.5 43 43"/></svg>';
+$('subline').textContent = 'SymbolPass · ' + ALL.length + ' 符号 · ' + INTENTS.length + ' 例句';
+renderTabs(); renderChips(); buildDict(); syncNet();
+
+/* 手机端：把「该怎么用」直接写在输入框旁边，别等用户点了才报错 */
+if(IS_MOBILE){
+  $('q').setAttribute('placeholder', '用中文说你要表达的意思，或用键盘上的话筒键听写');
+  $('mic').title = '网页语音输入（手机上更推荐用键盘自带的听写）';
+  const nm = $('noteMobile');
+  if(nm){
+    nm.style.display = 'block';
+    nm.innerHTML = '<b>手机端使用说明（实测要点）</b>'
+      + '<br>1 · <b>语音输入请用键盘自带的听写</b>：点输入框调出键盘，按键盘上的话筒键（iPhone 在空格键右侧，安卓 Gboard / 搜狗在顶部或空格键旁），说中文即可。'
+      + '这比网页上的话筒按钮可靠得多——它不需要网页麦克风权限，离线也能用。'
+      + '<br>2 · <b>英文朗读需要系统里先装英文语音</b>：'
+      + (IS_IOS ? '设置 → 辅助功能 → 朗读内容 → 声音 → 英语，下载一个英文声音；另外注意左侧静音拨键别停在静音档。'
+        : '设置 → 系统 → 语言和输入 → 文字转语音输出，选「Google 语音服务」并安装 English (United States)。')
+      + '装完请完全关掉本页再重新打开。'
+      + '<br>3 · <b>朗读还是不出声时的后备办法</b>：点「复制英文」，粘到微信输入框或系统翻译 App 里播放；也可以直接<b>长按英文句子选中复制</b>。'
+      + '<br>4 · <b>本页完全离线可用</b>：在浏览器里「添加到主屏幕」后会像 App 一样打开；飞行模式下也能查例句、看符号、给对方看。';
+  }
+}
+/* 若通过 https 打开（线上版本），麦克风前提全部满足，提示语要说清楚「可以直接用话筒」 */
+if(IS_MOBILE && micEnvOk()){
+  $('mic').title = '语音输入（首次使用请允许麦克风）';
+}
+
+/* 语音是环境依赖最强的两块功能：等音色表就绪后做一次环境自检并如实告知 */
+setTimeout(showVoiceNotice, 1500);
+window.addEventListener('load', () => setTimeout(showVoiceNotice, 3200));
+$('out').innerHTML = '<div class="empty"><div class="big" aria-hidden="true">' + symbolSVG('here', {deco:true}) + '</div>'
+  + '输入一句中文，或点上面的例句试试。<br>试试「我肚子疼，需要看医生」。<br>'
+  + '<span style="font-size:12.5px">结果里的「逐符对照」会告诉你每一块符号是什么意思。</span></div>';
+
+/* ---------- 仅线上版本：PWA 注册 + 相关页面链接 ---------- */
+(function(){
+  try{
+    const wl = document.getElementById('webLinks');
+    if(wl){
+      wl.style.display = 'block';
+      wl.innerHTML = '<b>相关页面</b>：<a href="guide.html">手机端使用与语音排查</a> · '
+        + '<a href="book.html">完整书稿</a> · <a href="symbols.html">符号总表（可打印）</a>'
+        + '　<span style="color:var(--ink3)">本页安装到主屏幕后可离线使用。</span>';
+    }
+  }catch(e){}
+  if('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js', { scope: './' }).catch(function(){ /* 注册失败不影响使用 */ });
+    });
+  }
+})();
+
+</script>
+</body>
+</html>

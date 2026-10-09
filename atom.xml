@@ -10,7 +10,29 @@
   <rights>All rights reserved 2026, 尘世悟说</rights>
   <subtitle>心灵火花的闪烁</subtitle>
   <title>知作坊</title>
-  <updated>2026-09-28T12:35:21.967Z</updated>
+  <updated>2026-10-09T06:19:02.905Z</updated>
+  <entry>
+    <author>
+      <name>尘世悟说</name>
+    </author>
+    <category term="创作手记" scheme="https://dq7866.online/categories/%E5%88%9B%E4%BD%9C%E6%89%8B%E8%AE%B0/"/>
+    <category term="符号通行证" scheme="https://dq7866.online/tags/%E7%AC%A6%E5%8F%B7%E9%80%9A%E8%A1%8C%E8%AF%81/"/>
+    <category term="创作手记" scheme="https://dq7866.online/tags/%E5%88%9B%E4%BD%9C%E6%89%8B%E8%AE%B0/"/>
+    <category term="旅行" scheme="https://dq7866.online/tags/%E6%97%85%E8%A1%8C/"/>
+    <category term="离线应用" scheme="https://dq7866.online/tags/%E7%A6%BB%E7%BA%BF%E5%BA%94%E7%94%A8/"/>
+    <content>
+      <![CDATA[<p>你有没有过这样的时刻：在异国他乡，肚子疼得直不起腰，翻译软件转了一圈，对方盯着屏幕上的中文一字一顿地念，然后摇了摇头。那一刻你手里攥着世界上最先进的通讯工具，却连「我需要看医生」这件事都说不明白。</p><p>我做了一个东西，就是给这样的时刻准备的。它叫<strong>符号通行证（SymbolPass）</strong>：200 个原创图形符号，439 条人工校对的中英例句，一本可以照着画的书，和一个<strong>完全离线</strong>也能用的网页应用。现在它正式上线了，地址在文末。</p><span id="more"></span><h2 id="一、为什么”通用语言”造不成"><a href="#一、为什么”通用语言”造不成" class="headerlink" title="一、为什么”通用语言”造不成"></a>一、为什么”通用语言”造不成</h2><p>用图形代替语言，不是新想法。几百年里，不断有人尝试造一种”全世界都看得懂的文字”。</p><p>最有名的一次是二十世纪的布利斯符号（Blissymbolics）：一位奥地利工程师逃亡到澳大利亚，花了半生造出几千个逻辑严密的图形字。它的体系很美，但结局很冷清——因为要”学会”它，成本高到没有人愿意付。</p><p>这些尝试失败的原因其实是同一个：<strong>它们想做的是一门”语言”，而语言需要长期学习，应急场景里没有人有这个时间。</strong></p><p>所以符号通行证从第一天起就不打算做语言。它做的是<strong>急救包</strong>：不求你学会它，只求你在最需要的三十秒里，把它掏出来，对方看得懂。</p><h2 id="二、急救包的四条设计原则"><a href="#二、急救包的四条设计原则" class="headerlink" title="二、急救包的四条设计原则"></a>二、急救包的四条设计原则</h2><p><strong>第一，图形必须自明。</strong> 每个符号都画在 48×48 的栅格上，用统一线宽的几何图形表达：一个带加号的房子是医院，一个钟是时间，两个方向相反的箭头是交换。不许用任何文字，不许依赖文化专属图案，不许用手势。</p><p><strong>第二，用形状给”词类”编码。</strong> 闭合轮廓画实体（水、钱、医院），箭头画动作（去、吃、给），抽象形画属性（多、少、快），对错记号画判断（是、不是）。知道这一条，很多没见过的符号也能猜个八九不离十。</p><p><strong>第三，用组合代替造字。</strong> 「我 + 痛 + 肚子」三块积木拼出”肚子疼”，而不是单独造一个符号。200 个符号是上限，谁也不需要背——<strong>熟练那 60 个一级核心符号，剩下的现查现用</strong>。</p><p><strong>第四，也是最重要的：沟通是双向的。</strong> 你出示符号，对方怎么回答？答案是三个全世界通用的记号——打勾（可以）、打叉（不行）、问号（不懂），外加一个数字盘。对方指哪个，你就知道该往哪走。<strong>对方不需要学习你的 200 个符号，他只需要认识这 3 个。</strong></p><p>节选几个一级核心符号，感受一下画风：</p><p><img src="/images/symbolpass/symbols-grid.png" alt="符号通行证 · 一级核心符号节选" decoding="async" width="2000" height="832"></p><h2 id="三、成品：一本书-一个离线-App"><a href="#三、成品：一本书-一个离线-App" class="headerlink" title="三、成品：一本书 + 一个离线 App"></a>三、成品：一本书 + 一个离线 App</h2><p>整套系统分两部分。</p><p><strong>书</strong>是给纸和笔准备的：六篇三十五章，从设计原理到 15 个场景的 439 条例句（交通、住宿、餐饮、购物、金融、医疗、求助、紧急、通讯、游玩、社交、生活服务、日常、法规礼仪、数字时间），每个符号都附有绘制规范，照着就能画在纸上、写在手背上、贴在行李上。</p><p><strong>App</strong> 是给手机准备的，也是这次上线的重点。它有几个刻意为之的特点：</p><ul><li><strong>完全离线</strong>。全部符号、例句、引擎都在一个网页文件里，不联网也能用。飞机上、地下室、漫游关掉的第二天，它都照常工作。</li><li><strong>查得到，也听得见</strong>。每条例句都配了朗读按钮，英文可以用系统语音读出来——对方不用看字，听就行。慢速朗读是给口音不熟的场景准备的。</li><li><strong>逐符对照</strong>。结果卡里可以展开「符号 &#x3D; 词」的对照清单，用时是句子，用完顺手就把符号认了。</li><li><strong>给对方看 &#x2F; 对方回应</strong> 两个专用页。一个把句子放大给对方，一个让对方用三个记号指认回答。</li><li>**可以直接”装”**。它是一个标准 PWA，在浏览器里选「添加到主屏幕」，就有独立图标，断网照常运行。</li></ul><p>三个关键界面，从左到右：查询页、结果卡、给对方看：</p><div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:18px 0">  <img src="/images/symbolpass/app-home.png"   alt="符号通行证 App 查询页" style="width:31%;min-width:170px;border-radius:10px" decoding="async" loading="lazy" width="828" height="1792">  <img src="/images/symbolpass/app-result.png" alt="结果卡：中英文与逐符对照" style="width:31%;min-width:170px;border-radius:10px" decoding="async" loading="lazy" width="772" height="1052">  <img src="/images/symbolpass/app-show.png"   alt="给对方看：放大显示并朗读" style="width:31%;min-width:170px;border-radius:10px" decoding="async" loading="lazy" width="828" height="1792"></div><h2 id="四、几句诚实话"><a href="#四、几句诚实话" class="headerlink" title="四、几句诚实话"></a>四、几句诚实话</h2><p>这套东西有明确的边界，我不想藏着：</p><ol><li><strong>它不替代翻译软件</strong>。能准确表达的是那 439 条校对过的句子；句库之外的复杂意思，它只能给个大概。正确姿势是两者配合：符号负责”引起注意、点明要害”，翻译软件负责”说明细节”。</li><li><strong>约三分之一的抽象符号需要一点记忆</strong>，做不到百分之百自明。我为此准备了降级路径：对方看不懂，就翻到「对方回应」页，让数字盘替你问。</li><li><strong>语音是锦上添花</strong>。英文朗读依赖手机里装好的英文语音包（缺了也没关系，屏幕会告诉你去哪里装）；网页端的话筒听写要求联网和麦克风权限，而手机键盘自带的”听写键”比它可靠得多——这一条App 里也写在了明面上。</li></ol><h2 id="五、在哪里用"><a href="#五、在哪里用" class="headerlink" title="五、在哪里用"></a>五、在哪里用</h2><ul><li><strong>在线版（推荐）</strong>：<a href="https://dq7866.online/symbolpass/">https://dq7866.online/symbolpass/</a> —— 手机浏览器打开，建议「添加到主屏幕」；</li><li><strong>完整书稿</strong>：<a href="https://dq7866.online/symbolpass/book.html">https://dq7866.online/symbolpass/book.html</a>；</li><li><strong>符号总表</strong>（可裁剪打印成卡片）：<a href="https://dq7866.online/symbolpass/symbols.html">https://dq7866.online/symbolpass/symbols.html</a>；</li><li><strong>手机使用与语音排查指南</strong>：<a href="https://dq7866.online/symbolpass/guide.html">https://dq7866.online/symbolpass/guide.html</a>。</li></ul><p>全部免费，无广告，无账号，不收集任何数据——它甚至没有服务器，只是一个静态页面。</p><h2 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h2><p>有人问我，都 2026 年了，AI 同声传译都快做成了，还做符号有什么用？</p><p>我的答案是：<strong>越是先进的工具，越依赖那些容易失效的前提</strong>——网络、电量、账号、信号。而旅行中最狼狈的时刻，恰恰是这些前提集体失效的时刻。符号不联网、不充电、不怕没有信号，它安静地待在书页里、存进手机里，等一个用得上它的三十秒。</p><p>如果你用它躲过了一次尴尬，或者你想骂某个符号画得不像，都欢迎在评论区告诉我。这套系统还很年轻，你的每一条反馈都会变成它的下一次修订。</p><p>—— 尘世悟说，写于知作坊</p>]]>
+    </content>
+    <id>https://dq7866.online/2026/10/09/symbolpass-launch/</id>
+    <link href="https://dq7866.online/2026/10/09/symbolpass-launch/"/>
+    <published>2026-10-09T06:30:00.000Z</published>
+    <summary>
+      <![CDATA[<p>你有没有过这样的时刻：在异国他乡，肚子疼得直不起腰，翻译软件转了一圈，对方盯着屏幕上的中文一字一顿地念，然后摇了摇头。那一刻你手里攥着世界上最先进的通讯工具，却连「我需要看医生」这件事都说不明白。</p>
+<p>我做了一个东西，就是给这样的时刻准备的。它叫<strong>符号通行证（SymbolPass）</strong>：200 个原创图形符号，439 条人工校对的中英例句，一本可以照着画的书，和一个<strong>完全离线</strong>也能用的网页应用。现在它正式上线了，地址在文末。</p>]]>
+    </summary>
+    <title>不靠外语走天下：我用 200 个自造符号，做了一套离线也能用的沟通系统</title>
+    <updated>2026-10-09T06:19:02.905Z</updated>
+  </entry>
   <entry>
     <author>
       <name>尘世悟说</name>
