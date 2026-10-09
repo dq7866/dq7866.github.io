@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 提示词工具箱 · 50+ 模板一键生成 ｜ 免费在线工具箱</title>
+<meta name="description" content="AI 提示词工具箱：写作、编程、翻译、学习、营销、创意、办公、绘图等 50+ 优质提示词模板，填空即可生成结构化 Prompt，可直接复制到任意大模型使用。纯本地处理。">
+<meta name="theme-color" content="#ff4d00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>工</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else{if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+<style>
+/* ===== AI 工具专属样式 ===== */
+
+/* 分类标签 */
+.cat-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.cat-chip {
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-2);
+  border-radius: 999px;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: all .15s;
+  font-weight: 500;
+}
+.cat-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.cat-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* 搜索栏 */
+.search-bar {
+  position: relative;
+  margin-bottom: 14px;
+}
+.search-bar input {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: all .15s;
+}
+.search-bar input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255,77,0,.1);
+  background: var(--surface);
+}
+.search-bar::before {
+  content: "🔍";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  opacity: .5;
+  pointer-events: none;
+}
+
+/* 模板网格 */
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.tpl-card {
+  padding: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: all .15s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+}
+.tpl-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+}
+.tpl-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tpl-card-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.tpl-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tpl-card-cat {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  color: var(--muted);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.tpl-card-desc {
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.tpl-card-preview {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  font-family: var(--mono);
+  background: var(--bg);
+  padding: 8px 10px;
+  border-radius: 6px;
+  max-height: 60px;
+  overflow: hidden;
+  position: relative;
+}
+.tpl-card-preview::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(transparent, var(--bg));
+}
+.tpl-card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+.tpl-card-actions .btn {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.fav-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 4px;
+  opacity: .4;
+  transition: all .15s;
+}
+.fav-btn:hover, .fav-btn.active {
+  opacity: 1;
+}
+.fav-btn.active {
+  color: #f59e0b;
+}
+
+/* 编辑器面板 */
+.editor-panel {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-top: 16px;
+}
+.editor-panel label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 8px;
+}
+.editor-panel textarea {
+  width: 100%;
+  min-height: 180px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  resize: vertical;
+  tab-size: 2;
+  box-sizing: border-box;
+  outline: none;
+  transition: all .15s;
+}
+.editor-panel textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.12);
+}
+.editor-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.editor-actions .btn {
+  flex: 1;
+  min-width: 100px;
+}
+.editor-stat {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.editor-stat b { color: var(--text); font-weight: 600; }
+
+/* 生成器表单 */
+.gen-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.gen-form-panel {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+}
+.gen-type-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-2);
+  padding: 3px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.gen-type-tab {
+  flex: 1;
+  padding: 7px 6px;
+  font-size: 12.5px;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .15s;
+  font-weight: 500;
+  text-align: center;
+}
+.gen-type-tab:hover { color: var(--text); }
+.gen-type-tab.active {
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+
+.gen-field {
+  margin-bottom: 14px;
+}
+.gen-field:last-child { margin-bottom: 0; }
+.gen-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}
+.gen-field input[type="text"],
+.gen-field select,
+.gen-field textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13.5px;
+  outline: none;
+  transition: all .15s;
+}
+.gen-field input:focus,
+.gen-field select:focus,
+.gen-field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255,77,0,.1);
+}
+.gen-field textarea {
+  min-height: 70px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.gen-output-panel {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+}
+.gen-output-panel label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 8px;
+}
+.gen-output-text {
+  width: 100%;
+  min-height: 300px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.65;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  resize: vertical;
+  white-space: pre-wrap;
+  word-break: break-word;
+  outline: none;
+  transition: all .15s;
+}
+.gen-output-text:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.12);
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--muted);
+  font-size: 13px;
+  grid-column: 1 / -1;
+}
+.empty-state .icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: .5;
+}
+
+/* 自定义模板弹窗 */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 22px;
+  max-width: 560px;
+  width: 92%;
+  box-shadow: var(--shadow-lg);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.modal h3 {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: var(--text);
+  color: var(--surface);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .25s;
+  z-index: 2000;
+  box-shadow: var(--shadow-lg);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 占位符高亮 */
+.placeholder-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  background: var(--accent-2);
+  color: var(--accent);
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  margin: 0 2px;
+}
+
+/* 响应式 */
+@media (max-width: 900px) {
+  .gen-layout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 768px) {
+  .template-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+<link rel="canonical" href="https://dq7866.online/toolbox/ai-tools.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="AI提示词,Prompt模板,提示词生成器,ChatGPT提示词,Midjourney提示词,AI写作模板">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="AI 提示词工具箱 · 50+ 模板一键生成 ｜ 免费在线工具箱">
+<meta property="og:description" content="AI 提示词工具箱：写作、编程、翻译、学习、营销、创意、办公、绘图等 50+ 优质提示词模板，填空即可生成结构化 Prompt，可直接复制到任意大模型使用。纯本地处理。">
+<meta property="og:url" content="https://dq7866.online/toolbox/ai-tools.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI 提示词工具箱 · 50+ 模板一键生成 ｜ 免费在线工具箱">
+<meta name="twitter:description" content="AI 提示词工具箱：写作、编程、翻译、学习、营销、创意、办公、绘图等 50+ 优质提示词模板，填空即可生成结构化 Prompt，可直接复制到任意大模型使用。纯本地处理。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "AI 提示词工具箱 · 50+ 模板一键生成",
+  "url": "https://dq7866.online/toolbox/ai-tools.html",
+  "description": "AI 提示词工具箱：写作、编程、翻译、学习、营销、创意、办公、绘图等 50+ 优质提示词模板，填空即可生成结构化 Prompt，可直接复制到任意大模型使用。纯本地处理。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark">工</span>
+      <span>免费工具箱<span class="tag">Toolbox</span></span>
+    </a>
+    <span class="spacer"></span>
+    <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html">音视频</a>
+      <a href="player.html">播放器</a>
+      <a href="file-tools.html">文件</a>
+      <a href="ocr-tools.html">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html">时间戳</a>
+      <a href="regex-tools.html">正则</a>
+      <a href="json-tools.html">JSON</a>
+      <a href="encode-tools.html">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html">对比</a>
+      <a href="chart-tools.html">图表</a>
+      <a href="clipboard-tools.html">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html" class="active">AI助手</a>
+      <a href="batch-image.html">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:26px">
+  <section class="panel">
+    <div class="panel-head"><span class="num">AI</span><h2>AI 写作助手 ✨</h2></div>
+    <p class="hint" style="margin-top:0;margin-bottom:16px">精选 50+ 优质 AI 提示词模板，覆盖写作、编程、翻译、学习、营销等场景，一键复制、收藏、自定义生成。所有数据保存在本地浏览器。</p>
+
+    <div class="tabs" id="aiTabs">
+      <button class="tab active" data-tab="library">📚 提示词模板库</button>
+      <button class="tab" data-tab="generator">⚡ 提示词生成器</button>
+      <button class="tab" data-tab="favorites">⭐ 我的收藏</button>
+    </div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+
+    <!-- ========== Tab 1: 模板库 ========== -->
+    <div class="ai-tab-panel" data-tab="library">
+      <div class="search-bar">
+        <input type="text" id="tplSearch" placeholder="搜索模板名称、描述或内容...">
+      </div>
+      <div class="cat-chips" id="catChips">
+        <button class="cat-chip active" data-cat="all">全部</button>
+        <button class="cat-chip" data-cat="writing">✍️ 写作</button>
+        <button class="cat-chip" data-cat="coding">💻 编程</button>
+        <button class="cat-chip" data-cat="translation">🌐 翻译</button>
+        <button class="cat-chip" data-cat="learning">📖 学习</button>
+        <button class="cat-chip" data-cat="marketing">📣 营销</button>
+        <button class="cat-chip" data-cat="creative">🎨 创意</button>
+        <button class="cat-chip" data-cat="office">📊 办公</button>
+        <button class="cat-chip" data-cat="midjourney">🖼️ Midjourney</button>
+      </div>
+      <div class="template-grid" id="tplGrid"></div>
+
+      <!-- 编辑器 -->
+      <div class="editor-panel" id="editorPanel" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <label style="margin:0" id="editorTitle">编辑提示词</label>
+          <span class="spacer" style="flex:1"></span>
+          <button class="btn ghost" id="closeEditor">收起</button>
+        </div>
+        <textarea id="editorTextarea" spellcheck="false"></textarea>
+        <div class="editor-stat">
+          <span>字符数：<b id="editorCharCount">0</b></span>
+          <span>词数：<b id="editorWordCount">0</b></span>
+        </div>
+        <div class="editor-actions">
+          <button class="btn primary" id="editorCopyBtn">📋 复制提示词</button>
+          <button class="btn" id="editorFavBtn">⭐ 收藏</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Tab 2: 生成器 ========== -->
+    <div class="ai-tab-panel hidden" data-tab="generator">
+      <div class="gen-layout">
+        <div class="gen-form-panel">
+          <div class="gen-type-tabs" id="genTypeTabs">
+            <button class="gen-type-tab active" data-type="writing">写作</button>
+            <button class="gen-type-tab" data-type="midjourney">Midjourney</button>
+            <button class="gen-type-tab" data-type="translation">翻译</button>
+            <button class="gen-type-tab" data-type="code">代码</button>
+          </div>
+
+          <!-- 写作生成器 -->
+          <div class="gen-form" data-form="writing">
+            <div class="gen-field">
+              <label>写作主题</label>
+              <input type="text" id="gwTopic" placeholder="例如：远程办公的优缺点">
+            </div>
+            <div class="gen-field">
+              <label>文章类型</label>
+              <select id="gwType">
+                <option value="blog">博客文章</option>
+                <option value="essay">议论文</option>
+                <option value="email">电子邮件</option>
+                <option value="report">工作报告</option>
+                <option value="story">故事/小说</option>
+                <option value="copy">广告文案</option>
+                <option value="summary">内容摘要</option>
+                <option value="review">评测/推荐</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label>语气风格</label>
+              <select id="gwTone">
+                <option value="professional">专业正式</option>
+                <option value="friendly">亲切友好</option>
+                <option value="humorous">幽默风趣</option>
+                <option value="academic">学术严谨</option>
+                <option value="casual">轻松随意</option>
+                <option value="inspiring">鼓舞人心</option>
+                <option value="neutral">客观中立</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label>目标读者</label>
+              <input type="text" id="gwAudience" placeholder="例如：职场白领、学生、技术爱好者">
+            </div>
+            <div class="gen-field">
+              <label>篇幅长度</label>
+              <select id="gwLength">
+                <option value="short">短篇（300-500字）</option>
+                <option value="medium" selected>中篇（800-1500字）</option>
+                <option value="long">长篇（2000字以上）</option>
+                <option value="detailed">详细全面</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label>关键要点（可选）</label>
+              <textarea id="gwPoints" placeholder="每行一个要点，如：&#10;1. 提高工作效率&#10;2. 降低通勤成本&#10;3. 工作生活平衡挑战"></textarea>
+            </div>
+          </div>
+
+          <!-- Midjourney 生成器 -->
+          <div class="gen-form hidden" data-form="midjourney">
+            <div class="gen-field">
+              <label>主题描述</label>
+              <input type="text" id="gmSubject" placeholder="例如：一只戴眼镜的可爱猫咪">
+            </div>
+            <div class="gen-field">
+              <label>艺术风格</label>
+              <select id="gmStyle">
+                <option value="photorealistic">照片写实</option>
+                <option value="anime">动漫风格</option>
+                <option value="oil painting">油画风格</option>
+                <option value="watercolor">水彩画</option>
+                <option value="cyberpunk">赛博朋克</option>
+                <option value="minimalist">极简主义</option>
+                <option value="3d render">3D 渲染</option>
+                <option value="pixel art">像素风</option>
+                <option value="studio ghibli">吉卜力风格</option>
+                <option value="van gogh style">梵高风格</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label>光线效果</label>
+              <select id="gmLight">
+                <option value="natural lighting">自然光</option>
+                <option value="golden hour">黄金时刻</option>
+                <option value="dramatic lighting">戏剧光</option>
+                <option value="soft lighting">柔和光</option>
+                <option value="neon lights">霓虹灯光</option>
+                <option value="studio lighting">摄影棚光</option>
+                <option value="backlit">逆光</option>
+                <option value="volumetric lighting">体积光</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label>构图视角</label>
+              <select id="gmComposition">
+                <option value="centered composition">居中构图</option>
+                <option value="close-up shot">特写镜头</option>
+                <option value="wide angle">广角镜头</option>
+                <option value="bird's eye view">鸟瞰视角</option>
+                <option value="low angle shot">低角度</option>
+                <option value="portrait shot">人像构图</option>
+                <option value="rule of thirds">三分法</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label>色调氛围</label>
+              <select id="gmMood">
+                <option value="warm tones">暖色调</option>
+                <option value="cool tones">冷色调</option>
+                <option value="vibrant colors">鲜艳色彩</option>
+                <option value="pastel colors">马卡龙色</option>
+                <option value="monochrome">单色调</option>
+                <option value="dark moody">暗黑氛围</option>
+                <option value="dreamy">梦幻感</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label>画面比例</label>
+              <select id="gmRatio">
+                <option value="--ar 1:1">1:1 方形</option>
+                <option value="--ar 16:9">16:9 横屏</option>
+                <option value="--ar 9:16">9:16 竖屏</option>
+                <option value="--ar 3:2">3:2</option>
+                <option value="--ar 2:3">2:3</option>
+                <option value="--ar 4:3">4:3</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label>附加描述（可选）</label>
+              <textarea id="gmExtra" placeholder="其他想要添加的描述词，如：highly detailed, 8k, masterpiece"></textarea>
+            </div>
+          </div>
+
+          <!-- 翻译生成器 -->
+          <div class="gen-form hidden" data-form="translation">
+            <div class="gen-field">
+              <label>源语言</label>
+              <select id="gtSource">
+                <option value="中文">中文</option>
+                <option value="英语">英语</option>
+                <option value="日语">日语</option>
+                <option value="韩语">韩语</option>
+                <option value="法语">法语</option>
+                <option value="德语">德语</option>
+                <option value="西班牙语">西班牙语</option>
+                <option value="自动识别">自动识别</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label>目标语言</label>
+              <select id="gtTarget">
+                <option value="英语">英语</option>
+                <option value="中文">中文</option>
+                <option value="日语">日语</option>
+                <option value="韩语">韩语</option>
+                <option value="法语">法语</option>
+                <option value="德语">德语</option>
+                <option value="西班牙语">西班牙语</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label>翻译风格</label>
+              <select id="gtStyle">
+                <option value="忠实原文">忠实原文（直译）</option>
+                <option value="自然流畅">自然流畅（意译）</option>
+                <option value="正式书面">正式书面</option>
+                <option value="口语化">口语化</option>
+                <option value="文学化">文学化</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label>专业领域</label>
+              <select id="gtDomain">
+                <option value="通用">通用</option>
+                <option value="商务/金融">商务/金融</option>
+                <option value="技术/IT">技术/IT</option>
+                <option value="医学/健康">医学/健康</option>
+                <option value="法律">法律</option>
+                <option value="学术/论文">学术/论文</option>
+                <option value="营销/广告">营销/广告</option>
+                <option value="文学/小说">文学/小说</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label>待翻译内容</label>
+              <textarea id="gtText" placeholder="输入需要翻译的文本..."></textarea>
+            </div>
+          </div>
+
+          <!-- 代码生成器 -->
+          <div class="gen-form hidden" data-form="code">
+            <div class="gen-field">
+              <label>编程语言</label>
+              <select id="gcLang">
+                <option value="JavaScript">JavaScript</option>
+                <option value="Python">Python</option>
+                <option value="TypeScript">TypeScript</option>
+                <option value="Java">Java</option>
+                <option value="Go">Go</option>
+                <option value="Rust">Rust</option>
+                <option value="C++">C++</option>
+                <option value="PHP">PHP</option>
+                <option value="SQL">SQL</option>
+                <option value="HTML/CSS">HTML/CSS</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label>功能描述</label>
+              <textarea id="gcDesc" placeholder="描述你想要实现的功能，越详细越好..."></textarea>
+            </div>
+            <div class="gen-field">
+              <label>代码风格</label>
+              <select id="gcStyle">
+                <option value="简洁高效">简洁高效</option>
+                <option value="详细注释">详细注释</option>
+                <option value="生产级">生产级（含错误处理）</option>
+                <option value="函数式">函数式编程</option>
+                <option value="面向对象">面向对象</option>
+              </select>
+            </div>
+            <div class="gen-field">
+              <label>特殊要求（可选）</label>
+              <input type="text" id="gcReq" placeholder="例如：使用 React Hooks、异步处理、单元测试">
+            </div>
+          </div>
+
+          <button class="btn primary" id="genBtn" style="width:100%;margin-top:16px">✨ 生成提示词</button>
+        </div>
+
+        <div class="gen-output-panel">
+          <label>生成的提示词</label>
+          <textarea class="gen-output-text" id="genOutput" readonly placeholder="在左侧填写参数后点击「生成提示词」..."></textarea>
+          <div class="editor-stat">
+            <span>字符数：<b id="genCharCount">0</b></span>
+          </div>
+          <div class="editor-actions">
+            <button class="btn primary" id="genCopyBtn">📋 复制提示词</button>
+            <button class="btn" id="genFavBtn">⭐ 收藏</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Tab 3: 我的收藏 ========== -->
+    <div class="ai-tab-panel hidden" data-tab="favorites">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <button class="btn primary" id="addCustomBtn">+ 新建自定义提示词</button>
+        <span class="spacer" style="flex:1"></span>
+        <span class="clip-count" id="favCount" style="font-size:12px;color:var(--muted)">0 个收藏</span>
+      </div>
+
+      <div class="cat-chips" id="favCatChips">
+        <button class="cat-chip active" data-cat="all">全部</button>
+        <button class="cat-chip" data-cat="favorite">⭐ 收藏</button>
+        <button class="cat-chip" data-cat="custom">📝 自定义</button>
+      </div>
+
+      <div class="template-grid" id="favGrid">
+        <div class="empty-state">
+          <div class="icon">⭐</div>
+          <div>还没有收藏的提示词</div>
+          <div style="font-size:12px;margin-top:4px">在模板库中点击星标收藏，或创建自定义提示词</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <footer class="site">免费工具箱 · AI 写作助手 · 纯前端本地处理</footer>
+</main>
+
+<!-- 自定义模板弹窗 -->
+<div class="modal-overlay" id="customModal">
+  <div class="modal">
+    <h3 id="customModalTitle">新建自定义提示词</h3>
+    <div class="gen-field">
+      <label>名称</label>
+      <input type="text" id="customName" placeholder="给提示词起个名字">
+    </div>
+    <div class="gen-field">
+      <label>分类</label>
+      <select id="customCategory">
+        <option value="writing">✍️ 写作</option>
+        <option value="coding">💻 编程</option>
+        <option value="translation">🌐 翻译</option>
+        <option value="learning">📖 学习</option>
+        <option value="marketing">📣 营销</option>
+        <option value="creative">🎨 创意</option>
+        <option value="office">📊 办公</option>
+        <option value="midjourney">🖼️ Midjourney</option>
+        <option value="custom">📝 自定义</option>
+      </select>
+    </div>
+    <div class="gen-field">
+      <label>描述（可选）</label>
+      <input type="text" id="customDesc" placeholder="简短描述这个提示词的用途">
+    </div>
+    <div class="gen-field">
+      <label>提示词内容</label>
+      <textarea id="customContent" rows="8" placeholder="输入提示词内容..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="cancelCustomBtn">取消</button>
+      <button class="btn primary" id="saveCustomBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 删除确认弹窗 -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal" style="max-width:400px">
+    <h3 id="confirmTitle">确认删除</h3>
+    <p id="confirmText" style="color:var(--text-2);font-size:13.5px;line-height:1.6">确定要删除这条提示词吗？此操作不可撤销。</p>
+    <div class="modal-actions">
+      <button class="btn ghost" id="confirmCancelBtn">取消</button>
+      <button class="btn danger" id="confirmOkBtn">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+<script src="assets/js/ai-tools.js"></script>
+</body>
+</html>

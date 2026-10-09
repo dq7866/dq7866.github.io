@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="工位摸鱼小游戏：一键摸鱼，按老板键（B）瞬间切换成 Excel 界面伪装，鼠标玩法也能用。纯前端运行，无需安装。">
+<title>工位摸鱼 · 一键摸鱼小游戏 ｜ 免费工具箱</title>
+<meta name="theme-color" content="#2b2f38">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%232b2f38'/><text y='74' x='50' font-size='58' text-anchor='middle'>🐟</text></svg>">
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #14161c; overflow: hidden; }
+  body { display: grid; place-items: center; font-family: "Microsoft YaHei", system-ui, sans-serif; }
+  #stage { position: relative; box-shadow: 0 30px 80px -30px rgba(0,0,0,.9); }
+  canvas#game { display: block; background: #1b1e25; border-radius: 10px; }
+  /* ---------- 老板键伪装层 ---------- */
+  #bossScreen {
+    position: fixed; inset: 0; display: none; z-index: 99; background: #f3f3f3;
+    font-family: "Microsoft YaHei", "Segoe UI", sans-serif; color: #1f1f1f; overflow: auto;
+  }
+  #bossScreen.show { display: block; }
+  .xl-top { height: 28px; background: #217346; color: #fff; display: flex; align-items: center; padding: 0 12px; font-size: 12.5px; gap: 14px; }
+  .xl-top .t { font-weight: 700; }
+  .xl-ribbon { background: #f5f5f5; border-bottom: 1px solid #dcdcdc; padding: 6px 10px; display: flex; gap: 18px; font-size: 12.5px; color: #333; }
+  .xl-ribbon span { padding: 3px 8px; border-radius: 3px; }
+  .xl-ribbon span.on { background: #e6f2ea; color: #217346; font-weight: 700; }
+  .xl-fx { background: #fff; border-bottom: 1px solid #dcdcdc; padding: 5px 12px; font-size: 12.5px; color: #555; font-family: Consolas, monospace; }
+  table.xl { border-collapse: collapse; font-size: 12.5px; background: #fff; }
+  table.xl th, table.xl td { border: 1px solid #d4d4d4; padding: 3px 9px; min-width: 108px; height: 22px; white-space: nowrap; }
+  table.xl th { background: #f0f0f0; color: #444; font-weight: 400; text-align: center; }
+  table.xl td.hdr { background: #f0f0f0; color: #444; text-align: center; min-width: 40px; }
+  table.xl td.num { text-align: right; font-family: Consolas, monospace; }
+  .xl-tabs { display: flex; gap: 2px; padding: 4px 8px; background: #f5f5f5; border-top: 1px solid #dcdcdc; font-size: 12.5px; color: #444; }
+  .xl-tabs span { padding: 3px 12px; border: 1px solid #dcdcdc; border-bottom: 0; border-radius: 4px 4px 0 0; background: #eee; }
+  .xl-tabs span.on { background: #fff; font-weight: 700; color: #217346; }
+  .xl-bar { position: sticky; bottom: 0; background: #217346; color: #fff; font-size: 11.5px; padding: 3px 12px; }
+</style>
+<link rel="canonical" href="https://dq7866.online/toolbox/game-moyu.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="工位摸鱼,摸鱼游戏,老板键,网页小游戏,摸鱼小游戏">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="工位摸鱼 · 一键摸鱼小游戏 ｜ 免费工具箱">
+<meta property="og:description" content="工位摸鱼小游戏：一键摸鱼，按老板键（B）瞬间切换成 Excel 界面伪装，鼠标玩法也能用。纯前端运行，无需安装。">
+<meta property="og:url" content="https://dq7866.online/toolbox/game-moyu.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="工位摸鱼 · 一键摸鱼小游戏 ｜ 免费工具箱">
+<meta name="twitter:description" content="工位摸鱼小游戏：一键摸鱼，按老板键（B）瞬间切换成 Excel 界面伪装，鼠标玩法也能用。纯前端运行，无需安装。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "工位摸鱼 · 一键摸鱼小游戏",
+  "url": "https://dq7866.online/toolbox/game-moyu.html",
+  "description": "工位摸鱼小游戏：一键摸鱼，按老板键（B）瞬间切换成 Excel 界面伪装，鼠标玩法也能用。纯前端运行，无需安装。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<a id="tbBack" href="index.html" style="position:fixed;top:12px;left:12px;z-index:50;display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid rgba(255,255,255,.28);border-radius:20px;color:#cfd3dc;background:rgba(20,22,28,.72);text-decoration:none;font-size:12.5px;font-weight:600;backdrop-filter:blur(6px);opacity:.75;transition:opacity .18s,color .18s,border-color .18s" onmouseover="this.style.opacity=1;this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.6)'" onmouseout="this.style.opacity=.75;this.style.color='#cfd3dc';this.style.borderColor='rgba(255,255,255,.28)'">← 返回工具箱</a>
+<div id="stage"><canvas id="game" width="960" height="600"></canvas></div>
+
+<!-- ============ 老板键：假 Excel ============ -->
+<div id="bossScreen">
+  <div class="xl-top"><span class="t">工作簿1 - Excel</span><span>文件</span><span>开始</span><span>插入</span><span>页面布局</span><span>公式</span><span>数据</span><span>审阅</span><span>视图</span></div>
+  <div class="xl-ribbon">
+    <span class="on">开始</span><span>剪贴板</span><span>字体</span><span>对齐方式</span><span>数字</span><span>样式</span><span>单元格</span><span>编辑</span>
+  </div>
+  <div class="xl-fx" id="xlFx">A1&nbsp;&nbsp;&nbsp;fx&nbsp;&nbsp;&nbsp;项目名称</div>
+  <table class="xl" id="xlTable"></table>
+  <div class="xl-tabs"><span class="on">Sheet1</span><span>Sheet2</span><span>Sheet3</span><span>＋</span></div>
+  <div class="xl-bar" id="xlBar">就绪</div>
+</div>
+
+<script src="assets/js/pwa.js"></script>
+<script>
+/* ============================================================
+   工位摸鱼
+   默认模式「一键摸鱼」：一根手指按住/松开同一个键，手不用离开键盘
+   备选模式「点泡泡」：鼠标玩法
+   通用：B 老板键（瞬间伪装 Excel）
+   ============================================================ */
+(function () {
+  "use strict";
+
+  const cv = document.getElementById("game");
+  const ctx = cv.getContext("2d");
+  const W = cv.width, H = cv.height;
+
+  const ROUND_SEC = 60;
+  const LIVES = 3;
+  const BAND_W = 96;             // 老板视线带宽度
+  const DESK = { cx: W / 2, half: 150, top: H - 170, bot: H - 34 };  // 你的工位
+  const BUBBLE_R = 26;
+  const MAX_PARTICLES = 180;     // 粒子上限（性能保护）
+  const MAX_BUBBLES = 22;        // 泡泡上限
+
+  const C = {
+    ink: "#eef1f6", muted: "#98a1b0", accent: "#ffd166",
+    ok: "#5ee08a", bad: "#ff5b6e", fish: "#7fd4ff", warn: "#ffb020",
+    panel: "rgba(16,18,24,.9)"
+  };
+
+
+  /* ============================================================
+     音效系统（Web Audio API，无外部资源）
+     ============================================================ */
+  const Sfx = (function () {
+    let ctx = null, master = null, musicGain = null, sfxGain = null;
+    let muted = false, musicOn = true;
+    let bgmTimer = null, bgmStep = 0;
+    // 五声音阶 + 和弦音
+    const SCALE = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
+    const BASS = [130.81, 146.83, 164.81, 196.00];
+    // 和弦进行（I - vi - IV - V 循环）
+    const CHORDS = [
+      [261.63, 329.63, 392.00],   // C 大三和弦
+      [220.00, 261.63, 329.63],   // A 小三和弦
+      [174.61, 220.00, 261.63],   // F 大三和弦
+      [196.00, 246.94, 293.66]    // G 大三和弦
+    ];
+
+    function ensure() {
+      if (ctx) return;
+      try {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        master = ctx.createGain(); master.gain.value = muted ? 0 : 0.55; master.connect(ctx.destination);
+        // SFX 通道：略带压缩感
+        sfxGain = ctx.createGain(); sfxGain.gain.value = 0.45; sfxGain.connect(master);
+        // BGM 通道：降低音量，加低通滤波使更柔和
+        musicGain = ctx.createGain(); musicGain.gain.value = musicOn ? 0.10 : 0; musicGain.connect(master);
+        const musicFilter = ctx.createBiquadFilter();
+        musicFilter.type = "lowpass"; musicFilter.frequency.value = 2400; musicFilter.Q.value = 0.5;
+        musicGain.connect(musicFilter); musicFilter.connect(master);
+      } catch (e) { ctx = null; }
+    }
+
+    // 带泛音的音色：主音 + 二倍频弱泛音
+    function tone(freq, dur, type, vol, target) {
+      if (!ctx || muted) return;
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = type || "sine";
+      osc.frequency.setValueAtTime(freq, t);
+      // 更自然的包络：快起 → 稍降 → 缓释
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(vol || 0.3, t + 0.008);
+      g.gain.exponentialRampToValueAtTime((vol || 0.3) * 0.4, t + dur * 0.3);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      osc.connect(g); g.connect(target || sfxGain);
+      osc.start(t); osc.stop(t + dur + 0.02);
+      // 泛音层（八度高，弱）
+      const osc2 = ctx.createOscillator();
+      const g2 = ctx.createGain();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(freq * 2, t);
+      g2.gain.setValueAtTime(0, t);
+      g2.gain.linearRampToValueAtTime((vol || 0.3) * 0.15, t + 0.008);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.6);
+      osc2.connect(g2); g2.connect(target || sfxGain);
+      osc2.start(t); osc2.stop(t + dur + 0.02);
+    }
+
+    function sweep(f1, f2, dur, type, vol) {
+      if (!ctx || muted) return;
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = type || "sine";
+      osc.frequency.setValueAtTime(f1, t);
+      osc.frequency.exponentialRampToValueAtTime(f2, t + dur);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(vol || 0.3, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      osc.connect(g); g.connect(sfxGain);
+      osc.start(t); osc.stop(t + dur + 0.02);
+      // 泛音层
+      const osc2 = ctx.createOscillator();
+      const g2 = ctx.createGain();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(f1 * 2, t);
+      osc2.frequency.exponentialRampToValueAtTime(f2 * 2, t + dur);
+      g2.gain.setValueAtTime(0, t);
+      g2.gain.linearRampToValueAtTime((vol || 0.3) * 0.2, t + 0.012);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      osc2.connect(g2); g2.connect(sfxGain);
+      osc2.start(t); osc2.stop(t + dur + 0.02);
+    }
+
+    function noise(dur, vol) {
+      if (!ctx || muted) return;
+      const t = ctx.currentTime;
+      const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+      const src = ctx.createBufferSource(); src.buffer = buf;
+      const g = ctx.createGain(); g.gain.value = vol || 0.2;
+      const f = ctx.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 800; f.Q.value = 1.2;
+      src.connect(f); f.connect(g); g.connect(sfxGain);
+      src.start(t);
+    }
+
+    const api = {
+      init: ensure,
+      setMuted: (m) => { muted = m; if (master) master.gain.value = m ? 0 : 0.55; },
+      isMuted: () => muted,
+      setMusic: (on) => { musicOn = on; if (musicGain) musicGain.gain.value = on ? 0.10 : 0; },
+      isMusicOn: () => musicOn,
+      // 泡泡破裂：清脆双音上行 + 泛音
+      pop: () => { ensure(); sweep(880, 1320, 0.10, "sine", 0.30); setTimeout(() => sweep(1760, 2640, 0.06, "sine", 0.12), 20); },
+      // 被抓：低沉下行 + 噪声脉冲（用 triangle 更柔和）
+      bad: () => { ensure(); sweep(280, 90, 0.30, "triangle", 0.28); noise(0.10, 0.10); setTimeout(() => sweep(180, 60, 0.20, "sine", 0.18), 60); },
+      // 叮咚：双音和弦，更悠扬
+      chime: () => { ensure(); tone(880, 0.16, "sine", 0.24); tone(1108.73, 0.16, "sine", 0.16); setTimeout(() => { tone(1320, 0.22, "sine", 0.22); tone(1661.22, 0.22, "sine", 0.14); }, 80); },
+      // 警告：柔和方波双脉冲（降低音量，更不刺耳）
+      warn: () => { ensure(); tone(587.33, 0.07, "sine", 0.20); setTimeout(() => tone(587.33, 0.07, "sine", 0.20), 100); },
+      // 开始：三角波琶音 + 泛音
+      start: () => { ensure(); [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => setTimeout(() => tone(f, 0.14, "triangle", 0.26), i * 70)); },
+      // 结束：三角波下行（比锯齿波柔和）
+      over: () => { ensure(); [523.25, 440.00, 349.23, 261.63].forEach((f, i) => setTimeout(() => tone(f, 0.22, "triangle", 0.24), i * 120)); },
+      // 选择：短促正弦 + 高泛音
+      select: () => { ensure(); tone(660, 0.05, "sine", 0.18); tone(1320, 0.05, "sine", 0.06); },
+      // 滴答：极短高频，加微弱泛音更温暖
+      tick: () => { ensure(); tone(1200 + Math.random() * 200, 0.025, "sine", 0.05); tone(2400 + Math.random() * 400, 0.015, "sine", 0.015); },
+      startBgm: function () {
+        ensure(); if (!ctx || bgmTimer) return;
+        const play = () => {
+          if (!musicOn) return;
+          const chord = CHORDS[Math.floor(bgmStep / 4) % CHORDS.length];
+          // 旋律音
+          const n = SCALE[Math.floor(Math.random() * SCALE.length)];
+          tone(n, 0.38, "triangle", 0.08, musicGain);
+          // 和弦垫（每 4 拍换一次和弦，轻柔持续）
+          if (bgmStep % 4 === 0) {
+            chord.forEach((f) => tone(f, 1.6, "sine", 0.04, musicGain));
+          }
+          // 低音
+          if (bgmStep % 2 === 0) {
+            const b = BASS[Math.floor(bgmStep / 4) % BASS.length];
+            tone(b, 0.48, "sine", 0.10, musicGain);
+          }
+          bgmStep++;
+        };
+        bgmTimer = setInterval(play, 440);
+      },
+      stopBgm: function () {
+        if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; }
+      },
+      // 连击：每次升高的短促和弦
+      combo: (n) => {
+        ensure();
+        const base = 523.25 + (n - 1) * 40;
+        tone(base, 0.08, "triangle", 0.20);
+        setTimeout(() => tone(base * 1.5, 0.08, "triangle", 0.16), 30);
+        setTimeout(() => tone(base * 2, 0.06, "sine", 0.12), 60);
+      },
+      // 高分泡泡：闪闪上行琶音
+      powerup: () => {
+        ensure();
+        [659.25, 783.99, 987.77, 1318.51].forEach((f, i) =>
+          setTimeout(() => tone(f, 0.10, "sine", 0.22), i * 50)
+        );
+      },
+      // 险胜：视线带擦边时的低沉 woosh
+      nearMiss: () => {
+        ensure();
+        sweep(200, 120, 0.20, "sine", 0.14);
+      },
+      // 新纪录：欢快 fanfare
+      newRecord: () => {
+        ensure();
+        [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) =>
+          setTimeout(() => tone(f, 0.18, "triangle", 0.26), i * 90)
+        );
+      },
+      // 暂停/恢复：轻柔提示
+      pause: () => { ensure(); tone(440, 0.06, "sine", 0.15); },
+      resume: () => { ensure(); tone(587.33, 0.06, "sine", 0.15); },
+      // 泡泡生成：微弱冒泡音
+      spawn: () => { ensure(); tone(440 + Math.random() * 120, 0.04, "sine", 0.04); },
+      // 时间警告：急促滴答
+      timeWarn: () => { ensure(); tone(880, 0.05, "square", 0.12); setTimeout(() => tone(880, 0.05, "square", 0.12), 80); },
+      // 连击 5：明亮双和弦
+      combo5: () => { ensure(); tone(659.25, 0.10, "triangle", 0.22); tone(987.77, 0.10, "triangle", 0.18); setTimeout(() => tone(1318.51, 0.12, "sine", 0.18), 40); },
+      // 连击 10：华丽四音
+      combo10: () => { ensure(); [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => setTimeout(() => tone(f, 0.12, "triangle", 0.24), i * 40)); }
+    };
+    return api;
+  })();
+
+  let best = 0;
+  try { best = parseInt(localStorage.getItem("tbx-moyu-best") || "0", 10) || 0; } catch (e) {}
+
+  function newState(mode) {
+    return {
+      mode: "start",                 // start | playing | over | paused
+      gameMode: mode || "key",       // key | bubble
+      pick: "key",
+      timeLeft: ROUND_SEC,
+      score: 0, lives: LIVES, caught: 0,
+      elapsed: 0,
+      band: { x: 120, dir: 1, speed: 150, w: BAND_W, gone: 0, nextLeave: 11 + Math.random() * 5 },
+      // 一键模式
+      holding: false, holdRun: 0, bestRun: 0, rate: 0,
+      // 点泡泡模式
+      bubbles: [], nextSpawn: 0.7,
+      reticle: { x: W / 2, y: H / 2 },
+      flash: 0, shake: 0, floatFx: [], popFx: [], particles: [],
+      toast: null, toastT: 0,
+      scorePulse: 0,          // 分数弹跳计时
+      bossBlink: 0,           // 老板眨眼计时
+      bossBreath: 0,          // 老板呼吸计时
+      deskBob: 0,             // 工位小人晃动
+      lowTimePulse: 0,         // 低时间脉冲
+      combo: 0,                // 连击计数
+      comboTimer: 0,           // 连击超时
+      comboFlash: 0,           // 连击文字弹跳
+      dangerGlow: 0,            // 危险边缘发光
+      isNewRecord: false,        // 本局是否破纪录
+      scoreDisp: 0,              // 显示分数（平滑过渡）
+      comboMilestone: 0,          // 连击里程碑动画
+      timeWarnAcc: 0,            // 时间警告音效计时
+      spawnAcc: 0,                // 泡泡生成音效节流
+      transition: 0,              // 屏幕过渡计时
+      level: 1,                   // 难度等级
+      bossFreeze: 0,              // 老板冻结剩余时间
+      showTutorial: true          // 首次教程提示
+    };
+  }
+  let state = newState();
+
+  /* ---------------- 输入 ---------------- */
+  function onKeyDown(e) {
+    Sfx.init();
+    const k = e.key.toLowerCase();
+    if (k === "b") { e.preventDefault(); toggleBoss(); return; }
+    if (e.repeat) return;
+
+    if (state.mode === "start") {
+      if (k === "1") { state.pick = "key"; Sfx.select(); return; }
+      if (k === "2") { state.pick = "bubble"; Sfx.select(); return; }
+      if (k === " " || k === "enter") { e.preventDefault(); start(state.pick); return; }
+      return;
+    }
+    if (state.mode === "over") {
+      if (k === " " || k === "enter") { e.preventDefault(); state.mode = "start"; return; }
+      return;
+    }
+    if (k === "p" && (state.mode === "playing" || state.mode === "paused")) {
+      e.preventDefault();
+      var wasPlaying = state.mode === "playing";
+      state.mode = state.mode === "playing" ? "paused" : "playing";
+      if (state.mode === "paused") Sfx.pause();
+      else Sfx.resume();
+      return;
+    }
+    if (k === "f") { e.preventDefault(); toggleFullscreen(); return; }
+    if (k === "m") { e.preventDefault(); const m = !Sfx.isMuted(); Sfx.setMuted(m); state.toast = m ? "🔇 已静音" : "🔊 取消静音"; state.toastT = 1.2; return; }
+    if (k === "n") { e.preventDefault(); const on = !Sfx.isMusicOn(); Sfx.setMusic(on); if (on && state.mode === "playing") Sfx.startBgm(); else Sfx.stopBgm(); state.toast = on ? "🎵 BGM 开" : "🎵 BGM 关"; state.toastT = 1.2; return; }
+    if (k === "r" && state.mode === "playing") { e.preventDefault(); start(state.gameMode); return; }
+    if (state.mode !== "playing") return;
+
+    if (state.gameMode === "key") {
+      if (k === " ") { e.preventDefault(); state.holding = true; }
+    } else if (k === " ") {
+      e.preventDefault();
+      tryCatch(state.reticle.x, state.reticle.y);
+    }
+  }
+  function onKeyUp(e) {
+    const k = e.key.toLowerCase();
+    if (k === " " && state.gameMode === "key") state.holding = false;
+  }
+  window.addEventListener("keydown", onKeyDown);
+  window.addEventListener("keyup", onKeyUp);
+  window.addEventListener("blur", () => { state.holding = false; });
+
+  /* 鼠标（可选，不强制） */
+  function canvasPos(ev) {
+    const r = cv.getBoundingClientRect();
+    return { x: (ev.clientX - r.left) * (W / r.width), y: (ev.clientY - r.top) * (H / r.height) };
+  }
+  cv.addEventListener("mousemove", (e) => { const p = canvasPos(e); state.reticle = p; });
+  cv.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    Sfx.init();
+    if (state.mode === "start") { start(state.pick); return; }
+    if (state.mode === "over") { state.mode = "start"; return; }
+    if (state.mode !== "playing") return;
+    const p = canvasPos(e); state.reticle = p;
+    if (state.gameMode === "key") state.holding = true;   // 也可以按住鼠标
+    else tryCatch(p.x, p.y);
+  });
+  window.addEventListener("mouseup", () => { if (state.gameMode === "key") state.holding = false; });
+  cv.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    Sfx.init();
+    if (state.mode === "start") { start(state.pick); return; }
+    if (state.mode === "over") { state.mode = "start"; return; }
+    if (state.mode === "playing") {
+      if (state.gameMode === "key") state.holding = true;
+      else { const t = e.touches[0]; const p = canvasPos({ clientX: t.clientX, clientY: t.clientY }); state.reticle = p; tryCatch(p.x, p.y); }
+    }
+  }, { passive: false });
+  cv.addEventListener("touchend", (e) => { e.preventDefault(); if (state.gameMode === "key") state.holding = false; }, { passive: false });
+
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (cv.parentElement.requestFullscreen) cv.parentElement.requestFullscreen();
+  }
+
+  /* ---------------- 老板键 ---------------- */
+  let bossOn = false, bossWasPlaying = false;
+  function toggleBoss() {
+    bossOn = !bossOn;
+    document.getElementById("bossScreen").classList.toggle("show", bossOn);
+    if (bossOn) { state.holding = false; Sfx.stopBgm(); }
+    if (bossOn && state.mode === "playing") { state.mode = "paused"; bossWasPlaying = true; }
+    else if (!bossOn && bossWasPlaying && state.mode === "paused") { state.mode = "playing"; bossWasPlaying = false; Sfx.startBgm(); }
+  }
+
+  function buildFakeSheet() {
+    const cols = ["A", "B", "C", "D", "E", "F"];
+    const rows = [
+      ["项目名称", "负责人", "开始日期", "截止日期", "进度", "备注"],
+      ["官网改版", "张伟", "2026-08-01", "2026-09-30", "65%", "等待设计确认"],
+      ["客户管理系统", "李静", "2026-07-15", "2026-10-10", "40%", "接口联调中"],
+      ["季度报表自动化", "王强", "2026-09-01", "2026-09-20", "85%", "--"],
+      ["服务器扩容", "赵敏", "2026-08-20", "2026-09-05", "100%", "已完成验收"],
+      ["数据归档方案", "陈磊", "2026-09-10", "2026-11-01", "15%", "调研阶段"],
+      ["年度预算复核", "刘洋", "2026-09-05", "2026-09-28", "50%", "财务对接"],
+      ["移动端适配", "孙倩", "2026-08-25", "2026-10-20", "30%", "--"],
+      ["权限体系重构", "周涛", "2026-09-12", "2026-11-15", "20%", "需求评审"],
+      ["性能优化专项", "吴迪", "2026-07-01", "2026-09-15", "95%", "收尾"],
+      ["", "", "", "", "", ""],
+      ["", "", "", "", "", ""],
+      ["", "", "", "", "", ""],
+      ["", "", "", "", "", ""],
+      ["", "", "", "", "", ""],
+      ["", "", "", "", "", ""],
+      ["平均", "", "", "", "56%", ""]
+    ];
+    let html = "<tr><th></th>" + cols.map((c) => "<th>" + c + "</th>").join("") + "</tr>";
+    rows.forEach((r, i) => {
+      html += "<tr>";
+      html += '<td class="hdr">' + (i + 1) + "</td>";
+      r.forEach((c) => {
+        const isNum = /^[\d.]+%?$/.test(c) && c !== "";
+        html += "<td" + (isNum ? ' class="num"' : "") + ">" + c + "</td>";
+      });
+      html += "</tr>";
+    });
+    document.getElementById("xlTable").innerHTML = html;
+    document.getElementById("xlFx").innerHTML = "A1&nbsp;&nbsp;&nbsp;fx&nbsp;&nbsp;&nbsp;项目名称";
+    document.getElementById("xlBar").textContent = "就绪　　平均值: 56%　　计数: 9　　——　　⚏　100%";
+  }
+  buildFakeSheet();
+
+  /* ---------------- 通用：视线带 ---------------- */
+  function bandActive() { return state.band.gone <= 0; }
+  /** 视线带是否盖到工位（一键模式的危险判定） */
+  function bandOverDesk() {
+    if (!bandActive()) return false;
+    return Math.abs(DESK.cx - state.band.x) < state.band.w / 2 + DESK.half * 0.72;
+  }
+  /** 某点是否在视线带内（点泡泡模式的危险判定） */
+  function inBand(x) {
+    return bandActive() && Math.abs(x - state.band.x) <= state.band.w / 2;
+  }
+
+  function updateBand(dt) {
+    const b = state.band;
+    if (state.bossFreeze > 0) { state.bossFreeze -= dt; return; }  // 冻结泡泡效果
+    if (b.frozen) return;                 // 测试钩子：冻结视线带
+    if (b.gone > 0) {
+      b.gone -= dt;
+      if (b.gone <= 0) {
+        b.x = Math.random() < 0.5 ? 60 : W - 60;
+        b.dir = b.x < W / 2 ? 1 : -1;
+        b.nextLeave = 11 + Math.random() * 6;
+        Sfx.warn();
+      }
+      return;
+    }
+    b.x += b.dir * b.speed * dt;
+    if (b.x < 40) { b.x = 40; b.dir = 1; }
+    if (b.x > W - 40) { b.x = W - 40; b.dir = -1; }
+    b.nextLeave -= dt;
+    if (b.nextLeave <= 0 && state.elapsed > 6) {
+      b.gone = 2.6 + Math.random() * 1.6;
+      state.toast = "老板去开会了，放心摸！";
+      state.toastT = 2.2;
+      Sfx.chime();
+    }
+  }
+
+  function start(mode) {
+    state = newState(mode || state.pick);
+    state.gameMode = mode || state.pick;
+    state.mode = "playing";
+    state.scoreDisp = 0;
+    state.transition = 1;
+    Sfx.start();
+    Sfx.startBgm();
+  }
+
+  function spawnBubble() {
+    if (state.bubbles.length >= MAX_BUBBLES) return;
+    const margin = 70;
+    const x = margin + Math.random() * (W - margin * 2);
+    const r = Math.random();
+    let type = "normal", val;
+    if (r < 0.05) { type = "time"; val = 0; }           // 时间泡泡 +3秒
+    else if (r < 0.10) { type = "freeze"; val = 0; }     // 冻结泡泡 老板定2秒
+    else if (r < 0.28) { type = "gold"; val = 30; }
+    else if (r < 0.6) val = 15;
+    else val = 10;
+    state.bubbles.push({ x, y: H + BUBBLE_R, vy: -(40 + Math.random() * 30 + state.elapsed), r: BUBBLE_R + (type === "gold" ? 5 : 0), v: val, type: type, wob: Math.random() * 6.28, alive: true, age: 0, spark: Math.random() * 6.28 });
+    state.spawnAcc = (state.spawnAcc || 0) + 1;
+    if (state.spawnAcc >= 3) { state.spawnAcc = 0; Sfx.spawn(); }
+  }
+
+  function burst(x, y, color, count) {
+    count = count || 10;
+    const room = MAX_PARTICLES - state.particles.length;
+    if (room <= 0) return;
+    count = Math.min(count, room);
+    for (let i = 0; i < count; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const sp = 60 + Math.random() * 180;
+      state.particles.push({
+        x, y,
+        vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40,
+        life: 0.4 + Math.random() * 0.4,
+        maxLife: 0.8, size: 2 + Math.random() * 3,
+        color: color, rot: Math.random() * 6.28, vr: (Math.random() - .5) * 8
+      });
+    }
+  }
+
+  function tryCatch(x, y) {
+    let hit = null, bd = Infinity;
+    for (const b of state.bubbles) {
+      if (!b.alive) continue;
+      const d = Math.hypot(b.x - x, b.y - y);
+      if (d <= b.r + 8 && d < bd) { bd = d; hit = b; }
+    }
+    if (!hit) return;
+    hit.alive = false;
+    if (inBand(hit.x)) {
+      state.lives--; state.caught++; state.flash = 1; state.shake = 10;
+      state.combo = 0; state.comboTimer = 0;
+      state.popFx.push({ x: hit.x, y: hit.y, r: hit.r, t: 0, bad: true });
+      burst(hit.x, hit.y, C.bad, 14);
+      Sfx.bad();
+      if (state.lives <= 0) finish();
+    } else {
+      // 特殊泡泡处理
+      if (hit.type === "time") {
+        state.timeLeft = Math.min(ROUND_SEC, state.timeLeft + 3);
+        state.popFx.push({ x: hit.x, y: hit.y, r: hit.r, t: 0, bad: false });
+        state.floatFx.push({ x: hit.x, y: hit.y, t: 0, text: "+3 秒" });
+        burst(hit.x, hit.y, C.ok, 20);
+        Sfx.powerup();
+        state.toast = "⏰ 时间 +3 秒"; state.toastT = 1.5;
+        return;
+      }
+      if (hit.type === "freeze") {
+        state.bossFreeze = 2.5;
+        state.popFx.push({ x: hit.x, y: hit.y, r: hit.r, t: 0, bad: false });
+        state.floatFx.push({ x: hit.x, y: hit.y, t: 0, text: "老板定住!" });
+        burst(hit.x, hit.y, "#c084fc", 20);
+        Sfx.powerup();
+        state.toast = "❄ 老板被冻结 2.5 秒"; state.toastT = 1.5;
+        return;
+      }
+      // 普通/金色泡泡：连击加分倍率
+      const comboMul = 1 + Math.min(1.5, (state.combo - 1) * 0.1);
+      const gained = Math.floor(hit.v * comboMul);
+      state.score += gained;
+      state.scorePulse = 1;
+      state.combo++;
+      state.comboTimer = 2.0;
+      state.comboFlash = 1;
+      state.popFx.push({ x: hit.x, y: hit.y, r: hit.r, t: 0, bad: false });
+      var txt = "+" + gained;
+      if (state.combo >= 3) txt += " x" + state.combo;
+      state.floatFx.push({ x: hit.x, y: hit.y, t: 0, text: txt });
+      burst(hit.x, hit.y, hit.type === "gold" ? C.accent : C.fish, hit.type === "gold" ? 16 : 10);
+      if (hit.type === "gold") { Sfx.powerup(); burst(hit.x, hit.y, C.accent, 24); }
+      else if (state.combo === 5 || state.combo === 10) {
+        if (state.combo === 5) { Sfx.combo5(); state.comboMilestone = 5; }
+        else { Sfx.combo10(); state.comboMilestone = 10; }
+        burst(hit.x, hit.y, C.accent, 30);
+        state.shake = Math.max(state.shake, 4);
+      }
+      else if (state.combo >= 3) { Sfx.combo(state.combo); burst(hit.x, hit.y, C.ok, 6); }
+      else Sfx.pop();
+    }
+  }
+
+  function caught() {
+    state.lives--; state.caught++; state.flash = 1; state.shake = 12;
+    state.holding = false; state.holdRun = 0; state.rate = 0;
+    state.combo = 0; state.comboTimer = 0;
+    burst(DESK.cx, DESK.top + 30, C.bad, 18);
+    Sfx.bad();
+    if (state.lives <= 0) finish();
+  }
+
+  function finish() {
+    state.mode = "over";
+    Sfx.stopBgm();
+    if (state.score > best && state.score > 0) {
+      best = state.score; state.isNewRecord = true;
+      try { localStorage.setItem("tbx-moyu-best", String(best)); } catch (e) {}
+      Sfx.newRecord();
+      // 彩纸庆祝
+      for (let i = 0; i < 40; i++) {
+        burst(W / 2 + (Math.random() - .5) * 300, H / 2 - 50,
+          [C.accent, C.ok, C.fish, "#ff6b9d", "#c084fc"][Math.floor(Math.random() * 5)], 1);
+      }
+    } else {
+      Sfx.over();
+    }
+  }
+
+  /* ---------------- 更新 ---------------- */
+  function update(dt) {
+    state.transition = Math.max(0, state.transition - dt * 2);
+    state.flash = Math.max(0, state.flash - dt * 2.2);
+    state.shake = Math.max(0, state.shake - dt * 40);
+    state.scorePulse = Math.max(0, state.scorePulse - dt * 4);
+    state.bossBlink += dt;
+    state.bossBreath += dt;
+    state.deskBob += dt;
+    if (state.timeLeft <= 10) state.lowTimePulse += dt;
+    state.popFx.forEach((p) => (p.t += dt)); state.popFx = state.popFx.filter((p) => p.t < 0.42);
+    state.floatFx.forEach((p) => (p.t += dt)); state.floatFx = state.floatFx.filter((p) => p.t < 0.9);
+    // 粒子更新
+    for (const pt of state.particles) {
+      pt.x += pt.vx * dt; pt.y += pt.vy * dt;
+      pt.vy += 120 * dt; pt.life -= dt;
+      pt.rot += pt.vr * dt;
+    }
+    state.particles = state.particles.filter((pt) => pt.life > 0);
+    state.comboFlash = Math.max(0, state.comboFlash - dt * 3);
+    state.dangerGlow = Math.max(0, state.dangerGlow - dt * 2.5);
+    // 连击超时
+    if (state.comboTimer > 0) {
+      state.comboTimer -= dt;
+      if (state.comboTimer <= 0) { state.combo = 0; state.comboMilestone = 0; }
+    }
+    if (state.comboMilestone > 0 && state.comboTimer < 1.2) state.comboMilestone = 0;
+    if (state.toastT > 0) state.toastT -= dt;
+
+    if (state.mode !== "playing") return;
+
+    state.elapsed += dt;
+    state.timeLeft -= dt;
+    state.level = 1 + Math.floor(state.elapsed / 15);
+    updateBand(dt);
+
+    if (state.gameMode === "key") {
+      // 险胜检测：视线带擦边但没被抓
+      var dist = Math.abs(DESK.cx - state.band.x);
+      if (bandActive() && dist < state.band.w / 2 + DESK.half * 0.72 + 30 && dist > state.band.w / 2 + DESK.half * 0.72) {
+        if (!state._wasNear) { state._wasNear = true; Sfx.nearMiss(); }
+        state.dangerGlow = 1;
+      } else if (dist > state.band.w / 2 + DESK.half * 0.72 + 60) {
+        state._wasNear = false;
+      }
+      /* 按住 = 摸鱼；视线带扫到工位前必须松手 */
+      if (state.holding && !bandOverDesk()) {
+        state.holdRun += dt;
+        state.bestRun = Math.max(state.bestRun, state.holdRun);
+        const bonus = bandActive() ? 1 : 1.8;                 // 老板真的走了才加成
+        state.rate = Math.min(46, (13 + state.holdRun * 7) * bonus);
+        state.score += state.rate * dt;
+        state.scorePulse = Math.max(state.scorePulse, 0.3);
+        state._tickAcc = (state._tickAcc || 0) + dt;
+        if (state._tickAcc > 0.12) { state._tickAcc = 0; Sfx.tick(); }
+      } else {
+        if (state.holding && bandOverDesk()) { caught(); }
+        state.holdRun = 0;
+        state.rate = 0;
+      }
+      // 难度：视线带越来越快
+      state.band.speed = 150 + Math.min(190, state.elapsed * 3.0);
+    } else {
+      state.nextSpawn -= dt;
+      if (state.nextSpawn <= 0) { spawnBubble(); state.nextSpawn = Math.max(0.42, 1.05 - state.elapsed * 0.011) * (0.7 + Math.random() * 0.6); }
+      for (const b of state.bubbles) { b.age += dt; b.wob += dt * 2.4; b.y += b.vy * dt; b.x += Math.sin(b.wob) * 14 * dt; }
+      state.bubbles = state.bubbles.filter((b) => b.alive && b.y > -BUBBLE_R * 2);
+      state.band.speed = 130 + Math.min(150, state.elapsed * 2.2);
+    }
+
+    // 分数平滑显示
+    state.scoreDisp += (state.score - state.scoreDisp) * Math.min(1, dt * 12);
+    // 时间警告音效（≤10 秒时每秒）
+    if (state.timeLeft <= 10 && state.timeLeft > 0) {
+      state.timeWarnAcc += dt;
+      if (state.timeWarnAcc >= 1) { state.timeWarnAcc = 0; Sfx.timeWarn(); }
+    }
+    if (state.timeLeft <= 0) { state.timeLeft = 0; finish(); }
+  }
+
+  /* ---------------- 绘制 ---------------- */
+  function rr(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  // 背景漂浮粒子（懒初始化）
+  let _bgDots = null;
+  function drawOffice() {
+    if (!_bgDots) {
+      _bgDots = [];
+      for (let i = 0; i < 30; i++) {
+        _bgDots.push({ x: Math.random() * W, y: Math.random() * H, r: 0.6 + Math.random() * 1.6, vy: -(4 + Math.random() * 8), a: 0.08 + Math.random() * 0.18 });
+      }
+    }
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, "#252a34"); g.addColorStop(1, "#191d24");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = "rgba(255,255,255,.04)"; ctx.lineWidth = 1;
+    for (let x = 0; x <= W; x += 48) { ctx.beginPath(); ctx.moveTo(x + .5, 0); ctx.lineTo(x + .5, H); ctx.stroke(); }
+    for (let y = 0; y <= H; y += 48) { ctx.beginPath(); ctx.moveTo(0, y + .5); ctx.lineTo(W, y + .5); ctx.stroke(); }
+    // 漂浮粒子
+    for (const d of _bgDots) {
+      d.y += d.vy * 0.016; if (d.y < -4) { d.y = H + 4; d.x = Math.random() * W; }
+      ctx.fillStyle = "rgba(127,212,255," + d.a + ")";
+      ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, 6.2832); ctx.fill();
+    }
+
+    // 顶部老板区
+    ctx.fillStyle = state.bossFreeze > 0 ? "rgba(100,160,220,.30)" : "rgba(0,0,0,.30)"; ctx.fillRect(0, 0, W, 78);
+    const bx = state.band.gone > 0 ? -200 : state.band.x;
+    if (bx > -100) {
+      const breath = Math.sin(state.bossBreath * 2.2) * 1.2;
+      const blink = (state.bossBlink % 3.2) > 3.05 ? 0.15 : 1;  // 偶尔眨眼
+      ctx.fillStyle = "#0e1116";
+      ctx.beginPath(); ctx.arc(bx, 36 + breath, 15, 0, 6.2832); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(bx - 26, 70 + breath); ctx.quadraticCurveTo(bx, 42 + breath, bx + 26, 70 + breath); ctx.closePath(); ctx.fill();
+      var angry = state.flash > 0.3 && bandOverDesk();
+      ctx.fillStyle = angry ? "#ff5b6e" : "#ffd166";
+      var eyeR = angry ? 2.8 : 2.1;
+      ctx.save(); ctx.translate(bx - 5, 29 + breath); ctx.scale(1, blink); ctx.beginPath(); ctx.arc(0, 0, eyeR, 0, 6.2832); ctx.fill(); ctx.restore();
+      ctx.save(); ctx.translate(bx + 5, 29 + breath); ctx.scale(1, blink); ctx.beginPath(); ctx.arc(0, 0, eyeR, 0, 6.2832); ctx.fill(); ctx.restore();
+      if (angry) {
+        // 生气眉毛
+        ctx.strokeStyle = "#ff5b6e"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(bx - 11, 22 + breath); ctx.lineTo(bx - 2, 25 + breath); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(bx + 11, 22 + breath); ctx.lineTo(bx + 2, 25 + breath); ctx.stroke();
+      }
+    }
+
+    // 老板冻结提示
+    if (state.bossFreeze > 0) {
+      ctx.fillStyle = "rgba(192,132,252,.12)"; ctx.fillRect(0, 0, W, 78);
+      ctx.fillStyle = "#c084fc"; ctx.font = "700 15px 'Microsoft YaHei', sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("❄ 老板被冻结 " + state.bossFreeze.toFixed(1) + " 秒", W / 2, 46);
+    }
+    // 老板离开提示
+    else if (state.band.gone > 0) {
+      ctx.fillStyle = "rgba(94,224,138,.10)"; ctx.fillRect(0, 0, W, 78);
+      ctx.fillStyle = C.ok; ctx.font = "700 15px 'Microsoft YaHei', sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("老板不在 · 放心摸鱼", W / 2, 46);
+    }
+  }
+
+  function drawBand() {
+    if (!bandActive()) return;
+    const b = state.band;
+    const over = bandOverDesk();
+    const g = ctx.createLinearGradient(b.x - b.w / 2, 0, b.x + b.w / 2, 0);
+    const col = over ? "255,91,110" : "255,214,102";
+    g.addColorStop(0, "rgba(" + col + ",0)");
+    g.addColorStop(0.5, "rgba(" + col + "," + (over ? 0.30 : 0.20) + ")");
+    g.addColorStop(1, "rgba(" + col + ",0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(b.x - b.w / 2, 0, b.w, H);
+    ctx.strokeStyle = "rgba(" + col + "," + (over ? 0.75 : 0.35) + ")";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(b.x - b.w / 2, 0); ctx.lineTo(b.x - b.w / 2, H);
+    ctx.moveTo(b.x + b.w / 2, 0); ctx.lineTo(b.x + b.w / 2, H);
+    ctx.stroke();
+    // 提示玩家：这是视线
+    ctx.fillStyle = "rgba(" + col + ",.9)";
+    ctx.font = "600 11px 'Microsoft YaHei', sans-serif";
+    ctx.textAlign = "center";
+    if (over) ctx.fillText("被看到了！快松手", b.x, 100);
+    // 险胜标记
+    var dist = Math.abs(DESK.cx - b.x);
+    if (!over && dist < b.w / 2 + DESK.half * 0.72 + 30 && dist > b.w / 2 + DESK.half * 0.72) {
+      ctx.fillStyle = "rgba(255,176,32,.9)";
+      ctx.font = "700 11px 'Microsoft YaHei', sans-serif";
+      ctx.fillText("⚠ 险胜！", b.x, 100);
+    }
+  }
+
+  function drawDesk() {
+    const d = DESK;
+    const x = d.cx - d.half, w = d.half * 2, h = d.bot - d.top;
+    const over = bandOverDesk();
+    // 危险边缘发光
+    if (state.dangerGlow > 0 && !over) {
+      var glow = ctx.createRadialGradient(d.cx, d.top + h/2, 0, d.cx, d.top + h/2, d.half * 1.8);
+      glow.addColorStop(0, "rgba(255,176,32," + state.dangerGlow * 0.15 + ")");
+      glow.addColorStop(1, "rgba(255,176,32,0)");
+      ctx.fillStyle = glow;
+      ctx.fillRect(x - 40, d.top - 40, w + 80, h + 80);
+    }
+    ctx.save();
+    ctx.fillStyle = over ? "rgba(255,91,110,.13)" : "rgba(127,212,255,.09)";
+    rr(x, d.top, w, h, 14); ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = over ? "rgba(255,91,110,.75)" : "rgba(127,212,255,.45)";
+    rr(x, d.top, w, h, 14); ctx.stroke();
+    ctx.restore();
+
+    // 咖啡杯蒸汽
+    var cupX = x + 30, cupY = d.top + 18;
+    ctx.save();
+    ctx.fillStyle = "rgba(255,255,255,.08)";
+    ctx.beginPath(); rr(cupX, cupY, 16, 14, 3); ctx.fill();
+    for (var si = 0; si < 3; si++) {
+      var phase = state.bossBreath * 1.5 + si * 1.2;
+      var sx = cupX + 8 + Math.sin(phase) * 4;
+      var sy = cupY - 4 - ((state.bossBreath * 20 + si * 10) % 24);
+      var sa = Math.max(0, 1 - ((state.bossBreath * 20 + si * 10) % 24) / 24) * 0.15;
+      ctx.fillStyle = "rgba(255,255,255," + sa + ")";
+      ctx.beginPath(); ctx.arc(sx, sy, 3, 0, 6.2832); ctx.fill();
+    }
+    ctx.restore();
+
+    // 工位上的小人（摸鱼时变成低头刷手机）
+    const cx = d.cx, cy = d.top + h / 2;
+    const fishing = state.gameMode === "key" ? state.holding : false;
+    const bob = Math.sin(state.deskBob * 3.5) * (fishing ? 2 : 0.6);
+    ctx.save();
+    ctx.translate(0, bob);
+    ctx.fillStyle = fishing ? "#ffd166" : "#8e98a8";
+    ctx.beginPath(); ctx.arc(cx, cy - 6, 17, 0, 6.2832); ctx.fill();
+    ctx.beginPath(); rr(cx - 24, cy + 10, 48, 26, 8); ctx.fill();
+    if (fishing) {
+      ctx.fillStyle = "#fff";
+      ctx.beginPath(); ctx.arc(cx - 6, cy - 9, 2.4, 0, 6.2832); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx + 6, cy - 9, 2.4, 0, 6.2832); ctx.fill();
+      // 手机屏幕闪光
+      const glow = 0.5 + Math.sin(state.deskBob * 8) * 0.3;
+      ctx.fillStyle = "rgba(127,212,255," + glow + ")";
+      ctx.beginPath(); rr(cx - 9, cy + 14, 18, 12, 3); ctx.fill();
+      ctx.fillStyle = "#7fd4ff";
+      ctx.beginPath(); rr(cx - 9, cy + 14, 18, 12, 3); ctx.fill();
+      ctx.fillStyle = "rgba(255,214,102,.85)";
+      ctx.font = "700 12px 'Microsoft YaHei', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("摸鱼中", cx, d.top - 12 - bob);
+    } else {
+      ctx.fillStyle = "#0e1116";
+      ctx.beginPath(); ctx.arc(cx - 6, cy - 9, 2.4, 0, 6.2832); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx + 6, cy - 9, 2.4, 0, 6.2832); ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.30)";
+      ctx.font = "600 12px 'Microsoft YaHei', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("假装工作中", cx, d.top - 12 - bob);
+    }
+    ctx.restore();
+  }
+
+  function drawBubbles() {
+    for (const b of state.bubbles) {
+      const risky = inBand(b.x);
+      const age = b.age || 0;
+      const grow = age < 0.25 ? age / 0.25 : 1;
+      const wob = Math.sin(b.wob) * 0.06;
+      const isGold = b.type === "gold";
+      const isTime = b.type === "time";
+      const isFreeze = b.type === "freeze";
+      // 拖尾（上升中的泡泡留下淡淡的尾迹）
+      if (age > 0.3) {
+        ctx.save();
+        ctx.globalAlpha = 0.12;
+        ctx.fillStyle = risky ? C.bad : (isGold ? C.accent : isTime ? C.ok : isFreeze ? "#c084fc" : C.fish);
+        ctx.beginPath(); ctx.ellipse(b.x, b.y + b.r + 4, b.r * 0.6, 10 + age * 30, 0, 0, 6.2832); ctx.fill();
+        ctx.restore();
+      }
+      ctx.save(); ctx.translate(b.x, b.y);
+      ctx.scale(grow * (1 + wob), grow * (1 - wob));
+      // 渐变填充
+      const bg = ctx.createRadialGradient(-b.r * 0.3, -b.r * 0.3, 0, 0, 0, b.r);
+      if (risky) { bg.addColorStop(0, "rgba(255,150,160,.4)"); bg.addColorStop(1, "rgba(255,91,110,.10)"); }
+      else if (isGold) { bg.addColorStop(0, "rgba(255,230,140,.5)"); bg.addColorStop(1, "rgba(255,209,102,.12)"); }
+      else if (isTime) { bg.addColorStop(0, "rgba(160,255,180,.5)"); bg.addColorStop(1, "rgba(94,224,138,.12)"); }
+      else if (isFreeze) { bg.addColorStop(0, "rgba(210,180,255,.5)"); bg.addColorStop(1, "rgba(192,132,252,.12)"); }
+      else { bg.addColorStop(0, "rgba(180,230,255,.4)"); bg.addColorStop(1, "rgba(127,212,255,.10)"); }
+      ctx.beginPath(); ctx.arc(0, 0, b.r, 0, 6.2832);
+      ctx.fillStyle = bg; ctx.fill();
+      ctx.lineWidth = 2.5; ctx.strokeStyle = risky ? C.bad : (isGold ? C.accent : isTime ? C.ok : isFreeze ? "#c084fc" : C.fish); ctx.stroke();
+      ctx.fillStyle = risky ? C.bad : (isGold ? C.accent : isTime ? C.ok : isFreeze ? "#c084fc" : C.fish);
+      ctx.beginPath(); ctx.ellipse(0, 0, b.r * .42, b.r * .28, 0, 0, 6.2832); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-b.r * .42, 0); ctx.lineTo(-b.r * .72, -b.r * .24); ctx.lineTo(-b.r * .72, b.r * .24); ctx.closePath(); ctx.fill();
+      // 高光
+      ctx.fillStyle = "rgba(255,255,255,.45)";
+      ctx.beginPath(); ctx.ellipse(-b.r * .3, -b.r * .35, b.r * .18, b.r * .12, -0.5, 0, 6.2832); ctx.fill();
+      // 金色泡泡的旋转闪光
+      if (isGold) {
+        b.spark += 0.1;
+        const spark = 0.5 + Math.sin(b.spark) * 0.5;
+        ctx.save();
+        ctx.globalAlpha = spark * 0.7;
+        ctx.fillStyle = "#fff";
+        for (let sp = 0; sp < 4; sp++) {
+          const ang = b.spark + sp * Math.PI / 2;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(ang) * b.r * 0.9, Math.sin(ang) * b.r * 0.9);
+          ctx.lineTo(Math.cos(ang + 0.1) * b.r * 0.5, Math.sin(ang + 0.1) * b.r * 0.5);
+          ctx.lineTo(Math.cos(ang - 0.1) * b.r * 0.5, Math.sin(ang - 0.1) * b.r * 0.5);
+          ctx.closePath(); ctx.fill();
+        }
+        ctx.restore();
+      }
+      ctx.fillStyle = risky ? "#ffb3bd" : (isGold ? "#ffe8a0" : isTime ? "#b8f5c8" : isFreeze ? "#e0c8ff" : "#cfeaff");
+      ctx.font = "700 12px Consolas, monospace"; ctx.textAlign = "center";
+      if (isTime) { ctx.fillText("⏰+3", 0, b.r + 15); }
+      else if (isFreeze) { ctx.fillText("❄", 0, b.r + 15); }
+      else ctx.fillText(String(b.v), 0, b.r + 15);
+      ctx.restore();
+    }
+  }
+
+  function drawFx() {
+    // 爆裂圆环
+    for (const p of state.popFx) {
+      const k = p.t / 0.42;
+      ctx.save(); ctx.globalAlpha = 1 - k;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r + k * 26, 0, 6.2832);
+      ctx.lineWidth = 3 * (1 - k); ctx.strokeStyle = p.bad ? C.bad : C.ok; ctx.stroke();
+      ctx.restore();
+    }
+    // 粒子
+    for (const pt of state.particles) {
+      const a = Math.max(0, pt.life / (pt.maxLife || 0.8));
+      ctx.save();
+      ctx.globalAlpha = a;
+      ctx.translate(pt.x, pt.y);
+      ctx.rotate(pt.rot);
+      ctx.fillStyle = pt.color;
+      ctx.fillRect(-pt.size / 2, -pt.size / 2, pt.size, pt.size);
+      ctx.restore();
+    }
+    // 飘字
+    for (const f of state.floatFx) {
+      const k = f.t / 0.9;
+      const scale = 1 + (1 - k) * 0.3;
+      ctx.save(); ctx.globalAlpha = 1 - k; ctx.fillStyle = C.ok;
+      ctx.font = "700 " + (15 * scale) + "px Consolas, monospace"; ctx.textAlign = "center";
+      ctx.fillText(f.text, f.x, f.y - 18 - k * 30); ctx.restore();
+    }
+    // 连击里程碑
+    if (state.comboMilestone > 0 && state.comboTimer > 1.2) {
+      var m = state.comboMilestone;
+      var mk = (state.comboTimer - 1.2) / 0.8;
+      if (mk > 0) {
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, mk * 2);
+        ctx.fillStyle = C.accent; ctx.font = "800 " + (40 + mk * 20) + "px 'Microsoft YaHei', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("COMBO x" + m + "!", W / 2, H / 2);
+        ctx.restore();
+      }
+    }
+  }
+
+  function drawHud() {
+    ctx.save();
+    ctx.textAlign = "left";
+    ctx.fillStyle = C.muted; ctx.font = "600 12px 'Microsoft YaHei', sans-serif";
+    ctx.fillText("摸鱼值", 28, 34);
+    const pulse = state.scorePulse;
+    const scoreSize = 34 + pulse * 8;
+    ctx.fillStyle = pulse > 0 ? C.accent : C.ink; ctx.font = "800 " + scoreSize + "px Consolas, monospace";
+    ctx.fillText(String(Math.floor(state.scoreDisp || state.score)), 28, 68);
+
+    if (state.gameMode === "key") {
+      ctx.fillStyle = C.accent; ctx.font = "700 13px Consolas, monospace";
+      ctx.fillText(state.holding ? "摸鱼速度 " + state.rate.toFixed(0) + " /秒" : "按住 空格 开始摸鱼", 28, 92);
+      if (state.holdRun > 0.2) {
+        ctx.fillStyle = "rgba(255,255,255,.35)"; ctx.font = "600 12px Consolas, monospace";
+        ctx.fillText("连续 " + state.holdRun.toFixed(1) + " 秒", 28, 112);
+      }
+    }
+    // 连击显示（两种模式共用）
+    if (state.combo >= 2) {
+      var cs = 16 + state.comboFlash * 10;
+      ctx.textAlign = "left";
+      ctx.fillStyle = state.combo >= 5 ? C.accent : C.ok;
+      ctx.font = "800 " + cs + "px Consolas, monospace";
+      ctx.fillText("COMBO x" + state.combo, 28, 140);
+      // 连击条
+      var cw = 80 * (state.comboTimer / 2.0);
+      ctx.fillStyle = "rgba(94,224,138,.20)"; rr(28, 146, 80, 4, 2); ctx.fill();
+      ctx.fillStyle = C.ok; rr(28, 146, cw, 4, 2); ctx.fill();
+    }
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = C.muted; ctx.font = "700 12px Consolas, monospace";
+    ctx.fillText(Math.ceil(state.timeLeft) + " 秒", W / 2, 34);
+    // 难度等级
+    ctx.fillStyle = state.level >= 3 ? C.bad : C.warn;
+    ctx.font = "600 10px Consolas, monospace";
+    ctx.fillText("LV " + state.level, W / 2, 20);
+    const pct = Math.max(0, state.timeLeft / ROUND_SEC);
+    const lowPulse = pct <= .25 ? 0.5 + Math.sin(state.lowTimePulse * 10) * 0.5 : 0;
+    ctx.fillStyle = "rgba(255,255,255,.10)"; rr(W / 2 - 150, 44, 300, 9, 5); ctx.fill();
+    ctx.fillStyle = pct > .25 ? C.accent : C.bad; rr(W / 2 - 150, 44, 300 * pct, 9, 5); ctx.fill();
+    if (lowPulse > 0) { ctx.fillStyle = "rgba(255,91,110," + lowPulse * 0.25 + ")"; rr(W / 2 - 150, 42, 300, 13, 6); ctx.fill(); }
+
+    ctx.textAlign = "right";
+    ctx.fillStyle = C.muted; ctx.font = "600 12px 'Microsoft YaHei', sans-serif";
+    ctx.fillText("被发现", W - 168, 34);
+    for (let i = 0; i < LIVES; i++) {
+      ctx.beginPath(); ctx.arc(W - 150 + i * 26, 62, 8, 0, 6.2832);
+      ctx.fillStyle = i < state.lives ? C.ok : "rgba(255,255,255,.14)"; ctx.fill();
+    }
+
+    ctx.textAlign = "right";
+    ctx.fillStyle = "rgba(255,255,255,.26)";
+    ctx.font = "600 12px 'Microsoft YaHei', sans-serif";
+    ctx.fillText("B 老板键 · F 全屏 · R 重开 · P 暂停 · M 静音 · N BGM", W - 28, H - 22);
+    ctx.restore();
+
+    if (state.toastT > 0 && state.toast) {
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, state.toastT / 0.6);
+      ctx.fillStyle = "rgba(94,224,138,.16)"; rr(W / 2 - 170, 78, 340, 40, 10); ctx.fill();
+      ctx.fillStyle = C.ok; ctx.font = "700 16px 'Microsoft YaHei', sans-serif"; ctx.textAlign = "center";
+      ctx.fillText(state.toast, W / 2, 104);
+      ctx.restore();
+    }
+  }
+
+  function panel(title, lines, cta) {
+    ctx.save();
+    ctx.fillStyle = "rgba(0,0,0,.66)"; ctx.fillRect(0, 0, W, H);
+    const pw = 620, ph = 350, px = (W - pw) / 2, py = (H - ph) / 2;
+    ctx.fillStyle = C.panel; rr(px, py, pw, ph, 18); ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,.10)"; ctx.lineWidth = 1; ctx.stroke();
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = C.accent; ctx.font = "800 30px 'Microsoft YaHei', sans-serif";
+    ctx.fillText(title, W / 2, py + 60);
+    ctx.fillStyle = C.ink; ctx.font = "500 14.5px 'Microsoft YaHei', sans-serif";
+    lines.forEach((l, i) => ctx.fillText(l, W / 2, py + 104 + i * 29));
+    ctx.fillStyle = C.muted; ctx.font = "600 13px 'Microsoft YaHei', sans-serif";
+    ctx.fillText(cta, W / 2, py + ph - 30);
+    ctx.restore();
+  }
+
+  function drawStart() {
+    ctx.save();
+    ctx.fillStyle = "rgba(0,0,0,.66)"; ctx.fillRect(0, 0, W, H);
+    const pw = 660, ph = 380, px = (W - pw) / 2, py = (H - ph) / 2;
+    ctx.fillStyle = C.panel; rr(px, py, pw, ph, 18); ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,.10)"; ctx.stroke();
+
+    ctx.textAlign = "center";
+    // 标题呼吸动画
+    const titlePulse = 1 + Math.sin(state.bossBreath * 2) * 0.04;
+    ctx.save();
+    ctx.translate(W / 2, py + 58);
+    ctx.scale(titlePulse, titlePulse);
+    ctx.fillStyle = C.accent; ctx.font = "800 32px 'Microsoft YaHei', sans-serif";
+    ctx.fillText("工位摸鱼", 0, 0);
+    // 标题下方小鱼图标
+    ctx.font = "28px sans-serif";
+    ctx.fillText("🐟", 0, -44);
+    ctx.restore();
+    ctx.fillStyle = C.muted; ctx.font = "600 13px 'Microsoft YaHei', sans-serif";
+    ctx.fillText("选个模式（按 1 / 2，或点一下画面）", W / 2, py + 86);
+
+    // 模式卡（悬浮动画）
+    const cw = 272, ch = 132, gap = 24;
+    const x1 = W / 2 - cw - gap / 2, x2 = W / 2 + gap / 2, cy = py + 108;
+    const cards = [
+      { x: x1, id: "key", t: "一键摸鱼", tag: "推荐 · 不用鼠标", d: ["按住 空格 摸鱼，", "老板视线扫来前松手"] },
+      { x: x2, id: "bubble", t: "点泡泡", tag: "鼠标玩法", d: ["视线外点掉泡泡得分，", "视线内点会被抓"] }
+    ];
+    for (var ci = 0; ci < cards.length; ci++) {
+      var c = cards[ci];
+      var on = state.pick === c.id;
+      var floatY = Math.sin(state.bossBreath * 1.5 + ci * 1.2) * 3;
+      ctx.save();
+      ctx.translate(0, floatY);
+      // 选中卡片发光
+      if (on) {
+        var cglow = ctx.createRadialGradient(c.x + cw / 2, cy + ch / 2, 0, c.x + cw / 2, cy + ch / 2, cw * 0.7);
+        cglow.addColorStop(0, "rgba(255,209,102,.18)");
+        cglow.addColorStop(1, "rgba(255,209,102,0)");
+        ctx.fillStyle = cglow;
+        ctx.fillRect(c.x - 20, cy - 20, cw + 40, ch + 40);
+      }
+      ctx.fillStyle = on ? "rgba(255,209,102,.14)" : "rgba(255,255,255,.04)";
+      rr(c.x, cy, cw, ch, 12); ctx.fill();
+      ctx.lineWidth = on ? 2 : 1;
+      ctx.strokeStyle = on ? C.accent : "rgba(255,255,255,.16)";
+      rr(c.x, cy, cw, ch, 12); ctx.stroke();
+      ctx.textAlign = "left";
+      ctx.fillStyle = on ? C.accent : C.ink;
+      ctx.font = "800 19px 'Microsoft YaHei', sans-serif";
+      ctx.fillText(c.t, c.x + 18, cy + 34);
+      ctx.fillStyle = on ? "rgba(255,209,102,.85)" : C.muted;
+      ctx.font = "600 11.5px 'Microsoft YaHei', sans-serif";
+      ctx.fillText(c.tag, c.x + 18, cy + 55);
+      ctx.fillStyle = C.muted; ctx.font = "500 12.5px 'Microsoft YaHei', sans-serif";
+      c.d.forEach((l, i) => ctx.fillText(l, c.x + 18, cy + 82 + i * 21));
+      // 选中对勾
+      if (on) {
+        ctx.fillStyle = C.accent; ctx.font = "700 16px 'Microsoft YaHei', sans-serif";
+        ctx.textAlign = "right";
+        ctx.fillText("✓", c.x + cw - 16, cy + 34);
+      }
+      ctx.restore();
+    }
+    ctx.textAlign = "center";
+    ctx.fillStyle = C.ink; ctx.font = "600 13.5px 'Microsoft YaHei', sans-serif";
+    ctx.fillText("按 空格 开始　·　B 老板键　·　F 全屏　·　M 静音　·　60 秒一局，3 条命", W / 2, py + ph - 30);
+    ctx.restore();
+  }
+
+  function render() {
+    ctx.save();
+    if (state.shake > 0) ctx.translate((Math.random() - .5) * state.shake, (Math.random() - .5) * state.shake);
+    drawOffice();
+    if (state.mode !== "start") {
+      drawBand();
+      drawDesk();
+      if (state.gameMode === "bubble") drawBubbles();
+      drawFx();
+    }
+    ctx.restore();
+
+    // 危险暗角（视线带接近工位时）
+    if (state.mode === "playing") {
+      var bandNear = bandActive() && Math.abs(DESK.cx - state.band.x) < state.band.w / 2 + DESK.half * 1.1;
+      var lowT = state.timeLeft <= 10;
+      var vIntensity = 0;
+      if (bandNear) vIntensity = Math.max(vIntensity, 0.35);
+      if (lowT) vIntensity = Math.max(vIntensity, 0.25 + Math.sin(state.lowTimePulse * 8) * 0.1);
+      if (vIntensity > 0) {
+        var vg = ctx.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, H * 0.75);
+        vg.addColorStop(0, "rgba(255,40,60,0)");
+        vg.addColorStop(1, "rgba(255,40,60," + vIntensity + ")");
+        ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+      }
+    }
+
+    // 速度线（一键模式高速摸鱼时）
+    if (state.mode === "playing" && state.gameMode === "key" && state.holding && state.rate > 25) {
+      var lineA = Math.min(0.5, (state.rate - 25) / 40);
+      ctx.save();
+      ctx.globalAlpha = lineA;
+      ctx.strokeStyle = C.fish; ctx.lineWidth = 1.5;
+      for (var li = 0; li < 8; li++) {
+        var ly = 80 + li * 60 + (state.elapsed * 200) % 60;
+        var lx = ((state.elapsed * 400 + li * 130) % W);
+        ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx + 40, ly); ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    if (state.mode === "playing" || state.mode === "paused") drawHud();
+    // 屏幕过渡（开始时白色闪光淡出）
+    if (state.transition > 0) {
+      ctx.fillStyle = "rgba(255,255,255," + state.transition * 0.4 + ")"; ctx.fillRect(0, 0, W, H);
+    }
+    if (state.flash > 0) { ctx.fillStyle = "rgba(255,60,80," + state.flash * .28 + ")"; ctx.fillRect(0, 0, W, H); }
+    if (state.isNewRecord && state.mode === "over") {
+      var recGlow = 0.08 + Math.sin(state.bossBreath * 4) * 0.04;
+      ctx.fillStyle = "rgba(255,209,102," + recGlow + ")"; ctx.fillRect(0, 0, W, H);
+    }
+
+    if (state.mode === "start") drawStart();
+    else if (state.mode === "playing" && state.elapsed < 4 && state.showTutorial) {
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, state.elapsed < 0.5 ? state.elapsed * 2 : (4 - state.elapsed));
+      ctx.fillStyle = "rgba(16,18,24,.85)"; rr(W / 2 - 180, H - 130, 360, 44, 10); ctx.fill();
+      ctx.fillStyle = C.accent; ctx.font = "600 13px 'Microsoft YaHei', sans-serif"; ctx.textAlign = "center";
+      var tip = state.gameMode === "key" ? "按住 空格 摸鱼，老板视线扫来前松手！" : "点击视线外的泡泡得分，视线内点击会被抓！";
+      ctx.fillText(tip, W / 2, H - 102);
+      ctx.restore();
+    }
+    else if (state.mode === "paused") panel("已暂停", ["再按 P 继续"], "按 P 继续　·　按 B 伪装成 Excel");
+    else if (state.mode === "over") {
+      panel("下班了", [
+        "本局摸鱼值：" + Math.floor(state.score) + "　（历史最高 " + best + "）",
+        (state.gameMode === "key" ? "最长连续摸鱼：" + state.bestRun.toFixed(1) + " 秒　" : "") + "被发现 " + state.caught + " 次",
+        state.isNewRecord ? "🎉 新纪录！太强了！" : "再摸一局？"
+      ], "按 空格 回到模式选择");
+    }
+  }
+
+  /* ---------------- 主循环 ---------------- */
+  let last = 0;
+  function frame(ts) {
+    if (!last) last = ts;
+    let dt = (ts - last) / 1000; last = ts;
+    if (dt > 0.1) dt = 0.1;
+    update(dt); render();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  /* ---------------- 测试钩子 ---------------- */
+  window.render_game_to_text = function () {
+    return JSON.stringify({
+      note: "坐标原点在画布左上角，x 向右、y 向下；画布 " + W + "x" + H,
+      mode: state.mode,
+      gameMode: state.gameMode,
+      pick: state.pick,
+      timeLeft: Math.round(state.timeLeft * 10) / 10,
+      score: Math.floor(state.score),
+      best: best,
+      lives: state.lives,
+      caught: state.caught,
+      holding: !!state.holding,
+      holdRun: Math.round(state.holdRun * 10) / 10,
+      rate: Math.round(state.rate),
+      band: { x: Math.round(state.band.x), w: state.band.w, gone: Math.round(state.band.gone * 10) / 10, active: state.band.gone <= 0 },
+      overDesk: bandOverDesk(),
+      desk: { cx: DESK.cx, half: DESK.half, top: DESK.top, bot: DESK.bot }
+    });
+  };
+  window.advanceTime = function (ms) {
+    const steps = Math.max(1, Math.round(ms / (1000 / 60)));
+    for (let i = 0; i < steps; i++) update(1 / 60);
+    render();
+    return window.render_game_to_text();
+  };
+  window.gamePick = function (m) { state.pick = m; render(); return window.render_game_to_text(); };
+  window.gameStart = function (m) { start(m); return window.render_game_to_text(); };
+  window.gameHold = function (on) { state.holding = !!on; return window.render_game_to_text(); };
+  window.gameSetBand = function (x) { state.band.gone = 0; state.band.x = x; render(); return window.render_game_to_text(); };
+  window.gameFreezeBand = function (on) { state.band.frozen = !!on; return window.render_game_to_text(); };
+  window.gameSetLeaveIn = function (sec) { state.band.nextLeave = sec; return window.render_game_to_text(); };
+  window.gameBackToStart = function () { state.mode = "start"; render(); return window.render_game_to_text(); };
+})();
+</script>
+</body>
+</html>

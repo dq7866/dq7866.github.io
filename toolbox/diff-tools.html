@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>文本对比工具 · 字符/单词/行级 diff ｜ 免费在线工具箱</title>
+<meta name="description" content="在线文本差异对比工具：支持字符级、单词级、行级三种粒度，并排对比与合并视图，差异高亮一目了然。纯本地浏览器处理，文本不上传。">
+<meta name="theme-color" content="#ff4d00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>工</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else{if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+<style>
+/* ===== 文本对比工具专属样式 ===== */
+
+.diff-input-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+.diff-input-row .field {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.diff-input-row textarea {
+  flex: 1;
+  min-height: 180px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  resize: vertical;
+  tab-size: 2;
+  box-sizing: border-box;
+  outline: none;
+  transition: all .15s;
+}
+.diff-input-row textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.12);
+  background: var(--surface);
+}
+
+.diff-stat {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.swap-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all .15s;
+  flex-shrink: 0;
+  align-self: center;
+  font-size: 16px;
+}
+.swap-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-2);
+}
+
+.mode-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.mode-row label {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.mode-row .seg { flex: none; }
+
+/* ===== Diff 结果区域 ===== */
+.diff-result {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.diff-result-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+  flex-wrap: wrap;
+}
+.diff-result-header .stats {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.diff-result-header .stat-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-2);
+}
+.diff-result-header .stat-item .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.diff-result-header .stat-item.add .dot { background: #10b981; }
+.diff-result-header .stat-item.del .dot { background: #ef4444; }
+.diff-result-header .stat-item.same .dot { background: #9a8e80; }
+.diff-result-header .stat-item b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.diff-view {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.55;
+  max-height: 520px;
+  overflow: auto;
+}
+
+/* 并排视图 */
+.diff-side-by-side {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+}
+.diff-side-by-side .diff-col {
+  min-width: 0;
+}
+.diff-side-by-side .diff-col:first-child {
+  border-right: 1px solid var(--line);
+}
+
+.diff-line {
+  display: flex;
+  min-height: 22px;
+  white-space: pre;
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+.diff-line .ln {
+  display: inline-block;
+  width: 44px;
+  flex-shrink: 0;
+  text-align: right;
+  padding: 0 8px;
+  color: var(--muted);
+  font-size: 11.5px;
+  user-select: none;
+  background: var(--surface-2);
+  border-right: 1px solid var(--line);
+}
+.diff-line .content {
+  flex: 1;
+  padding: 0 10px;
+  min-width: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* 行状态背景 */
+.diff-line.add { background: rgba(16, 185, 129, 0.1); }
+.diff-line.add .ln { background: rgba(16, 185, 129, 0.08); color: #10b981; }
+.diff-line.del { background: rgba(239, 68, 68, 0.08); }
+.diff-line.del .ln { background: rgba(239, 68, 68, 0.06); color: #ef4444; }
+.diff-line.same { background: transparent; }
+.diff-line.empty { background: var(--bg-2); }
+.diff-line.empty .ln { background: var(--bg-2); border-right: 1px solid var(--line); }
+.diff-line.empty .content { color: transparent; }
+
+/* 暗色主题调整 */
+[data-theme="dark"] .diff-line.add { background: rgba(16, 185, 129, 0.12); }
+[data-theme="dark"] .diff-line.add .ln { background: rgba(16, 185, 129, 0.08); color: #34d399; }
+[data-theme="dark"] .diff-line.del { background: rgba(239, 68, 68, 0.1); }
+[data-theme="dark"] .diff-line.del .ln { background: rgba(239, 68, 68, 0.06); color: #f87171; }
+[data-theme="dark"] .diff-line.empty { background: var(--surface-2); }
+[data-theme="dark"] .diff-line.empty .ln { background: var(--surface-2); }
+
+/* 字符级 diff 高亮 */
+.diff-add-char {
+  background: rgba(16, 185, 129, 0.25);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.diff-del-char {
+  background: rgba(239, 68, 68, 0.25);
+  border-radius: 2px;
+  padding: 0 1px;
+  text-decoration: line-through;
+  text-decoration-color: rgba(239, 68, 68, 0.5);
+}
+[data-theme="dark"] .diff-add-char { background: rgba(16, 185, 129, 0.3); }
+[data-theme="dark"] .diff-del-char { background: rgba(239, 68, 68, 0.3); }
+
+/* 合并视图 */
+.diff-unified .diff-line .prefix {
+  display: inline-block;
+  width: 20px;
+  flex-shrink: 0;
+  text-align: center;
+  font-weight: 700;
+  user-select: none;
+  color: var(--muted);
+}
+.diff-unified .diff-line.add .prefix { color: #10b981; }
+.diff-unified .diff-line.del .prefix { color: #ef4444; }
+.diff-unified .diff-line.same .prefix { color: var(--muted); }
+.diff-unified .diff-line .ln {
+  width: 44px;
+}
+
+.tool-note {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--bg-2);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .diff-input-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .swap-btn {
+    transform: rotate(90deg);
+    margin: 4px 0;
+    align-self: center;
+  }
+  .diff-side-by-side {
+    grid-template-columns: 1fr;
+  }
+  .diff-side-by-side .diff-col:first-child {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .diff-line .ln {
+    width: 36px;
+    font-size: 11px;
+    padding: 0 6px;
+  }
+}
+</style>
+<link rel="canonical" href="https://dq7866.online/toolbox/diff-tools.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="文本对比,代码对比,diff工具,文本差异高亮,在线对比工具,字符对比">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="文本对比工具 · 字符/单词/行级 diff ｜ 免费在线工具箱">
+<meta property="og:description" content="在线文本差异对比工具：支持字符级、单词级、行级三种粒度，并排对比与合并视图，差异高亮一目了然。纯本地浏览器处理，文本不上传。">
+<meta property="og:url" content="https://dq7866.online/toolbox/diff-tools.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="文本对比工具 · 字符/单词/行级 diff ｜ 免费在线工具箱">
+<meta name="twitter:description" content="在线文本差异对比工具：支持字符级、单词级、行级三种粒度，并排对比与合并视图，差异高亮一目了然。纯本地浏览器处理，文本不上传。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "文本对比工具 · 字符/单词/行级 diff",
+  "url": "https://dq7866.online/toolbox/diff-tools.html",
+  "description": "在线文本差异对比工具：支持字符级、单词级、行级三种粒度，并排对比与合并视图，差异高亮一目了然。纯本地浏览器处理，文本不上传。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark">工</span>
+      <span>免费工具箱<span class="tag">Toolbox</span></span>
+    </a>
+    <span class="spacer"></span>
+    <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html">音视频</a>
+      <a href="player.html">播放器</a>
+      <a href="file-tools.html">文件</a>
+      <a href="ocr-tools.html">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html">时间戳</a>
+      <a href="regex-tools.html">正则</a>
+      <a href="json-tools.html">JSON</a>
+      <a href="encode-tools.html">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html" class="active">对比</a>
+      <a href="chart-tools.html">图表</a>
+      <a href="clipboard-tools.html">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html">AI助手</a>
+      <a href="batch-image.html">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:26px">
+  <section class="panel">
+    <div class="panel-head"><span class="num">DIFF</span><h2>文本对比工具</h2></div>
+    <p class="hint" style="margin-top:0;margin-bottom:16px">支持字符级、单词级、行级差异对比，提供并排对比和合并视图两种展示模式。所有处理均在本地浏览器完成，数据不会上传。</p>
+
+    <!-- 选项区域 -->
+    <div class="mode-row">
+      <label>对比粒度：</label>
+      <div class="seg" id="granularitySeg">
+        <button data-v="char">字符级</button>
+        <button data-v="word">单词级</button>
+        <button class="active" data-v="line">行级</button>
+      </div>
+      <span style="width:1px;height:20px;background:var(--line)"></span>
+      <label>视图模式：</label>
+      <div class="seg" id="viewModeSeg">
+        <button class="active" data-v="side">并排对比</button>
+        <button data-v="unified">合并视图</button>
+      </div>
+    </div>
+
+    <!-- 输入区域 -->
+    <div class="diff-input-row">
+      <div class="field">
+        <label>原始文本</label>
+        <textarea id="diffOriginal" spellcheck="false" placeholder="在此输入或粘贴原始文本..."></textarea>
+        <div class="diff-stat">
+          <span id="origStat">0 字符 · 0 行</span>
+        </div>
+      </div>
+      <button class="swap-btn" id="diffSwap" title="交换左右文本">⇅</button>
+      <div class="field">
+        <label>修改后文本</label>
+        <textarea id="diffModified" spellcheck="false" placeholder="在此输入或粘贴修改后的文本..."></textarea>
+        <div class="diff-stat">
+          <span id="modStat">0 字符 · 0 行</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tool-note" style="margin-top:10px">
+      <b>提示：</b>实时计算文本差异，大文本场景下会自动节流以保证流畅体验。绿色表示新增内容，红色表示删除内容。
+    </div>
+
+    <!-- 按钮行 -->
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn ghost" id="diffExample">示例文本</button>
+      <button class="btn ghost danger" id="diffClear">清空</button>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn ghost" id="diffCopy">复制 Diff 结果</button>
+    </div>
+
+    <!-- Diff 结果 -->
+    <div class="diff-result" id="diffResult" style="display:none">
+      <div class="diff-result-header">
+        <div class="stats">
+          <span class="stat-item add"><span class="dot"></span>新增 <b id="statAdd">0</b></span>
+          <span class="stat-item del"><span class="dot"></span>删除 <b id="statDel">0</b></span>
+          <span class="stat-item same"><span class="dot"></span>相同 <b id="statSame">0</b></span>
+        </div>
+        <span class="spacer" style="flex:1"></span>
+        <span id="diffTime" style="color:var(--muted);font-size:12px"></span>
+      </div>
+      <div class="diff-view" id="diffView"></div>
+    </div>
+
+  </section>
+
+  <footer class="site">免费工具箱 · 文本对比 · 纯前端本地处理</footer>
+</main>
+
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+<script src="assets/js/diff-tools.js"></script>
+</body>
+</html>

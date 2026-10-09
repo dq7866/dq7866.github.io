@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>图表生成工具 · 柱状/折线/饼图/雷达图 ｜ 免费在线工具箱</title>
+<meta name="description" content="在线图表生成工具：快速生成柱状图、折线图、饼图、雷达图，自定义标题、数据系列、配色主题与画布尺寸，一键下载 PNG 或复制到剪贴板。纯浏览器渲染。">
+<meta name="theme-color" content="#ff4d00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>工</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else{if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+<style>
+/* ===== 设计系统变量 · 暖中性纸质风格 ===== */
+:root {
+  --bg: #faf6f0;
+  --bg-2: #f3ede3;
+  --surface: #fffdf8;
+  --surface-2: #faf6f0;
+  --text: #2b2520;
+  --text-2: #6b5e52;
+  --muted: #9a8e80;
+  --line: #e8dfd1;
+  --line-2: #f0e8db;
+  --accent: #ff4d00;
+  --accent-2: #fff0e8;
+  --accent-ink: #fff;
+  --ok: #10b981;
+  --danger: #ef4444;
+  --warn: #f59e0b;
+  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(60,40,10,.06);
+  --shadow-lg: 0 8px 32px rgba(60,40,10,.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace;
+}
+[data-theme="dark"] {
+  --bg: #1a1612;
+  --bg-2: #241e18;
+  --surface: #2a231c;
+  --surface-2: #332a21;
+  --text: #f0e8dc;
+  --text-2: #c5b9a8;
+  --muted: #8a7d6d;
+  --line: #3d3328;
+  --line-2: #332a21;
+  --accent: #ff6b2d;
+  --accent-2: #3a2418;
+  --accent-ink: #fff;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; font-size: inherit; }
+
+/* ===== Topbar ===== */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+}
+.topbar-inner {
+  max-width: 1200px; margin: 0 auto;
+  min-height: 56px; padding: 0 20px;
+  display: flex; align-items: center; gap: 16px;
+}
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 16px;
+}
+.brand .mark {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 800;
+}
+.brand .tag {
+  font-size: 11px; font-weight: 500;
+  color: var(--muted); margin-left: 4px;
+  letter-spacing: .5px;
+}
+.spacer { flex: 1; }
+.topnav {
+  display: flex; align-items: center; gap: 2px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.topnav::-webkit-scrollbar { display: none; }
+.topnav a {
+  padding: 6px 12px; border-radius: 6px;
+  font-size: 13.5px; color: var(--text-2);
+  white-space: nowrap; transition: all .15s;
+}
+.topnav a:hover { color: var(--text); background: var(--bg-2); }
+.topnav a.active { color: var(--accent); background: var(--accent-2); font-weight: 600; }
+
+/* ===== Wrap ===== */
+.wrap {
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+/* ===== Panel ===== */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.panel + .panel { margin-top: 20px; }
+.panel-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+.panel-head h2 {
+  font-size: 17px; font-weight: 700;
+  color: var(--text);
+}
+.num {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 28px; height: 24px; padding: 0 8px;
+  background: var(--accent-2); color: var(--accent);
+  font-size: 11.5px; font-weight: 700;
+  border-radius: 6px; letter-spacing: .5px;
+}
+
+/* ===== Tabs ===== */
+.tabs {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  background: var(--bg-2);
+  padding: 4px; border-radius: 10px;
+}
+.tab {
+  flex: 1; min-width: 100px;
+  padding: 8px 14px;
+  border: none; background: transparent;
+  color: var(--text-2);
+  font-size: 13.5px; font-weight: 500;
+  border-radius: 7px;
+  transition: all .15s;
+}
+.tab:hover { color: var(--text); }
+.tab.active {
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+/* ===== Field & Row ===== */
+.field { margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+.field label {
+  display: block;
+  font-size: 13px; font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}
+.field input[type="text"],
+.field input[type="number"],
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 14px;
+  transition: all .15s;
+  outline: none;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255,77,0,.1);
+  background: var(--surface);
+}
+.hint {
+  font-size: 12px; color: var(--muted);
+  margin-top: 6px; line-height: 1.5;
+}
+.row {
+  display: flex; gap: 10px; align-items: center;
+}
+.row .field { flex: 1; margin-bottom: 0; }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13.5px; font-weight: 500;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn:active { transform: translateY(1px); }
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.btn.primary:hover { opacity: .92; color: #fff; }
+.btn.ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--text-2);
+  padding: 7px 12px;
+  font-size: 12.5px;
+}
+.btn.ghost:hover {
+  background: var(--accent-2);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn.danger {
+  color: var(--danger);
+  border-color: rgba(239,68,68,.3);
+}
+.btn.danger:hover {
+  background: rgba(239,68,68,.08);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.btn-row {
+  display: flex; gap: 10px; align-items: center;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+/* ===== Segmented Control ===== */
+.seg {
+  display: inline-flex;
+  background: var(--bg-2);
+  border-radius: 7px;
+  padding: 2px;
+}
+.seg button {
+  padding: 5px 12px;
+  font-size: 12.5px;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all .15s;
+  font-weight: 500;
+}
+.seg button.active {
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+
+/* ===== Footer ===== */
+.site {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.site a { color: var(--text-2); }
+.site a:hover { color: var(--accent); }
+
+/* ===== Utility ===== */
+.hidden { display: none !important; }
+
+/* ===== 图表工具专属样式 ===== */
+.chart-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.chart-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chart-preview-wrap {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  overflow: auto;
+}
+
+.chart-preview-wrap canvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+.chart-data-textarea {
+  width: 100%;
+  min-height: 180px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  resize: vertical;
+  tab-size: 2;
+  box-sizing: border-box;
+  outline: none;
+  transition: all .15s;
+}
+.chart-data-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.12);
+  background: var(--surface);
+}
+
+.color-palettes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.palette-btn {
+  width: 36px;
+  height: 24px;
+  border: 2px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  transition: all .15s;
+}
+.palette-btn:hover {
+  border-color: var(--accent);
+  transform: scale(1.08);
+}
+.palette-btn.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-2);
+}
+.palette-btn .palette-stripe {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.chart-size-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.chart-size-row input {
+  text-align: center;
+}
+.chart-size-row .x-sep {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.checkbox-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+}
+.checkbox-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--text-2);
+  cursor: pointer;
+  font-weight: 500;
+  margin: 0;
+}
+.checkbox-row input {
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+.bg-options {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+.bg-btn {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 12.5px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .15s;
+  font-weight: 500;
+}
+.bg-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.bg-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.chart-type-tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-2);
+  padding: 3px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+.chart-type-tab {
+  flex: 1;
+  padding: 7px 6px;
+  font-size: 12.5px;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .15s;
+  font-weight: 500;
+  text-align: center;
+}
+.chart-type-tab:hover { color: var(--text); }
+.chart-type-tab.active {
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+
+.example-btns {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.example-btns button {
+  padding: 4px 10px;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-2);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all .15s;
+  font-weight: 500;
+}
+.example-btns button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-2);
+}
+
+.chart-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.chart-actions .btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+.data-stat {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.data-stat b { color: var(--text); font-weight: 600; }
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .chart-layout {
+    grid-template-columns: 1fr;
+  }
+  .chart-sidebar { order: 2; }
+  .chart-preview-panel { order: 1; }
+}
+
+@media (max-width: 768px) {
+  .topbar-inner { padding: 0 14px; }
+  .wrap { padding: 0 14px 40px; }
+  .panel { padding: 16px; }
+  .tabs { flex-direction: column; }
+  .tab { width: 100%; }
+  .topnav { display: none; }
+  .chart-preview-wrap { padding: 12px; min-height: 300px; }
+}
+</style>
+<link rel="canonical" href="https://dq7866.online/toolbox/chart-tools.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="在线图表,柱状图生成,折线图生成,饼图生成,雷达图,图表导出PNG,数据可视化">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="图表生成工具 · 柱状/折线/饼图/雷达图 ｜ 免费在线工具箱">
+<meta property="og:description" content="在线图表生成工具：快速生成柱状图、折线图、饼图、雷达图，自定义标题、数据系列、配色主题与画布尺寸，一键下载 PNG 或复制到剪贴板。纯浏览器渲染。">
+<meta property="og:url" content="https://dq7866.online/toolbox/chart-tools.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="图表生成工具 · 柱状/折线/饼图/雷达图 ｜ 免费在线工具箱">
+<meta name="twitter:description" content="在线图表生成工具：快速生成柱状图、折线图、饼图、雷达图，自定义标题、数据系列、配色主题与画布尺寸，一键下载 PNG 或复制到剪贴板。纯浏览器渲染。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "图表生成工具 · 柱状/折线/饼图/雷达图",
+  "url": "https://dq7866.online/toolbox/chart-tools.html",
+  "description": "在线图表生成工具：快速生成柱状图、折线图、饼图、雷达图，自定义标题、数据系列、配色主题与画布尺寸，一键下载 PNG 或复制到剪贴板。纯浏览器渲染。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark">工</span>
+      <span>免费工具箱<span class="tag">Toolbox</span></span>
+    </a>
+    <span class="spacer"></span>
+    <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html">音视频</a>
+      <a href="player.html">播放器</a>
+      <a href="file-tools.html">文件</a>
+      <a href="ocr-tools.html">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html">时间戳</a>
+      <a href="regex-tools.html">正则</a>
+      <a href="json-tools.html">JSON</a>
+      <a href="encode-tools.html">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html">对比</a>
+      <a href="chart-tools.html" class="active">图表</a>
+      <a href="clipboard-tools.html">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html">AI助手</a>
+      <a href="batch-image.html">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:26px">
+  <section class="panel">
+    <div class="panel-head"><span class="num">CHART</span><h2>快速图表生成工具</h2></div>
+    <p class="hint" style="margin-top:0;margin-bottom:16px">在线快速生成柱状图、折线图、饼图/环形图、雷达图。支持自定义标题、颜色主题、图表尺寸，一键下载 PNG 或复制到剪贴板。所有绘制均在本地浏览器完成，数据不上传。</p>
+
+    <div class="chart-layout">
+      <!-- 左侧：配置面板 -->
+      <div class="chart-sidebar">
+
+        <!-- 图表类型 -->
+        <div class="field">
+          <label>图表类型</label>
+          <div class="chart-type-tabs" id="chartTypeTabs">
+            <button class="chart-type-tab active" data-type="bar">柱状图</button>
+            <button class="chart-type-tab" data-type="line">折线图</button>
+            <button class="chart-type-tab" data-type="pie">饼图</button>
+            <button class="chart-type-tab" data-type="radar">雷达图</button>
+          </div>
+        </div>
+
+        <!-- 数据输入 -->
+        <div class="field">
+          <label>数据输入 <span class="hint" style="font-weight:400">（每行 标签,数值）</span></label>
+          <textarea class="chart-data-textarea" id="chartData" spellcheck="false" placeholder="一月,120&#10;二月,200&#10;三月,150&#10;四月,300"></textarea>
+          <div class="data-stat">
+            <span>数据点：<b id="dataCount">0</b></span>
+            <span>系列：<b id="seriesCount">0</b></span>
+          </div>
+          <div class="example-btns">
+            <button type="button" id="loadExample1">示例：单系列</button>
+            <button type="button" id="loadExample2">示例：多系列</button>
+            <button type="button" id="loadExample3">示例：饼图</button>
+          </div>
+        </div>
+
+        <!-- 图表标题 -->
+        <div class="field">
+          <label>图表标题</label>
+          <input type="text" id="chartTitle" placeholder="请输入图表标题" value="销售数据统计">
+        </div>
+
+        <!-- 颜色主题 -->
+        <div class="field">
+          <label>颜色主题</label>
+          <div class="color-palettes" id="colorPalettes"></div>
+        </div>
+
+        <!-- 图表尺寸 -->
+        <div class="field">
+          <label>图表尺寸</label>
+          <div class="chart-size-row">
+            <input type="number" id="chartWidth" value="800" min="200" max="2000" step="10">
+            <span class="x-sep">×</span>
+            <input type="number" id="chartHeight" value="500" min="200" max="2000" step="10">
+            <span style="color:var(--muted);font-size:12px">px</span>
+          </div>
+          <div class="example-btns" style="margin-top:6px">
+            <button type="button" data-size="600x400">600×400</button>
+            <button type="button" data-size="800x500">800×500</button>
+            <button type="button" data-size="1024x600">1024×600</button>
+            <button type="button" data-size="1200x800">1200×800</button>
+          </div>
+        </div>
+
+        <!-- 背景颜色 -->
+        <div class="field">
+          <label>背景颜色</label>
+          <div class="bg-options" id="bgOptions">
+            <button class="bg-btn active" data-bg="white">白色</button>
+            <button class="bg-btn" data-bg="transparent">透明</button>
+            <button class="bg-btn" data-bg="paper">纸质</button>
+          </div>
+        </div>
+
+        <!-- 显示选项 -->
+        <div class="field">
+          <label>显示选项</label>
+          <div class="checkbox-row">
+            <label><input type="checkbox" id="showLegend" checked> 图例</label>
+            <label><input type="checkbox" id="showLabels" checked> 数据标签</label>
+            <label><input type="checkbox" id="showGrid" checked> 网格线</label>
+          </div>
+        </div>
+
+        <!-- 饼图特殊选项 -->
+        <div class="field" id="pieOptions">
+          <label>饼图选项</label>
+          <div class="checkbox-row">
+            <label><input type="checkbox" id="doughnutMode"> 环形图</label>
+            <label><input type="checkbox" id="showPercent" checked> 百分比</label>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 右侧：预览 -->
+      <div class="chart-preview-panel">
+        <div class="chart-preview-wrap" id="chartPreviewWrap">
+          <canvas id="chartCanvas" width="800" height="500"></canvas>
+        </div>
+
+        <div class="chart-actions">
+          <button class="btn primary" id="downloadPng">下载 PNG</button>
+          <button class="btn" id="downloadSvg">下载 SVG</button>
+          <button class="btn" id="copyImage">复制图片</button>
+        </div>
+
+        <div class="tool-note" style="margin-top:14px;padding:10px 14px;background:var(--bg-2);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;font-size:12.5px;color:var(--muted)">
+          <b>提示：</b>支持多系列数据（柱状图/折线图），首行为系列名称，如：<code>月份,销售额,利润</code>。饼图和雷达图使用第一列数值。修改数据和选项后图表实时更新。
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <footer class="site">免费工具箱 · 图表生成 · 纯前端本地处理</footer>
+</main>
+
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+<script src="assets/js/chart-tools.js"></script>
+</body>
+</html>

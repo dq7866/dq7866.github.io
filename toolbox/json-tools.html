@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JSON/YAML 工具箱 · 格式化/校验/互转 ｜ 免费在线工具箱</title>
+<meta name="description" content="在线 JSON 工具箱：格式化与压缩、语法校验与错误定位、JSON 与 YAML 互转、树形结构预览。纯浏览器处理，数据不上传服务器。">
+<meta name="theme-color" content="#ff4d00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>工</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else{if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+<style>
+  /* JSON/YAML 工具专属样式 */
+  .json-panels .row { gap: 16px; }
+  .json-panels .field { flex: 1; min-width: 0; }
+  .json-textarea {
+    width: 100%;
+    min-height: 360px;
+    font-family: "SF Mono", Menlo, Consolas, "Courier New", monospace;
+    font-size: 13px;
+    line-height: 1.55;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    resize: vertical;
+    tab-size: 2;
+    box-sizing: border-box;
+  }
+  .json-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.12);
+  }
+  .json-textarea.readonly {
+    background: var(--paper);
+  }
+  .json-error {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: rgba(255, 77, 0, 0.08);
+    border: 1px solid rgba(255, 77, 0, 0.25);
+    border-radius: 8px;
+    color: var(--accent);
+    font-size: 13px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    display: none;
+  }
+  .json-error.show { display: block; }
+  .json-error .err-line { font-weight: 600; }
+
+  .json-stat {
+    margin-top: 8px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .tab-size-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .tab-size-row label {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .tab-size-row .seg {
+    flex: none;
+  }
+  .tab-size-row .seg button {
+    padding: 4px 12px;
+    font-size: 12.5px;
+  }
+
+  /* JSON 树视图 */
+  .json-tree {
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    max-height: 420px;
+    overflow: auto;
+  }
+  .json-tree details {
+    padding-left: 16px;
+    border-left: 1px dashed var(--line);
+    margin-left: 4px;
+  }
+  .json-tree > details {
+    padding-left: 0;
+    border-left: none;
+    margin-left: 0;
+  }
+  .json-tree summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 2px 0;
+    user-select: none;
+  }
+  .json-tree summary::-webkit-details-marker { display: none; }
+  .json-tree summary::before {
+    content: "▸";
+    display: inline-block;
+    width: 14px;
+    color: var(--muted);
+    transition: transform 0.15s;
+    font-size: 11px;
+  }
+  .json-tree details[open] > summary::before {
+    transform: rotate(90deg);
+  }
+  .json-tree .leaf {
+    padding-left: 18px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+  }
+  .json-tree .tk-key { color: var(--accent); }
+  .json-tree .tk-string { color: #2d8a5e; }
+  .json-tree .tk-number { color: #c77d00; }
+  .json-tree .tk-bool { color: #8250df; }
+  .json-tree .tk-null { color: var(--muted); font-style: italic; }
+  .json-tree .tk-bracket { color: var(--muted); }
+  .json-tree .tk-count {
+    color: var(--muted);
+    font-size: 11.5px;
+    margin-left: 4px;
+  }
+
+  /* 校验摘要 */
+  .validate-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .validate-summary .stat-card {
+    padding: 12px 14px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    text-align: center;
+  }
+  .validate-summary .stat-card .val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .validate-summary .stat-card .lbl {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .json-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .json-badge.ok {
+    background: rgba(45, 138, 94, 0.12);
+    color: #2d8a5e;
+  }
+  .json-badge.fail {
+    background: rgba(255, 77, 0, 0.12);
+    color: var(--accent);
+  }
+
+  .tool-note {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: var(--paper);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 720px) {
+    .json-textarea { min-height: 220px; }
+    .json-panels .row { flex-direction: column; }
+  }
+</style>
+<link rel="canonical" href="https://dq7866.online/toolbox/json-tools.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="JSON格式化,JSON压缩,JSON校验,JSON转YAML,YAML转JSON,JSON树形预览">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="JSON/YAML 工具箱 · 格式化/校验/互转 ｜ 免费在线工具箱">
+<meta property="og:description" content="在线 JSON 工具箱：格式化与压缩、语法校验与错误定位、JSON 与 YAML 互转、树形结构预览。纯浏览器处理，数据不上传服务器。">
+<meta property="og:url" content="https://dq7866.online/toolbox/json-tools.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="JSON/YAML 工具箱 · 格式化/校验/互转 ｜ 免费在线工具箱">
+<meta name="twitter:description" content="在线 JSON 工具箱：格式化与压缩、语法校验与错误定位、JSON 与 YAML 互转、树形结构预览。纯浏览器处理，数据不上传服务器。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "JSON/YAML 工具箱 · 格式化/校验/互转",
+  "url": "https://dq7866.online/toolbox/json-tools.html",
+  "description": "在线 JSON 工具箱：格式化与压缩、语法校验与错误定位、JSON 与 YAML 互转、树形结构预览。纯浏览器处理，数据不上传服务器。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark">工</span>
+      <span>免费工具箱<span class="tag">Toolbox</span></span>
+    </a>
+    <span class="spacer"></span>
+    <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html">音视频</a>
+      <a href="player.html">播放器</a>
+      <a href="file-tools.html">文件</a>
+      <a href="ocr-tools.html">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html">时间戳</a>
+      <a href="regex-tools.html">正则</a>
+      <a href="json-tools.html" class="active">JSON</a>
+      <a href="encode-tools.html">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html">对比</a>
+      <a href="chart-tools.html">图表</a>
+      <a href="clipboard-tools.html">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html">AI助手</a>
+      <a href="batch-image.html">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:26px">
+  <section class="panel">
+    <div class="panel-head"><span class="num">JSON</span><h2>JSON / YAML 工具箱</h2></div>
+    <p class="hint" style="margin-top:0;margin-bottom:16px">格式化、压缩、校验 JSON，以及 JSON 与 YAML 互相转换。所有处理均在本地浏览器完成，数据不会上传。</p>
+
+    <div class="tabs" id="jTabs">
+      <button class="tab active" data-tab="format">格式化 / 压缩</button>
+      <button class="tab" data-tab="j2y">JSON 转 YAML</button>
+      <button class="tab" data-tab="y2j">YAML 转 JSON</button>
+      <button class="tab" data-tab="validate">JSON 校验</button>
+    </div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+
+    <!-- ========== Tab 1: 格式化 / 压缩 ========== -->
+    <div class="j-panel json-panels" data-tab="format">
+      <div class="row">
+        <div class="field">
+          <label>输入 JSON</label>
+          <textarea class="json-textarea" id="fmtInput" spellcheck="false" placeholder='在此粘贴 JSON，例如：{"name":"张三","age":25}'></textarea>
+          <div class="json-stat" id="fmtInputStat">0 字符</div>
+        </div>
+        <div class="field">
+          <label>输出结果</label>
+          <textarea class="json-textarea readonly" id="fmtOutput" spellcheck="false" readonly placeholder="格式化后的结果会显示在这里"></textarea>
+          <div class="json-stat" id="fmtOutputStat">0 字符</div>
+        </div>
+      </div>
+
+      <div class="json-error" id="fmtError"></div>
+
+      <div class="btn-row" style="margin-top:14px;flex-wrap:wrap;gap:8px">
+        <div class="tab-size-row" style="margin:0">
+          <label>缩进：</label>
+          <div class="seg" id="indentSeg">
+            <button class="active" data-v="2">2 空格</button>
+            <button data-v="4">4 空格</button>
+            <button data-v="tab">Tab</button>
+          </div>
+        </div>
+        <span class="spacer" style="flex:1"></span>
+        <button class="btn ghost" id="fmtExample">示例</button>
+        <button class="btn ghost danger" id="fmtClear">清空</button>
+        <button class="btn ghost" id="fmtCopy">复制</button>
+        <button class="btn ghost" id="fmtMinify">压缩</button>
+        <button class="btn primary" id="fmtFormat">格式化</button>
+      </div>
+    </div>
+
+    <!-- ========== Tab 2: JSON 转 YAML ========== -->
+    <div class="j-panel json-panels hidden" data-tab="j2y">
+      <div class="row">
+        <div class="field">
+          <label>输入 JSON</label>
+          <textarea class="json-textarea" id="j2yInput" spellcheck="false" placeholder='在此粘贴 JSON'></textarea>
+          <div class="json-stat" id="j2yInputStat">0 字符</div>
+        </div>
+        <div class="field">
+          <label>输出 YAML</label>
+          <textarea class="json-textarea readonly" id="j2yOutput" spellcheck="false" readonly placeholder="转换后的 YAML 会显示在这里"></textarea>
+          <div class="json-stat" id="j2yOutputStat">0 字符</div>
+        </div>
+      </div>
+
+      <div class="json-error" id="j2yError"></div>
+      <div class="tool-note" id="j2yNote" style="display:none">提示：本工具支持常见 YAML 结构（键值对、数组、嵌套对象、基本类型）。复杂 YAML 特性（如锚点、多文档、自定义标签等）暂不支持。</div>
+
+      <div class="btn-row" style="margin-top:14px;flex-wrap:wrap;gap:8px">
+        <label class="inline" style="margin:0"><input type="checkbox" id="j2yAuto" checked> 自动转换</label>
+        <span class="spacer" style="flex:1"></span>
+        <button class="btn ghost" id="j2yExample">示例</button>
+        <button class="btn ghost danger" id="j2yClear">清空</button>
+        <button class="btn ghost" id="j2yCopy">复制</button>
+        <button class="btn primary" id="j2yConvert">转换</button>
+      </div>
+    </div>
+
+    <!-- ========== Tab 3: YAML 转 JSON ========== -->
+    <div class="j-panel json-panels hidden" data-tab="y2j">
+      <div class="row">
+        <div class="field">
+          <label>输入 YAML</label>
+          <textarea class="json-textarea" id="y2jInput" spellcheck="false" placeholder="在此粘贴 YAML"></textarea>
+          <div class="json-stat" id="y2jInputStat">0 字符</div>
+        </div>
+        <div class="field">
+          <label>输出 JSON</label>
+          <textarea class="json-textarea readonly" id="y2jOutput" spellcheck="false" readonly placeholder="转换后的 JSON 会显示在这里"></textarea>
+          <div class="json-stat" id="y2jOutputStat">0 字符</div>
+        </div>
+      </div>
+
+      <div class="json-error" id="y2jError"></div>
+      <div class="tool-note" id="y2jNote" style="display:none">提示：本工具支持常见 YAML 结构（键值对、数组、嵌套对象、基本类型）。复杂 YAML 特性（如锚点、多文档、自定义标签等）暂不支持。</div>
+
+      <div class="btn-row" style="margin-top:14px;flex-wrap:wrap;gap:8px">
+        <div class="tab-size-row" style="margin:0">
+          <label>缩进：</label>
+          <div class="seg" id="y2jIndentSeg">
+            <button class="active" data-v="2">2 空格</button>
+            <button data-v="4">4 空格</button>
+            <button data-v="tab">Tab</button>
+          </div>
+        </div>
+        <label class="inline" style="margin:0"><input type="checkbox" id="y2jAuto" checked> 自动转换</label>
+        <span class="spacer" style="flex:1"></span>
+        <button class="btn ghost" id="y2jExample">示例</button>
+        <button class="btn ghost danger" id="y2jClear">清空</button>
+        <button class="btn ghost" id="y2jCopy">复制</button>
+        <button class="btn primary" id="y2jConvert">转换</button>
+      </div>
+    </div>
+
+    <!-- ========== Tab 4: JSON 校验 ========== -->
+    <div class="j-panel json-panels hidden" data-tab="validate">
+      <div class="field">
+        <label>输入 JSON 进行校验</label>
+        <textarea class="json-textarea" id="valInput" spellcheck="false" style="min-height:200px" placeholder='在此粘贴 JSON 以校验格式是否正确'></textarea>
+        <div class="json-stat" id="valInputStat">0 字符</div>
+      </div>
+
+      <div class="btn-row" style="margin-top:12px;flex-wrap:wrap;gap:8px">
+        <span id="valBadgeWrap"></span>
+        <span class="spacer" style="flex:1"></span>
+        <button class="btn ghost" id="valExample">示例</button>
+        <button class="btn ghost danger" id="valClear">清空</button>
+        <button class="btn primary" id="valCheck">校验</button>
+      </div>
+
+      <div class="json-error" id="valError"></div>
+
+      <div id="valSummary" style="display:none">
+        <div class="panel-head" style="margin-top:20px;padding:0">
+          <span class="num">INFO</span><h3 style="margin:0;font-size:15px">结构摘要</h3>
+        </div>
+        <div class="validate-summary">
+          <div class="stat-card"><div class="val" id="sDepth">-</div><div class="lbl">最大深度</div></div>
+          <div class="stat-card"><div class="val" id="sKeys">-</div><div class="lbl">键总数</div></div>
+          <div class="stat-card"><div class="val" id="sArrays">-</div><div class="lbl">数组数量</div></div>
+          <div class="stat-card"><div class="val" id="sObjects">-</div><div class="lbl">对象数量</div></div>
+          <div class="stat-card"><div class="val" id="sStrings">-</div><div class="lbl">字符串数量</div></div>
+          <div class="stat-card"><div class="val" id="sNumbers">-</div><div class="lbl">数字数量</div></div>
+        </div>
+
+        <div class="panel-head" style="margin-top:20px;padding:0">
+          <span class="num">TREE</span><h3 style="margin:0;font-size:15px">树形结构</h3>
+        </div>
+        <div class="json-tree" id="valTree"></div>
+      </div>
+    </div>
+
+  </section>
+
+  <footer class="site">免费工具箱 · JSON/YAML 工具 · 纯前端本地处理</footer>
+</main>
+
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+<script src="assets/js/json-tools.js"></script>
+</body>
+</html>

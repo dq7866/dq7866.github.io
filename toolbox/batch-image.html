@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>批量图片工作流 · 改尺寸/压缩/水印/重命名 ｜ 免费在线工具箱</title>
+<meta name="description" content="把改尺寸、压缩、格式转换、加水印、重命名等多步操作组合成流水线，一次排队批量处理整批图片。纯浏览器本地处理，不上传、无数量限制。">
+<meta name="theme-color" content="#ff4d00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>工</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else{if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+<style>
+/* ===== 批量图片工作流专属样式 ===== */
+
+.batch-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* 左侧：流水线构建器 */
+.pipeline-panel {
+  position: sticky;
+  top: 76px;
+}
+
+.pipeline-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0;
+  min-height: 60px;
+}
+
+.pipeline-step {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  transition: all .15s;
+  position: relative;
+}
+.pipeline-step:hover {
+  border-color: var(--accent);
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.step-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.step-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+.step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.step-actions {
+  display: flex;
+  gap: 2px;
+}
+.step-actions button {
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+}
+.step-actions button:hover {
+  background: var(--accent-2);
+  color: var(--accent);
+}
+.step-actions button.del:hover {
+  background: rgba(239,68,68,.1);
+  color: var(--danger);
+}
+
+.step-body {
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+
+.step-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.step-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.step-field label {
+  font-size: 12.5px;
+  color: var(--text-2);
+  font-weight: 500;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+.step-field input[type="text"],
+.step-field input[type="number"],
+.step-field select,
+.step-field input[type="color"] {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12.5px;
+  outline: none;
+  transition: all .15s;
+  min-width: 0;
+}
+.step-field input[type="color"] {
+  padding: 2px;
+  height: 28px;
+  cursor: pointer;
+}
+.step-field input:focus,
+.step-field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255,77,0,.1);
+}
+.step-field input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent);
+}
+.step-field .val-badge {
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* 添加步骤面板 */
+.add-step-panel {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.add-step-panel .label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 8px;
+}
+.add-step-btns {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+.add-step-btn {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-2);
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+.add-step-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-2);
+}
+.add-step-btn:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+.add-step-btn .ico {
+  font-size: 14px;
+}
+
+/* 空流水线 */
+.empty-pipeline {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--muted);
+  font-size: 13px;
+  background: var(--bg-2);
+  border-radius: var(--radius-sm);
+  border: 2px dashed var(--line);
+}
+.empty-pipeline .icon {
+  font-size: 36px;
+  margin-bottom: 8px;
+  opacity: .6;
+}
+
+/* 右侧：图片和预览 */
+.images-panel {
+  min-height: 400px;
+}
+
+/* 上传区域 */
+.drop-zone {
+  border: 2px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 30px;
+  text-align: center;
+  background: var(--surface-2);
+  transition: all .15s;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-2);
+}
+.drop-zone .big {
+  font-size: 42px;
+  margin-bottom: 8px;
+}
+.drop-zone .t {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.drop-zone .s {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* 图片列表 */
+.image-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 4px;
+  margin-bottom: 14px;
+}
+.image-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid var(--line);
+  cursor: pointer;
+  transition: all .15s;
+  background: var(--bg-2);
+}
+.image-thumb:hover {
+  border-color: var(--accent);
+}
+.image-thumb.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-2);
+}
+.image-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.image-thumb .x {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.5);
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.image-thumb:hover .x {
+  opacity: 1;
+}
+.image-thumb .size {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+  font-size: 10px;
+  color: #fff;
+  background: rgba(0,0,0,.5);
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 预览区 */
+.preview-section {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.preview-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.preview-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.preview-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-2);
+  padding: 2px;
+  border-radius: 6px;
+}
+.preview-toggle button {
+  padding: 4px 10px;
+  font-size: 11.5px;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all .15s;
+}
+.preview-toggle button.active {
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+
+.preview-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.preview-box {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.preview-box-label {
+  font-size: 11.5px;
+  color: var(--muted);
+  padding: 4px 8px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-weight: 500;
+}
+.preview-box-img {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  min-height: 180px;
+  max-height: 280px;
+}
+.preview-box-img img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+.preview-box-info {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 4px 8px;
+  background: var(--surface-2);
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+.preview-single .preview-box-img {
+  min-height: 240px;
+  max-height: 360px;
+}
+
+/* 进度条 */
+.progress-wrap {
+  margin-top: 14px;
+}
+.progress-bar {
+  height: 8px;
+  background: var(--bg-2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width .3s ease;
+  width: 0%;
+}
+.progress-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.progress-text b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* 处理按钮区 */
+.action-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.action-bar .btn.primary {
+  flex: 1;
+  min-width: 160px;
+}
+
+/* 结果区 */
+.results-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 4px;
+}
+.result-item {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all .15s;
+}
+.result-item:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.result-item img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+.result-item-info {
+  padding: 6px 8px;
+  font-size: 11px;
+  color: var(--text-2);
+}
+.result-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.result-item-size {
+  color: var(--muted);
+  margin-top: 2px;
+}
+.result-item-actions {
+  padding: 0 8px 8px;
+  display: flex;
+  gap: 4px;
+}
+.result-item-actions button {
+  flex: 1;
+  padding: 4px 6px;
+  font-size: 11px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-2);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.result-item-actions button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-2);
+}
+
+/* 统计信息 */
+.batch-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.batch-stats b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: var(--text);
+  color: var(--surface);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .25s;
+  z-index: 2000;
+  box-shadow: var(--shadow-lg);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 响应式 */
+@media (max-width: 900px) {
+  .batch-layout {
+    grid-template-columns: 1fr;
+  }
+  .pipeline-panel {
+    position: static;
+  }
+  .preview-compare {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .image-list {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  }
+}
+</style>
+<link rel="canonical" href="https://dq7866.online/toolbox/batch-image.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="批量图片处理,图片批处理工作流,批量压缩,批量加水印,批量重命名,图片流水线">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="批量图片工作流 · 改尺寸/压缩/水印/重命名 ｜ 免费在线工具箱">
+<meta property="og:description" content="把改尺寸、压缩、格式转换、加水印、重命名等多步操作组合成流水线，一次排队批量处理整批图片。纯浏览器本地处理，不上传、无数量限制。">
+<meta property="og:url" content="https://dq7866.online/toolbox/batch-image.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="批量图片工作流 · 改尺寸/压缩/水印/重命名 ｜ 免费在线工具箱">
+<meta name="twitter:description" content="把改尺寸、压缩、格式转换、加水印、重命名等多步操作组合成流水线，一次排队批量处理整批图片。纯浏览器本地处理，不上传、无数量限制。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "批量图片工作流 · 改尺寸/压缩/水印/重命名",
+  "url": "https://dq7866.online/toolbox/batch-image.html",
+  "description": "把改尺寸、压缩、格式转换、加水印、重命名等多步操作组合成流水线，一次排队批量处理整批图片。纯浏览器本地处理，不上传、无数量限制。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark">工</span>
+      <span>免费工具箱<span class="tag">Toolbox</span></span>
+    </a>
+    <span class="spacer"></span>
+    <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html">音视频</a>
+      <a href="player.html">播放器</a>
+      <a href="file-tools.html">文件</a>
+      <a href="ocr-tools.html">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html">时间戳</a>
+      <a href="regex-tools.html">正则</a>
+      <a href="json-tools.html">JSON</a>
+      <a href="encode-tools.html">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html">对比</a>
+      <a href="chart-tools.html">图表</a>
+      <a href="clipboard-tools.html">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html">AI助手</a>
+      <a href="batch-image.html" class="active">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:26px">
+  <section class="panel">
+    <div class="panel-head"><span class="num">BATCH</span><h2>批量图片工作流 🔄</h2></div>
+    <p class="hint" style="margin-top:0;margin-bottom:16px">将多种图片处理操作组合成流水线，一键批量处理所有图片。支持改尺寸、压缩、格式转换、加水印、重命名。所有处理均在本地完成，不上传服务器。</p>
+
+    <div class="batch-layout">
+      <!-- 左侧：流水线构建器 -->
+      <div class="pipeline-panel">
+        <div class="sub-title" style="display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text);margin-bottom:4px">
+          <span style="width:3px;height:14px;background:var(--accent);border-radius:2px;display:inline-block"></span>
+          处理流水线
+        </div>
+        <p class="hint" style="font-size:12px;margin:4px 0 10px">按顺序添加处理步骤，可拖动调整顺序（使用上下按钮）</p>
+
+        <div class="pipeline-steps" id="pipelineSteps">
+          <div class="empty-pipeline" id="emptyPipeline">
+            <div class="icon">🔧</div>
+            <div>还没有添加处理步骤</div>
+            <div style="font-size:11.5px;margin-top:4px;opacity:.8">从下方选择操作添加到流水线</div>
+          </div>
+        </div>
+
+        <div class="add-step-panel">
+          <div class="label">添加操作步骤</div>
+          <div class="add-step-btns" id="addStepBtns">
+            <button class="add-step-btn" data-step="resize">
+              <span class="ico">📐</span><span>改尺寸</span>
+            </button>
+            <button class="add-step-btn" data-step="compress">
+              <span class="ico">🗜️</span><span>压缩</span>
+            </button>
+            <button class="add-step-btn" data-step="convert">
+              <span class="ico">🔄</span><span>格式转换</span>
+            </button>
+            <button class="add-step-btn" data-step="watermark">
+              <span class="ico">💧</span><span>加水印</span>
+            </button>
+            <button class="add-step-btn" data-step="rename">
+              <span class="ico">✏️</span><span>重命名</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧：图片列表 + 预览 + 操作 -->
+      <div class="images-panel">
+        <!-- 上传区 -->
+        <label class="drop-zone" id="dropZone">
+          <div class="big">📁</div>
+          <div class="t">点击选择，或把图片拖到这里</div>
+          <div class="s">支持 JPG / PNG / WebP / GIF（GIF 取首帧）· 可多选</div>
+          <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
+        </label>
+
+        <!-- 图片列表 -->
+        <div class="batch-stats" id="batchStats" style="display:none">
+          <span>已选 <b id="imgCount">0</b> 张图片</span>
+          <span>总大小 <b id="totalSize">0 KB</b></span>
+          <span class="spacer" style="flex:1"></span>
+          <button class="btn ghost danger" id="clearAllBtn" style="padding:4px 10px;font-size:12px">清空全部</button>
+        </div>
+        <div class="image-list" id="imageList" style="display:none"></div>
+
+        <!-- 预览区 -->
+        <div class="preview-section" id="previewSection" style="display:none">
+          <div class="preview-header">
+            <span class="preview-title">效果预览</span>
+            <div class="preview-toggle" id="previewToggle">
+              <button class="active" data-view="compare">对比</button>
+              <button data-view="after">处理后</button>
+            </div>
+            <span class="spacer" style="flex:1"></span>
+            <button class="btn ghost" id="refreshPreviewBtn" style="padding:4px 10px;font-size:12px">刷新预览</button>
+          </div>
+          <div id="previewContent">
+            <!-- 动态生成 -->
+          </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="action-bar">
+          <button class="btn primary" id="processBtn" disabled>🔄 开始批量处理</button>
+          <button class="btn" id="zipBtn" style="display:none">📦 打包下载 ZIP</button>
+          <button class="btn ghost" id="clearResultsBtn" style="display:none">清除结果</button>
+        </div>
+
+        <!-- 进度条 -->
+        <div class="progress-wrap" id="progressWrap" style="display:none">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-text">
+            <span id="progressText">处理中...</span>
+            <span><b id="progressPct">0%</b></span>
+          </div>
+        </div>
+
+        <!-- 结果区 -->
+        <div class="results-section" id="resultsSection" style="display:none">
+          <div class="sub-title" style="display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:var(--text);margin-bottom:10px">
+            <span style="width:3px;height:14px;background:var(--accent);border-radius:2px;display:inline-block"></span>
+            处理结果
+          </div>
+          <div class="batch-stats">
+            <span>共 <b id="resultCount">0</b> 张</span>
+            <span>原始大小 <b id="origTotalSize">0 KB</b></span>
+            <span>处理后 <b id="newTotalSize">0 KB</b></span>
+            <span>节省 <b id="savedSize">0%</b></span>
+          </div>
+          <div class="results-grid" id="resultsGrid"></div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <footer class="site">免费工具箱 · 批量图片工作流 · 纯前端本地处理</footer>
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- JSZip (CDN fallback handled in JS) -->
+<script src="assets/vendor/jszip.min.js" onerror="window._noJsZip=true"></script>
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+<script src="assets/js/batch-image.js"></script>
+</body>
+</html>

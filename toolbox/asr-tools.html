@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>语音转文字 · 时间戳字幕导出（需本地 Whisper）</title>
+<meta name="description" content="语音转文字工具：从中文音视频中提取文字，输出带时间戳的分段结果，可编辑校对并导出 TXT / SRT / VTT 字幕，支持按文案做文本校正对齐。识别依赖本地 Whisper 模型，公网在线版不内置。">
+<meta name="theme-color" content="#ff4d00">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>工</text></svg>">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else if(t==='auto'||!t){if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.setAttribute('data-theme','dark');}}}catch(e){}})();</script>
+<link rel="canonical" href="https://dq7866.online/toolbox/asr-tools.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="语音转文字,音频转文字,语音识别,字幕生成,SRT导出,Whisper识别">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="语音转文字 · 时间戳字幕导出（需本地 Whisper）">
+<meta property="og:description" content="语音转文字工具：从中文音视频中提取文字，输出带时间戳的分段结果，可编辑校对并导出 TXT / SRT / VTT 字幕，支持按文案做文本校正对齐。识别依赖本地 Whisper 模型，公网在线版不内置。">
+<meta property="og:url" content="https://dq7866.online/toolbox/asr-tools.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="语音转文字 · 时间戳字幕导出（需本地 Whisper）">
+<meta name="twitter:description" content="语音转文字工具：从中文音视频中提取文字，输出带时间戳的分段结果，可编辑校对并导出 TXT / SRT / VTT 字幕，支持按文案做文本校正对齐。识别依赖本地 Whisper 模型，公网在线版不内置。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "语音转文字 · 时间戳字幕导出（需本地 Whisper）",
+  "url": "https://dq7866.online/toolbox/asr-tools.html",
+  "description": "语音转文字工具：从中文音视频中提取文字，输出带时间戳的分段结果，可编辑校对并导出 TXT / SRT / VTT 字幕，支持按文案做文本校正对齐。识别依赖本地 Whisper 模型，公网在线版不内置。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><span class="mark">工</span><span>免费工具箱<span class="tag">Toolbox</span></span></a>
+    <span class="spacer"></span>
+        <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html">音视频</a>
+      <a href="player.html">播放器</a>
+      <a href="file-tools.html">文件</a>
+      <a href="ocr-tools.html">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html" class="active">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html">时间戳</a>
+      <a href="regex-tools.html">正则</a>
+      <a href="json-tools.html">JSON</a>
+      <a href="encode-tools.html">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html">对比</a>
+      <a href="chart-tools.html">图表</a>
+      <a href="clipboard-tools.html">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html">AI助手</a>
+      <a href="batch-image.html">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:26px">
+<div class="tb-notice" role="note">
+  <span class="tb-notice-ico">ℹ️</span>
+  <div class="tb-notice-body"><b>在线版说明 · 语音转文字需要本地 Whisper 模型</b>语音识别依赖数百 MB 的本地模型，公网在线版不内置。其余工具不受影响。</div>
+</div>
+
+  <div class="split">
+    <div class="stack">
+      <section class="panel">
+        <div class="panel-head"><span class="num">01</span><h2>选择音频 / 视频</h2></div>
+        <label class="drop" id="drop">
+          <div class="big">🎧</div>
+          <div class="t">点击选择，或把文件拖到这里</div>
+          <div class="s">支持 mp3 / wav / m4a / mp4 / mov / mkv 等音视频格式</div>
+        </label>
+        <input type="file" id="fileInput" accept="audio/*,video/*,.m4a,.mp3,.wav,.aac,.flac" class="sr">
+        <div id="fileInfo" style="margin-top:12px"></div>
+        <div id="playerWrap" style="margin-top:12px"></div>
+        <div class="btn-row">
+          <span class="hint" id="fileName" style="margin:0">尚未选择文件</span>
+          <span class="spacer" style="flex:1"></span>
+          <button class="btn ghost danger" id="clearBtn" disabled>清空</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><span class="num">02</span><h2>设置</h2></div>
+        <div class="tabs" id="modeTabs" style="margin-bottom:12px">
+          <button class="tab active" data-mode="asr">语音识别</button>
+          <button class="tab" data-mode="align">文本校正对齐</button>
+        </div>
+        <div id="svcStatus" class="note">正在检测本机服务…</div>
+
+        <div class="field" style="margin-top:12px"><label>识别模型</label><select id="model"></select></div>
+        <div class="btn-row">
+          <button class="btn" id="pullBtn">下载所选模型</button>
+          <span class="hint" id="modelMsg" style="align-self:center"></span>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <div class="field"><label>语言</label>
+            <select id="lang"><option value="zh">中文</option><option value="auto">自动检测</option><option value="en">英文</option><option value="ja">日文</option><option value="ko">韩文</option></select>
+          </div>
+        </div>
+
+        <!-- 语音识别 -->
+        <div class="mode-block" data-mode="asr">
+          <div class="field"><label>人声处理</label>
+            <select id="enhance">
+              <option value="none">不处理</option>
+              <option value="denoise">降噪</option>
+              <option value="vocal">人声频段增强</option>
+              <option value="both">降噪 + 人声增强</option>
+            </select>
+          </div>
+          <div class="field"><label>识别提示（可选，帮助加标点 / 认专有名词）</label><input type="text" id="prompt" placeholder="例如：以下是普通话的句子，请加标点。"></div>
+          <label class="inline"><input type="checkbox" id="vad" checked> 过滤静音段（说话推荐开启；唱歌建议关闭）</label>
+          <label class="inline" style="display:block;margin-top:8px"><input type="checkbox" id="bilingual"> 中英双语（自动把中文翻译成英文，输出两行字幕）</label>
+        </div>
+
+        <!-- 文本校正对齐 -->
+        <div class="mode-block hidden" data-mode="align">
+          <div class="field"><label>参考文本（你手上准确的文案）</label>
+            <textarea id="refText" rows="9" placeholder="把准确的台词/文案粘贴到这里，会自动繁转简。\n支持中英文，标点会被保留用于分行。"></textarea>
+          </div>
+          <div class="btn-row">
+            <button class="btn" id="importRef">导入 .txt / .srt</button>
+            <input type="file" id="refFile" accept=".txt,.srt,.vtt,.md" class="sr">
+            <span class="hint" id="refMsg" style="align-self:center"></span>
+          </div>
+          <div class="hint" style="margin-top:8px">原理：先用 Whisper 拿到**词级时间轴**，再把你给的文案按字对齐到时间上，输出**你文案 + 音频时间**的 SRT。文案与语音有少量出入也能对齐（会显示匹配率）。</div>
+        </div>
+
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn primary" id="runBtn" style="flex:1" disabled>开始识别</button>
+        </div>
+        <div id="progressWrap" style="display:none;margin-top:12px">
+          <div class="hint" id="progLabel" style="margin:0 0 6px"></div>
+          <div class="strength-bar"><i id="progBar"></i></div>
+        </div>
+        <div class="err" id="err"></div>
+        <div class="note"><b>说明：</b>识别由<b>本机 Whisper 模型</b>完成（CPU），文件不上传互联网。输出统一转为简体中文。首次使用需先下载模型；长音频耗时较长，请耐心等待。</div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head"><span class="num">03</span><h2>识别结果</h2>
+        <span class="spacer" style="flex:1"></span>
+        <span class="hint" id="asrStat" style="margin:0"></span>
+      </div>
+      <div id="result"><div class="empty">识别结果会显示在这里</div></div>
+    </section>
+  </div>
+
+  <footer class="site">免费工具箱 · 语音转文字（本地 Whisper）</footer>
+</main>
+
+<script src="assets/js/asr-tools.js"></script>
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+</body>
+</html>

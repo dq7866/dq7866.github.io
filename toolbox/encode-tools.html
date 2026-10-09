@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>编码转换工具 · Base64/URL/Unicode/哈希 ｜ 免费在线工具箱</title>
+<meta name="description" content="在线编码转换工具：Base64 编解码、URL 编解码、Unicode 与 Hex 转换、哈希计算（MD5/SHA-1/SHA-256）、时间戳与文本互转。纯浏览器处理，数据不上传。">
+<meta name="theme-color" content="#ff4d00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>工</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else{if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+<style>
+/* ===== 设计系统变量 · 暖中性纸质风格 ===== */
+:root {
+  --bg: #faf6f0;
+  --bg-2: #f3ede3;
+  --surface: #fffdf8;
+  --surface-2: #faf6f0;
+  --text: #2b2520;
+  --text-2: #6b5e52;
+  --muted: #9a8e80;
+  --line: #e8dfd1;
+  --line-2: #f0e8db;
+  --accent: #ff4d00;
+  --accent-2: #fff0e8;
+  --accent-ink: #fff;
+  --ok: #10b981;
+  --danger: #ef4444;
+  --warn: #f59e0b;
+  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(60,40,10,.06);
+  --shadow-lg: 0 8px 32px rgba(60,40,10,.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace;
+}
+[data-theme="dark"] {
+  --bg: #1a1612;
+  --bg-2: #241e18;
+  --surface: #2a231c;
+  --surface-2: #332a21;
+  --text: #f0e8dc;
+  --text-2: #c5b9a8;
+  --muted: #8a7d6d;
+  --line: #3d3328;
+  --line-2: #332a21;
+  --accent: #ff6b2d;
+  --accent-2: #3a2418;
+  --accent-ink: #fff;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; font-size: inherit; }
+
+/* ===== Topbar ===== */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+}
+.topbar-inner {
+  max-width: 1200px; margin: 0 auto;
+  min-height: 56px; padding: 0 20px;
+  display: flex; align-items: center; gap: 16px;
+}
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 16px;
+}
+.brand .mark {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 800;
+}
+.brand .tag {
+  font-size: 11px; font-weight: 500;
+  color: var(--muted); margin-left: 4px;
+  letter-spacing: .5px;
+}
+.spacer { flex: 1; }
+.topnav {
+  display: flex; align-items: center; gap: 2px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.topnav::-webkit-scrollbar { display: none; }
+.topnav a {
+  padding: 6px 12px; border-radius: 6px;
+  font-size: 13.5px; color: var(--text-2);
+  white-space: nowrap; transition: all .15s;
+}
+.topnav a:hover { color: var(--text); background: var(--bg-2); }
+.topnav a.active { color: var(--accent); background: var(--accent-2); font-weight: 600; }
+
+/* ===== Wrap ===== */
+.wrap {
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+/* ===== Panel ===== */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.panel + .panel { margin-top: 20px; }
+.panel-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+.panel-head h2 {
+  font-size: 17px; font-weight: 700;
+  color: var(--text);
+}
+.num {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 28px; height: 24px; padding: 0 8px;
+  background: var(--accent-2); color: var(--accent);
+  font-size: 11.5px; font-weight: 700;
+  border-radius: 6px; letter-spacing: .5px;
+}
+
+/* ===== Tabs ===== */
+.tabs {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  background: var(--bg-2);
+  padding: 4px; border-radius: 10px;
+}
+.tab {
+  flex: 1; min-width: 120px;
+  padding: 8px 14px;
+  border: none; background: transparent;
+  color: var(--text-2);
+  font-size: 13.5px; font-weight: 500;
+  border-radius: 7px;
+  transition: all .15s;
+}
+.tab:hover { color: var(--text); }
+.tab.active {
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+/* ===== Field & Row ===== */
+.field { margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+.field label {
+  display: block;
+  font-size: 13px; font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}
+.field input[type="text"],
+.field input[type="number"],
+.field input[type="datetime-local"],
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 14px;
+  transition: all .15s;
+  outline: none;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255,77,0,.1);
+  background: var(--surface);
+}
+.field input.readonly {
+  background: var(--bg-2);
+  color: var(--text);
+  cursor: text;
+}
+.hint {
+  font-size: 12px; color: var(--muted);
+  margin-top: 6px; line-height: 1.5;
+}
+.row {
+  display: flex; gap: 10px; align-items: center;
+}
+.row .field { flex: 1; margin-bottom: 0; }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13.5px; font-weight: 500;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn:active { transform: translateY(1px); }
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.btn.primary:hover { opacity: .92; color: #fff; }
+.btn.ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--text-2);
+  padding: 7px 12px;
+  font-size: 12.5px;
+}
+.btn.ghost:hover {
+  background: var(--accent-2);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn.danger {
+  color: var(--danger);
+  border-color: rgba(239,68,68,.3);
+}
+.btn.danger:hover {
+  background: rgba(239,68,68,.08);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.btn-row {
+  display: flex; gap: 10px; align-items: center;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+/* ===== Segmented Control ===== */
+.seg {
+  display: inline-flex;
+  background: var(--bg-2);
+  border-radius: 7px;
+  padding: 2px;
+}
+.seg button {
+  padding: 5px 12px;
+  font-size: 12.5px;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all .15s;
+  font-weight: 500;
+}
+.seg button.active {
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+
+/* ===== Error ===== */
+.err {
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  margin-top: 12px;
+  display: none;
+}
+.err.show { display: block; }
+[data-theme="dark"] .err {
+  background: rgba(239,68,68,.1);
+  border-color: rgba(239,68,68,.3);
+  color: #f87171;
+}
+
+/* ===== Footer ===== */
+.site {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.site a { color: var(--text-2); }
+.site a:hover { color: var(--accent); }
+
+/* ===== Utility ===== */
+.hidden { display: none !important; }
+
+/* ===== 编码工具专属样式 ===== */
+.encode-textarea {
+  width: 100%;
+  min-height: 160px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  resize: vertical;
+  tab-size: 2;
+  box-sizing: border-box;
+  outline: none;
+  transition: all .15s;
+}
+.encode-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.12);
+  background: var(--surface);
+}
+.encode-textarea.readonly {
+  background: var(--bg-2);
+  cursor: text;
+}
+.encode-stat {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.encode-panels .row { gap: 16px; align-items: stretch; }
+.encode-panels .field { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.encode-panels textarea { flex: 1; }
+
+.swap-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all .15s;
+  flex-shrink: 0;
+  align-self: center;
+  font-size: 16px;
+}
+.swap-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-2);
+}
+
+.file-drop {
+  border: 2px dashed var(--line);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+  background: var(--surface-2);
+}
+.file-drop:hover, .file-drop.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-2);
+  color: var(--accent);
+}
+.file-drop input[type="file"] { display: none; }
+.file-info {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: var(--bg-2);
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: var(--text-2);
+  display: none;
+}
+.file-info.show { display: block; }
+.file-info .fname { font-weight: 600; color: var(--text); }
+
+.hash-results {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hash-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.hash-row .hash-label {
+  min-width: 90px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-2);
+}
+.hash-row .hash-value {
+  flex: 1;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--text);
+  word-break: break-all;
+  padding: 4px 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  border: 1px solid var(--line);
+}
+.hash-row .hash-copy {
+  flex-shrink: 0;
+}
+
+.hash-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.hash-meta b { color: var(--text); font-weight: 600; }
+
+.mode-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.mode-row label {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.mode-row .seg { flex: none; }
+
+.tool-note {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--bg-2);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .topbar-inner { padding: 0 14px; }
+  .wrap { padding: 0 14px 40px; }
+  .panel { padding: 16px; }
+  .encode-panels .row { flex-direction: column; gap: 10px; }
+  .swap-btn { transform: rotate(90deg); margin: 4px 0; }
+  .tabs { flex-direction: column; }
+  .tab { width: 100%; }
+  .topnav { display: none; }
+  .hash-row { flex-direction: column; align-items: flex-start; }
+  .hash-row .hash-copy { align-self: flex-end; }
+}
+</style>
+<link rel="canonical" href="https://dq7866.online/toolbox/encode-tools.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="Base64编解码,URL编码,Unicode转换,Hex转换,MD5计算,SHA256,哈希计算,在线编码工具">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="编码转换工具 · Base64/URL/Unicode/哈希 ｜ 免费在线工具箱">
+<meta property="og:description" content="在线编码转换工具：Base64 编解码、URL 编解码、Unicode 与 Hex 转换、哈希计算（MD5/SHA-1/SHA-256）、时间戳与文本互转。纯浏览器处理，数据不上传。">
+<meta property="og:url" content="https://dq7866.online/toolbox/encode-tools.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="编码转换工具 · Base64/URL/Unicode/哈希 ｜ 免费在线工具箱">
+<meta name="twitter:description" content="在线编码转换工具：Base64 编解码、URL 编解码、Unicode 与 Hex 转换、哈希计算（MD5/SHA-1/SHA-256）、时间戳与文本互转。纯浏览器处理，数据不上传。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "编码转换工具 · Base64/URL/Unicode/哈希",
+  "url": "https://dq7866.online/toolbox/encode-tools.html",
+  "description": "在线编码转换工具：Base64 编解码、URL 编解码、Unicode 与 Hex 转换、哈希计算（MD5/SHA-1/SHA-256）、时间戳与文本互转。纯浏览器处理，数据不上传。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark">工</span>
+      <span>免费工具箱<span class="tag">Toolbox</span></span>
+    </a>
+    <span class="spacer"></span>
+    <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html">音视频</a>
+      <a href="player.html">播放器</a>
+      <a href="file-tools.html">文件</a>
+      <a href="ocr-tools.html">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html">时间戳</a>
+      <a href="regex-tools.html">正则</a>
+      <a href="json-tools.html">JSON</a>
+      <a href="encode-tools.html" class="active">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html">对比</a>
+      <a href="chart-tools.html">图表</a>
+      <a href="clipboard-tools.html">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html">AI助手</a>
+      <a href="batch-image.html">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:26px">
+  <section class="panel">
+    <div class="panel-head"><span class="num">ENC</span><h2>编码转换工具箱</h2></div>
+    <p class="hint" style="margin-top:0;margin-bottom:16px">Base64 编解码、URL 编解码、Unicode / Hex 转换、哈希计算。所有处理均在本地浏览器完成，数据不会上传服务器。</p>
+
+    <div class="tabs" id="encTabs">
+      <button class="tab active" data-tab="base64">Base64 编解码</button>
+      <button class="tab" data-tab="url">URL 编解码</button>
+      <button class="tab" data-tab="unicode">Unicode / Hex</button>
+      <button class="tab" data-tab="hash">哈希计算</button>
+    </div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+
+    <!-- ========== Tab 1: Base64 编解码 ========== -->
+    <div class="enc-panel encode-panels" data-tab="base64">
+      <div class="row">
+        <div class="field">
+          <label>输入（文本 / Base64）</label>
+          <textarea class="encode-textarea" id="b64Input" spellcheck="false" placeholder="在此输入要编码的文本，或粘贴 Base64 字符串进行解码"></textarea>
+          <div class="encode-stat">
+            <span id="b64InputStat">0 字符</span>
+            <span id="b64InputBytes">-</span>
+          </div>
+        </div>
+        <button class="swap-btn" id="b64Swap" title="交换输入输出">⇅</button>
+        <div class="field">
+          <label>输出结果</label>
+          <textarea class="encode-textarea readonly" id="b64Output" spellcheck="false" readonly placeholder="编码或解码结果会显示在这里"></textarea>
+          <div class="encode-stat">
+            <span id="b64OutputStat">0 字符</span>
+            <span id="b64OutputBytes">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="err" id="b64Error"></div>
+
+      <div class="tool-note" style="margin-top:10px">
+        <b>提示：</b>支持文本和文件两种模式。文件模式下，可将任意文件编码为 Base64 字符串，或将 Base64 解码并下载为文件。
+      </div>
+
+      <div class="btn-row" style="margin-top:14px">
+        <div class="seg" id="b64ModeSeg">
+          <button class="active" data-v="text">文本模式</button>
+          <button data-v="file">文件模式</button>
+        </div>
+        <span class="spacer" style="flex:1"></span>
+        <button class="btn ghost danger" id="b64Clear">清空</button>
+        <button class="btn ghost" id="b64Copy">复制</button>
+        <button class="btn ghost" id="b64Decode">解码</button>
+        <button class="btn primary" id="b64Encode">编码</button>
+      </div>
+
+      <!-- 文件模式区域 -->
+      <div id="b64FileArea" class="hidden" style="margin-top:16px">
+        <div class="row">
+          <div class="field">
+            <label>上传文件（编码为 Base64）</label>
+            <label class="file-drop" id="b64FileDrop">
+              <input type="file" id="b64FileInput">
+              <div>点击或拖拽文件到此处</div>
+              <div class="hint" style="margin-top:4px">支持任意类型文件</div>
+            </label>
+            <div class="file-info" id="b64FileInfo">
+              <span class="fname" id="b64FileName">-</span>
+              <span id="b64FileSize">-</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Base64 解码为文件下载</label>
+            <div style="display:flex;flex-direction:column;gap:8px;flex:1">
+              <input type="text" id="b64DLFileName" placeholder="输入下载文件名，如 image.png" class="encode-textarea" style="min-height:auto;padding:8px 12px;font-family:inherit">
+              <button class="btn ghost" id="b64DownloadBtn" style="align-self:flex-start">下载文件</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Tab 2: URL 编解码 ========== -->
+    <div class="enc-panel encode-panels hidden" data-tab="url">
+      <div class="mode-row">
+        <label>编码模式：</label>
+        <div class="seg" id="urlModeSeg">
+          <button class="active" data-v="component">encodeURIComponent</button>
+          <button data-v="uri">encodeURI</button>
+        </div>
+        <span class="hint" id="urlModeHint">encodeURIComponent 会编码更多特殊字符，适用于 URL 参数。</span>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>输入</label>
+          <textarea class="encode-textarea" id="urlInput" spellcheck="false" placeholder="在此输入要编码或解码的文本"></textarea>
+          <div class="encode-stat">
+            <span id="urlInputStat">0 字符</span>
+          </div>
+        </div>
+        <button class="swap-btn" id="urlSwap" title="交换输入输出">⇅</button>
+        <div class="field">
+          <label>输出结果</label>
+          <textarea class="encode-textarea readonly" id="urlOutput" spellcheck="false" readonly placeholder="编码或解码结果会显示在这里"></textarea>
+          <div class="encode-stat">
+            <span id="urlOutputStat">0 字符</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="err" id="urlError"></div>
+
+      <div class="tool-note" style="margin-top:10px">
+        <b>区别：</b>encodeURI 主要用于整个 URL，不会编码 <code>;,/?:@&amp;=+$#</code> 等保留字符；encodeURIComponent 用于 URL 参数部分，会编码除字母数字外的几乎所有字符。
+      </div>
+
+      <div class="btn-row" style="margin-top:14px">
+        <label class="inline" style="margin:0;font-size:13px;color:var(--muted)"><input type="checkbox" id="urlAuto" checked> 实时转换</label>
+        <span class="spacer" style="flex:1"></span>
+        <button class="btn ghost danger" id="urlClear">清空</button>
+        <button class="btn ghost" id="urlCopy">复制</button>
+        <button class="btn ghost" id="urlDecode">解码</button>
+        <button class="btn primary" id="urlEncode">编码</button>
+      </div>
+    </div>
+
+    <!-- ========== Tab 3: Unicode / Hex 转换 ========== -->
+    <div class="enc-panel encode-panels hidden" data-tab="unicode">
+      <div class="mode-row">
+        <label>输出格式：</label>
+        <div class="seg" id="uniFormatSeg">
+          <button class="active" data-v="space">空格分隔</button>
+          <button data-v="u">\uXXXX</button>
+          <button data-v="html">&amp;#XXXX;</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>文本输入</label>
+          <textarea class="encode-textarea" id="uniTextInput" spellcheck="false" placeholder="在此输入文本，如：你好世界"></textarea>
+          <div class="encode-stat">
+            <span id="uniTextStat">0 字符</span>
+          </div>
+        </div>
+        <button class="swap-btn" id="uniSwap" title="交换输入输出">⇅</button>
+        <div class="field">
+          <label>Hex 输出</label>
+          <textarea class="encode-textarea readonly" id="uniHexOutput" spellcheck="false" readonly placeholder="转换后的十六进制会显示在这里"></textarea>
+          <div class="encode-stat">
+            <span id="uniHexStat">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="err" id="uniError"></div>
+
+      <div class="tool-note" style="margin-top:10px">
+        <b>说明：</b>支持三种格式：空格分隔的十六进制（如 <code>4f60 597d</code>）、JavaScript Unicode 转义（如 <code>\u4f60\u597d</code>）、HTML 实体（如 <code>&amp;#20320;&amp;#22909;</code>）。解码时自动识别格式。
+      </div>
+
+      <div class="btn-row" style="margin-top:14px">
+        <label class="inline" style="margin:0;font-size:13px;color:var(--muted)"><input type="checkbox" id="uniAuto" checked> 实时转换</label>
+        <span class="spacer" style="flex:1"></span>
+        <button class="btn ghost danger" id="uniClear">清空</button>
+        <button class="btn ghost" id="uniCopy">复制</button>
+        <button class="btn ghost" id="uniDecode">Hex → 文本</button>
+        <button class="btn primary" id="uniEncode">文本 → Hex</button>
+      </div>
+    </div>
+
+    <!-- ========== Tab 4: 哈希计算 ========== -->
+    <div class="enc-panel hidden" data-tab="hash">
+      <div class="mode-row">
+        <label>输入模式：</label>
+        <div class="seg" id="hashModeSeg">
+          <button class="active" data-v="text">文本模式</button>
+          <button data-v="file">文件模式</button>
+        </div>
+      </div>
+
+      <!-- 文本模式 -->
+      <div id="hashTextArea">
+        <div class="field">
+          <label>输入文本</label>
+          <textarea class="encode-textarea" id="hashInput" spellcheck="false" rows="5" placeholder="在此输入要计算哈希的文本"></textarea>
+          <div class="encode-stat">
+            <span id="hashInputStat">0 字符</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 文件模式 -->
+      <div id="hashFileArea" class="hidden">
+        <div class="field">
+          <label>选择文件</label>
+          <label class="file-drop" id="hashFileDrop">
+            <input type="file" id="hashFileInput">
+            <div>点击或拖拽文件到此处计算哈希</div>
+            <div class="hint" style="margin-top:4px">支持任意类型文件，大文件可能需要较长时间</div>
+          </label>
+          <div class="file-info" id="hashFileInfo">
+            <span class="fname" id="hashFileName">-</span>
+            <span id="hashFileSize">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="err" id="hashError"></div>
+
+      <div class="btn-row" style="margin-top:14px">
+        <span class="hint" id="hashHint">输入文本或选择文件后自动计算哈希</span>
+        <span class="spacer" style="flex:1"></span>
+        <button class="btn ghost danger" id="hashClear">清空</button>
+        <button class="btn primary" id="hashCalc">计算哈希</button>
+      </div>
+
+      <div id="hashResults" style="margin-top:16px;display:none">
+        <div class="panel-head" style="margin-bottom:12px;padding:0">
+          <span class="num">HASH</span><h3 style="margin:0;font-size:15px">哈希结果</h3>
+        </div>
+        <div class="hash-results">
+          <div class="hash-row">
+            <span class="hash-label">MD5</span>
+            <span class="hash-value" id="hashMd5">-</span>
+            <button class="btn ghost hash-copy" data-copy-hash="hashMd5">复制</button>
+          </div>
+          <div class="hash-row">
+            <span class="hash-label">SHA-1</span>
+            <span class="hash-value" id="hashSha1">-</span>
+            <button class="btn ghost hash-copy" data-copy-hash="hashSha1">复制</button>
+          </div>
+          <div class="hash-row">
+            <span class="hash-label">SHA-256</span>
+            <span class="hash-value" id="hashSha256">-</span>
+            <button class="btn ghost hash-copy" data-copy-hash="hashSha256">复制</button>
+          </div>
+          <div class="hash-row">
+            <span class="hash-label">SHA-384</span>
+            <span class="hash-value" id="hashSha384">-</span>
+            <button class="btn ghost hash-copy" data-copy-hash="hashSha384">复制</button>
+          </div>
+          <div class="hash-row">
+            <span class="hash-label">SHA-512</span>
+            <span class="hash-value" id="hashSha512">-</span>
+            <button class="btn ghost hash-copy" data-copy-hash="hashSha512">复制</button>
+          </div>
+        </div>
+        <div class="hash-meta">
+          <span>数据大小：<b id="hashDataSize">-</b></span>
+          <span>处理时间：<b id="hashTime">-</b></span>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <footer class="site">免费工具箱 · 编码转换 · 纯前端本地处理</footer>
+</main>
+
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+<script src="assets/js/encode-tools.js"></script>
+</body>
+</html>

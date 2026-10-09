@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>正则表达式测试 · 实时匹配/常用库/替换 ｜ 免费在线工具箱</title>
+<meta name="description" content="免费在线正则表达式测试工具：实时高亮匹配结果、分组与捕获详情、替换预览、常用正则库（邮箱、手机号、身份证、URL 等）一键套用。纯本地处理。">
+<meta name="theme-color" content="#ff4d00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>工</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else{if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+<style>
+  /* 正则工具专属样式 */
+  .regex-input-wrap { display:flex; gap:8px; align-items:stretch; }
+  .regex-input-wrap .field { flex:1; }
+  .flags-row { display:flex; flex-wrap:wrap; gap:12px; margin-top:8px; }
+  .flags-row label { display:inline-flex; align-items:center; gap:4px; font-size:13px; cursor:pointer; }
+  .flags-row input { margin:0; }
+  .match-result { background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; padding:12px 14px; font-family:var(--mono); font-size:13px; line-height:1.7; white-space:pre-wrap; word-break:break-all; min-height:60px; }
+  .match-result mark { background:var(--accent); color:#fff; padding:1px 3px; border-radius:3px; }
+  .match-info { display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:10px; font-size:13px; color:var(--muted); }
+  .match-info b { color:var(--text); }
+  .match-list { margin-top:12px; max-height:240px; overflow-y:auto; }
+  .match-item { background:var(--bg-soft); border:1px solid var(--line); border-radius:6px; padding:8px 10px; margin-bottom:6px; font-size:13px; }
+  .match-item .idx { display:inline-block; min-width:28px; color:var(--accent); font-weight:600; font-family:var(--mono); }
+  .match-item .pos { color:var(--muted); font-size:12px; margin-left:8px; }
+  .match-item .content { font-family:var(--mono); word-break:break-all; }
+  .match-item .groups { margin-top:4px; padding-left:28px; font-size:12px; color:var(--muted); }
+  .match-item .groups span { display:inline-block; background:var(--bg); border:1px solid var(--line); border-radius:4px; padding:1px 6px; margin-right:4px; margin-bottom:2px; font-family:var(--mono); }
+  .error-box { background:#fef2f2; border:1px solid #fecaca; color:#dc2626; padding:10px 12px; border-radius:6px; font-size:13px; margin-top:8px; display:none; }
+  .error-box.show { display:block; }
+  [data-theme="dark"] .error-box { background:#450a0a; border-color:#7f1d1d; color:#fca5a5; }
+
+  /* 正则库 */
+  .lib-cats { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+  .lib-cats button { padding:4px 12px; font-size:12.5px; border:1px solid var(--line); background:var(--bg); border-radius:20px; cursor:pointer; color:var(--muted); transition:all .15s; }
+  .lib-cats button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .lib-list { display:flex; flex-direction:column; gap:8px; max-height:480px; overflow-y:auto; }
+  .lib-item { background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; padding:10px 12px; transition:border-color .15s; }
+  .lib-item:hover { border-color:var(--accent); }
+  .lib-item .name { font-weight:600; font-size:14px; margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+  .lib-item .cat-tag { font-size:11px; padding:1px 6px; background:var(--bg); border:1px solid var(--line); border-radius:10px; color:var(--muted); font-weight:400; }
+  .lib-item .regex { font-family:var(--mono); font-size:12.5px; color:var(--accent); background:var(--bg); padding:4px 8px; border-radius:4px; margin-bottom:4px; word-break:break-all; border:1px solid var(--line); }
+  .lib-item .desc { font-size:12.5px; color:var(--muted); margin-bottom:6px; }
+  .lib-item .example { font-size:12px; color:var(--muted); margin-bottom:8px; }
+  .lib-item .example code { font-family:var(--mono); background:var(--bg); padding:1px 4px; border-radius:3px; border:1px solid var(--line); }
+  .lib-item .actions { display:flex; gap:6px; }
+  .lib-item .actions .btn { padding:3px 10px; font-size:12px; }
+
+  /* 替换工具 */
+  .replace-preview { background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; padding:12px 14px; font-family:var(--mono); font-size:13px; line-height:1.7; white-space:pre-wrap; word-break:break-all; min-height:60px; }
+  .replace-stats { margin-top:8px; font-size:13px; color:var(--muted); }
+  .replace-stats b { color:var(--text); }
+
+  textarea { resize:vertical; min-height:100px; font-family:var(--mono); font-size:13px; }
+  input[type="text"], input[type="number"], select, textarea {
+    width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:6px;
+    background:var(--bg); color:var(--text); font-size:13.5px; outline:none; transition:border-color .15s;
+  }
+  input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus { border-color:var(--accent); }
+  .field label { display:block; font-size:13px; margin-bottom:5px; color:var(--muted); font-weight:500; }
+  .hint { font-size:12px; color:var(--muted); margin-top:4px; }
+</style>
+<link rel="canonical" href="https://dq7866.online/toolbox/regex-tools.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="正则表达式测试,在线正则,正则匹配,正则替换,常用正则表达式,正则分组">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="正则表达式测试 · 实时匹配/常用库/替换 ｜ 免费在线工具箱">
+<meta property="og:description" content="免费在线正则表达式测试工具：实时高亮匹配结果、分组与捕获详情、替换预览、常用正则库（邮箱、手机号、身份证、URL 等）一键套用。纯本地处理。">
+<meta property="og:url" content="https://dq7866.online/toolbox/regex-tools.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="正则表达式测试 · 实时匹配/常用库/替换 ｜ 免费在线工具箱">
+<meta name="twitter:description" content="免费在线正则表达式测试工具：实时高亮匹配结果、分组与捕获详情、替换预览、常用正则库（邮箱、手机号、身份证、URL 等）一键套用。纯本地处理。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "正则表达式测试 · 实时匹配/常用库/替换",
+  "url": "https://dq7866.online/toolbox/regex-tools.html",
+  "description": "免费在线正则表达式测试工具：实时高亮匹配结果、分组与捕获详情、替换预览、常用正则库（邮箱、手机号、身份证、URL 等）一键套用。纯本地处理。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><span class="mark">工</span><span>免费工具箱<span class="tag">Toolbox</span></span></a>
+    <span class="spacer"></span>
+    <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html">音视频</a>
+      <a href="player.html">播放器</a>
+      <a href="file-tools.html">文件</a>
+      <a href="ocr-tools.html">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html">时间戳</a>
+      <a href="regex-tools.html" class="active">正则</a>
+      <a href="json-tools.html">JSON</a>
+      <a href="encode-tools.html">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html">对比</a>
+      <a href="chart-tools.html">图表</a>
+      <a href="clipboard-tools.html">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html">AI助手</a>
+      <a href="batch-image.html">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:26px">
+  <section class="panel">
+    <div class="panel-head"><span class="num">REG</span><h2>正则表达式工具箱</h2>
+      <span class="spacer" style="flex:1"></span>
+      <span class="hint">纯前端本地处理，数据不上传</span>
+    </div>
+
+    <div class="tabs" id="regexTabs">
+      <button class="tab active" data-tab="tester">正则测试</button>
+      <button class="tab" data-tab="library">常用正则库</button>
+      <button class="tab" data-tab="replace">替换工具</button>
+    </div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+
+    <!-- ============ Tab 1: 正则测试 ============ -->
+    <div class="r-panel" data-tab="tester">
+      <div class="field">
+        <label>正则表达式</label>
+        <div class="regex-input-wrap">
+          <div class="field" style="margin:0">
+            <input type="text" id="testerRegex" placeholder="例如: \d+ 或 [a-z]+" value="">
+          </div>
+        </div>
+        <div class="flags-row">
+          <label><input type="checkbox" id="flagG" checked> g (全局)</label>
+          <label><input type="checkbox" id="flagI"> i (忽略大小写)</label>
+          <label><input type="checkbox" id="flagM"> m (多行)</label>
+          <label><input type="checkbox" id="flagS"> s (点号匹配换行)</label>
+          <label><input type="checkbox" id="flagU"> u (Unicode)</label>
+        </div>
+        <div class="error-box" id="testerError"></div>
+      </div>
+
+      <div class="field" style="margin-top:14px">
+        <label>测试文本</label>
+        <textarea id="testerInput" rows="6" placeholder="在此输入要测试的文本...">Hello World! 你好世界！
+邮箱: test@example.com, admin@company.org
+手机: 13812345678, 15987654321
+日期: 2024-01-15, 2023/12/25
+IP: 192.168.1.1, 10.0.0.255
+网址: https://www.example.com/path?query=1</textarea>
+      </div>
+
+      <div class="field" style="margin-top:14px">
+        <label>匹配结果（高亮显示）</label>
+        <div class="match-result" id="testerHighlight">请输入正则表达式和测试文本</div>
+        <div class="match-info" id="testerInfo"></div>
+      </div>
+
+      <div class="field" style="margin-top:14px">
+        <label>匹配详情</label>
+        <div class="match-list" id="testerMatchList">
+          <div class="hint">暂无匹配结果</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ Tab 2: 常用正则库 ============ -->
+    <div class="r-panel hidden" data-tab="library">
+      <div class="field">
+        <label>分类筛选</label>
+        <div class="lib-cats" id="libCats">
+          <button class="active" data-cat="all">全部</button>
+          <button data-cat="number">数字验证</button>
+          <button data-cat="email">邮箱</button>
+          <button data-cat="phone">手机号</button>
+          <button data-cat="idcard">身份证</button>
+          <button data-cat="url">URL / 网址</button>
+          <button data-cat="ip">IP 地址</button>
+          <button data-cat="date">日期</button>
+          <button data-cat="chinese">中文字符</button>
+          <button data-cat="whitespace">空白字符</button>
+          <button data-cat="password">密码强度</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>搜索</label>
+        <input type="text" id="libSearch" placeholder="搜索正则名称或描述...">
+      </div>
+
+      <div class="lib-list" id="libList" style="margin-top:14px"></div>
+    </div>
+
+    <!-- ============ Tab 3: 替换工具 ============ -->
+    <div class="r-panel hidden" data-tab="replace">
+      <div class="field">
+        <label>正则表达式</label>
+        <div class="regex-input-wrap">
+          <div class="field" style="margin:0">
+            <input type="text" id="replaceRegex" placeholder="例如: (\d+)-(\d+)-(\d+)">
+          </div>
+        </div>
+        <div class="flags-row">
+          <label><input type="checkbox" id="repFlagG" checked> g (全局)</label>
+          <label><input type="checkbox" id="repFlagI"> i (忽略大小写)</label>
+          <label><input type="checkbox" id="repFlagM"> m (多行)</label>
+          <label><input type="checkbox" id="repFlagS"> s (点号匹配换行)</label>
+          <label><input type="checkbox" id="repFlagU"> u (Unicode)</label>
+        </div>
+        <div class="error-box" id="replaceError"></div>
+      </div>
+
+      <div class="row" style="margin-top:14px">
+        <div class="field">
+          <label>替换为（支持 $1, $2 等分组引用）</label>
+          <input type="text" id="replaceWith" placeholder="例如: $1/$2/$3">
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:14px">
+        <label>原始文本</label>
+        <textarea id="replaceInput" rows="5" placeholder="在此输入要处理的文本...">2024-01-15
+2023-12-25
+hello-world-test
+foo-bar-baz</textarea>
+      </div>
+
+      <div class="field" style="margin-top:14px">
+        <label>替换结果预览</label>
+        <div class="replace-preview" id="replacePreview">请输入正则表达式和替换内容</div>
+        <div class="replace-stats" id="replaceStats"></div>
+      </div>
+
+      <div class="btn-row" style="margin-top:14px">
+        <span class="spacer" style="flex:1"></span>
+        <button class="btn primary" id="copyReplaceResult">复制结果</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="note" style="margin-top:16px">
+    <b>提示：</b>所有正则运算均在本地浏览器完成，输入的数据不会上传到任何服务器。
+  </div>
+
+  <footer class="site">免费工具箱 · 正则工具 · 纯前端本地处理</footer>
+</main>
+
+<script src="assets/js/regex-tools.js"></script>
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+<script>
+// 正则测试样本：中英文双语切换（textarea 内容不被 translate() 处理，需手动切换）
+(function () {
+  var ZH = 'Hello World! 你好世界！\n邮箱: test@example.com, admin@company.org\n手机: 13812345678, 15987654321\n日期: 2024-01-15, 2023/12/25\nIP: 192.168.1.1, 10.0.0.255\n网址: https://www.example.com/path?query=1';
+  var EN = 'Hello World! Greetings!\nEmail: test@example.com, admin@company.org\nPhone: 13812345678, 15987654321\nDate: 2024-01-15, 2023/12/25\nIP: 192.168.1.1, 10.0.0.255\nURL: https://www.example.com/path?query=1';
+  var ZH_PH = '在此输入要测试的文本...';
+  var EN_PH = 'Enter text to test here...';
+  function applyLang(lang) {
+    var ta = document.getElementById('testerInput');
+    if (!ta) return;
+    var wasUserEdited = ta.dataset.userEdited === '1';
+    if (wasUserEdited) return;
+    ta.value = (lang === 'en') ? EN : ZH;
+    ta.placeholder = (lang === 'en') ? EN_PH : ZH_PH;
+  }
+  document.addEventListener('input', function (e) {
+    if (e.target && e.target.id === 'testerInput') e.target.dataset.userEdited = '1';
+  });
+  function init() {
+    var lang = document.documentElement.getAttribute('data-lang');
+    if (!lang) { try { lang = localStorage.getItem('tbx-lang') || 'zh'; } catch (e) { lang = 'zh'; } }
+    applyLang(lang);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(init, 30); });
+  else setTimeout(init, 30);
+  window.addEventListener('tbx-lang-change', function (e) { applyLang(e.detail); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>剪贴板助手 · 历史记录/文本处理/模板 ｜ 免费在线工具箱</title>
+<meta name="description" content="剪贴板助手：剪贴板历史记录、文本快速处理（大小写、去空行、去重、排序）、常用模板管理与一键复制。纯本地浏览器存储，数据不上传。">
+<meta name="theme-color" content="#ff4d00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>工</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else{if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+<style>
+/* ===== 剪贴板工具专属样式 ===== */
+
+/* 剪贴板历史列表 */
+.clip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.clip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: all .15s;
+  position: relative;
+}
+
+.clip-item:hover {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.clip-item.pinned {
+  border-color: rgba(255,77,0,.3);
+  background: var(--accent-2);
+}
+
+.clip-item-preview {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.clip-item-text {
+  font-size: 13.5px;
+  color: var(--text);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-all;
+}
+
+.clip-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.clip-item-type {
+  display: inline-block;
+  padding: 1px 7px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text-2);
+  font-weight: 500;
+}
+
+.clip-item.pinned .clip-item-type {
+  background: var(--surface);
+  border-color: rgba(255,77,0,.3);
+  color: var(--accent);
+}
+
+.clip-item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.clip-item-actions button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 6px;
+  color: var(--text-2);
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+}
+
+.clip-item-actions button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-2);
+}
+
+.clip-item-actions button.pin-btn.pinned {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-2);
+}
+
+.clip-item-actions button.del-btn:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: rgba(239,68,68,.08);
+}
+
+.clip-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.clip-empty .icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+  opacity: .5;
+}
+
+/* 工具栏行 */
+.toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.toolbar-row .search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px 8px 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  transition: all .15s;
+}
+
+.toolbar-row .search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255,77,0,.1);
+  background: var(--surface);
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-wrap::before {
+  content: "🔍";
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  opacity: .5;
+  pointer-events: none;
+}
+
+.search-wrap .search-input {
+  width: 100%;
+}
+
+.clip-count {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* 监听状态指示 */
+.monitor-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: var(--bg-2);
+  color: var(--text-2);
+}
+
+.monitor-status.active {
+  background: rgba(16,185,129,.1);
+  color: var(--ok);
+}
+
+.monitor-status .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.monitor-status.active .dot {
+  background: var(--ok);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .4; }
+}
+
+/* ===== 文本处理 ===== */
+.textproc-area {
+  width: 100%;
+  min-height: 200px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  resize: vertical;
+  tab-size: 2;
+  box-sizing: border-box;
+  outline: none;
+  transition: all .15s;
+}
+
+.textproc-area:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.12);
+  background: var(--surface);
+}
+
+.textproc-stat {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.proc-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.proc-btn {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: all .15s;
+  text-align: left;
+}
+
+.proc-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-2);
+}
+
+.proc-category {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  margin: 14px 0 6px;
+  text-transform: none;
+}
+
+/* ===== 模板管理 ===== */
+.template-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.template-categories {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.template-categories button {
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-2);
+  border-radius: 999px;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: all .15s;
+  font-weight: 500;
+}
+
+.template-categories button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.template-categories button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.template-card {
+  padding: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: all .15s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.template-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+}
+
+.template-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.template-card-cat {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: var(--bg);
+  border-radius: 4px;
+  color: var(--muted);
+  font-weight: 500;
+  margin-left: auto;
+}
+
+.template-card-content {
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-all;
+  font-family: var(--mono);
+  background: var(--bg);
+  padding: 8px 10px;
+  border-radius: 6px;
+  min-height: 54px;
+}
+
+.template-card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+.template-card-actions .btn {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+/* 模板编辑弹窗 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 20px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: var(--shadow-lg);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modal h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: var(--text);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.modal-actions .btn.danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.modal-actions .btn.danger:hover {
+  opacity: .9;
+}
+
+.tpl-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 13px;
+  grid-column: 1 / -1;
+}
+
+.tpl-empty .icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+  opacity: .5;
+}
+
+/* 提示条 */
+.tool-note {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--bg-2);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.tool-note b {
+  color: var(--text-2);
+}
+
+/* Toast 提示 */
+.toast {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: var(--text);
+  color: var(--surface);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .25s;
+  z-index: 2000;
+  box-shadow: var(--shadow-lg);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .proc-buttons {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+  .template-grid {
+    grid-template-columns: 1fr;
+  }
+  .toolbar-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .search-wrap {
+    min-width: 100%;
+  }
+}
+</style>
+<link rel="canonical" href="https://dq7866.online/toolbox/clipboard-tools.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="剪贴板历史,剪贴板管理,文本处理工具,常用模板,一键复制,文本去重排序">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="剪贴板助手 · 历史记录/文本处理/模板 ｜ 免费在线工具箱">
+<meta property="og:description" content="剪贴板助手：剪贴板历史记录、文本快速处理（大小写、去空行、去重、排序）、常用模板管理与一键复制。纯本地浏览器存储，数据不上传。">
+<meta property="og:url" content="https://dq7866.online/toolbox/clipboard-tools.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="剪贴板助手 · 历史记录/文本处理/模板 ｜ 免费在线工具箱">
+<meta name="twitter:description" content="剪贴板助手：剪贴板历史记录、文本快速处理（大小写、去空行、去重、排序）、常用模板管理与一键复制。纯本地浏览器存储，数据不上传。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "剪贴板助手 · 历史记录/文本处理/模板",
+  "url": "https://dq7866.online/toolbox/clipboard-tools.html",
+  "description": "剪贴板助手：剪贴板历史记录、文本快速处理（大小写、去空行、去重、排序）、常用模板管理与一键复制。纯本地浏览器存储，数据不上传。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark">工</span>
+      <span>免费工具箱<span class="tag">Toolbox</span></span>
+    </a>
+    <span class="spacer"></span>
+    <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html">音视频</a>
+      <a href="player.html">播放器</a>
+      <a href="file-tools.html">文件</a>
+      <a href="ocr-tools.html">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html">时间戳</a>
+      <a href="regex-tools.html">正则</a>
+      <a href="json-tools.html">JSON</a>
+      <a href="encode-tools.html">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html">对比</a>
+      <a href="chart-tools.html">图表</a>
+      <a href="clipboard-tools.html" class="active">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html">AI助手</a>
+      <a href="batch-image.html">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:26px">
+  <section class="panel">
+    <div class="panel-head"><span class="num">CLIP</span><h2>剪贴板助手</h2></div>
+    <p class="hint" style="margin-top:0;margin-bottom:16px">剪贴板历史记录、文本快速处理、常用模板管理。所有数据仅保存在本地浏览器中。</p>
+
+    <div class="tabs" id="clipTabs">
+      <button class="tab active" data-tab="history">剪贴板历史</button>
+      <button class="tab" data-tab="textproc">文本处理</button>
+      <button class="tab" data-tab="templates">快速模板</button>
+    </div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+
+    <!-- ========== Tab 1: 剪贴板历史 ========== -->
+    <div class="clip-panel" data-tab="history">
+      <div class="toolbar-row">
+        <div class="search-wrap">
+          <input type="text" class="search-input" id="historySearch" placeholder="搜索剪贴板记录...">
+        </div>
+        <button class="btn ghost" id="pasteBtn">📋 粘贴 (Ctrl+V)</button>
+        <button class="btn ghost" id="monitorBtn">👁 监听剪贴板</button>
+        <button class="btn ghost danger" id="clearAllBtn">🗑 清空全部</button>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <span class="monitor-status" id="monitorStatus">
+          <span class="dot"></span>
+          <span id="monitorStatusText">未监听</span>
+        </span>
+        <span class="clip-count" id="historyCount">0 条记录</span>
+        <span class="spacer" style="flex:1"></span>
+        <span class="clip-count" id="pinnedCount">0 条置顶</span>
+      </div>
+
+      <div class="tool-note">
+        <b>说明：</b>受浏览器安全限制，网页无法在后台自动监控系统剪贴板。请使用「粘贴」按钮或 <code>Ctrl+V</code> 手动添加，或开启「监听剪贴板」（仅页面激活时定时读取剪贴板）。
+      </div>
+
+      <div class="clip-list" id="clipList" style="margin-top:14px">
+        <div class="clip-empty">
+          <div class="icon">📋</div>
+          <div>暂无剪贴板记录</div>
+          <div style="font-size:12px;margin-top:4px">点击上方「粘贴」按钮添加第一条记录</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== Tab 2: 文本处理 ========== -->
+    <div class="clip-panel hidden" data-tab="textproc">
+      <div class="field">
+        <label>输入文本</label>
+        <textarea class="textproc-area" id="textprocInput" spellcheck="false" placeholder="在此粘贴或输入要处理的文本..."></textarea>
+        <div class="textproc-stat">
+          <span id="tpCharCount">0 字符</span>
+          <span id="tpWordCount">0 词</span>
+          <span id="tpLineCount">0 行</span>
+          <span id="tpByteCount">-</span>
+        </div>
+      </div>
+
+      <div class="proc-category">空白与格式</div>
+      <div class="proc-buttons">
+        <button class="proc-btn" data-proc="trim">去除首尾空格</button>
+        <button class="proc-btn" data-proc="trimLines">去除行首尾空格</button>
+        <button class="proc-btn" data-proc="removeBlankLines">去除空白行</button>
+        <button class="proc-btn" data-proc="removeExtraSpaces">去除多余空格</button>
+        <button class="proc-btn" data-proc="addLineNumbers">添加行号</button>
+        <button class="proc-btn" data-proc="removeLineNumbers">移除行号</button>
+      </div>
+
+      <div class="proc-category">大小写转换</div>
+      <div class="proc-buttons">
+        <button class="proc-btn" data-proc="toUpper">全部大写 UPPER</button>
+        <button class="proc-btn" data-proc="toLower">全部小写 lower</button>
+        <button class="proc-btn" data-proc="toTitle">首字母大写 Title</button>
+        <button class="proc-btn" data-proc="toggleCase">大小写反转</button>
+      </div>
+
+      <div class="proc-category">全角半角</div>
+      <div class="proc-buttons">
+        <button class="proc-btn" data-proc="toFullWidth">转全角</button>
+        <button class="proc-btn" data-proc="toHalfWidth">转半角</button>
+      </div>
+
+      <div class="proc-category">排序与去重</div>
+      <div class="proc-buttons">
+        <button class="proc-btn" data-proc="sortAsc">升序排序</button>
+        <button class="proc-btn" data-proc="sortDesc">降序排序</button>
+        <button class="proc-btn" data-proc="sortNatural">自然排序</button>
+        <button class="proc-btn" data-proc="dedupe">去除重复行</button>
+        <button class="proc-btn" data-proc="reverseLines">行反转</button>
+        <button class="proc-btn" data-proc="shuffleLines">随机打乱</button>
+      </div>
+
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn ghost danger" id="tpClearBtn">清空</button>
+        <button class="btn ghost" id="tpCopyBtn">复制结果</button>
+        <span class="spacer" style="flex:1"></span>
+        <label class="inline" style="margin:0;font-size:13px;color:var(--muted)">
+          <input type="checkbox" id="tpAutoCopy" checked> 处理后自动复制
+        </label>
+      </div>
+
+      <div class="tool-note" style="margin-top:14px">
+        <b>提示：</b>点击任意转换按钮后，结果会直接替换输入框内容。若勾选「处理后自动复制」，结果会同时复制到剪贴板。
+      </div>
+    </div>
+
+    <!-- ========== Tab 3: 快速模板 ========== -->
+    <div class="clip-panel hidden" data-tab="templates">
+      <div class="template-header">
+        <button class="btn primary" id="addTplBtn">+ 新建模板</button>
+        <span class="spacer" style="flex:1"></span>
+        <span class="clip-count" id="tplCount">0 个模板</span>
+      </div>
+
+      <div class="template-categories" id="tplCategories">
+        <button class="active" data-cat="all">全部</button>
+        <button data-cat="常用回复">常用回复</button>
+        <button data-cat="代码片段">代码片段</button>
+        <button data-cat="地址信息">地址信息</button>
+        <button data-cat="邮箱模板">邮箱模板</button>
+        <button data-cat="其他">其他</button>
+      </div>
+
+      <div class="template-grid" id="tplGrid">
+        <!-- 动态生成 -->
+      </div>
+    </div>
+
+  </section>
+
+  <footer class="site">免费工具箱 · 剪贴板助手 · 纯前端本地处理</footer>
+</main>
+
+<!-- 模板编辑弹窗 -->
+<div class="modal-overlay" id="tplModal">
+  <div class="modal">
+    <h3 id="tplModalTitle">新建模板</h3>
+    <div class="field">
+      <label>模板名称</label>
+      <input type="text" id="tplName" placeholder="给模板起个名字，如：邮件签名">
+    </div>
+    <div class="field">
+      <label>分类</label>
+      <select id="tplCategory">
+        <option value="常用回复">常用回复</option>
+        <option value="代码片段">代码片段</option>
+        <option value="地址信息">地址信息</option>
+        <option value="邮箱模板">邮箱模板</option>
+        <option value="其他">其他</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>模板内容</label>
+      <textarea class="textproc-area" id="tplContent" rows="6" placeholder="模板内容..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="cancelTplBtn">取消</button>
+      <button class="btn primary" id="saveTplBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 删除确认弹窗 -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <h3 id="confirmTitle">确认删除</h3>
+    <p id="confirmText">确定要删除吗？此操作不可撤销。</p>
+    <div class="modal-actions">
+      <button class="btn ghost" id="confirmCancelBtn">取消</button>
+      <button class="btn danger" id="confirmOkBtn">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast 提示 -->
+<div class="toast" id="toast"></div>
+
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+<script src="assets/js/clipboard-tools.js"></script>
+</body>
+</html>

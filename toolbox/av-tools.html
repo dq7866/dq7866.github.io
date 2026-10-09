@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>音视频工具 · 压缩/裁剪/拼接/字幕/变速（需本地引擎）</title>
+<meta name="description" content="音视频工具箱：压缩、裁剪、拼接、转 GIF、提取音频、格式转换、抽帧、雪碧图、加水印、变速、GIF 转视频、硬字幕、形状遮罩（透明视频）。这些能力依赖本机 ffmpeg 引擎，公网在线版提供界面说明，完整功能请使用本地版。">
+<meta name="theme-color" content="#ff4d00">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>工</text></svg>">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else if(t==='auto'||!t){if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.setAttribute('data-theme','dark');}}}catch(e){}})();</script>
+<link rel="canonical" href="https://dq7866.online/toolbox/av-tools.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="音视频压缩,视频裁剪,视频拼接,视频转GIF,提取音频,视频加水印,视频加字幕,视频变速">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="音视频工具 · 压缩/裁剪/拼接/字幕/变速（需本地引擎）">
+<meta property="og:description" content="音视频工具箱：压缩、裁剪、拼接、转 GIF、提取音频、格式转换、抽帧、雪碧图、加水印、变速、GIF 转视频、硬字幕、形状遮罩（透明视频）。这些能力依赖本机 ffmpeg 引擎，公网在线版提供界面说明，完整功能请使用本地版。">
+<meta property="og:url" content="https://dq7866.online/toolbox/av-tools.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="音视频工具 · 压缩/裁剪/拼接/字幕/变速（需本地引擎）">
+<meta name="twitter:description" content="音视频工具箱：压缩、裁剪、拼接、转 GIF、提取音频、格式转换、抽帧、雪碧图、加水印、变速、GIF 转视频、硬字幕、形状遮罩（透明视频）。这些能力依赖本机 ffmpeg 引擎，公网在线版提供界面说明，完整功能请使用本地版。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "音视频工具 · 压缩/裁剪/拼接/字幕/变速（需本地引擎）",
+  "url": "https://dq7866.online/toolbox/av-tools.html",
+  "description": "音视频工具箱：压缩、裁剪、拼接、转 GIF、提取音频、格式转换、抽帧、雪碧图、加水印、变速、GIF 转视频、硬字幕、形状遮罩（透明视频）。这些能力依赖本机 ffmpeg 引擎，公网在线版提供界面说明，完整功能请使用本地版。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><span class="mark">工</span><span>免费工具箱<span class="tag">Toolbox</span></span></a>
+    <span class="spacer"></span>
+        <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html" class="active">音视频</a>
+      <a href="player.html">播放器</a>
+      <a href="file-tools.html">文件</a>
+      <a href="ocr-tools.html">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html">时间戳</a>
+      <a href="regex-tools.html">正则</a>
+      <a href="json-tools.html">JSON</a>
+      <a href="encode-tools.html">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html">对比</a>
+      <a href="chart-tools.html">图表</a>
+      <a href="clipboard-tools.html">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html">AI助手</a>
+      <a href="batch-image.html">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:26px">
+<div class="tb-notice" role="note">
+  <span class="tb-notice-ico">ℹ️</span>
+  <div class="tb-notice-body"><b>在线版说明 · 音视频处理需要本机 ffmpeg 引擎</b>合并、裁剪、转码、加字幕、形状遮罩等能力依赖本机 ffmpeg，公网在线版不提供。其余工具（图片、PDF、二维码、表格、颜色、Markdown、计算器等）在浏览器内完全可用，文件不会上传。</div>
+</div>
+
+  <div class="split">
+    <div class="stack">
+      <section class="panel">
+        <div class="panel-head"><span class="num">01</span><h2>选择视频 / 音频</h2></div>
+        <label class="drop" id="drop">
+          <div class="big">🎬</div>
+          <div class="t">点击选择，或把文件拖到这里</div>
+          <div class="s">支持 mp4 / mov / mkv / webm / avi / flv / m4a / mp3 / wav / aac 等</div>
+        </label>
+        <input type="file" id="fileInput" accept="video/*,audio/*,.mkv,.flv,.avi,.m4a" multiple class="sr">
+        <div id="fileInfo" style="margin-top:12px"></div>
+
+        <div id="mediaPreview" style="display:none;margin-top:12px">
+          <div id="playerWrap"></div>
+          <div class="row" style="margin-top:8px;align-items:center">
+            <span class="hint" id="timeHint" style="margin:0">00:00 / 00:00</span>
+            <span class="spacer" style="flex:1"></span>
+            <button class="btn ghost" id="markStart">⟦ 设为起点</button>
+            <button class="btn ghost" id="markEnd">设为终点 ⟧</button>
+          </div>
+          <div class="btn-row" style="margin-top:8px">
+            <button class="btn" id="genStrip">🎞 生成时间轴缩略图</button>
+            <span class="hint" id="tlHint" style="align-self:center">拖动滑块选定区间，点轨道可跳转播放位置</span>
+          </div>
+          <div id="tlWrap" style="margin-top:10px">
+            <div class="tl-track" id="tlTrack">
+              <div class="tl-ticks" id="tlTicks"></div>
+              <div class="tl-sel" id="tlSel"></div>
+              <div class="tl-play" id="tlPlay"></div>
+              <div class="tl-h" id="tlH1" title="拖动调整起点"></div>
+              <div class="tl-h" id="tlH2" title="拖动调整终点"></div>
+            </div>
+            <div class="tl-legend">
+              <span id="tlL1">起点 —</span>
+              <span id="tlLen" style="color:var(--muted)">时长 —</span>
+              <span id="tlL2">终点 —</span>
+            </div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <span class="hint" id="fileName" style="margin:0">尚未选择文件</span>
+          <span class="spacer" style="flex:1"></span>
+          <button class="btn ghost danger" id="clearBtn" disabled>清空</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><span class="num">02</span><h2>处理进度与结果</h2></div>
+        <div id="progressWrap" style="display:none">
+          <div id="progLabel" class="hint" style="margin:0 0 6px">处理中…</div>
+          <div class="strength-bar"><i id="progBar"></i></div>
+        </div>
+        <div id="results"><div class="empty">处理后的文件会出现在这里</div></div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head"><span class="num">03</span><h2>选择功能</h2></div>
+      <div id="svcStatus" class="note">正在检测本机服务…</div>
+      <div class="tabs" id="tabs" style="margin-top:12px">
+        <button class="tab active" data-mode="compress">压缩</button>
+        <button class="tab" data-mode="trim">裁剪</button>
+        <button class="tab" data-mode="gif">转 GIF</button>
+        <button class="tab" data-mode="audio">提取音频</button>
+        <button class="tab" data-mode="convert">格式转换</button>
+        <button class="tab" data-mode="frame">提取帧</button>
+        <button class="tab" data-mode="frames">批量抽帧</button>
+        <button class="tab" data-mode="sprite">雪碧图</button>
+        <button class="tab" data-mode="concat">视频拼接</button>
+        <button class="tab" data-mode="watermark">加水印</button>
+        <button class="tab" data-mode="speed">变速</button>
+        <button class="tab" data-mode="gif2mp4">GIF转视频</button>
+        <button class="tab" data-mode="subtitle">加字幕</button>
+        <button class="tab" data-mode="mask">形状遮罩</button>
+      </div>
+      <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+
+      <!-- compress -->
+      <div class="mode-panel" data-mode="compress">
+        <div class="row">
+          <div class="field"><label>分辨率</label>
+            <select id="cpRes"><option value="">保持原样</option><option value="1080">1080p</option><option value="720" selected>720p</option><option value="480">480p</option><option value="360">360p</option></select>
+          </div>
+          <div class="field"><label>质量 <span id="cpCrfVal" style="color:var(--accent)">28</span>（越小越清晰）</label><input type="range" id="cpCrf" min="16" max="40" value="28"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>编码速度</label>
+            <select id="cpPreset"><option value="veryfast">很快（默认）</option><option value="medium">中等</option><option value="slow">慢（体积更小）</option></select>
+          </div>
+          <div class="field"><label>音频码率</label>
+            <select id="cpAbr"><option value="96">96 kbps</option><option value="128" selected>128 kbps</option><option value="192">192 kbps</option></select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label>起始（可选，秒）</label><input type="text" id="cpStart" placeholder="留空=从头"></div>
+          <div class="field"><label>时长（可选，秒）</label><input type="text" id="cpDur" placeholder="留空=到结尾"></div>
+        </div>
+      </div>
+
+      <!-- trim -->
+      <div class="mode-panel hidden" data-mode="trim">
+        <div class="row">
+          <div class="field"><label>起始时间</label><input type="text" id="trStart" placeholder="例如 0:12 或 12"></div>
+          <div class="field"><label>结束时间</label><input type="text" id="trEnd" placeholder="例如 1:05 或 65"></div>
+        </div>
+        <div class="hint">支持 <code>秒</code> 或 <code>分:秒</code>。结束时间与下面的「时长」二选一。</div>
+        <div class="row" style="margin-top:10px">
+          <div class="field"><label>或用「时长」（秒）</label><input type="text" id="trDur" placeholder="例如 15"></div>
+          <div class="field"><label>裁剪方式</label>
+            <div class="seg" id="trMode"><button class="active" data-v="encode">精确（重编码）</button><button data-v="copy">快速（不重编码）</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- gif -->
+      <div class="mode-panel hidden" data-mode="gif">
+        <div class="row">
+          <div class="field"><label>起始时间</label><input type="text" id="gfStart" placeholder="例如 0:05"></div>
+          <div class="field"><label>时长（秒）</label><input type="text" id="gfDur" value="3"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>帧率 <span id="gfFpsVal" style="color:var(--accent)">12</span> fps</label><input type="range" id="gfFps" min="5" max="30" value="12"></div>
+          <div class="field"><label>宽度</label>
+            <select id="gfWidth"><option value="240">240px</option><option value="320" selected>320px</option><option value="480">480px</option><option value="640">640px</option></select>
+          </div>
+        </div>
+        <div class="hint">GIF 体积较大，建议 3–6 秒、10–15fps、宽度 320–480。已自动使用高质量调色板。</div>
+      </div>
+
+      <!-- audio -->
+      <div class="mode-panel hidden" data-mode="audio">
+        <div class="row">
+          <div class="field"><label>输出格式</label>
+            <select id="auFmt"><option value="mp3">MP3（通用）</option><option value="m4a">M4A / AAC</option><option value="wav">WAV（无损）</option><option value="flac">FLAC（无损压缩）</option><option value="ogg">OGG</option><option value="copy">直接复制原音轨（最快）</option></select>
+          </div>
+          <div class="field"><label>码率</label>
+            <select id="auBr"><option value="128">128 kbps</option><option value="192" selected>192 kbps</option><option value="320">320 kbps</option></select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label>起始（可选）</label><input type="text" id="auStart" placeholder="留空=从头"></div>
+          <div class="field"><label>时长（可选）</label><input type="text" id="auDur" placeholder="留空=全部"></div>
+        </div>
+        <div class="hint">从视频中抽出音轨，或把音频转成其它格式。</div>
+      </div>
+
+      <!-- convert -->
+      <div class="mode-panel hidden" data-mode="convert">
+        <div class="field"><label>目标格式</label>
+          <div class="seg" id="cvFmt">
+            <button class="active" data-v="mp4">MP4</button>
+            <button data-v="webm">WebM</button>
+            <button data-v="mkv">MKV（不重编码，最快）</button>
+            <button data-v="mp3">MP3（仅音频）</button>
+            <button data-v="wav">WAV（仅音频）</button>
+          </div>
+        </div>
+        <div class="hint">MKV 使用流复制，速度极快且无损，适合只换封装格式。</div>
+      </div>
+
+      <!-- frame -->
+      <div class="mode-panel hidden" data-mode="frame">
+        <div class="row">
+          <div class="field"><label>截取时间</label><input type="text" id="frTime" placeholder="例如 0:05 或 5"></div>
+        </div>
+        <div class="hint">导出该时间点的一帧图片（JPG），可用于做封面。</div>
+      </div>
+
+      <!-- frames -->
+      <div class="mode-panel hidden" data-mode="frames">
+        <div class="row">
+          <div class="field"><label>抽帧方式</label>
+            <div class="seg" id="fmMode"><button class="active" data-v="interval">按间隔</button><button data-v="count">按数量</button></div>
+          </div>
+          <div class="field"><label id="fmValLabel">间隔（秒）</label><input type="text" id="fmVal" value="2"></div>
+        </div>
+        <div class="field"><label>输出宽度</label>
+          <select id="fmWidth"><option value="320">320px</option><option value="640" selected>640px</option><option value="960">960px</option><option value="1280">1280px</option></select>
+        </div>
+        <div class="hint">导出为一堆 JPG 并打包成 ZIP，适合快速浏览全片内容。</div>
+      </div>
+
+      <!-- sprite -->
+      <div class="mode-panel hidden" data-mode="sprite">
+        <div class="row">
+          <div class="field"><label>抽帧间隔（秒）</label><input type="text" id="spInterval" value="5"></div>
+          <div class="field"><label>列数</label><input type="number" id="spCols" value="5" min="1" max="20"></div>
+          <div class="field"><label>缩略图宽</label><input type="number" id="spWidth" value="240" min="80"></div>
+        </div>
+        <div class="hint">把整部片子拼成一张缩略图雪碧图（tile），常用于预览图。</div>
+      </div>
+
+      <!-- concat -->
+      <div class="mode-panel hidden" data-mode="concat">
+        <label class="drop" id="concatDrop" style="padding:20px 14px">
+          <div class="big">➕</div><div class="t">添加片段（可多次添加或拖入）</div>
+          <div class="s">按列表顺序拼接，可上移/下移调整</div>
+        </label>
+        <input type="file" id="concatInput" accept="video/*,audio/*" multiple class="sr">
+        <div id="concatList" style="margin-top:12px"></div>
+        <div class="row" style="margin-top:12px">
+          <div class="field"><label>拼接方式</label>
+            <div class="seg" id="catMode"><button class="active" data-v="encode">统一重编码（兼容好）</button><button data-v="copy">快速拼接（同编码）</button></div>
+          </div>
+          <div class="field"><label>目标高度（重编码时）</label>
+            <select id="catHeight"><option value="">保持原尺寸</option><option value="1080">1080p</option><option value="720" selected>720p</option><option value="480">480p</option></select>
+          </div>
+        </div>
+        <div class="btn-row"><button class="btn primary" id="concatRun">开始拼接</button><button class="btn ghost" id="concatClear">清空片段</button></div>
+        <div class="hint">不同分辨率/编码的素材请用「统一重编码」。</div>
+      </div>
+
+      <!-- watermark -->
+      <div class="mode-panel hidden" data-mode="watermark">
+        <div class="field"><label>水印类型</label>
+          <div class="seg" id="wmType"><button class="active" data-v="text">文字</button><button data-v="image">图片</button></div>
+        </div>
+        <div id="wmTextWrap">
+          <div class="row">
+            <div class="field"><label>文字</label><input type="text" id="wmText" value="仅供参考"></div>
+            <div class="field"><label>字号（px）</label><input type="number" id="wmSize" value="36" min="10" max="200"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>颜色</label><input type="color" id="wmColor" value="#ffffff"></div>
+            <div class="field"><label>不透明度 <span id="wmOpVal" style="color:var(--accent)">55%</span></label><input type="range" id="wmOpacity" min="5" max="100" value="55"></div>
+          </div>
+        </div>
+        <div id="wmImageWrap" class="hidden">
+          <div class="field"><label>水印图片（PNG/JPG）</label><input type="file" id="wmImage" accept="image/*"></div>
+          <div class="field"><label>大小（占视频宽度 %）<span id="wmSclVal" style="color:var(--accent)">15%</span></label><input type="range" id="wmScale" min="2" max="60" value="15"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>位置</label>
+            <select id="wmPos"><option value="br" selected>右下</option><option value="bl">左下</option><option value="tr">右上</option><option value="tl">左上</option><option value="center">居中</option></select>
+          </div>
+          <div class="field"><label>边距（px）</label><input type="number" id="wmMargin" value="24" min="0"></div>
+        </div>
+        <div class="hint">水印会重新编码视频（音频直拷不损）。</div>
+      </div>
+
+      <!-- speed -->
+      <div class="mode-panel hidden" data-mode="speed">
+        <div class="row">
+          <div class="field"><label>倍速 <span id="spdVal" style="color:var(--accent)">2.0</span>x</label><input type="range" id="spdRate" min="25" max="400" value="200" step="5"></div>
+          <div class="field"><label>预设</label>
+            <div class="seg" id="spdPreset"><button data-v="0.5">0.5x</button><button data-v="1.5">1.5x</button><button data-v="2" class="active">2x</button><button data-v="4">4x</button></div>
+          </div>
+        </div>
+        <label class="inline"><input type="checkbox" id="spdPitch" checked> 保持音调（变调音会怪怪的）</label>
+        <div class="hint">0.25x–4x。无音轨的视频也会正常变速。</div>
+      </div>
+
+      <!-- gif2mp4 -->
+      <div class="mode-panel hidden" data-mode="gif2mp4">
+        <div class="hint">把 GIF 动图转成 MP4 视频（体积更小、可上传到视频平台）。</div>
+      </div>
+
+      <!-- subtitle -->
+      <div class="mode-panel hidden" data-mode="subtitle">
+        <div class="field"><label>SRT / VTT 字幕</label>
+          <textarea id="srtText" rows="8" placeholder="1&#10;00:00:00,000 --> 00:00:03,000&#10;字幕文字"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="importSrt">导入 .srt / .vtt</button>
+          <input type="file" id="srtFile" accept=".srt,.vtt,.ass,.txt" class="sr">
+          <button class="btn ghost" id="clearSrt">清空</button>
+          <span class="hint" id="srtMsg" style="align-self:center"></span>
+        </div>
+        <div class="field"><label>字幕样式</label>
+          <select id="subStyle">
+            <option value="">自定义（用下面的参数）</option>
+            <option value="classic">经典白字黑边</option>
+            <option value="big_yellow">大号黄字粗边</option>
+            <option value="variety">综艺花字（带淡入淡出）</option>
+            <option value="glow">霓虹发光</option>
+            <option value="box">底部半透明字幕条</option>
+            <option value="top">顶部大标题</option>
+            <option value="pop">弹幕感（粗阴影）</option>
+          </select>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <div class="field"><label>字号 <span id="subFsVal" style="color:var(--accent)">自动</span></label><input type="range" id="subFontSize" min="0" max="80" value="0" step="2"></div>
+          <div class="field"><label>位置</label><select id="subPos"><option value="bottom" selected>底部</option><option value="top">顶部</option></select></div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:0 0 auto"><label>颜色</label><input type="color" id="subColor" value="#ffffff"></div>
+          <div class="field"><label>描边 <span id="subOlVal" style="color:var(--accent)">2</span></label><input type="range" id="subOutline" min="0" max="6" value="2"></div>
+          <div class="field" style="display:flex;align-items:flex-end"><label class="inline"><input type="checkbox" id="subBold" checked> 加粗</label></div>
+        </div>
+        <div class="field"><label>画质 CRF <span id="subCrfVal" style="color:var(--accent)">21</span>（越小越清晰）</label><input type="range" id="subCrf" min="16" max="30" value="21"></div>
+        <div class="hint">字幕会「烧」进画面（硬字幕），任何播放器都看得到；音频直接复制、不重编码。<br>选了「字幕样式」时用 ASS 花字模板（忽略下面的自定义参数）；<b>双语字幕</b>请在「语音转文字」页开双语识别后点「→ 拿去加字幕」，或直接导入两行的 SRT。</div>
+      </div>
+
+      <!-- mask -->
+      <div class="mode-panel hidden" data-mode="mask">
+        <div id="maskPalette" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+        <div class="hint" style="margin-top:8px">在下方预览里**拖动**可移动形状；输出为**带透明通道**的视频（形状以外透明）。</div>
+        <div class="row" style="margin-top:8px">
+          <div class="field"><label>大小 <span id="mkSizeVal" style="color:var(--accent)">72%</span></label><input type="range" id="mkSize" min="10" max="150" value="72"></div>
+          <div class="field"><label>旋转 <span id="mkRotVal" style="color:var(--accent)">0</span>°</label><input type="range" id="mkRot" min="-180" max="180" value="0"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>圆角 /（星形用不到）<span id="mkRadiusVal" style="color:var(--accent)">22</span></label><input type="range" id="mkRadius" min="0" max="50" value="22"></div>
+          <div class="field" style="display:flex;align-items:flex-end"><label class="inline"><input type="checkbox" id="mkInvert"> 反选（保留形状以外）</label></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>抠像方式</label>
+            <select id="mkKey">
+              <option value="shape">形状遮罩（用上面的形状）</option>
+              <option value="chroma">绿幕抠像（自动去掉背景色）</option>
+            </select>
+          </div>
+          <div class="field"><label>要抠掉的背景色</label><input type="color" id="mkKeyColor" value="#00ff00"></div>
+        </div>
+        <div class="row" id="mkChromaRow" style="display:none">
+          <div class="field"><label>颜色容差 <span id="mkSimVal" style="color:var(--accent)">32%</span></label><input type="range" id="mkSim" min="5" max="80" value="32"></div>
+          <div class="field"><label>边缘羽化 <span id="mkBlendVal" style="color:var(--accent)">8%</span></label><input type="range" id="mkBlend" min="0" max="50" value="8"></div>
+        </div>
+        <div class="field"><label>输出格式</label>
+          <select id="mkMode">
+            <option value="prores">ProRes 4444 (.mov) — 带透明通道，后期友好（推荐）</option>
+            <option value="qtrle">QTRLE (.mov) — 无损 RLE，体积更大</option>
+            <option value="mp4">MP4 — 不支持透明，用填充色</option>
+          </select>
+        </div>
+        <div class="row">
+          <div class="field"><label>输出分辨率</label>
+            <select id="mkHeight"><option value="">保持原画面</option><option value="1080">1080p</option><option value="720" selected>720p</option><option value="540">540p（体积小）</option><option value="480">480p</option></select>
+          </div>
+          <div class="field" style="flex:0 0 auto"><label>MP4 填充色</label><input type="color" id="mkBg" value="#000000"></div>
+        </div>
+        <canvas id="maskCanvas" class="checker" style="max-width:100%;border-radius:10px;border:1px solid var(--line);cursor:move;display:block;margin-top:10px"></canvas>
+        <div class="hint" id="mkInfo" style="margin-top:6px"></div>
+        <div class="note">说明：本机 ffmpeg 的 VP8/VP9 **不支持**写入 alpha，所以用 **ProRes 4444 / QTRLE** 输出透明视频（剪映专业版/PR/达芬奇都能用）。</div>
+      </div>
+
+      <div class="btn-row" style="margin-top:18px">
+        <button class="btn primary" id="runBtn" style="flex:1" disabled>开始处理</button>
+        <button class="btn ghost" id="cancelBtn" style="display:none">取消</button>
+      </div>
+      <div class="err" id="err"></div>
+      <div class="note"><b>说明：</b>音视频由<b>本机 ffmpeg</b> 处理，文件不会上传到互联网。需要先启动本机服务（<code>server/start.bat</code>）。</div>
+    </section>
+  </div>
+
+  
+  <section class="panel">
+    <div class="panel-head"><span class="num">REC</span><h2>最近打开</h2>
+      <span class="spacer" style="flex:1"></span>
+      <span class="tbx-badge" id="recentBadge"></span>
+      <button class="btn ghost" data-recent-pick="video/*,audio/*,.mp4,.mov,.mkv,.webm,.mp3,.m4a,.wav,.flac" data-recent-key="av" data-recent-pick-multiple="1" style="padding:5px 12px;font-size:12.5px">选择文件（记住）</button>
+      <button class="btn ghost" id="recentClear" style="padding:5px 12px;font-size:12.5px">清空</button>
+    </div>
+    <div class="tbx-recent-list" id="recentList" data-recent-key="av"></div>
+  </section>
+
+  <footer class="site">免费工具箱 · 音视频工具 · 本机 ffmpeg 处理</footer>
+</main>
+
+<script src="assets/js/shapes.js"></script>
+<script src="assets/js/recent-files.js"></script>
+<script src="assets/js/av-tools.js"></script>
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+</body>
+</html>

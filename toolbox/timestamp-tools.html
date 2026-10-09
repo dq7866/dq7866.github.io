@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="在线 Unix 时间戳转换工具：时间戳与日期时间双向互转、自动识别秒/毫秒、时区换算、常用时间参考表。纯本地处理。">
+<title>时间戳转换 · Unix 时间戳与日期互转 ｜ 免费在线工具箱</title>
+<meta name="theme-color" content="#ff4d00">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>工</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else{if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
+<style>
+/* ===== 设计系统变量 · 暖中性纸质风格 ===== */
+:root {
+  --bg: #faf6f0;
+  --bg-2: #f3ede3;
+  --surface: #fffdf8;
+  --surface-2: #faf6f0;
+  --text: #2b2520;
+  --text-2: #6b5e52;
+  --muted: #9a8e80;
+  --line: #e8dfd1;
+  --line-2: #f0e8db;
+  --accent: #ff4d00;
+  --accent-2: #fff0e8;
+  --accent-ink: #fff;
+  --ok: #10b981;
+  --danger: #ef4444;
+  --warn: #f59e0b;
+  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(60,40,10,.06);
+  --shadow-lg: 0 8px 32px rgba(60,40,10,.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+[data-theme="dark"] {
+  --bg: #1a1612;
+  --bg-2: #241e18;
+  --surface: #2a231c;
+  --surface-2: #332a21;
+  --text: #f0e8dc;
+  --text-2: #c5b9a8;
+  --muted: #8a7d6d;
+  --line: #3d3328;
+  --line-2: #332a21;
+  --accent: #ff6b2d;
+  --accent-2: #3a2418;
+  --accent-ink: #fff;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; font-size: inherit; }
+
+/* ===== Topbar ===== */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+}
+.topbar-inner {
+  max-width: 1200px; margin: 0 auto;
+  min-height: 56px; padding: 0 20px;
+  display: flex; align-items: center; gap: 16px;
+}
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 16px;
+}
+.brand .mark {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 800;
+}
+.brand .tag {
+  font-size: 11px; font-weight: 500;
+  color: var(--muted); margin-left: 4px;
+  letter-spacing: .5px;
+}
+.spacer { flex: 1; }
+.topnav {
+  display: flex; align-items: center; gap: 2px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.topnav::-webkit-scrollbar { display: none; }
+.topnav a {
+  padding: 6px 12px; border-radius: 6px;
+  font-size: 13.5px; color: var(--text-2);
+  white-space: nowrap; transition: all .15s;
+}
+.topnav a:hover { color: var(--text); background: var(--bg-2); }
+.topnav a.active { color: var(--accent); background: var(--accent-2); font-weight: 600; }
+
+/* ===== Wrap ===== */
+.wrap {
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+/* ===== Panel ===== */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.panel + .panel { margin-top: 20px; }
+.panel-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+.panel-head h2 {
+  font-size: 17px; font-weight: 700;
+  color: var(--text);
+}
+.num {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 28px; height: 24px; padding: 0 8px;
+  background: var(--accent-2); color: var(--accent);
+  font-size: 11.5px; font-weight: 700;
+  border-radius: 6px; letter-spacing: .5px;
+}
+
+/* ===== Tabs ===== */
+.tabs {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  background: var(--bg-2);
+  padding: 4px; border-radius: 10px;
+}
+.tab {
+  flex: 1; min-width: 120px;
+  padding: 8px 14px;
+  border: none; background: transparent;
+  color: var(--text-2);
+  font-size: 13.5px; font-weight: 500;
+  border-radius: 7px;
+  transition: all .15s;
+}
+.tab:hover { color: var(--text); }
+.tab.active {
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+/* ===== Field & Row ===== */
+.field { margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+.field label {
+  display: block;
+  font-size: 13px; font-weight: 600;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}
+.field input[type="text"],
+.field input[type="number"],
+.field input[type="datetime-local"],
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 14px;
+  transition: all .15s;
+  outline: none;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255,77,0,.1);
+  background: var(--surface);
+}
+.field input.readonly {
+  background: var(--bg-2);
+  color: var(--text);
+  cursor: text;
+}
+.hint {
+  font-size: 12px; color: var(--muted);
+  margin-top: 6px; line-height: 1.5;
+}
+.row {
+  display: flex; gap: 10px; align-items: center;
+}
+.row .field { flex: 1; margin-bottom: 0; }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13.5px; font-weight: 500;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn:active { transform: translateY(1px); }
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.btn.primary:hover { opacity: .92; color: #fff; }
+.btn.ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--text-2);
+  padding: 7px 12px;
+  font-size: 12.5px;
+}
+.btn.ghost:hover {
+  background: var(--accent-2);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn-row {
+  display: flex; gap: 10px; align-items: center;
+  margin-top: 16px;
+}
+
+/* ===== Error ===== */
+.err {
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  margin-top: 12px;
+}
+[data-theme="dark"] .err {
+  background: rgba(239,68,68,.1);
+  border-color: rgba(239,68,68,.3);
+  color: #f87171;
+}
+
+/* ===== Footer ===== */
+.site {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.site a { color: var(--text-2); }
+.site a:hover { color: var(--accent); }
+
+/* ===== Reference Table ===== */
+.ref-table {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.ref-row {
+  display: grid;
+  grid-template-columns: 140px 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: all .15s;
+}
+.ref-row:hover {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+.ref-label {
+  font-weight: 600;
+  color: var(--text-2);
+  font-size: 13px;
+}
+.ref-date {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  color: var(--text);
+}
+.ref-ts {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+  background: var(--accent-2);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+/* ===== Utility ===== */
+.hidden { display: none !important; }
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .topbar-inner { padding: 0 14px; }
+  .wrap { padding: 0 14px 40px; }
+  .panel { padding: 16px; }
+  .row { flex-direction: column; gap: 10px; }
+  .row .btn { width: 100%; }
+  .ref-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .ref-ts { justify-self: start; }
+  .tabs { flex-direction: column; }
+  .tab { width: 100%; }
+  .topnav { display: none; }
+}
+</style>
+<link rel="canonical" href="https://dq7866.online/toolbox/timestamp-tools.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="时间戳转换,Unix时间戳,时间戳转日期,日期转时间戳,毫秒时间戳,在线时间戳">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="时间戳转换 · Unix 时间戳与日期互转 ｜ 免费在线工具箱">
+<meta property="og:description" content="在线 Unix 时间戳转换工具：时间戳与日期时间双向互转、自动识别秒/毫秒、时区换算、常用时间参考表。纯本地处理。">
+<meta property="og:url" content="https://dq7866.online/toolbox/timestamp-tools.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="时间戳转换 · Unix 时间戳与日期互转 ｜ 免费在线工具箱">
+<meta name="twitter:description" content="在线 Unix 时间戳转换工具：时间戳与日期时间双向互转、自动识别秒/毫秒、时区换算、常用时间参考表。纯本地处理。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "时间戳转换 · Unix 时间戳与日期互转",
+  "url": "https://dq7866.online/toolbox/timestamp-tools.html",
+  "description": "在线 Unix 时间戳转换工具：时间戳与日期时间双向互转、自动识别秒/毫秒、时区换算、常用时间参考表。纯本地处理。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">
+      <span class="mark">工</span>
+      <span>免费工具箱<span class="tag">Toolbox</span></span>
+    </a>
+    <span class="spacer"></span>
+    <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html">音视频</a>
+      <a href="player.html">播放器</a>
+      <a href="file-tools.html">文件</a>
+      <a href="ocr-tools.html">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html" class="active">时间戳</a>
+      <a href="regex-tools.html">正则</a>
+      <a href="json-tools.html">JSON</a>
+      <a href="encode-tools.html">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html">对比</a>
+      <a href="chart-tools.html">图表</a>
+      <a href="clipboard-tools.html">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html">AI助手</a>
+      <a href="batch-image.html">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:26px">
+  <section class="panel">
+    <div class="panel-head"><span class="num">TS</span><h2>时间戳转换工具</h2></div>
+    <div class="tabs" id="tsTabs">
+      <button class="tab active" data-tab="ts2date">01 时间戳转日期</button>
+      <button class="tab" data-tab="date2ts">02 日期转时间戳</button>
+      <button class="tab" data-tab="reference">03 常用时间参考</button>
+    </div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+
+    <!-- ============ 01 时间戳转日期 ============ -->
+    <div class="ts-panel" data-tab="ts2date">
+      <div class="field">
+        <label>Unix 时间戳</label>
+        <div class="row">
+          <input type="text" id="tsInput" placeholder="输入时间戳，如 1700000000 或 1700000000000" style="flex:1">
+          <button class="btn" id="tsNowBtn">获取当前时间戳</button>
+        </div>
+        <div class="hint">自动识别秒（10 位）或毫秒（13 位）。实时转换，无需点击按钮。</div>
+      </div>
+
+      <div class="field">
+        <label>时区</label>
+        <select id="tsTimezone">
+          <option value="Asia/Shanghai">北京时间 (UTC+8)</option>
+          <option value="UTC">UTC (协调世界时)</option>
+          <option value="Asia/Tokyo">东京 (UTC+9)</option>
+          <option value="America/New_York">纽约 (UTC-5)</option>
+          <option value="Europe/London">伦敦 (UTC+0)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>北京时间 (UTC+8)</label>
+        <div class="row">
+          <input type="text" id="tsBeijing" readonly class="readonly">
+          <button class="btn ghost" data-copy="tsBeijing">复制</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>UTC 时间</label>
+        <div class="row">
+          <input type="text" id="tsUtc" readonly class="readonly">
+          <button class="btn ghost" data-copy="tsUtc">复制</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>ISO 8601 格式</label>
+        <div class="row">
+          <input type="text" id="tsIso" readonly class="readonly">
+          <button class="btn ghost" data-copy="tsIso">复制</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>所选时区时间</label>
+        <div class="row">
+          <input type="text" id="tsTzTime" readonly class="readonly">
+          <button class="btn ghost" data-copy="tsTzTime">复制</button>
+        </div>
+      </div>
+
+      <div class="err hidden" id="tsError"></div>
+    </div>
+
+    <!-- ============ 02 日期转时间戳 ============ -->
+    <div class="ts-panel hidden" data-tab="date2ts">
+      <div class="field">
+        <label>选择日期时间</label>
+        <input type="datetime-local" id="dateInput">
+        <div class="hint">选择日期和时间，自动转换为 Unix 时间戳。</div>
+      </div>
+
+      <div class="field">
+        <label>输入时区</label>
+        <select id="dateTimezone">
+          <option value="Asia/Shanghai">北京时间 (UTC+8)</option>
+          <option value="UTC">UTC (协调世界时)</option>
+          <option value="Asia/Tokyo">东京 (UTC+9)</option>
+          <option value="America/New_York">纽约 (UTC-5)</option>
+          <option value="Europe/London">伦敦 (UTC+0)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Unix 时间戳（秒）</label>
+        <div class="row">
+          <input type="text" id="tsSeconds" readonly class="readonly">
+          <button class="btn ghost" data-copy="tsSeconds">复制</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Unix 时间戳（毫秒）</label>
+        <div class="row">
+          <input type="text" id="tsMilliseconds" readonly class="readonly">
+          <button class="btn ghost" data-copy="tsMilliseconds">复制</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>ISO 8601 格式</label>
+        <div class="row">
+          <input type="text" id="dateIso" readonly class="readonly">
+          <button class="btn ghost" data-copy="dateIso">复制</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn primary" id="dateNowBtn">使用当前时间</button>
+      </div>
+    </div>
+
+    <!-- ============ 03 常用时间参考 ============ -->
+    <div class="ts-panel hidden" data-tab="reference">
+      <div class="hint" style="margin-bottom:12px">以下时间均以 <b>北京时间 (UTC+8)</b> 为基准，点击右侧按钮可一键复制秒级时间戳。</div>
+      <div class="ref-table" id="refTable">
+        <!-- 由 JS 动态生成 -->
+      </div>
+    </div>
+  </section>
+
+  <footer class="site">免费工具箱 · 时间戳转换 · 纯前端本地处理</footer>
+</main>
+
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+<script src="assets/js/timestamp-tools.js"></script>
+</body>
+</html>

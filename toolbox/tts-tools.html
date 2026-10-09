@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>文字转语音 · 多音色配音导出（需本地引擎）</title>
+<meta name="description" content="文字转语音工具：多音色、多风格配音，可调节语速与音调并导出音频。合成依赖本地语音引擎，公网在线版不提供，其余工具不受影响。">
+<meta name="theme-color" content="#ff4d00">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>箱</text></svg>">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else if(t==='auto'||!t){if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.setAttribute('data-theme','dark');}}}catch(e){}})();</script>
+<style>
+  .tts-wrap { display: grid; grid-template-columns: minmax(0,1fr) minmax(280px,340px); gap: 18px; align-items: start; }
+  @media (max-width: 860px) { .tts-wrap { grid-template-columns: 1fr; } }
+  #text { width: 100%; min-height: 240px; padding: 12px; border: 1px solid var(--line); border-radius: 10px;
+          background: var(--surface-2); color: var(--ink); font-size: 15px; line-height: 1.8; font-family: inherit; resize: vertical; }
+  #text:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
+  .tts-meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+  .tts-meta b { color: var(--ink); font-family: var(--mono); }
+  .tts-voice { display: grid; gap: 6px; max-height: 260px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; padding: 8px; margin-top: 6px; }
+  .tts-voice label { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 5px 7px; border-radius: 7px; cursor: pointer; }
+  .tts-voice label:hover { background: var(--surface-2); }
+  .tts-voice label.on { background: var(--accent-soft); }
+  .tts-voice .tag { font-size: 10.5px; color: var(--muted); border: 1px solid var(--line-2); border-radius: 99px; padding: 1px 6px; margin-left: auto; }
+  .tts-player { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+  .tts-player audio { flex: 1; min-width: 220px; height: 40px; }
+  .tts-busy { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); margin-top: 12px; }
+  .tts-spin { width: 16px; height: 16px; border: 2px solid var(--line-2); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg) } }
+  .tts-hist { max-height: 260px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; margin-top: 8px; }
+  .tts-hist .r { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-bottom: 1px dashed var(--line); font-size: 12.5px; }
+  .tts-hist .r:last-child { border-bottom: 0; }
+  .tts-hist .r .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tts-hist .r .d { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .tts-warn { background: color-mix(in srgb, var(--danger) 10%, transparent); border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+              border-radius: 10px; padding: 9px 12px; font-size: 12.5px; margin-top: 10px; }
+</style>
+<link rel="canonical" href="https://dq7866.online/toolbox/tts-tools.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="文字转语音,在线配音,语音合成,TTS,文本朗读,导出MP3">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="文字转语音 · 多音色配音导出（需本地引擎）">
+<meta property="og:description" content="文字转语音工具：多音色、多风格配音，可调节语速与音调并导出音频。合成依赖本地语音引擎，公网在线版不提供，其余工具不受影响。">
+<meta property="og:url" content="https://dq7866.online/toolbox/tts-tools.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="文字转语音 · 多音色配音导出（需本地引擎）">
+<meta name="twitter:description" content="文字转语音工具：多音色、多风格配音，可调节语速与音调并导出音频。合成依赖本地语音引擎，公网在线版不提供，其余工具不受影响。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "文字转语音 · 多音色配音导出（需本地引擎）",
+  "url": "https://dq7866.online/toolbox/tts-tools.html",
+  "description": "文字转语音工具：多音色、多风格配音，可调节语速与音调并导出音频。合成依赖本地语音引擎，公网在线版不提供，其余工具不受影响。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><span class="mark">箱</span><span>免费工具箱<span class="tag">Toolbox</span></span></a>
+    <span class="spacer"></span>
+        <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html">音视频</a>
+      <a href="player.html">播放器</a>
+      <a href="file-tools.html">文件</a>
+      <a href="ocr-tools.html">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html" class="active">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html">时间戳</a>
+      <a href="regex-tools.html">正则</a>
+      <a href="json-tools.html">JSON</a>
+      <a href="encode-tools.html">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html">对比</a>
+      <a href="chart-tools.html">图表</a>
+      <a href="clipboard-tools.html">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html">AI助手</a>
+      <a href="batch-image.html">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<div class="tb-notice" role="note">
+  <span class="tb-notice-ico">ℹ️</span>
+  <div class="tb-notice-body"><b>在线版说明 · 文字转语音需要本地语音合成引擎</b>配音依赖本地合成模型，公网在线版不提供。其余工具不受影响。</div>
+</div>
+
+  <section class="panel">
+    <div class="panel-head"><span class="num">01</span><h2>输入文字</h2>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn ghost" id="demoBtn" style="padding:5px 12px;font-size:12.5px">填入示例</button>
+      <button class="btn ghost" id="clearBtn" style="padding:5px 12px;font-size:12.5px">清空</button>
+    </div>
+    <textarea id="text" placeholder="在这里粘贴或输入要配音的文字，支持中文、英文和数字混排……"></textarea>
+    <div class="tts-meta">
+      <span>字数 <b id="cnt">0</b></span>
+      <span>预估时长 <b id="est">0s</b></span>
+      <span id="engHint"></span>
+    </div>
+    <div class="tts-warn" id="longWarn" style="display:none">
+      文本较长（超过 800 字），合成会比较慢。建议拆成几段分别合成。
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span class="num">02</span><h2>生成配音</h2></div>
+    <div class="tts-wrap">
+      <div>
+        <div class="row">
+          <div class="field"><label>音色引擎</label>
+            <select id="engine">
+              <option value="offline" selected>本机离线音色（推荐 · 不上传 · 免安装）</option>
+              <option value="edge">在线音色（微软 · 更自然 · 需联网，文本会发给微软）</option>
+            </select>
+          </div>
+          <div class="field"><label>语速 <span id="spdVal" style="color:var(--accent)">1.0×</span></label>
+            <input type="range" class="pl-range" id="speed" min="0.5" max="2" step="0.05" value="1">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label>音色风格（后处理，让声音更像真人）</label>
+            <select id="style">
+              <option value="none" selected>原声（不做处理）</option>
+            </select>
+          </div>
+          <div class="field"><label>变调 <span id="pitVal" style="color:var(--accent)"> 0 半音</span></label>
+            <input type="range" class="pl-range" id="pitch" min="-6" max="6" step="1" value="0">
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label>停顿压缩（离线合成「一顿一顿」就调它）</label>
+            <select id="pause">
+              <option value="0.16" selected>轻度（推荐）</option>
+              <option value="0.10">中度</option>
+              <option value="0.06">强力</option>
+              <option value="0">关闭（保持原样）</option>
+            </select>
+          </div>
+        </div>
+        <div class="hint" id="styleHint" style="margin-top:-4px">「磁性低音 / 电台夜话」会降调并加强低频共鸣；变调滑块可覆盖预设的默认值。离线合成如果觉得一顿一顿，把「停顿压缩」调到中度/强力。</div>
+        <div class="btn-row" style="margin-top:12px">
+          <button class="btn primary" id="genBtn" style="flex:1">开始合成</button>
+          <button class="btn ghost" id="stopBtn" style="display:none">取消</button>
+        </div>
+        <div class="tts-busy" id="busy" style="display:none"><span class="tts-spin"></span><span id="busyText">正在合成…</span></div>
+        <div class="err" id="err"></div>
+
+        <div class="tts-player" id="player" style="display:none">
+          <audio id="audio" controls preload="metadata"></audio>
+          <button class="btn ghost" id="dlBtn">下载</button>
+        </div>
+        <div class="hint" id="info" style="margin-top:8px"></div>
+      </div>
+
+      <div>
+        <div class="field"><label>选择音色</label></div>
+        <div class="tts-voice" id="voices"></div>
+        <div class="hint" id="voiceHint" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span class="num">03</span><h2>最近合成</h2>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn ghost" id="histClear" style="padding:5px 12px;font-size:12.5px">清空</button>
+    </div>
+    <div class="tts-hist" id="hist"><div style="padding:14px;text-align:center;color:var(--muted);font-size:12.5px">还没有生成过</div></div>
+  </section>
+
+  <footer class="site">免费工具箱 · 文字转语音 · 离线音色在本机合成，文字不上传</footer>
+</main>
+
+<script src="assets/js/tts-tools.js"></script>
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+</body>
+</html>

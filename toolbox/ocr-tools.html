@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OCR 文字识别 · 图片与 PDF 识别（需本地引擎）</title>
+<meta name="description" content="OCR 文字识别工具：识别图片与 PDF 中的文字，结果可编辑、可导出。识别依赖本机识别引擎，公网在线版不提供，其余工具不受影响。">
+<meta name="theme-color" content="#ff4d00">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>箱</text></svg>">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else if(t==='auto'||!t){if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.setAttribute('data-theme','dark');}}}catch(e){}})();</script>
+<style>
+.ocr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-top: 10px; }
+.ocr-card { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface-2); }
+.ocr-card .hd { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--line); font-size: 12px; }
+.ocr-card .hd .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.ocr-card .hd .tag { font-size: 10.5px; border: 1px solid var(--line-2); border-radius: 99px; padding: 1px 7px; color: var(--muted); }
+.ocr-card .hd .tag.text { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
+.ocr-card .hd .tag.ocr { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.ocr-card img { width: 100%; max-height: 190px; object-fit: contain; background: #0b0b0d; display: block; }
+.ocr-card textarea {
+  width: 100%; border: 0; border-top: 1px solid var(--line); background: var(--surface);
+  color: var(--ink); font-size: 12.5px; line-height: 1.65; padding: 9px 10px; resize: vertical;
+  min-height: 120px; font-family: inherit; display: block;
+}
+.ocr-card textarea:focus { outline: none; box-shadow: inset 0 0 0 2px var(--ring); }
+.ocr-stat { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 10px; }
+.ocr-stat > div { border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; background: var(--surface-2); }
+.ocr-stat .k { font-size: 11.5px; color: var(--muted); }
+.ocr-stat .v { font-size: 16px; font-weight: 800; font-family: var(--mono); margin-top: 2px; }
+.ocr-busy { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); margin-top: 12px; }
+.ocr-spin { width: 16px; height: 16px; border: 2px solid var(--line-2); border-top-color: var(--accent); border-radius: 50%; animation: ocrSpin .8s linear infinite; }
+@keyframes ocrSpin { to { transform: rotate(360deg) } }
+</style>
+<link rel="canonical" href="https://dq7866.online/toolbox/ocr-tools.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="OCR文字识别,图片转文字,PDF文字提取,在线OCR,截图取字">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="OCR 文字识别 · 图片与 PDF 识别（需本地引擎）">
+<meta property="og:description" content="OCR 文字识别工具：识别图片与 PDF 中的文字，结果可编辑、可导出。识别依赖本机识别引擎，公网在线版不提供，其余工具不受影响。">
+<meta property="og:url" content="https://dq7866.online/toolbox/ocr-tools.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="OCR 文字识别 · 图片与 PDF 识别（需本地引擎）">
+<meta name="twitter:description" content="OCR 文字识别工具：识别图片与 PDF 中的文字，结果可编辑、可导出。识别依赖本机识别引擎，公网在线版不提供，其余工具不受影响。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "OCR 文字识别 · 图片与 PDF 识别（需本地引擎）",
+  "url": "https://dq7866.online/toolbox/ocr-tools.html",
+  "description": "OCR 文字识别工具：识别图片与 PDF 中的文字，结果可编辑、可导出。识别依赖本机识别引擎，公网在线版不提供，其余工具不受影响。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><span class="mark">箱</span><span>免费工具箱<span class="tag">Toolbox</span></span></a>
+    <span class="spacer"></span>
+        <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html">音视频</a>
+      <a href="player.html">播放器</a>
+      <a href="file-tools.html">文件</a>
+      <a href="ocr-tools.html" class="active">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html">时间戳</a>
+      <a href="regex-tools.html">正则</a>
+      <a href="json-tools.html">JSON</a>
+      <a href="encode-tools.html">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html">对比</a>
+      <a href="chart-tools.html">图表</a>
+      <a href="clipboard-tools.html">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html">AI助手</a>
+      <a href="batch-image.html">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<div class="tb-notice" role="note">
+  <span class="tb-notice-ico">ℹ️</span>
+  <div class="tb-notice-body"><b>在线版说明 · OCR 文字识别需要本地识别引擎</b>文字识别依赖本机识别引擎，公网在线版不提供。其余工具不受影响。</div>
+</div>
+
+  <section class="panel">
+    <div class="panel-head"><span class="num">01</span><h2>选择图片或 PDF</h2></div>
+    <label class="drop" id="drop">
+      <input type="file" id="fileInput" accept="image/*,.pdf" multiple class="sr">
+      <b>点击选择，或把图片 / PDF 拖到这里（支持多选）</b>
+      <div class="hint" style="margin:8px 0 0">图片：PNG / JPG / BMP / WebP / TIFF　·　PDF 自动判断：有文字层的直接提取，扫描页才走 OCR</div>
+    </label>
+    <div class="row" style="margin-top:10px">
+      <div class="field"><label>已选文件</label><div class="hint" id="fileInfo" style="margin:0">尚未选择</div></div>
+      <div class="field" style="flex:0 0 auto;display:flex;gap:8px;align-items:flex-end">
+        <button class="btn ghost" id="clearBtn" disabled>清空</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span class="num">02</span><h2>识别</h2>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn ghost" id="pasteBtn" style="padding:5px 12px;font-size:12.5px">从剪贴板粘贴截图</button>
+    </div>
+    <div class="row">
+      <div class="field"><label>识别质量</label>
+        <select id="quality">
+          <option value="fast">快速（体积小、略快）</option>
+          <option value="normal" selected>标准（推荐）</option>
+        </select>
+      </div>
+      <div class="field" style="display:flex;align-items:flex-end;gap:14px">
+        <label class="inline"><input type="checkbox" id="asTable"> 按表格分列导出</label>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn primary" id="runBtn" disabled style="flex:1">开始识别</button>
+    </div>
+    <div class="ocr-busy" id="busy" style="display:none"><span class="ocr-spin"></span><span id="busyText">正在识别…</span></div>
+    <div class="err" id="err"></div>
+    <div class="note"><b>隐私：</b>识别在你自己电脑上完成（本地 OCR 模型），图片和 PDF <b>不会上传</b>。</div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span class="num">03</span><h2>结果</h2>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn ghost" id="copyAll" style="padding:5px 12px;font-size:12.5px" disabled>复制全部</button>
+      <button class="btn ghost" id="dlTxt" style="padding:5px 12px;font-size:12.5px" disabled>导出 TXT</button>
+      <button class="btn ghost" id="dlMd" style="padding:5px 12px;font-size:12.5px" disabled>导出 Markdown</button>
+      <button class="btn ghost" id="dlCsv" style="padding:5px 12px;font-size:12.5px" disabled>导出 CSV</button>
+      <button class="btn ghost" id="dlXlsx" style="padding:5px 12px;font-size:12.5px" disabled>导出 Excel</button>
+      <button class="btn ghost" id="dlDocx" style="padding:5px 12px;font-size:12.5px" disabled>导出 Word</button>
+    </div>
+    <div class="ocr-stat" id="stats" style="display:none"></div>
+    <div class="ocr-grid" id="grid"><div class="empty" style="padding:20px;text-align:center;color:var(--muted);font-size:13px">识别结果会显示在这里，可直接修改后再导出</div></div>
+  </section>
+
+  <footer class="site">免费工具箱 · OCR 文字识别 · 本地模型，图片不上传</footer>
+</main>
+
+<script src="assets/vendor/jszip.min.js"></script>
+<script src="assets/vendor/xlsx.full.min.js"></script>
+<script src="assets/js/ocr-tools.js"></script>
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+</body>
+</html>

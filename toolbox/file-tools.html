@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>文件处理 · 压缩解压/查重/批量重命名（需本地服务）</title>
+<meta name="description" content="文件处理工具：批量重命名、重复文件查找、压缩与解压、查找替换等针对本机磁盘真实文件的操作。出于浏览器安全边界，公网在线版无法访问你的磁盘，完整功能需本地版；压缩/解压等纯浏览器内功能仍可用。">
+<meta name="theme-color" content="#ff4d00">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>箱</text></svg>">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else if(t==='auto'||!t){if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.setAttribute('data-theme','dark');}}}catch(e){}})();</script>
+<style>
+.ft-crumb { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 13px; font-family: var(--mono); color: var(--muted); word-break: break-all; }
+.ft-path { font-family: var(--mono); font-size: 12.5px; }
+.ft-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.ft-chip { appearance: none; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: 4px 11px; font-size: 12.5px; cursor: pointer; }
+.ft-chip:hover { border-color: var(--accent); color: var(--accent); }
+.ft-list { border: 1px solid var(--line); border-radius: 10px; margin-top: 10px; max-height: 340px; overflow: auto; }
+.ft-row { display: flex; align-items: center; gap: 10px; padding: 7px 11px; border-bottom: 1px dashed var(--line); font-size: 13px; }
+.ft-row:last-child { border-bottom: 0; }
+.ft-row.dir { cursor: pointer; }
+.ft-row.dir:hover { background: var(--surface-3); }
+.ft-row .ico { width: 20px; text-align: center; flex: 0 0 auto; }
+.ft-row .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ft-row .sz { font-family: var(--mono); font-size: 11.5px; color: var(--faint); flex: 0 0 auto; }
+.ft-row.sel { background: var(--accent-soft); }
+.ft-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.ft-group { border: 1px solid var(--line); border-radius: 10px; margin-top: 10px; overflow: hidden; }
+.ft-group > .hd { display: flex; align-items: center; gap: 8px; padding: 8px 11px; background: var(--surface-2); font-size: 12.5px; }
+.ft-group > .hd .tag { color: var(--accent); font-weight: 700; }
+.ft-group .bd { padding: 6px 11px 10px; }
+.ft-file { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 12.5px; }
+.ft-file .p { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono); }
+.ft-file.keep { opacity: .85; }
+.ft-warn { background: color-mix(in srgb, var(--danger) 10%, transparent); border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent); color: var(--ink); border-radius: 10px; padding: 10px 12px; font-size: 12.5px; margin-top: 10px; }
+.ft-big { font-size: 22px; font-weight: 800; font-family: var(--mono); }
+.ft-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-top: 10px; }
+.ft-stat { border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; background: var(--surface-2); }
+.ft-stat .k { font-size: 11.5px; color: var(--muted); }
+.ft-stat .v { font-size: 16px; font-weight: 800; font-family: var(--mono); margin-top: 2px; }
+.ft-preview { max-height: 260px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; margin-top: 10px; }
+.ft-preview .r { display: flex; gap: 8px; padding: 5px 10px; border-bottom: 1px dashed var(--line); font-size: 12.5px; font-family: var(--mono); }
+.ft-preview .r:last-child { border-bottom: 0; }
+.ft-preview .r .a { color: var(--muted); text-decoration: line-through; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ft-preview .r .b { color: var(--ok); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rn-live-preview { max-height: 180px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; margin-top: 8px; background: var(--surface-2); }
+.rn-live-preview .r { display: flex; gap: 8px; padding: 4px 10px; border-bottom: 1px dashed var(--line); font-size: 12px; font-family: var(--mono); }
+.rn-live-preview .r:last-child { border-bottom: 0; }
+.rn-live-preview .r .a { color: var(--muted); text-decoration: line-through; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rn-live-preview .r .b { color: var(--ok); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rn-var-warn { margin-top: 6px; font-size: 12px; color: var(--warn); }
+.rn-var-warn code { background: var(--surface-3); padding: 1px 5px; border-radius: 4px; font-size: 11.5px; }
+.rn-var-help { margin-top: 8px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.rn-var-help .hd { display: flex; align-items: center; gap: 8px; padding: 7px 11px; background: var(--surface-2); font-size: 12.5px; cursor: pointer; user-select: none; }
+.rn-var-help .hd .arrow { transition: transform .2s; display: inline-block; }
+.rn-var-help .hd.open .arrow { transform: rotate(90deg); }
+.rn-var-help .bd { display: none; padding: 8px 11px; font-size: 12px; }
+.rn-var-help .bd.open { display: block; }
+.rn-var-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px 14px; }
+.rn-var-grid .item { display: flex; align-items: center; gap: 6px; }
+.rn-var-grid code { background: var(--surface-3); padding: 2px 7px; border-radius: 5px; font-size: 11.5px; cursor: pointer; font-weight: 600; }
+.rn-var-grid code:hover { background: var(--accent-soft); color: var(--accent); }
+.rn-var-grid .desc { color: var(--muted); font-size: 11.5px; }
+.rn-tpl-wrap { position: relative; }
+.rn-tpl-quick { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.rn-tpl-quick .qv { font-family: var(--mono); font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--surface-3); cursor: pointer; border: 1px solid var(--line); }
+.rn-tpl-quick .qv:hover { border-color: var(--accent); color: var(--accent); }
+</style>
+<link rel="canonical" href="https://dq7866.online/toolbox/file-tools.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="批量重命名,重复文件查找,文件压缩,文件解压,文件查重,批量文件处理">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="文件处理 · 压缩解压/查重/批量重命名（需本地服务）">
+<meta property="og:description" content="文件处理工具：批量重命名、重复文件查找、压缩与解压、查找替换等针对本机磁盘真实文件的操作。出于浏览器安全边界，公网在线版无法访问你的磁盘，完整功能需本地版；压缩/解压等纯浏览器内功能仍可用。">
+<meta property="og:url" content="https://dq7866.online/toolbox/file-tools.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="文件处理 · 压缩解压/查重/批量重命名（需本地服务）">
+<meta name="twitter:description" content="文件处理工具：批量重命名、重复文件查找、压缩与解压、查找替换等针对本机磁盘真实文件的操作。出于浏览器安全边界，公网在线版无法访问你的磁盘，完整功能需本地版；压缩/解压等纯浏览器内功能仍可用。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "文件处理 · 压缩解压/查重/批量重命名（需本地服务）",
+  "url": "https://dq7866.online/toolbox/file-tools.html",
+  "description": "文件处理工具：批量重命名、重复文件查找、压缩与解压、查找替换等针对本机磁盘真实文件的操作。出于浏览器安全边界，公网在线版无法访问你的磁盘，完整功能需本地版；压缩/解压等纯浏览器内功能仍可用。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><span class="mark">箱</span><span>免费工具箱<span class="tag">Toolbox</span></span></a>
+    <span class="spacer"></span>
+        <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html">音视频</a>
+      <a href="player.html">播放器</a>
+      <a href="file-tools.html" class="active">文件</a>
+      <a href="ocr-tools.html">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html">时间戳</a>
+      <a href="regex-tools.html">正则</a>
+      <a href="json-tools.html">JSON</a>
+      <a href="encode-tools.html">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html">对比</a>
+      <a href="chart-tools.html">图表</a>
+      <a href="clipboard-tools.html">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html">AI助手</a>
+      <a href="batch-image.html">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+<div class="tb-notice" role="note">
+  <span class="tb-notice-ico">ℹ️</span>
+  <div class="tb-notice-body"><b>在线版说明 · 文件处理需要本机服务访问你的磁盘</b>公网网页无法、也不应该读取你电脑上的真实文件——这是浏览器的安全边界，不是缺陷。压缩/解压等纯浏览器内功能仍可使用。</div>
+</div>
+
+  <section class="panel">
+    <div class="panel-head"><span class="num">01</span><h2>选择位置</h2>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn ghost" id="upBtn" style="padding:5px 12px;font-size:12.5px">↑ 上一级</button>
+      <button class="btn ghost" id="reloadBtn" style="padding:5px 12px;font-size:12.5px">刷新</button>
+    </div>
+
+    <div class="ft-crumb" id="crumb">（尚未选择目录）</div>
+    <div class="ft-chips" id="places"></div>
+    <div class="ft-chips" id="recentDirs"></div>
+
+    <div class="row" style="margin-top:12px">
+      <div class="field"><label>路径（可直接粘贴本机路径）</label><input type="text" class="ft-path" id="pathInput" placeholder="例如 C:\Users\你的名字\Downloads"></div>
+      <div class="field" style="flex:0 0 auto;display:flex;align-items:flex-end;gap:8px">
+        <button class="btn primary" id="goBtn">前往</button>
+      </div>
+    </div>
+
+    <label class="inline" style="margin-top:6px"><input type="checkbox" id="recurse"> 递归包含子目录</label>
+
+    <div class="ft-list" id="list"><div class="empty" style="padding:22px;text-align:center;color:var(--muted);font-size:13px">选择上方常用位置，或粘贴一个路径后点「前往」</div></div>
+
+    <div class="ft-bar">
+      <span class="hint" id="selInfo" style="margin:0">已选 0 项</span>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn ghost" id="selAll">全选文件</button>
+      <button class="btn ghost" id="selNone">清空选择</button>
+    </div>
+    <div class="note"><b>说明：</b>这个模块操作的是<b>本机磁盘上的真实文件</b>，通过本机增强服务（127.0.0.1:8765）完成，仅本机可访问。删除默认进<b>回收站</b>，可随时恢复。</div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span class="num">02</span><h2>选择功能</h2></div>
+    <div class="tabs" id="tabs" style="margin-top:12px">
+      <button class="tab active" data-mode="zip">压缩打包</button>
+      <button class="tab" data-mode="unzip">解压</button>
+      <button class="tab" data-mode="rename">批量更名</button>
+      <button class="tab" data-mode="dupes">查重与清理</button>
+      <button class="tab" data-mode="similar">相似照片</button>
+      <button class="tab" data-mode="disk">磁盘分析</button>
+      <button class="tab" data-mode="organize">自动归档</button>
+      <button class="tab" data-mode="trash">回收站</button>
+    </div>
+
+    <!-- 压缩 -->
+    <div class="mode-panel" data-mode="zip">
+      <div class="hint">把上面<b>选中的文件/文件夹</b>打包成一个压缩包。不选东西时，会把<b>当前目录</b>整体打包。</div>
+      <div class="row">
+        <div class="field"><label>压缩格式</label>
+          <select id="zipFmt">
+            <option value="zip" selected>ZIP（兼容最好）</option>
+            <option value="7z">7Z（压缩率更高）</option>
+          </select>
+        </div>
+        <div class="field"><label>输出路径（留空=放在当前目录旁）</label><input type="text" class="ft-path" id="zipOut" placeholder="例如 C:\Users\你\Desktop\打包.zip"></div>
+      </div>
+      <div class="btn-row" style="margin-top:12px"><button class="btn primary" id="zipBtn">开始压缩</button></div>
+    </div>
+
+    <!-- 解压 -->
+    <div class="mode-panel hidden" data-mode="unzip">
+      <div class="hint">在上面选中一个 <code>.zip</code> 文件，或直接填路径。</div>
+      <div class="row">
+        <div class="field"><label>压缩包路径</label><input type="text" class="ft-path" id="unzipIn" placeholder="选中的 zip 会自动填到这里"></div>
+        <div class="field"><label>解压到（留空=同名目录）</label><input type="text" class="ft-path" id="unzipOut" placeholder="例如 C:\Users\你\Desktop\解压结果"></div>
+      </div>
+      <div class="btn-row" style="margin-top:12px"><button class="btn primary" id="unzipBtn">开始解压</button></div>
+    </div>
+
+    <!-- 更名 -->
+    <div class="mode-panel hidden" data-mode="rename">
+      <div class="hint">对<b>选中的文件</b>（或当前目录下的文件）批量更名。先用「预览」确认，再执行。</div>
+      <div class="seg" id="rnKind" style="margin-top:8px">
+        <button class="active" data-v="edit">查找替换</button>
+        <button data-v="tpl">序号模板</button>
+      </div>
+      <div class="row" id="rnEditRow">
+        <div class="field"><label>查找</label><input type="text" id="rnFind" placeholder="例如 副本 / 空格"></div>
+        <div class="field"><label>替换为</label><input type="text" id="rnRepl" placeholder="留空=删除"></div>
+        <div class="field" style="flex:0 0 auto;display:flex;align-items:flex-end"><label class="inline"><input type="checkbox" id="rnRegex"> 用正则</label></div>
+      </div>
+      <div class="row hidden" id="rnTplRow">
+        <div class="field rn-tpl-wrap" style="flex:1 1 100%">
+          <label>命名模板 <span style="color:var(--muted);font-weight:400;font-size:11.5px">（点击变量快速插入）</span></label>
+          <input type="text" id="rnTpl" value="文件_{n}" placeholder="例如：{date}_旅行照片_{n}">
+          <div class="rn-tpl-quick">
+            <span class="qv" data-insert="{name}">{name} 原名</span>
+            <span class="qv" data-insert="{n}">{n} 序号</span>
+            <span class="qv" data-insert="{date}">{date} 日期</span>
+            <span class="qv" data-insert="{time}">{time} 时间</span>
+            <span class="qv" data-insert="{datetime}">{datetime} 日期时间</span>
+            <span class="qv" data-insert="{ext}">{ext} 扩展名</span>
+            <span class="qv" data-insert="{size}">{size} 大小</span>
+            <span class="qv" data-insert="{index}">{index} 索引</span>
+          </div>
+        </div>
+      </div>
+      <div class="row hidden" id="rnTplOptsRow">
+        <div class="field"><label>起始序号</label><input type="number" id="rnStart" value="1" min="0"></div>
+        <div class="field"><label>位数补零</label><input type="number" id="rnPad" value="2" min="0" max="6"></div>
+      </div>
+      <div class="rn-var-help hidden" id="rnVarHelp">
+        <div class="hd" id="rnVarHelpHd"><span class="arrow">▶</span> <b>变量说明</b><span style="flex:1"></span><span style="color:var(--muted);font-weight:400;font-size:11.5px">点击展开</span></div>
+        <div class="bd">
+          <div class="rn-var-grid">
+            <div class="item"><code data-insert="{name}">{name}</code><span class="desc">原名（不含扩展名）</span></div>
+            <div class="item"><code data-insert="{ext}">{ext}</code><span class="desc">扩展名（小写）</span></div>
+            <div class="item"><code data-insert="{EXT}">{EXT}</code><span class="desc">扩展名（大写）</span></div>
+            <div class="item"><code data-insert="{n}">{n}</code><span class="desc">序号（自动补零）</span></div>
+            <div class="item"><code data-insert="{index}">{index}</code><span class="desc">原始序号（不补零）</span></div>
+            <div class="item"><code data-insert="{date}">{date}</code><span class="desc">今天日期 YYYY-MM-DD</span></div>
+            <div class="item"><code data-insert="{time}">{time}</code><span class="desc">当前时间 HH-MM-SS</span></div>
+            <div class="item"><code data-insert="{datetime}">{datetime}</code><span class="desc">日期_时间</span></div>
+            <div class="item"><code data-insert="{size}">{size}</code><span class="desc">文件大小（可读格式）</span></div>
+            <div class="item"><code data-insert="{orig}">{orig}</code><span class="desc">原名（兼容旧版）</span></div>
+          </div>
+          <div style="margin-top:8px;color:var(--muted);font-size:11.5px">提示：点击变量标签可快速插入到模板光标处。模板中普通文字会原样保留。</div>
+        </div>
+      </div>
+      <div class="rn-var-warn hidden" id="rnVarWarn"></div>
+      <div class="rn-live-preview hidden" id="rnLivePreview"></div>
+      <div class="row">
+        <div class="field"><label>统一扩展名（留空=不变）</label><input type="text" id="rnExt" placeholder="例如 jpg"></div>
+        <div class="field" style="display:flex;align-items:flex-end;gap:14px">
+          <label class="inline"><input type="checkbox" id="rnLower"> 转小写</label>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn ghost" id="rnPreview">预览</button>
+        <button class="btn primary" id="rnApply" disabled>执行更名</button>
+      </div>
+      <div class="ft-preview" id="rnPreviewBox" style="display:none"></div>
+    </div>
+
+    <!-- 查重 -->
+    <div class="mode-panel hidden" data-mode="dupes">
+      <div class="hint">扫描当前目录（可开递归），按内容找出<b>完全相同的重复文件</b>。每组默认保留<b>第一个</b>，其余勾选待处理。</div>
+      <div class="row">
+        <div class="field"><label>忽略小于（字节）</label><input type="number" id="dpMin" value="1024" min="1"></div>
+        <div class="field" style="flex:0 0 auto;display:flex;align-items:flex-end"><button class="btn primary" id="dpScan">开始扫描</button></div>
+      </div>
+      <div id="dpResult"></div>
+      <div class="btn-row" style="margin-top:12px;display:none" id="dpActions">
+        <button class="btn ghost" id="dpKeepFirst">每组只留第一个</button>
+        <button class="btn primary" id="dpTrash">移入回收站</button>
+        <button class="btn ghost danger" id="dpPurge">永久删除</button>
+      </div>
+    </div>
+
+    <!-- 相似照片 -->
+    <div class="mode-panel hidden" data-mode="similar">
+      <div class="hint">只看<b>当前目录</b>的图片，用感知哈希找出「看起来一样」的照片（压缩过、改过尺寸、转过格式都能认出）。</div>
+      <div class="row">
+        <div class="field"><label>相似度阈值（越大越宽松）</label><input type="number" id="simTh" value="8" min="0" max="20"></div>
+        <div class="field" style="flex:0 0 auto;display:flex;align-items:flex-end"><button class="btn primary" id="simScan">开始找相似照片</button></div>
+      </div>
+      <div id="simResult"></div>
+      <div class="btn-row" style="margin-top:12px;display:none" id="simActions">
+        <button class="btn ghost" id="simKeepFirst">每组只留第一个</button>
+        <button class="btn primary" id="simTrash">移入回收站</button>
+      </div>
+    </div>
+
+    <!-- 磁盘分析 -->
+    <div class="mode-panel hidden" data-mode="disk">
+      <div class="hint">统计<b>当前目录</b>（含子目录）的占用：谁最大、什么类型最多、哪些单文件最占地。</div>
+      <div class="btn-row" style="margin-top:10px"><button class="btn primary" id="diskScan">开始分析</button></div>
+      <div id="diskResult"></div>
+    </div>
+
+    <!-- 自动归档 -->
+    <div class="mode-panel hidden" data-mode="organize">
+      <div class="hint">按规则把<b>当前目录</b>（只处理第一层）的文件分到子文件夹里。先预览再执行，同名的会自动加后缀不覆盖。</div>
+      <div class="row">
+        <div class="field"><label>归档规则</label>
+          <select id="orgRule">
+            <option value="ext">按文件类型（图片/文档/音视频/PDF/压缩包/程序）</option>
+            <option value="date">按修改月份（2026-09 / 2026-10 …）</option>
+            <option value="size">按体积（<100KB / 1-10MB …）</option>
+          </select>
+        </div>
+        <div class="field"><label>文件夹前缀（可留空）</label><input type="text" id="orgPrefix" placeholder="例如 已归档-"></div>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn ghost" id="orgPreview">预览</button>
+        <button class="btn primary" id="orgApply" disabled>执行归档</button>
+      </div>
+      <div id="orgResult"></div>
+    </div>
+
+    <!-- 回收站 -->
+    <div class="mode-panel hidden" data-mode="trash">
+      <div class="hint">删除的文件默认放在这里，可随时恢复。位置：<span class="ft-path" id="trashRoot"></span></div>
+      <div class="btn-row" style="margin-top:10px">
+        <button class="btn ghost" id="trList">刷新列表</button>
+      </div>
+      <div id="trBox"><div class="empty" style="padding:16px;text-align:center;color:var(--muted);font-size:13px">点「刷新列表」查看</div></div>
+    </div>
+
+    <div class="err" id="err"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span class="num">03</span><h2>结果</h2></div>
+    <div id="out"><div class="empty" style="padding:16px;text-align:center;color:var(--muted);font-size:13px">执行结果会显示在这里</div></div>
+  </section>
+
+  <footer class="site">免费工具箱 · 文件处理 · 仅操作本机磁盘，不上传任何内容</footer>
+</main>
+
+<script src="assets/js/file-tools.js"></script>
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+</body>
+</html>

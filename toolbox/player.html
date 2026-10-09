@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>音视频播放器 · 倍速/裁剪/字幕/可视化 ｜ 免费在线工具箱</title>
+<meta name="description" content="在线音视频播放器：本地文件直接播放，支持倍速、画面裁剪、音频可视化、字幕加载与浮窗播放。文件不上传。">
+<meta name="theme-color" content="#ff4d00">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>箱</text></svg>">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else if(t==='auto'||!t){if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.setAttribute('data-theme','dark');}}}catch(e){}})();</script>
+<style>
+/* ================= 播放器专属样式 ================= */
+.pl-stage-wrap { position: relative; }
+.pl-stage {
+  position: relative; background: #0b0b0d; border-radius: var(--radius-sm); overflow: hidden;
+  aspect-ratio: 16 / 9; width: 100%; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line);
+}
+.pl-stage.pl-audio { aspect-ratio: 16 / 5; }
+.pl-stage video { width: 100%; height: 100%; object-fit: contain; display: block; background: #000; }
+.pl-stage.pl-audio video { display: none; }
+.pl-empty { color: #8b8b93; text-align: center; font-size: 13.5px; padding: 20px; }
+.pl-empty .big { font-size: 40px; display: block; margin-bottom: 10px; }
+.pl-audioFace { display: none; flex-direction: column; align-items: center; gap: 10px; color: #cfcfd6; padding: 18px; text-align: center; }
+.pl-stage.pl-audio .pl-audioFace { display: flex; }
+.pl-audioFace .ico { font-size: 46px; }
+.pl-bars { display: flex; align-items: flex-end; gap: 3px; height: 42px; }
+.pl-bars i { width: 4px; background: var(--accent); border-radius: 2px; height: 6px; transition: height .12s linear; }
+
+/* 字幕层 */
+.pl-subs {
+  position: absolute; left: 0; right: 0; pointer-events: none; text-align: center;
+  padding: 0 4%; display: flex; flex-direction: column; align-items: center; gap: .18em;
+  transition: top .18s, bottom .18s;
+}
+.pl-subs .line {
+  display: inline-block; max-width: 100%; line-height: 1.34; white-space: pre-wrap; word-break: break-word;
+  background: var(--sub-bg, transparent); color: var(--sub-color, #fff);
+  font-weight: var(--sub-weight, 600); letter-spacing: .01em;
+  padding: var(--sub-pad, 0); border-radius: 6px;
+  -webkit-text-stroke: var(--sub-stroke, 0) var(--sub-stroke-color, #000);
+  paint-order: stroke fill;
+  text-shadow: var(--sub-shadow, none);
+}
+.pl-subs .line.zh { }
+.pl-subs .line.en { opacity: .92; }
+.pl-sub-pos-bottom { bottom: var(--sub-margin, 9%); top: auto; }
+.pl-sub-pos-center { top: 50%; bottom: auto; transform: translateY(-50%); }
+.pl-sub-pos-top { top: var(--sub-margin, 7%); bottom: auto; }
+.pl-sub-pos-custom { top: var(--sub-custom, 72%); bottom: auto; }
+
+/* 控制条 */
+.pl-ctrl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.pl-ctrl .grow { flex: 1; }
+.pl-btn {
+  appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  height: 34px; min-width: 34px; padding: 0 11px; border-radius: 9px; cursor: pointer; font-size: 13.5px;
+  display: inline-flex; align-items: center; gap: 6px; transition: .15s;
+}
+.pl-btn:hover { border-color: var(--line-2); transform: translateY(-1px); }
+.pl-btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.pl-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.pl-time { font-family: var(--mono); font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+.pl-seek { flex: 1; min-width: 140px; }
+input[type=range].pl-range { accent-color: var(--accent); height: 26px; }
+
+/* 浮窗（页内可拖拽可缩放） */
+.pl-stage.pl-float {
+  position: fixed; z-index: 900; right: 24px; bottom: 24px; width: 420px;
+  box-shadow: 0 24px 60px -20px rgba(0,0,0,.65); border-color: var(--line-2); cursor: default;
+}
+.pl-stage.pl-float.pl-audio { aspect-ratio: auto; height: auto; }
+.pl-fbar {
+  display: none; align-items: center; gap: 8px; padding: 6px 8px; cursor: move;
+  background: color-mix(in srgb, var(--surface) 92%, transparent); border-bottom: 1px solid var(--line);
+}
+.pl-stage.pl-float .pl-fbar { display: flex; }
+.pl-fbar .t { font-size: 12.5px; color: var(--muted); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl-fbtn { appearance: none; border: 1px solid var(--line); background: transparent; color: var(--muted); width: 24px; height: 24px; border-radius: 6px; cursor: pointer; font-size: 12px; line-height: 1; }
+.pl-fbtn:hover { color: var(--ink); background: var(--surface-2); }
+.pl-resize {
+  display: none; position: absolute; right: 0; bottom: 0; width: 18px; height: 18px; cursor: nwse-resize;
+  background: linear-gradient(135deg, transparent 46%, var(--line-2) 46%, var(--line-2) 56%, transparent 56%,
+    transparent 66%, var(--line-2) 66%, var(--line-2) 76%, transparent 76%);
+}
+.pl-stage.pl-float .pl-resize { display: block; }
+.pl-stage.pl-float .pl-fit { display: none; }
+
+/* 说明小卡 */
+.pl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+.pl-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); }
+.pl-sub-list { max-height: 210px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; margin-top: 8px; }
+.pl-sub-list .row { display: flex; gap: 8px; padding: 6px 9px; border-bottom: 1px dashed var(--line); font-size: 12.5px; }
+.pl-sub-list .row:last-child { border-bottom: 0; }
+.pl-sub-list .row.on { background: var(--accent-soft); }
+.pl-sub-list .tm { font-family: var(--mono); color: var(--muted); flex: 0 0 auto; }
+</style>
+<link rel="canonical" href="https://dq7866.online/toolbox/player.html">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<meta name="keywords" content="在线播放器,本地视频播放,倍速播放,字幕加载,音频可视化,浮窗播放">
+<meta name="author" content="知作坊">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="免费工具箱">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="音视频播放器 · 倍速/裁剪/字幕/可视化 ｜ 免费在线工具箱">
+<meta property="og:description" content="在线音视频播放器：本地文件直接播放，支持倍速、画面裁剪、音频可视化、字幕加载与浮窗播放。文件不上传。">
+<meta property="og:url" content="https://dq7866.online/toolbox/player.html">
+<meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="音视频播放器 · 倍速/裁剪/字幕/可视化 ｜ 免费在线工具箱">
+<meta name="twitter:description" content="在线音视频播放器：本地文件直接播放，支持倍速、画面裁剪、音频可视化、字幕加载与浮窗播放。文件不上传。">
+<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "音视频播放器 · 倍速/裁剪/字幕/可视化",
+  "url": "https://dq7866.online/toolbox/player.html",
+  "description": "在线音视频播放器：本地文件直接播放，支持倍速、画面裁剪、音频可视化、字幕加载与浮窗播放。文件不上传。",
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "免费工具箱",
+    "url": "https://dq7866.online/toolbox/",
+    "inLanguage": "zh-CN"
+  }
+}
+</script>
+</head>
+<body>
+<div class="tb-sitebar"><div class="tb-sitebar-in"><span class="tb-sitebar-t">知作坊</span><a href="/">🏠 博客首页</a><a href="/games/">🎮 欢乐游戏盒</a><a href="/edu/">📚 不只是成绩</a><a href="/symbolpass/">🔣 符号通行证</a></div></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html"><span class="mark">箱</span><span>免费工具箱<span class="tag">Toolbox</span></span></a>
+    <span class="spacer"></span>
+        <nav class="topnav">
+      <a href="index.html">首页</a>
+      <a href="image-tools.html">图片</a>
+      <a href="pdf-tools.html">PDF</a>
+      <a href="qr-tools.html">二维码</a>
+      <a href="sheet-tools.html">表格</a>
+      <a href="color-tools.html">颜色</a>
+      <a href="random-tools.html">密码</a>
+      <a href="md-tools.html">Markdown</a>
+      <a href="av-tools.html">音视频</a>
+      <a href="player.html" class="active">播放器</a>
+      <a href="file-tools.html">文件</a>
+      <a href="ocr-tools.html">OCR</a>
+      <a href="idphoto-tools.html">证件照</a>
+      <a href="tts-tools.html">配音</a>
+      <a href="capture-tools.html">录屏</a>
+      <a href="asr-tools.html">语音转文字</a>
+      <a href="calculator.html">计算器</a>
+      <a href="game-moyu.html">摸鱼</a>
+      <a href="timestamp-tools.html">时间戳</a>
+      <a href="regex-tools.html">正则</a>
+      <a href="json-tools.html">JSON</a>
+      <a href="encode-tools.html">编码</a>
+      <a href="pomodoro.html">番茄钟</a>
+      <a href="notes.html">笔记</a>
+      <a href="diff-tools.html">对比</a>
+      <a href="chart-tools.html">图表</a>
+      <a href="clipboard-tools.html">剪贴板</a>
+      <a href="password-safe.html">密码箱</a>
+      <a href="ai-tools.html">AI助手</a>
+      <a href="batch-image.html">批图</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel">
+    <div class="panel-head"><span class="num">01</span><h2>选择音视频文件</h2></div>
+    <label class="drop" id="drop">
+      <input type="file" id="fileInput" accept="video/*,audio/*,.mp4,.mov,.mkv,.webm,.avi,.m4v,.flv,.mp3,.m4a,.wav,.flac,.ogg,.aac,.opus" class="sr">
+      <b>点击选择，或把音视频文件拖到这里</b>
+      <div class="hint" style="margin:8px 0 0">支持 MP4 / MOV / WebM / MP3 / M4A / WAV / FLAC / OGG 等浏览器能直接解码的格式；MKV、AVI 等若不能播放，可先用「音视频工具」转成 MP4。</div>
+    </label>
+    <div class="row" style="margin-top:10px">
+      <div class="field"><label>文件名</label><div class="hint" id="fileName" style="margin:0">尚未选择文件</div></div>
+      <div class="field" style="flex:0 0 auto;display:flex;gap:8px;align-items:flex-end">
+        <button class="btn ghost" id="clearBtn" disabled>清空</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span class="num">02</span><h2>播放</h2>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn ghost" id="pipBtn" style="padding:5px 12px;font-size:12.5px">浮窗播放</button>
+      <button class="btn ghost" id="nativePipBtn" style="padding:5px 12px;font-size:12.5px">系统画中画</button>
+    </div>
+
+    <div class="pl-stage-wrap">
+      <div class="pl-stage" id="stage">
+        <div class="pl-fbar" id="fbar">
+          <span class="t" id="fbarTitle">播放器</span>
+          <button class="pl-fbtn" id="fDock" title="收回页面内">⤡</button>
+          <button class="pl-fbtn" id="fClose" title="关闭浮窗">✕</button>
+        </div>
+        <video id="video" playsinline preload="metadata"></video>
+        <div class="pl-audioFace" id="audioFace">
+          <span class="ico">🎵</span>
+          <span id="afName" style="font-size:13.5px">未加载音频</span>
+          <div class="pl-bars" id="bars"></div>
+        </div>
+        <div class="pl-subs pl-sub-pos-bottom" id="subs"></div>
+        <div class="pl-resize" id="resize" title="拖动改变窗口大小"></div>
+        <div class="pl-empty" id="empty"><span class="big">🎬</span>选择一个音视频文件开始播放</div>
+      </div>
+    </div>
+
+    <div class="pl-ctrl">
+      <button class="pl-btn primary" id="playBtn" disabled>▶ 播放</button>
+      <button class="pl-btn" id="backBtn" disabled>⏪ 5s</button>
+      <button class="pl-btn" id="fwdBtn" disabled>5s ⏩</button>
+      <span class="pl-time" id="tCur">0:00</span>
+      <input type="range" class="pl-range pl-seek" id="seek" min="0" max="1000" value="0" step="1" disabled>
+      <span class="pl-time" id="tDur">0:00</span>
+    </div>
+    <div class="pl-ctrl">
+      <span class="pl-pill">🔊</span>
+      <input type="range" class="pl-range" id="vol" min="0" max="100" value="100" style="width:110px">
+      <span class="pl-pill">倍速</span>
+      <select id="rate" style="width:88px"><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="3">3×</option></select>
+      <label class="pl-pill"><input type="checkbox" id="loop"> 循环</label>
+      <span class="spacer" style="flex:1"></span>
+      <button class="pl-btn" id="fitBtn">适配窗口</button>
+      <button class="pl-btn" id="fullBtn">全屏</button>
+    </div>
+    <div class="hint">快捷键：空格 播放/暂停 · ← → 快退/快进 5 秒 · ↑ ↓ 音量 · V 开关字幕 · F 浮窗 · Esc 退出浮窗/全屏</div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span class="num">03</span><h2>字幕</h2>
+      <span class="spacer" style="flex:1"></span>
+      <label class="btn ghost" style="padding:5px 12px;font-size:12.5px;cursor:pointer">加载字幕（SRT/VTT/ASS）
+        <input type="file" id="srtInput" accept=".srt,.vtt,.ass,.ssa,.txt" class="sr">
+      </label>
+      <button class="btn ghost" id="demoSub" style="padding:5px 12px;font-size:12.5px">字幕示例</button>
+    </div>
+
+    <div class="pl-grid">
+      <div class="field"><label>样式预设</label>
+        <select id="preset">
+          <option value="classic">经典白字黑边</option>
+          <option value="big_yellow">大号黄字粗边</option>
+          <option value="variety">综艺花字（描边加粗）</option>
+          <option value="glow">霓虹发光</option>
+          <option value="box">底部半透明字幕条</option>
+          <option value="top">顶部标题</option>
+          <option value="pop">弹幕感（粗阴影）</option>
+          <option value="custom">自定义…</option>
+        </select>
+      </div>
+      <div class="field"><label>位置</label>
+        <select id="pos"><option value="bottom" selected>底部</option><option value="center">居中</option><option value="top">顶部</option><option value="custom">自定义（滑动）</option></select>
+      </div>
+      <div class="field"><label>显示行数上限</label>
+        <select id="maxLines"><option value="1">只显示 1 行</option><option value="2" selected>最多 2 行</option><option value="3">最多 3 行</option><option value="0">不限制</option></select>
+      </div>
+      <div class="field"><label>每行最多字数（0=不限制）</label><input type="number" id="wrapChars" value="0" min="0" max="60"></div>
+    </div>
+
+    <div class="row" id="customRow" style="display:none">
+      <div class="field"><label>字号（画面高度%）<span id="fsVal" style="color:var(--accent)">4.2%</span></label><input type="range" class="pl-range" id="fs" min="2" max="12" value="4.2" step="0.2"></div>
+      <div class="field" style="display:flex;gap:8px;flex:0 0 auto">
+        <div><label>文字</label><input type="color" id="cColor" value="#ffffff"></div>
+        <div><label>描边</label><input type="color" id="cStroke" value="#000000"></div>
+        <div><label>背景</label><input type="color" id="cBg" value="#000000"></div>
+      </div>
+    </div>
+    <div class="row" id="customRow2" style="display:none">
+      <div class="field"><label>描边宽度（px）<span id="swVal" style="color:var(--accent)">2</span></label><input type="range" class="pl-range" id="cStrokeW" min="0" max="6" value="2" step="0.5"></div>
+      <div class="field"><label>背景不透明度 <span id="bgOpVal" style="color:var(--accent)">0%</span></label><input type="range" class="pl-range" id="cBgOp" min="0" max="100" value="0"></div>
+      <div class="field"><label>垂直位置 <span id="posVal" style="color:var(--accent)">74%</span></label><input type="range" class="pl-range" id="posPct" min="5" max="95" value="74"></div>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <div class="field"><label>字幕延迟微调（秒，正数=字幕更晚出现）</label><input type="number" id="delay" value="0" step="0.1" style="max-width:140px"></div>
+      <div class="field" style="display:flex;gap:8px;align-items:flex-end;flex:0 0 auto">
+        <button class="btn ghost" id="dlMinus">−0.5s</button>
+        <button class="btn ghost" id="dlPlus">+0.5s</button>
+        <button class="btn ghost" id="dlReset">归零</button>
+      </div>
+      <div class="field" style="display:flex;align-items:flex-end;flex:0 0 auto">
+        <label class="inline"><input type="checkbox" id="subsOn" checked> 显示字幕</label>
+      </div>
+    </div>
+
+    <div class="pl-sub-list" id="subList"></div>
+    <div class="hint" id="subCount" style="margin-top:8px">尚未加载字幕</div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span class="num">04</span><h2>播放列表</h2>
+      <span class="spacer" style="flex:1"></span>
+      <button class="btn ghost" id="plAdd" style="padding:5px 12px;font-size:12.5px">添加文件</button>
+      <button class="btn ghost" id="plPlayAll" style="padding:5px 12px;font-size:12.5px">从头播</button>
+      <button class="btn ghost" id="plClear" style="padding:5px 12px;font-size:12.5px">清空</button>
+    </div>
+    <div class="hint" id="plHint">点「添加文件」可一次选多个，列表会<b>记住</b>——重新打开页面后，带 🔗 的条目可以直接继续播放。</div>
+    <div class="tbx-recent-list" id="plList"><div style="padding:14px;text-align:center;color:var(--muted);font-size:12.5px">播放列表是空的</div></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><span class="num">05</span><h2>最近打开</h2>
+      <span class="spacer" style="flex:1"></span>
+      <span class="tbx-badge" id="recentHint"></span>
+      <button class="btn ghost" id="recentClear" style="padding:5px 12px;font-size:12.5px">清空记录</button>
+    </div>
+    <div class="tbx-recent-list" id="recentList"><div style="padding:14px;text-align:center;color:var(--muted);font-size:12.5px">还没有记录</div></div>
+  </section>
+
+  <footer class="site">免费工具箱 · 音视频播放器 · 纯前端本地播放，文件不会上传</footer>
+</main>
+
+<script src="assets/js/shapes.js"></script>
+<script src="assets/js/recent-files.js"></script>
+<script src="assets/js/player.js"></script>
+<script src="assets/js/pwa.js"></script>
+<script src="assets/js/prefs.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/theme-colors.js"></script>
+<script src="assets/js/enhance.js" defer></script>
+</body>
+</html>
