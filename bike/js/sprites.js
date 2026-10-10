@@ -181,11 +181,11 @@ var Sprites = (function () {
      o: { type, pose:'normal'|'wheelie'|'stoppie', pedal, wheel, steer,
           ghost:false, tint:null, alpha:1 } */
   var BIKES = {
-    commuter: { frame: '#2563eb', frame2: '#1e40af', jersey: '#eef2f7', jersey2: '#b9c2d0', helmet: '#3b4757', bar: 36, rack: true },
-    road:     { frame: '#e11d48', frame2: '#9f1239', jersey: '#f7f9fc', jersey2: '#c2cbd8', helmet: '#dc2626', bar: 30, drop: true },
-    mtb:      { frame: '#16a34a', frame2: '#166534', jersey: '#2b3648', jersey2: '#1b2432', helmet: '#f59e0b', bar: 46, fat: true },
-    gravel:   { frame: '#0ea5e9', frame2: '#0369a1', jersey: '#fde68a', jersey2: '#cfa94e', helmet: '#0f766e', bar: 34, drop: true },
-    ebike:    { frame: '#7c3aed', frame2: '#5b21b6', jersey: '#242c3a', jersey2: '#151b26', helmet: '#a855f7', bar: 40, fat: true, battery: true }
+    commuter: { frame: '#2563eb', frame2: '#1e40af', jersey: '#eef2f7', jersey2: '#b9c2d0', helmet: '#3b4757', bar: 54, chest: 20, hip: 16, rack: true },
+    road:     { frame: '#e11d48', frame2: '#9f1239', jersey: '#f7f9fc', jersey2: '#c2cbd8', helmet: '#dc2626', bar: 48, chest: 17.5, hip: 14.5, drop: true },
+    mtb:      { frame: '#16a34a', frame2: '#166534', jersey: '#2b3648', jersey2: '#1b2432', helmet: '#f59e0b', bar: 62, chest: 21, hip: 17, fat: true },
+    gravel:   { frame: '#0ea5e9', frame2: '#0369a1', jersey: '#fde68a', jersey2: '#cfa94e', helmet: '#0f766e', bar: 52, chest: 18.5, hip: 15.5, drop: true },
+    ebike:    { frame: '#7c3aed', frame2: '#5b21b6', jersey: '#242c3a', jersey2: '#151b26', helmet: '#a855f7', bar: 56, chest: 20, hip: 16.5, fat: true, battery: true }
   };
 
   function taper(g, x1, y1, x2, y2, w, col) {
@@ -227,6 +227,9 @@ var Sprites = (function () {
     var R = col.fat ? 44 : 40;
     var steer = Math.max(-1, Math.min(1, o.steer || 0));
     var pedal = o.pedal || 0;
+    var cw = col.chest || 20;                       // 胸/肩半宽
+    var hw = col.hip || 16;                         // 臀半宽
+    var bw = Math.max(col.bar / 2, cw + 6.5);       // 车把半宽＝手位，必须露出身体两侧
 
     g.save();
     g.translate(cx, gy); g.scale(s, s);
@@ -247,6 +250,12 @@ var Sprites = (function () {
       g.beginPath(); g.ellipse(0, -3, R * 1.55, 9, 0, 0, TAU); g.fill();
     }
 
+    /* ---- 前轮（平时藏在后轮之后，转向时从车身一侧露出） ---- */
+    var fwx = steer * 13;
+    if (Math.abs(fwx) > .8) {
+      drawWheel(g, fwx, -R * .97, R * .9, o.wheel || 0, Math.max(.2, o.blur || 0), col.fat, ghost);
+    }
+
     /* ---- 后轮 ---- */
     drawWheel(g, 0, -R, R, o.wheel || 0, o.blur || 0, col.fat, ghost);
 
@@ -261,8 +270,9 @@ var Sprites = (function () {
     if (col.rack && !ghost) { g.fillStyle = '#6b7280'; rr(g, -30, -34, 60, 7, 3); g.fill(); }
 
     /* ---- 坐垫（会被臀部部分遮挡） ---- */
+    var seatW = Math.max(15, hw + 1);
     g.fillStyle = ghost ? (o.tint || '#dff2ff') : '#20242c';
-    g.beginPath(); g.ellipse(0, -110, 15.5, 6, 0, 0, TAU); g.fill();
+    g.beginPath(); g.ellipse(0, -110, seatW, 6, 0, 0, TAU); g.fill();
     if (!ghost) {
       g.fillStyle = 'rgba(255,255,255,.18)';
       g.beginPath(); g.ellipse(-5, -112, 7.5, 2.4, 0, 0, TAU); g.fill();
@@ -274,9 +284,9 @@ var Sprites = (function () {
     function leg(side, phase, dark) {
       var a = pedal + phase;
       var py = -32 - 20 * Math.cos(a);              // 踏板 y（曲柄竖直投影）
-      var px = side * 19;
-      var hx = side * 13 + steer * 2;
-      var kx = side * 21 + steer * 3;
+      var px = side * (hw + 4);
+      var hx = side * (hw - 3) + steer * 2;
+      var kx = side * (hw + 6) + steer * 3;
       var ky = (hipY + py) / 2 - 6;
       taper(g, hx, hipY + 4, kx, ky, 12.5, dark ? shortsD : shorts);
       taper(g, kx, ky, px, py + 2, 9, dark ? skinD : skin);
@@ -289,35 +299,39 @@ var Sprites = (function () {
     }
     leg(-1, Math.PI, true);
 
-    /* ---- 车把与手（横杆在躯干之后，只露两端） ---- */
+    /* ---- 车把（先画：中间被身体挡住，两端露出） ---- */
     var shY = -148 + (pose === 'wheelie' ? -5 : pose === 'stoppie' ? 5 : 0) + (o.bob || 0);
     var shX = steer * 3;
-    var bw = col.bar / 2;
-    var gripY = shY + 17 + (pose === 'wheelie' ? -3 : pose === 'stoppie' ? 4 : 0);
-    taper(g, -bw - 2, gripY - 1, bw + 2, gripY - 1, 5, ghost ? jersey : '#2a303a');
+    var gripY = shY + (col.drop ? 30 : 24) + (pose === 'wheelie' ? -3 : pose === 'stoppie' ? 4 : 0);
+    taper(g, shX - bw - 2, gripY, shX + bw + 2, gripY, 4.6, ghost ? jersey : '#262c36');
+    if (!ghost) {                                    // 把套（浅色端头，示意手握的位置）
+      g.fillStyle = '#454e5c';
+      g.fillRect(shX + bw - 6, gripY - 2.6, 9.5, 5.2);
+      g.fillRect(shX - bw - 3.5, gripY - 2.6, 9.5, 5.2);
+    }
 
     /* ---- 臀部短裤（坐在坐垫上） ---- */
     g.fillStyle = shorts;
     g.beginPath();
-    g.moveTo(-16, hipY - 6);
-    g.quadraticCurveTo(-18.5, hipY + 6, -12.5, hipY + 11);
-    g.lineTo(12.5, hipY + 11);
-    g.quadraticCurveTo(18.5, hipY + 6, 16, hipY - 6);
+    g.moveTo(-hw, hipY - 6);
+    g.quadraticCurveTo(-hw - 2.5, hipY + 6, -hw + 3.5, hipY + 11);
+    g.lineTo(hw - 3.5, hipY + 11);
+    g.quadraticCurveTo(hw + 2.5, hipY + 6, hw, hipY - 6);
     g.closePath(); g.fill();
 
     /* ---- 躯干（骑行服） ---- */
-    var grad = g.createLinearGradient(-22, 0, 22, 0);
+    var grad = g.createLinearGradient(-cw, 0, cw, 0);
     grad.addColorStop(0, jersey);
     grad.addColorStop(.55, jersey);
     grad.addColorStop(1, jersey2);
     g.fillStyle = grad;
     g.beginPath();
-    g.moveTo(-16, hipY - 6);
-    g.bezierCurveTo(-18, hipY - 22, -20, shY + 14, shX - 21, shY + 3);
-    g.quadraticCurveTo(shX - 22, shY - 3, shX - 17, shY - 4);
-    g.lineTo(shX + 17, shY - 4);
-    g.quadraticCurveTo(shX + 22, shY - 3, shX + 21, shY + 3);
-    g.bezierCurveTo(20, shY + 14, 18, hipY - 22, 16, hipY - 6);
+    g.moveTo(-hw, hipY - 6);
+    g.bezierCurveTo(-hw - 2, hipY - 22, -cw + 2, shY + 14, shX - cw, shY + 3);
+    g.quadraticCurveTo(shX - cw - 1, shY - 3, shX - cw + 4, shY - 4);
+    g.lineTo(shX + cw - 4, shY - 4);
+    g.quadraticCurveTo(shX + cw + 1, shY - 3, shX + cw, shY + 3);
+    g.bezierCurveTo(cw - 2, shY + 14, hw + 2, hipY - 22, hw, hipY - 6);
     g.closePath(); g.fill();
     if (!ghost) {
       // 布料纹理
@@ -331,19 +345,23 @@ var Sprites = (function () {
       g.strokeStyle = 'rgba(0,0,0,.13)'; g.lineWidth = 3.4; g.lineCap = 'round';
       g.beginPath(); g.moveTo(3, hipY - 4); g.quadraticCurveTo(5, (hipY + shY) / 2, shX + 3, shY); g.stroke();
       g.strokeStyle = 'rgba(255,255,255,.34)'; g.lineWidth = 2.6;
-      g.beginPath(); g.moveTo(-19, shY + 8); g.quadraticCurveTo(-20, hipY - 16, -16, hipY - 4); g.stroke();
+      g.beginPath(); g.moveTo(-cw + 1, shY + 8); g.quadraticCurveTo(-cw, hipY - 16, -hw + 4, hipY - 4); g.stroke();
     }
 
-    /* ---- 手臂（上臂=袖，前臂=皮肤，手=手套） ---- */
+    /* ---- 手臂：肩→肘向外下，前臂收向把端；手明显在身体两侧之外 ---- */
+    var elY = shY + (col.drop ? 21 : 17);
     for (var sd = -1; sd <= 1; sd += 2) {
-      var sx = shX + sd * 18;
-      var ex = shX + sd * (bw + 8);
-      var ey = shY + 11;
-      var gx = sd * (bw - 1);
-      taper(g, sx, shY + 3, ex, ey, 9, jersey);                 // 上臂
-      taper(g, ex, ey, gx, gripY, 7.2, sd < 0 ? skin : skinD);  // 前臂
-      g.fillStyle = ghost ? jersey : '#2c333f';                 // 手套
-      g.beginPath(); g.arc(gx, gripY, 5.2, 0, TAU); g.fill();
+      var sx = shX + sd * (cw - 2);
+      var ex = shX + sd * (cw + 4);
+      var gx = shX + sd * bw;
+      taper(g, sx, shY + 5, ex, elY, 9.4, jersey);                       // 上臂（袖）
+      taper(g, ex, elY + 1, gx, gripY, 7.2, sd < 0 ? skin : skinD);      // 前臂
+      g.fillStyle = ghost ? jersey : '#2c333f';                          // 手套
+      g.beginPath(); g.arc(gx, gripY, 5.4, 0, TAU); g.fill();
+      if (!ghost) {                                                       // 指节高光
+        g.fillStyle = 'rgba(255,255,255,.25)';
+        g.beginPath(); g.arc(gx - sd * 1.8, gripY - 2, 2.2, 0, TAU); g.fill();
+      }
     }
 
     /* ---- 头部 ---- */
@@ -355,14 +373,14 @@ var Sprites = (function () {
       g.fillStyle = 'rgba(0,0,0,.16)';
       g.fillRect(hx2 - 6.5, hy + 12, 13, 4);
     }
-    var hgr = g.createRadialGradient(hx2 - 5, hy - 5, 3, hx2, hy, 16);
+    var hgr = g.createRadialGradient(hx2 - 5, hy - 5, 3, hx2, hy, 15);
     hgr.addColorStop(0, ghost ? jersey : '#e7ecf3');
-    hgr.addColorStop(.45, ghost ? jersey : col.helmet);
+    hgr.addColorStop(.5, ghost ? jersey : col.helmet);
     hgr.addColorStop(1, ghost ? jersey : '#20242c');
     g.fillStyle = hgr;
-    g.beginPath(); g.arc(hx2, hy, 14.5, 0, TAU); g.fill();
+    g.beginPath(); g.arc(hx2, hy, 13.8, 0, TAU); g.fill();
     g.fillStyle = 'rgba(0,0,0,.30)';                        // 头盔下缘
-    g.beginPath(); g.ellipse(hx2, hy + 10, 13.5, 5, 0, 0, TAU); g.fill();
+    g.beginPath(); g.ellipse(hx2, hy + 9.5, 12.8, 4.8, 0, 0, TAU); g.fill();
     if (!ghost) {
       g.strokeStyle = 'rgba(255,255,255,.4)'; g.lineWidth = 2;   // 通风口
       g.beginPath(); g.moveTo(hx2 - 7, hy - 8); g.quadraticCurveTo(hx2 - 4, hy - 11, hx2 - 1, hy - 9); g.stroke();
