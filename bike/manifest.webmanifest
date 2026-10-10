@@ -1,0 +1,19 @@
+{
+  "name": "风驰骑行 WindRider",
+  "short_name": "风驰骑行",
+  "description": "手机横屏体感自行车竞速：左右摆把转向、翘头翘尾，6 条赛道、改装升级、云端排行榜与幽灵车对战。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#0d1420",
+  "theme_color": "#0d1420",
+  "categories": ["games", "sports"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

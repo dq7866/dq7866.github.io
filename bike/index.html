@@ -7,10 +7,19 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="风驰骑行">
+<meta name="format-detection" content="telephone=no">
 <title>风驰骑行 WindRider · 手机横屏体感自行车竞速</title>
-<meta name="description" content="风驰骑行 WindRider：手机横屏体感自行车竞速游戏。左右摆把转向、上扬翘头、后仰翘尾，穿越城市平路、起伏乡道与盘山公路，计时竞速、路上捡宝、解锁新车。打开即玩，无需安装。">
-<meta name="keywords" content="自行车游戏,体感游戏,手机骑行游戏,竞速游戏,横屏游戏,免费网页游戏,风驰骑行">
+<meta name="description" content="风驰骑行 WindRider：手机横屏体感自行车竞速游戏。左右摆把转向、上扬翘头、后仰翘尾，6 条赛道（城市平路/起伏乡道/盘山公路/峡谷窄道/雨天湿滑/风口风原），计时竞速、路上捡宝、改装升级、解锁新车、云端排行榜与幽灵车同场竞技。打开即玩，可添加到主屏像 App 一样使用。">
+<meta name="keywords" content="自行车游戏,体感游戏,手机骑行游戏,竞速游戏,横屏游戏,免费网页游戏,风驰骑行,幽灵车,排行榜">
+<link rel="canonical" href="https://dq7866.online/bike/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="风驰骑行 WindRider · 手机横屏体感自行车竞速">
+<meta property="og:description" content="横握手机左右摆把就能骑车竞速：6 条赛道、改装升级、云端排行榜与幽灵车对战，打开即玩。">
+<meta property="og:url" content="https://dq7866.online/bike/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='18' cy='44' r='12' fill='none' stroke='%2334d399' stroke-width='5'/%3E%3Ccircle cx='46' cy='44' r='12' fill='none' stroke='%2334d399' stroke-width='5'/%3E%3Cpath d='M18 44 L30 22 L46 44 M30 22 L40 22' fill='none' stroke='%23f59e0b' stroke-width='5'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="css/bike.css">
 </head>
 <body>
@@ -28,8 +37,11 @@
   <header class="m-head">
     <h1>风驰骑行<em>WindRider</em></h1>
     <div class="m-wallet">
+      <span class="m-lv" title="等级靠骑行积累经验成长"><b id="m-level">1</b>级<i class="xpbar"><u id="m-xp"></u></i></span>
       <span>💰 <b id="m-coins">0</b></span>
-      <span class="dim">已骑行 <b id="m-dist">0</b> km</span>
+      <span class="dim">里程 <b id="m-dist">0</b> km</span>
+      <button id="btn-nick" class="chip" title="点击修改昵称 / 恢复云存档">👤 <b id="m-nick">匿名骑手</b></button>
+      <button id="btn-sync" class="chip cloud" title="点击立即同步云端存档">☁ <b id="m-cloud">连接中…</b></button>
     </div>
   </header>
   <div class="m-body">
@@ -38,13 +50,18 @@
       <div id="m-tracks" class="cards"></div>
     </div>
     <div class="m-col">
-      <h2>我的车库<small>（骑着跑完才有钱换车）</small></h2>
+      <h2>我的车库<small>（等级越高越能解锁好车）</small></h2>
       <div id="m-garage" class="cards"></div>
+    </div>
+    <div class="m-col">
+      <h2>改装升级<small>（金币投入，永久生效）</small></h2>
+      <div id="m-tune" class="cards"></div>
     </div>
   </div>
   <footer class="m-foot">
     <button id="btn-sensor" class="btn ghost">体感转向：关</button>
     <button id="btn-help" class="btn ghost">操作说明</button>
+    <button id="btn-lb" class="btn ghost">🏆 排行榜</button>
     <button id="btn-start" class="btn primary">开始骑行 →</button>
   </footer>
 </section>
@@ -59,6 +76,7 @@
     <div class="spd"><b id="h-spd">0</b><span>km/h</span></div>
     <div class="hud-coins">💰 <b id="h-coins">0</b></div>
     <div class="hud-trick-score" id="h-score">技巧 <b>0</b></div>
+    <div class="hud-wind hidden" id="h-wind">风 <b>→</b></div>
   </div>
   <div class="prog"><i id="h-prog"></i></div>
   <div class="hud-split" id="h-split"></div>
@@ -108,13 +126,49 @@
       <div class="res-item"><span>金币结算</span><b id="res-earn">+0</b></div>
     </div>
     <div class="res-best" id="res-best"></div>
+    <div class="res-cloud" id="res-cloud"></div>
     <div class="res-unlock" id="res-unlock"></div>
     <div class="res-actions">
       <button class="btn ghost" id="btn-again">再跑一次</button>
+      <button class="btn ghost" id="btn-res-lb">看排行榜</button>
       <button class="btn primary" id="btn-back">回到车库</button>
     </div>
   </div>
 </section>
+
+<!-- 排行榜 -->
+<div id="lb" class="overlay hidden">
+  <div class="panel wide lb-panel">
+    <h3>🏆 云端排行榜</h3>
+    <div class="lb-tabs" id="lb-tabs"></div>
+    <div class="lb-list" id="lb-list"><div class="lb-empty">加载中…</div></div>
+    <div class="lb-me" id="lb-me"></div>
+    <button class="btn primary" id="btn-lb-close">关闭</button>
+  </div>
+</div>
+
+<!-- 昵称 / 云存档钥匙 -->
+<div id="nick" class="overlay hidden">
+  <div class="panel">
+    <h3>昵称与云存档</h3>
+    <p class="nick-tip">昵称会显示在排行榜上（最多 12 个字）</p>
+    <input id="nick-input" maxlength="12" placeholder="例如：阿东">
+    <p class="nick-fine">存档钥匙（换手机 / 换浏览器时用它恢复进度）</p>
+    <div class="keyrow">
+      <code id="nick-key">—</code>
+      <button class="btn ghost mini" id="btn-key-copy">复制</button>
+    </div>
+    <div class="keyrow">
+      <input id="key-input" placeholder="粘贴别人的钥匙以恢复存档" maxlength="40">
+      <button class="btn ghost mini" id="btn-key-restore">恢复</button>
+    </div>
+    <label class="nick-chk"><input type="checkbox" id="chk-cloud"> 开启云同步（成绩上传排行榜、装备存云端）</label>
+    <div class="res-actions">
+      <button class="btn ghost" id="btn-nick-cancel">取消</button>
+      <button class="btn primary" id="btn-nick-save">保存</button>
+    </div>
+  </div>
+</div>
 
 <!-- 帮助 -->
 <div id="help" class="overlay hidden">
@@ -139,13 +193,27 @@
           <li><b>Q</b> 翘头，<b>E</b> 翘尾</li>
           <li>屏幕按钮：左下 ◀ ▶ 转向，中间翘头翘尾，右下 刹车 / 加速</li>
         </ul>
-        <h4>🏁 规则</h4>
-        <ul>
-          <li>跑完全程计时，越快越好</li>
-          <li>路上捡金币，撞障碍会掉速</li>
-          <li>金币攒够可解锁更好的车</li>
-        </ul>
       </div>
+    </div>
+    <div class="help-col" style="margin-top:12px">
+      <h4>🌦️ 六条赛道与它们的脾气</h4>
+      <ul>
+        <li><b>城市平路 ★</b> 缓弯宽敞，练手首选</li>
+        <li><b>起伏乡道 ★★</b> 连续上下坡，下坡冲、上坡掉速（避震改装能缓解）</li>
+        <li><b>盘山公路 ★★★</b> 急弯陡坡，最容易冲出路外</li>
+        <li><b>峡谷窄道 ★★★</b> 路面只有一半宽、发夹弯连着来，几乎不容错</li>
+        <li><b>雨天湿滑 ★★★</b> 轮胎打滑：转向会飘、刹车距离变长，早刹车慢给油</li>
+        <li><b>风口风原 ★★★</b> 侧风周期把车推偏，必须<b>反向压身</b>才能走直线（看右上角风向标）</li>
+      </ul>
+    </div>
+    <div class="help-col" style="margin-top:12px">
+      <h4>🏁 规则与成长</h4>
+      <ul>
+        <li>跑完全程计时，越快越好；路上捡金币、躲障碍</li>
+        <li>金币可以买新车、做<b>改装升级</b>（轮胎抓地 / 气动极速 / 传动加速 / 避震 / 刹车）</li>
+        <li>骑行积累经验 → 等级提升 → 解锁更强的车</li>
+        <li>开启云同步后：成绩进<b>云端排行榜</b>，还能和别人的<b>幽灵车</b>同场跑</li>
+      </ul>
     </div>
     <button class="btn primary" id="btn-help-close">知道了</button>
   </div>
@@ -156,6 +224,18 @@
 <script src="js/engine.js"></script>
 <script src="js/controls.js"></script>
 <script src="js/game.js"></script>
+<script src="js/cloud.js"></script>
 <script src="js/main.js"></script>
+<script>
+/* PWA：注册 Service Worker，让游戏装到主屏后断网也能玩（本地调试时不注册，避免缓存干扰） */
+(function () {
+  if (!('serviceWorker' in navigator)) return;
+  if (/^(127\.0\.0\.1|localhost)$/.test(location.hostname)) return;
+  if (location.protocol !== 'https:') return;
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js', { scope: './' }).catch(function () {});
+  });
+})();
+</script>
 </body>
 </html>

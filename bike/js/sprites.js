@@ -92,13 +92,72 @@ var Sprites = (function () {
     rr(g, 82, 74, 22, 66, 11); g.fill(); g.fillRect(70, 122, 22, 18);
     return c;
   }
+  /* 峡谷岩壁柱（窄道两侧） */
+  function cliff() {
+    var c = mk(200, 300), g = c.getContext('2d');
+    g.fillStyle = '#8a5f52';
+    g.beginPath();
+    g.moveTo(30, 300); g.lineTo(16, 120); g.lineTo(58, 34); g.lineTo(120, 14); g.lineTo(178, 70); g.lineTo(190, 300);
+    g.closePath(); g.fill();
+    g.fillStyle = '#a9766a';
+    g.beginPath(); g.moveTo(58, 34); g.lineTo(120, 14); g.lineTo(140, 150); g.lineTo(70, 190); g.closePath(); g.fill();
+    g.fillStyle = 'rgba(60,32,28,.4)';
+    g.beginPath(); g.moveTo(140, 150); g.lineTo(190, 300); g.lineTo(150, 300); g.closePath(); g.fill();
+    // 岩层横纹
+    g.strokeStyle = 'rgba(70,42,36,.35)'; g.lineWidth = 4;
+    for (var i = 0; i < 5; i++) { g.beginPath(); g.moveTo(20 + i * 3, 90 + i * 42); g.lineTo(186 - i * 3, 96 + i * 42); g.stroke(); }
+    return c;
+  }
+  /* 风力发电机（风原路旁） */
+  function turbine() {
+    var c = mk(200, 320), g = c.getContext('2d');
+    g.fillStyle = '#e6edf5';
+    g.beginPath(); g.moveTo(94, 316); g.lineTo(104, 84); g.lineTo(112, 84); g.lineTo(122, 316); g.closePath(); g.fill();
+    g.fillStyle = 'rgba(120,140,160,.5)';
+    g.beginPath(); g.moveTo(112, 84); g.lineTo(122, 316); g.lineTo(112, 316); g.closePath(); g.fill();
+    var cx = 108, cy = 84;
+    g.fillStyle = '#cfd9e4';
+    for (var i = 0; i < 3; i++) {
+      var a = i * Math.PI * 2 / 3 - 0.4;
+      g.save(); g.translate(cx, cy); g.rotate(a);
+      g.beginPath(); g.moveTo(0, 0); g.lineTo(-9, -112); g.lineTo(9, -112); g.closePath(); g.fill();
+      g.restore();
+    }
+    g.fillStyle = '#9aa8b6'; g.beginPath(); g.arc(cx, cy, 11, 0, 7); g.fill();
+    return c;
+  }
+  /* 幽灵车（半透明剪影，用来标识纪录保持者的行驶轨迹） */
+  function ghostBike(tint) {
+    var col = tint || '#e6f6ff';
+    var W = 220, H = 190, c = mk(W, H), g = c.getContext('2d');
+    var cx = W / 2, wheelR = 40, wheelY = H - wheelR - 8;
+    g.globalAlpha = .55;
+    g.strokeStyle = col; g.lineWidth = 11; g.lineCap = 'round';
+    g.beginPath(); g.arc(cx, wheelY, wheelR, 0, 7); g.stroke();
+    g.lineWidth = 9;
+    g.beginPath(); g.moveTo(cx, wheelY - 4); g.lineTo(cx, wheelY - 58); g.stroke();
+    g.beginPath(); g.moveTo(cx - 26, wheelY - 2); g.lineTo(cx, wheelY - 52); g.stroke();
+    g.beginPath(); g.moveTo(cx + 26, wheelY - 2); g.lineTo(cx, wheelY - 52); g.stroke();
+    g.fillStyle = col;
+    g.beginPath();
+    g.moveTo(cx - 24, wheelY - 58);
+    g.quadraticCurveTo(cx - 34, wheelY - 96, cx - 20, wheelY - 118);
+    g.lineTo(cx + 20, wheelY - 118);
+    g.quadraticCurveTo(cx + 34, wheelY - 96, cx + 24, wheelY - 58);
+    g.closePath(); g.fill();
+    g.beginPath(); g.arc(cx, wheelY - 134, 19, Math.PI * 1.02, Math.PI * 1.98); g.fill();
+    g.globalAlpha = 1;
+    return c;
+  }
 
   /* ---------------- 自行车 + 骑手（后视） ---------------- */
   // 每个车型 3 个姿态：normal / wheelie（翘头）/ stoppie（翘尾）
   var BIKES = {
     commuter: { frame: '#2563eb', frame2: '#1e40af', jersey: '#e2e8f0', helmet: '#475569', rack: true },
     road:     { frame: '#e11d48', frame2: '#9f1239', jersey: '#f8fafc', helmet: '#ef4444', drop: true },
-    mtb:      { frame: '#16a34a', frame2: '#166534', jersey: '#1f2937', helmet: '#f59e0b', fat: true }
+    mtb:      { frame: '#16a34a', frame2: '#166534', jersey: '#1f2937', helmet: '#f59e0b', fat: true },
+    gravel:   { frame: '#0ea5e9', frame2: '#0369a1', jersey: '#fef3c7', helmet: '#0f766e', drop: true },
+    ebike:    { frame: '#7c3aed', frame2: '#5b21b6', jersey: '#111827', helmet: '#a855f7', fat: true, battery: true }
   };
 
   function bikeRear(col, pose) {
@@ -172,7 +231,11 @@ var Sprites = (function () {
     g.fillStyle = '#e8b48c';
     g.fillRect(cx - 7, helmY + 12, 14, 8);
 
-    // 货架 / 特色
+    // 货架 / 电池 / 特色
+    if (col.battery) {
+      g.fillStyle = '#334155'; rr(g, cx - 30, wheelY - 34, 60, 20, 5); g.fill();
+      g.fillStyle = '#22d3ee'; g.fillRect(cx + 24, wheelY - 27, 9, 6);
+    }
     if (col.rack) { g.fillStyle = '#64748b'; rr(g, cx - 30, wheelY - 22, 60, 7, 3); g.fill(); }
     g.restore();
     return c;
@@ -188,6 +251,10 @@ var Sprites = (function () {
     cache.tree0 = tree(0);
     cache.tree1 = tree(1);
     cache.cactus = cactus();
+    cache.cliff = cliff();
+    cache.turbine = turbine();
+    cache.ghost = ghostBike('#cdeeff');
+    cache.ghostMine = ghostBike('#ffd88a');
     cache.bikes = {};
     for (var k in BIKES) {
       cache.bikes[k] = {

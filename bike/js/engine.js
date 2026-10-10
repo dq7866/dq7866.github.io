@@ -3,7 +3,8 @@
 var Engine = (function () {
   var SEG = 200;            // 每段长度（世界单位）
   var RUMBLE = 3;           // 路肩按段数分组（明暗交替）
-  var ROADW = 2000;         // 路面半宽
+  var ROADW = 2000;         // 路面半宽（基准）
+  var RW = ROADW;           // 当前赛道的实际半宽（窄道会收窄）
   var LANES = 3;
   var FOV = 100;
   var CAMH = 1000;          // 摄像机高度
@@ -63,6 +64,9 @@ var Engine = (function () {
       addRoad(8, 6, 8, 0, -amp);
     }
   }
+  function addHairpin(dir, n) { // 急发夹弯（窄道专用）
+    addRoad(3, n, 3, dir * 5.2, 0);
+  }
 
   /* ---------------- 赛道主题 ---------------- */
   var THEMES = {
@@ -86,16 +90,47 @@ var Engine = (function () {
       road: ['#58534e', '#4b4642'],
       rumble: ['#fafaf9', '#d43a2f'],
       lane: '#fafaf9', fog: '#ffe7c4', decor: 'peaks'
+    },
+    /* 新增：窄道 —— 黄昏峡谷，两侧岩壁夹道 */
+    narrow: {
+      sky: ['#5b3f79', '#f2a97e'], sun: '#ffd9a0',
+      grass: ['#6b4f44', '#5b4038'],
+      road: ['#3f4650', '#373d46'],
+      rumble: ['#f5f3ef', '#e0a02a'],
+      lane: '#fff8e1', fog: '#e8b98f', decor: 'cliffs', fogDens: 4.4
+    },
+    /* 新增：雨天 —— 铅灰天、湿滑反光路面 */
+    rain: {
+      sky: ['#4a5566', '#8b98a8'], sun: null,
+      grass: ['#3f5d4a', '#365041'],
+      road: ['#2f3640', '#262c35'],
+      rumble: ['#c9d2dd', '#b7463c'],
+      lane: '#dfe7f0', fog: '#8b98a8', decor: 'city', fogDens: 7.4, wet: true
+    },
+    /* 新增：风天 —— 开阔风原，风机阵列 */
+    wind: {
+      sky: ['#5aa7d8', '#dff1ff'], sun: '#fff6d0',
+      grass: ['#7fa85a', '#6c954b'],
+      road: ['#5d6470', '#505663'],
+      rumble: ['#fbfdff', '#2b8fdc'],
+      lane: '#fbfdff', fog: '#dff1ff', decor: 'turbine', fogDens: 4.6
     }
   };
 
-  /* ---------------- 三条赛道 ---------------- */
+  /* ---------------- 赛道 ---------------- */
+  /* 物理字段说明：
+     kmh        速度系数（越大越快）
+     roadScale  路面宽窄（越小越窄）
+     grip       抓地力（1=干地；越小越滑：转向反应慢、刹车变长）
+     wind       侧风力（每帧把车横向推偏的加速度，需反向压身）
+     hard       冲出路面的硬阈值（超过即强烈掉速 + 剧烈抖动）
+     susp       路面颠簸强度（坡道掉速的倍率）                        */
   var TRACKS = [
     {
       id: 'city', name: '城市平路', icon: '🏙️', diff: '★☆☆',
       desc: '宽敞柏油路，缓弯为主，适合练手',
       theme: 'city', seed: 20261010,
-      kmh: 1.0,                       // 速度系数
+      kmh: 1.0, roadScale: 1.0, grip: 1.0, wind: 0, hard: 1.55, susp: 1.0,
       build: function (r) {
         addStraight(20);
         for (var i = 0; i < 7; i++) {
@@ -112,13 +147,13 @@ var Engine = (function () {
       id: 'valley', name: '起伏乡道', icon: '🌾', diff: '★★☆',
       desc: '连续上下坡，下坡加速、上坡掉速',
       theme: 'valley', seed: 77213,
-      kmh: 0.98,
+      kmh: 0.98, roadScale: 1.0, grip: 0.98, wind: 0, hard: 1.55, susp: 1.0,
       build: function (r) {
         addStraight(18);
         for (var i = 0; i < 6; i++) {
-          addBumps(3, 14 + r() * 10);
+          addBumps(3, 7 + r() * 5);
           addCurve(14, (i % 2 ? 1 : -1) * (2.5 + r()), 0);
-          addHill(14, (i % 2 ? 26 : -26));
+          addHill(14, (i % 2 ? 16 : -16));
           addSCurves(10, 12);
           addStraight(10);
         }
@@ -129,31 +164,95 @@ var Engine = (function () {
       id: 'mountain', name: '盘山公路', icon: '⛰️', diff: '★★★',
       desc: '连续急弯与陡坡，最容易冲出路外',
       theme: 'mountain', seed: 9911347,
-      kmh: 0.94,
+      kmh: 0.94, roadScale: 1.0, grip: 0.97, wind: 0, hard: 1.5, susp: 1.0,
       build: function (r) {
         addStraight(16);
         for (var i = 0; i < 6; i++) {
-          addCurve(12, (i % 2 ? 1 : -1) * (3.4 + r() * 1.4), 18);
-          addCurve(10, (i % 2 ? -1 : 1) * (3.4 + r() * 1.4), -18);
-          addSCurves(9, 22);
-          addHill(12, (i % 2 ? 34 : -34));
+          addCurve(12, (i % 2 ? 1 : -1) * (3.4 + r() * 1.4), 12);
+          addCurve(10, (i % 2 ? -1 : 1) * (3.4 + r() * 1.4), -12);
+          addSCurves(9, 13);
+          addHill(12, (i % 2 ? 19 : -19));
           addStraight(8);
         }
         addStraight(20);
+      }
+    },
+    /* ---- 新增三条 ---- */
+    {
+      id: 'narrow', name: '峡谷窄道', icon: '🏜️', diff: '★★★',
+      desc: '岩壁夹道、路面只有一半宽，一个发夹弯走神就撞壁',
+      theme: 'narrow', seed: 660418,
+      kmh: 1.02, roadScale: 0.56, grip: 0.96, wind: 0, hard: 1.22, susp: 1.0,
+      build: function (r) {
+        addStraight(14);
+        for (var i = 0; i < 5; i++) {
+          addStraight(6 + Math.floor(r() * 4));
+          addHairpin(i % 2 ? 1 : -1, 7 + Math.floor(r() * 4));
+          addStraight(8);
+          addCurve(9, (i % 2 ? -1 : 1) * (3.2 + r()), 6);
+          addStraight(6);
+          addSCurves(6, 5);
+          addHairpin(i % 2 ? -1 : 1, 6 + Math.floor(r() * 3));
+          addStraight(9);
+        }
+        addStraight(18);
+      }
+    },
+    {
+      id: 'rain', name: '雨天湿滑', icon: '🌧️', diff: '★★★',
+      desc: '轮胎打滑、刹车变长，转向会“飘”——早刹车、慢给油',
+      theme: 'rain', seed: 310277,
+      kmh: 0.96, roadScale: 0.94, grip: 0.60, wind: 0.05, hard: 1.5, susp: 1.0,
+      build: function (r) {
+        addStraight(18);
+        for (var i = 0; i < 6; i++) {
+          addCurve(15, (i % 2 ? 1 : -1) * (2.6 + r() * 1.1), 10);
+          addStraight(12);
+          addSCurves(10, 12);
+          addHill(13, (i % 2 ? 14 : -14));
+          addStraight(10);
+        }
+        addStraight(22);
+      }
+    },
+    {
+      id: 'wind', name: '风口风原', icon: '🌬️', diff: '★★★',
+      desc: '侧面强风周期推偏车身，必须反向压身才能走直线',
+      theme: 'wind', seed: 880531,
+      kmh: 1.0, roadScale: 1.0, grip: 0.93, wind: 0.34, hard: 1.55, susp: 1.0,
+      build: function (r) {
+        addStraight(20);
+        for (var i = 0; i < 6; i++) {
+          addStraight(18 + Math.floor(r() * 10));
+          addCurve(16, (i % 2 ? 1 : -1) * (2.6 + r() * 1.1), 14);
+          addStraight(16);
+          addSCurves(9, 12);
+          addStraight(12);
+        }
+        addStraight(24);
       }
     }
   ];
 
   /* ---------------- 布景与道具 ---------------- */
+  var SIDE_OF = {
+    city: function () { return Sprites.c.tree1; },
+    valley: function () { return Sprites.c.tree0; },
+    mountain: function () { return Sprites.c.tree1; },
+    narrow: function () { return Sprites.c.cliff; },
+    rain: function () { return Sprites.c.tree0; },
+    wind: function () { return Sprites.c.turbine; }
+  };
+
   function placeSprites(track) {
     var r = rndSeed(track.seed + 7);
     var n = segs.length;
-    // 路旁树木/仙人掌（每 3~6 段一棵，两侧交错）
+    var sideImg = (SIDE_OF[track.theme] || SIDE_OF.city)();
+    // 路旁景物（每 2~4 段一个，两侧交错）
     for (var i = 30; i < n - 12; i += 2 + Math.floor(r() * 3)) {
       var side = r() < .5 ? -1 : 1;
       var off = side * (1.75 + r() * 2.2);
-      var img = track.theme === 'mountain' ? Sprites.c.tree1 : (track.theme === 'valley' ? Sprites.c.tree0 : Sprites.c.tree1);
-      segs[i].sprites.push({ kind: 'decor', img: img, offset: off, w: 1050 });
+      segs[i].sprites.push({ kind: 'decor', img: sideImg, offset: off, w: track.theme === 'narrow' ? 1250 : 1050 });
     }
     // 金币串
     var coinCursor = 60;
@@ -171,11 +270,13 @@ var Engine = (function () {
     }
     // 障碍 / 水坑
     var hazardCursor = 120;
+    var wet = (track.theme === 'rain');
     while (hazardCursor < n - 60) {
       var idx2 = hazardCursor + Math.floor(r() * 20);
       if (idx2 < n - 20) {
         var kind, img, w;
-        if (track.theme === 'valley' && r() < .5) { kind = 'puddle'; img = Sprites.c.puddle; w = 1500; }
+        if (wet && r() < .55) { kind = 'puddle'; img = Sprites.c.puddle; w = 1500; }
+        else if (track.theme === 'valley' && r() < .35) { kind = 'puddle'; img = Sprites.c.puddle; w = 1500; }
         else if (r() < .4) { kind = 'cone'; img = Sprites.c.cone; w = 420; }
         else if (r() < .6) { kind = 'rock'; img = Sprites.c.rock; w = 640; }
         else { kind = 'barrier'; img = Sprites.c.barrier; w = 980; }
@@ -191,6 +292,8 @@ var Engine = (function () {
   function build(index) {
     trackDef = TRACKS[index];
     theme = THEMES[trackDef.theme];
+    FOG = theme.fogDens || 5;
+    RW = ROADW * (trackDef.roadScale == null ? 1 : trackDef.roadScale);
     segs = [];
     var r = rndSeed(trackDef.seed);
     trackDef.build(r);
@@ -215,7 +318,7 @@ var Engine = (function () {
     p.screen.scale = CAMD / p.camera.z;
     p.screen.x = Math.round((W / 2) + (p.screen.scale * p.camera.x * W / 2));
     p.screen.y = Math.round((H / 2) - (p.screen.scale * p.camera.y * H / 2));
-    p.screen.w = Math.round(p.screen.scale * ROADW * W / 2);
+    p.screen.w = Math.round(p.screen.scale * RW * W / 2);
   }
 
   /* ---------------- 绘制 ---------------- */
@@ -250,6 +353,39 @@ var Engine = (function () {
         var hx = ((j * 210 + o * .25) % (W + 420) + W + 420) % (W + 420) - 210;
         ctx.beginPath(); ctx.arc(hx, horizonY + 16, 130, Math.PI, 0); ctx.fill();
       }
+    } else if (theme.decor === 'cliffs') {
+      // 远处层层峡谷岩壁
+      var tones = ['rgba(120,84,112,.5)', 'rgba(94,64,90,.6)', 'rgba(72,48,70,.7)'];
+      for (var L = 0; L < 3; L++) {
+        ctx.fillStyle = tones[L];
+        var sc = 0.55 + L * 0.28;
+        for (var k2 = -1; k2 < 14; k2++) {
+          var px2 = ((k2 * (200 + L * 40) + o * (.12 + L * .06)) % (W + 500) + W + 500) % (W + 500) - 250;
+          ctx.beginPath();
+          ctx.moveTo(px2 - 150 * sc, horizonY + 14);
+          ctx.lineTo(px2, horizonY - 190 * sc);
+          ctx.lineTo(px2 + 150 * sc, horizonY + 14);
+          ctx.closePath(); ctx.fill();
+        }
+      }
+    } else if (theme.decor === 'turbine') {
+      // 风原：远山 + 风机阵列
+      ctx.fillStyle = 'rgba(120,168,140,.5)';
+      for (var j2 = -1; j2 < 12; j2++) {
+        var hx2 = ((j2 * 220 + o * .2) % (W + 440) + W + 440) % (W + 440) - 220;
+        ctx.beginPath(); ctx.arc(hx2, horizonY + 18, 110, Math.PI, 0); ctx.fill();
+      }
+      ctx.strokeStyle = 'rgba(245,250,255,.75)'; ctx.lineWidth = 2.4;
+      for (var t = -1; t < 16; t++) {
+        var tx = ((t * 168 + o * .42) % (W + 380) + W + 380) % (W + 380) - 190;
+        var ty = horizonY - 6;
+        var th = 62 + ((t * 29) % 5) * 12;
+        ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(tx, ty - th); ctx.stroke();
+        var bl = 22 + (t % 3) * 5;
+        ctx.beginPath();
+        ctx.moveTo(tx - bl, ty - th - 4); ctx.lineTo(tx, ty - th); ctx.lineTo(tx + bl, ty - th + 4);
+        ctx.stroke();
+      }
     } else {
       ctx.fillStyle = 'rgba(122,100,78,.62)';
       for (var k = -1; k < 10; k++) {
@@ -283,8 +419,8 @@ var Engine = (function () {
       seg.fog = expFog(n / DRAWN, FOG);
       seg.clip = maxy;
       var camZ = o.position;
-      project(seg.p1, (o.playerX * ROADW) - x, playerY + camH, camZ, W, H);
-      project(seg.p2, (o.playerX * ROADW) - x - dx, playerY + camH, camZ, W, H);
+      project(seg.p1, (o.playerX * RW) - x, playerY + camH, camZ, W, H);
+      project(seg.p2, (o.playerX * RW) - x - dx, playerY + camH, camZ, W, H);
       x += dx; dx += seg.curve;
       if (seg.p1.camera.z <= CAMD || seg.p2.screen.y >= seg.p1.screen.y || seg.p2.screen.y >= maxy) continue;
       drawSegment(ctx, W, seg, baseSeg.index + n);
@@ -298,7 +434,7 @@ var Engine = (function () {
       seg = segs[i];
       for (var s = 0; s < seg.sprites.length; s++) drawSprite(ctx, W, H, seg.sprites[s], seg);
     }
-    return { playerY: playerY, playerSeg: playerSeg };
+    return { playerY: playerY, playerSeg: playerSeg, baseIndex: baseSeg.index, drawn: DRAWN };
   }
 
   function rumbleW(w) { return w / Math.max(6, 2 * LANES); }
@@ -330,6 +466,13 @@ var Engine = (function () {
       polygon(ctx, p1.x - p1.w - r1, p1.y, p1.x - p1.w, p1.y, p2.x - p2.w, p2.y, p2.x - p2.w - r2, p2.y, rumble);
       polygon(ctx, p1.x + p1.w + r1, p1.y, p1.x + p1.w, p1.y, p2.x + p2.w, p2.y, p2.x + p2.w + r2, p2.y, rumble);
       polygon(ctx, p1.x - p1.w, p1.y, p1.x + p1.w, p1.y, p2.x + p2.w, p2.y, p2.x - p2.w, p2.y, road);
+      // 湿滑路面：加一道水光
+      if (theme.wet) {
+        ctx.globalAlpha = .14;
+        polygon(ctx, p1.x - p1.w * .55, p1.y, p1.x + p1.w * .1, p1.y,
+          p2.x + p2.w * .1, p2.y, p2.x - p2.w * .55, p2.y, '#cfe6ff');
+        ctx.globalAlpha = 1;
+      }
       if (lane) {
         var lw1 = p1.w * 2 / LANES, lw2 = p2.w * 2 / LANES;
         var lx1 = p1.x - p1.w + lw1, lx2 = p2.x - p2.w + lw2;
@@ -348,17 +491,25 @@ var Engine = (function () {
   }
 
   function drawSprite(ctx, W, H, sp, seg) {
+    var box = spriteBox(seg, sp.offset, sp.w, W, H, sp.img.height / sp.img.width);
+    if (!box) return;
+    ctx.drawImage(sp.img, 0, 0, sp.img.width, sp.img.height,
+      box.x, box.y, box.w, box.h);
+  }
+
+  /* 把一个「贴在赛道上」的物体换算成屏幕矩形（幽灵车/精灵共用）
+     aspect = 高/宽；不传按正方形处理 */
+  function spriteBox(seg, offset, w, W, H, aspect) {
     var sc = seg.p1.screen.scale;
-    if (sc <= 0) return;
-    var destW = sc * sp.w * (W / 2);
-    if (!isFinite(destW) || destW < 1 || destW > W * 6) return;
-    var destH = destW * (sp.img.height / sp.img.width);
-    var cx = seg.p1.screen.x + sc * (sp.offset * ROADW) * (W / 2);
+    if (!sc || sc <= 0) return null;
+    var destW = sc * w * (W / 2);
+    if (!isFinite(destW) || destW < 1 || destW > W * 6) return null;
+    var destH = destW * (aspect || 1);
+    var cx = seg.p1.screen.x + sc * (offset * RW) * (W / 2);
     var destY = seg.p1.screen.y - destH;
     var clipH = seg.clip ? Math.max(0, destY + destH - seg.clip) : 0;
-    if (clipH >= destH) return;
-    ctx.drawImage(sp.img, 0, 0, sp.img.width, sp.img.height,
-      cx - destW / 2, destY, destW, destH - clipH);
+    if (clipH >= destH) return null;
+    return { x: cx - destW / 2, y: destY, w: destW, h: destH, clipH: clipH };
   }
 
   return {
@@ -370,6 +521,9 @@ var Engine = (function () {
     length: function () { return trackLen; },
     count: function () { return segs.length; },
     segAt: function (i) { return segs[Math.max(0, Math.min(i, segs.length - 1))]; },
-    theme: function () { return theme; }
+    theme: function () { return theme; },
+    def: function () { return trackDef; },
+    roadW: function () { return RW; },
+    spriteBox: spriteBox
   };
 })();
