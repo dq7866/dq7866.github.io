@@ -1,4 +1,4 @@
-/* 知作坊 · 全站门卫 v1.1
+/* 知作坊 · 全站门卫 v1.2
  * 原理：本页注入隐藏 iframe（门卫域 bridge.html），所有云端调用在 iframe 内完成；
  * 本脚本只做 UI（Shadow DOM 隔离样式）与 postMessage 通信。
  * 规则：免费 15 天 → 宽限 10 天（每次登录提醒打赏）→ 兑换码（100 次/码）。
@@ -13,9 +13,11 @@
  *      会话托管到一级域自己的 localStorage，每次握手回灌。
  *   ③ 观感：登录后若确实没拿到登录态，会明确告知原因，不再静默重置表单。
  *
- * v1.1 新增：双通道登录 + 手机号/邮箱
- *   首次（新账号）：账号 + 验证码 + 设置密码
- *   以后：账号 + 密码（也可继续用验证码）
+ * v1.2 登录卡合并（2026-10-11）
+ *   原先「验证码登录 / 密码登录」两个页签，账号要在两个页签里各输一次，体验差。
+ *   现在只有一张表单：账号（自动识别手机号 / 邮箱）+ 验证码 + 密码（选填）。
+ *   点「登录 / 注册」时：填了验证码就走验证码通道（新账号顺带设密码），
+ *   没填验证码但填了密码就走密码通道（免验证码）。
  */
 (function () {
   "use strict";
@@ -88,9 +90,6 @@
     ".logo{width:40px;height:40px;border-radius:11px;background:#ff4d00;color:#fff;font-size:20px;font-weight:700;line-height:40px;text-align:center;flex:0 0 40px}",
     ".brand h2{font-size:17px;color:#26221e}.brand p{font-size:12px;color:#8a8078;margin-top:2px}",
     ".lead{font-size:13.5px;color:#4a4238;line-height:1.7;margin-bottom:12px}",
-    ".tabs{display:flex;background:#f6f2ee;border-radius:10px;padding:3px;margin-bottom:12px}",
-    ".tab{flex:1;text-align:center;padding:9px 0;font-size:14px;color:#6b6157;border-radius:8px;cursor:pointer;user-select:none}",
-    ".tab.on{background:#fff;color:#ff4d00;font-weight:600;box-shadow:0 1px 4px rgba(40,25,10,.12)}",
     ".field{margin-bottom:10px}.row{display:flex;gap:8px}",
     "input{width:100%;padding:11px 12px;font-size:15px;border:1px solid #ece5dd;border-radius:10px;outline:none;background:#fffdfb;color:#26221e}",
     "input:focus{border-color:#ff4d00}",
@@ -102,9 +101,8 @@
     ".err{color:#d43f2f;font-size:13px;min-height:17px;margin:4px 0;text-align:center;line-height:1.5}",
     ".ok{color:#0a8f4c;font-size:13px;min-height:17px;margin:4px 0;text-align:center;line-height:1.5}",
     ".hint{font-size:12px;color:#8a8078;line-height:1.6;margin:-4px 0 10px}",
-    ".modes{font-size:12px;color:#8a8078;text-align:right;margin:-6px 0 10px}",
-    ".newbox{border:1px dashed #ffd0b8;background:#fffaf7;border-radius:10px;padding:10px 12px 2px;margin-bottom:10px}",
-    ".newbox h5{font-size:12.5px;color:#c2410c;font-weight:600;margin-bottom:8px}",
+    ".hint.tiny{font-size:11.5px;color:#a89f96}",
+    ".field.pwdon input{border-color:#ffd0b8;background:#fffaf7}",
     ".tip{font-size:12px;color:#8a8078;line-height:1.7;margin-top:12px;text-align:center}",
     ".link{color:#ff4d00;cursor:pointer;text-decoration:underline;text-underline-offset:2px}",
     ".qr{display:block;width:190px;height:190px;margin:6px auto 8px;border:1px solid #ece5dd;border-radius:10px}",
@@ -215,38 +213,25 @@
   var RE_PHONE = /^1\d{10}$/;
   var RE_MAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-  /* 登录卡：两个页签 —— 验证码登录（新账号顺带设密码）/ 密码登录
-     账号支持手机号与邮箱（平台只支持这两类账号，没有自定义登录名）。 */
+  /* 登录卡：单张表单（v1.2 起不再分页签，账号只输一次）
+     - 账号：手机号或邮箱，自动识别，无需手动切换
+     - 验证码：点右侧「获取验证码」
+     - 密码：选填。填了以后就能免验证码登录；新账号必须设一个
+     主按钮逻辑：填了验证码走验证码通道；没填验证码但填了密码走密码通道。 */
   function buildLoginCard() {
     var card = el("div", "card");
     card.innerHTML =
       '<div class="brand"><div class="logo">知</div><div><h2>知作坊</h2><p>dq7866.online</p></div></div>' +
       '<p class="lead">登录后继续访问。新账号自动注册：注册即送 <b>' + FREE_DAYS + '</b> 天免费 + <b>' + GRACE_DAYS + '</b> 天宽限；宽限用完后，微信打赏 ' + PRICE + ' 领兑换码可再解锁 <b>' + CODE_DAYS + '</b> 次。</p>' +
-      '<div class="tabs"><div class="tab on" id="zhz-tab-otp">验证码登录</div><div class="tab" id="zhz-tab-pwd">密码登录</div></div>' +
 
-      '<div class="field row"><input id="zhz-account" type="tel" maxlength="40" placeholder="手机号（11 位）"><button id="zhz-send" class="btn-code" type="button">获取验证码</button></div>' +
-      '<div class="modes"><span class="link" id="zhz-mode">改用邮箱登录</span></div>' +
+      '<div class="field"><input id="zhz-account" type="text" maxlength="40" autocomplete="username" placeholder="手机号或邮箱"></div>' +
+      '<div class="field row"><input id="zhz-code" type="text" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="验证码"><button id="zhz-send" class="btn-code" type="button">获取验证码</button></div>' +
+      '<div class="field" id="zhz-pwdfield"><input id="zhz-pwd" type="password" maxlength="32" autocomplete="current-password" placeholder="密码（选填，填了以后免验证码）"></div>' +
+      '<div class="hint tiny hidden" id="zhz-newhint">新账号：请在上面设置 6-32 位密码，以后就能免验证码登录。</div>' +
+      '<div class="hint tiny hidden" id="zhz-oldhint">该账号已注册，填对验证码即可登录（密码可不填）。</div>' +
 
-      /* —— 验证码登录 —— */
-      '<div id="zhz-pane-otp">' +
-      '  <div class="field"><input id="zhz-code" type="text" maxlength="6" inputmode="numeric" placeholder="短信 / 邮件验证码"></div>' +
-      '  <div class="newbox hidden" id="zhz-newbox">' +
-      '    <h5>新账号 · 请设置密码</h5>' +
-      '    <div class="field"><input id="zhz-pwd2" type="password" maxlength="32" placeholder="设置密码（6-32 位，以后免验证码登录）"></div>' +
-      '  </div>' +
-      '  <div class="hint hidden" id="zhz-oldhint">该账号已注册，验证通过即可登录。</div>' +
-      '  <div class="err" id="zhz-err"></div>' +
-      '  <button id="zhz-login" class="btn-main" type="button">登录 / 注册</button>' +
-      '</div>' +
-
-      /* —— 密码登录 —— */
-      '<div id="zhz-pane-pwd" class="hidden">' +
-      '  <div class="field"><input id="zhz-pwd" type="password" maxlength="32" placeholder="密码"></div>' +
-      '  <div class="err" id="zhz-err-p"></div>' +
-      '  <button id="zhz-login-p" class="btn-main" type="button">登录</button>' +
-      '  <div class="hint center" style="margin-top:10px">忘记密码？切到 <span class="link" id="zhz-to-otp">验证码登录</span> 同样能进入你的账号</div>' +
-      '</div>' +
-
+      '<div class="err" id="zhz-err"></div>' +
+      '<button id="zhz-login" class="btn-main" type="button">登录 / 注册</button>' +
       '<div class="ok" id="zhz-ok"></div>' +
       '<p class="tip">登录状态保存在云端，换设备不丢失 · 密码只用于免验证码快速登录</p>' +
       '<div class="diag" id="zhz-diag"></div>';
@@ -269,25 +254,35 @@
 
     var $ = function (id) { return card.querySelector("#" + id); };
     function setMsg(id, cls, txt) { var b = $(id); if (b) { b.className = cls; b.textContent = txt || ""; } }
-    function clearMsgs() { setMsg("zhz-err", "err", ""); setMsg("zhz-err-p", "err", ""); setMsg("zhz-ok", "ok", ""); }
+    function clearMsgs() { setMsg("zhz-err", "err", ""); setMsg("zhz-ok", "ok", ""); }
 
-    /* 账号类型：手机号 / 邮箱（平台只支持这两类，没有自定义登录名） */
-    var mode = "phone";
-    function applyMode() {
-      var acc = $("zhz-account");
-      acc.type = mode === "phone" ? "tel" : "email";
-      acc.maxLength = mode === "phone" ? 11 : 40;
-      acc.inputMode = mode === "phone" ? "numeric" : "email";
-      acc.placeholder = mode === "phone" ? "手机号（11 位）" : "邮箱地址";
-      acc.value = "";
-      $("zhz-mode").textContent = mode === "phone" ? "改用邮箱登录" : "改用手机号登录";
-      clearMsgs();
+    /* 账号类型自动识别：含 @ 按邮箱，否则按手机号（平台只支持这两类，没有自定义登录名） */
+    function kindOf(v) { return v.indexOf("@") >= 0 ? "email" : "phone"; }
+    function validAccount(v) { if (!v) return false; return kindOf(v) === "email" ? RE_MAIL.test(v) : RE_PHONE.test(v); }
+    function accountErr(v) {
+      if (!v) return "请输入手机号或邮箱";
+      return kindOf(v) === "email" ? "请输入正确的邮箱地址" : "请输入正确的 11 位手机号";
     }
-    function validAccount(v) { return mode === "phone" ? RE_PHONE.test(v) : RE_MAIL.test(v); }
-    function accountErr() { return mode === "phone" ? "请输入正确的 11 位手机号" : "请输入正确的邮箱地址"; }
-    $("zhz-mode").onclick = function () { mode = mode === "phone" ? "email" : "phone"; applyMode(); };
 
+    var pwdField = $("zhz-pwdfield"), pwdEl = $("zhz-pwd");
+    var newhint = $("zhz-newhint"), oldhint = $("zhz-oldhint");
     var pending = null, timer = null;
+
+    /* 密码框的提示随账号状态变化：新账号必须设密码 → 高亮并要求 */
+    function refreshPwdHint() {
+      if (!pending) {
+        newhint.classList.add("hidden"); oldhint.classList.add("hidden");
+        pwdField.classList.remove("pwdon");
+        pwdEl.placeholder = "密码（选填，填了以后免验证码）";
+        return;
+      }
+      var isNew = !pending.isExistingUser;
+      newhint.classList.toggle("hidden", !isNew);
+      oldhint.classList.toggle("hidden", isNew);
+      pwdField.classList.toggle("pwdon", isNew);
+      pwdEl.placeholder = isNew ? "请设置 6-32 位密码（以后免验证码）" : "密码（可不填）";
+    }
+
     function countdown(btn) {
       var left = 60;
       btn.disabled = true; btn.textContent = left + " s";
@@ -298,103 +293,100 @@
       }, 1000);
     }
 
-    /* 页签切换 */
-    var tabOtp = $("zhz-tab-otp"), tabPwd = $("zhz-tab-pwd");
-    var paneOtp = $("zhz-pane-otp"), panePwd = $("zhz-pane-pwd");
-    function useTab(which) {
-      var isOtp = which === "otp";
-      tabOtp.className = "tab" + (isOtp ? " on" : "");
-      tabPwd.className = "tab" + (isOtp ? "" : " on");
-      paneOtp.classList.toggle("hidden", !isOtp);
-      panePwd.classList.toggle("hidden", isOtp);
-      $("zhz-send").classList.toggle("hidden", !isOtp);
-      clearMsgs();
-    }
-    tabOtp.onclick = function () { useTab("otp"); };
-    tabPwd.onclick = function () { useTab("pwd"); };
-    $("zhz-to-otp").onclick = function () { useTab("otp"); };
-
-    var newbox = $("zhz-newbox"), oldhint = $("zhz-oldhint");
+    /* 账号一改，之前拿到的验证码就作废 */
+    $("zhz-account").addEventListener("input", function () {
+      if (pending && pending.account !== this.value.trim()) { pending = null; refreshPwdHint(); }
+    });
 
     /* —— ① 获取验证码 —— */
     $("zhz-send").onclick = async function () {
       var acc = $("zhz-account").value.trim();
-      if (!validAccount(acc)) { setMsg("zhz-err", "err", accountErr()); return; }
+      if (!validAccount(acc)) { setMsg("zhz-err", "err", accountErr(acc)); return; }
       clearMsgs();
+      var kind = kindOf(acc);
       var btn = this; btn.disabled = true; btn.textContent = "发送中…";
       var msg = { type: "gate:send-otp" };
-      if (mode === "phone") msg.phone = acc; else msg.email = acc;
+      if (kind === "phone") msg.phone = acc; else msg.email = acc;
       var r = await bridge(msg);
       if (!r || r.type !== "gate:otp-sent" || !r.ok) {
         setMsg("zhz-err", "err", (r && r.message) || "验证码发送失败");
         btn.disabled = false; btn.textContent = "获取验证码"; return;
       }
-      pending = { account: acc, mode: mode, verificationId: r.verificationId, isExistingUser: !!r.isExistingUser };
-      if (mode === "phone") lsSet(LS_PHONE, acc);
-      newbox.classList.toggle("hidden", pending.isExistingUser);
-      oldhint.classList.toggle("hidden", !pending.isExistingUser);
-      setMsg("zhz-ok", "ok", pending.isExistingUser ? "验证码已发送，请查收" : "验证码已发送，请查收并设置密码");
+      pending = { account: acc, kind: kind, verificationId: r.verificationId, isExistingUser: !!r.isExistingUser };
+      if (kind === "phone") lsSet(LS_PHONE, acc);
+      refreshPwdHint();
+      setMsg("zhz-ok", "ok", pending.isExistingUser ? "验证码已发送，请查收" : "验证码已发送；新账号请同时设置密码");
       countdown(btn);
-      if (!pending.isExistingUser) { try { $("zhz-pwd2").focus(); } catch (e) {} }
+      try { (pending.isExistingUser ? $("zhz-code") : pwdEl).focus(); } catch (e) {}
     };
 
-    /* —— ② 验证码登录 / 注册 —— */
-    $("zhz-login").onclick = async function () {
+    /* —— ② 主按钮：填了验证码走验证码通道，否则用密码免验证码登录 —— */
+    var btnMain = $("zhz-login");
+    btnMain.onclick = async function () {
       var acc = $("zhz-account").value.trim();
       var code = $("zhz-code").value.trim();
-      if (!pending || pending.account !== acc) { setMsg("zhz-err", "err", "请先获取验证码"); return; }
-      if (!code) { setMsg("zhz-err", "err", "请输入验证码"); return; }
-      var pwd = $("zhz-pwd2").value;
-      if (!pending.isExistingUser && (!pwd || pwd.length < 6)) {
-        setMsg("zhz-err", "err", "请设置至少 6 位密码（以后免验证码登录）"); return;
+      var pwd = $("zhz-pwd").value;
+      var kind = kindOf(acc);
+
+      if (!validAccount(acc)) { setMsg("zhz-err", "err", accountErr(acc)); return; }
+
+      /* 验证码通道（新账号顺带设密码） */
+      if (code) {
+        if (!pending || pending.account !== acc) { setMsg("zhz-err", "err", "请先点右侧「获取验证码」"); return; }
+        if (!pending.isExistingUser && (!pwd || pwd.length < 6)) {
+          setMsg("zhz-err", "err", "新账号请设置至少 6 位密码（以后免验证码登录）"); return;
+        }
+        clearMsgs();
+        btnMain.disabled = true; btnMain.textContent = "验证中…";
+        var m1 = {
+          type: "gate:verify-otp",
+          verificationId: pending.verificationId,
+          isExistingUser: pending.isExistingUser,
+          token: code,
+          password: pending.isExistingUser ? "" : pwd
+        };
+        if (pending.kind === "phone") m1.phone = pending.account; else m1.email = pending.account;
+        var r1 = await bridge(m1);
+        btnMain.disabled = false; btnMain.textContent = "登录 / 注册";
+        if (!r1 || r1.type !== "gate:otp-verified" || !r1.ok) {
+          setMsg("zhz-err", "err", (r1 && r1.message) || "验证码不正确"); return;
+        }
+        pending = null;
+        await finishLogin();
+        return;
       }
-      clearMsgs();
-      var btn = this; btn.disabled = true; btn.textContent = "验证中…";
-      var msg = {
-        type: "gate:verify-otp",
-        verificationId: pending.verificationId,
-        isExistingUser: pending.isExistingUser,
-        token: code,
-        password: pending.isExistingUser ? "" : pwd
-      };
-      if (pending.mode === "phone") msg.phone = pending.account; else msg.email = pending.account;
-      var r = await bridge(msg);
-      if (!r || r.type !== "gate:otp-verified" || !r.ok) {
-        setMsg("zhz-err", "err", (r && r.message) || "验证码不正确");
-        btn.disabled = false; btn.textContent = "登录 / 注册"; return;
+
+      /* 密码通道（免验证码） */
+      if (pwd) {
+        clearMsgs();
+        btnMain.disabled = true; btnMain.textContent = "登录中…";
+        var m2 = { type: "gate:signin-password", password: pwd };
+        if (kind === "phone") m2.phone = acc; else m2.email = acc;
+        var r2 = await bridge(m2);
+        btnMain.disabled = false; btnMain.textContent = "登录 / 注册";
+        if (!r2 || r2.type !== "gate:signed-in" || !r2.ok) {
+          setMsg("zhz-err", "err", (kind === "phone" ? "手机号" : "邮箱") + "或密码不正确。若还没设过密码，请点「获取验证码」用验证码登录。");
+          return;
+        }
+        if (kind === "phone") lsSet(LS_PHONE, acc);
+        await finishLogin();
+        return;
       }
-      pending = null;
-      await finishLogin();
-      btn.disabled = false; btn.textContent = "登录 / 注册";
+
+      setMsg("zhz-err", "err", "请输入密码，或点右侧「获取验证码」用验证码登录");
     };
 
-    /* —— ③ 账号 + 密码登录 —— */
-    $("zhz-login-p").onclick = async function () {
-      var acc = $("zhz-account").value.trim();
-      var pwd = $("zhz-pwd").value;
-      if (!validAccount(acc)) { setMsg("zhz-err-p", "err", accountErr()); return; }
-      if (!pwd) { setMsg("zhz-err-p", "err", "请输入密码"); return; }
-      clearMsgs();
-      var btn = this; btn.disabled = true; btn.textContent = "登录中…";
-      var msg = { type: "gate:signin-password", password: pwd };
-      if (mode === "phone") msg.phone = acc; else msg.email = acc;
-      var r = await bridge(msg);
-      if (!r || r.type !== "gate:signed-in" || !r.ok) {
-        var m = (r && r.message) || "手机号或密码不正确";
-        if (/invalid|not found|password|credential|401/i.test(m) || (r && r.type === "gate:signed-in")) {
-          m = (mode === "phone" ? "手机号" : "邮箱") + "或密码不正确。若从未设置过密码，请用「验证码登录」进入。";
-        }
-        setMsg("zhz-err-p", "err", m);
-        btn.disabled = false; btn.textContent = "登录"; return;
-      }
-      if (mode === "phone") lsSet(LS_PHONE, acc);
-      await finishLogin();
-      btn.disabled = false; btn.textContent = "登录";
-    };
+    /* 三个输入框都支持回车提交 */
+    ["zhz-account", "zhz-code", "zhz-pwd"].forEach(function (id) {
+      $(id).addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { e.preventDefault(); btnMain.click(); }
+      });
+    });
 
     /* 预填上次手机号 */
     var last = lsGet(LS_PHONE);
     if (last && RE_PHONE.test(last)) $("zhz-account").value = last;
+    refreshPwdHint();
     if (preMsg) setMsg("zhz-err", "err", preMsg);
   }
 
