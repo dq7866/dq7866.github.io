@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d1420">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>风驰骑行 WindRider · 手机横屏体感自行车竞速</title>
+<meta name="description" content="风驰骑行 WindRider：手机横屏体感自行车竞速游戏。左右摆把转向、上扬翘头、后仰翘尾，穿越城市平路、起伏乡道与盘山公路，计时竞速、路上捡宝、解锁新车。打开即玩，无需安装。">
+<meta name="keywords" content="自行车游戏,体感游戏,手机骑行游戏,竞速游戏,横屏游戏,免费网页游戏,风驰骑行">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='18' cy='44' r='12' fill='none' stroke='%2334d399' stroke-width='5'/%3E%3Ccircle cx='46' cy='44' r='12' fill='none' stroke='%2334d399' stroke-width='5'/%3E%3Cpath d='M18 44 L30 22 L46 44 M30 22 L40 22' fill='none' stroke='%23f59e0b' stroke-width='5'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/bike.css">
+</head>
+<body>
+
+<canvas id="cv"></canvas>
+
+<!-- 竖屏提示 -->
+<div id="rotate">
+  <div class="rot-ico">📱</div>
+  <div class="rot-txt">请横握手机<small>旋转屏幕以获得最佳体验</small></div>
+</div>
+
+<!-- 主菜单 -->
+<section id="menu" class="screen">
+  <header class="m-head">
+    <h1>风驰骑行<em>WindRider</em></h1>
+    <div class="m-wallet">
+      <span>💰 <b id="m-coins">0</b></span>
+      <span class="dim">已骑行 <b id="m-dist">0</b> km</span>
+    </div>
+  </header>
+  <div class="m-body">
+    <div class="m-col">
+      <h2>选择赛道</h2>
+      <div id="m-tracks" class="cards"></div>
+    </div>
+    <div class="m-col">
+      <h2>我的车库<small>（骑着跑完才有钱换车）</small></h2>
+      <div id="m-garage" class="cards"></div>
+    </div>
+  </div>
+  <footer class="m-foot">
+    <button id="btn-sensor" class="btn ghost">体感转向：关</button>
+    <button id="btn-help" class="btn ghost">操作说明</button>
+    <button id="btn-start" class="btn primary">开始骑行 →</button>
+  </footer>
+</section>
+
+<!-- 游戏 HUD -->
+<div id="hud" class="hidden">
+  <div class="hud-tl">
+    <div class="timer" id="h-time">0:00.0</div>
+    <div class="hud-track" id="h-track">城市平路</div>
+  </div>
+  <div class="hud-tr">
+    <div class="spd"><b id="h-spd">0</b><span>km/h</span></div>
+    <div class="hud-coins">💰 <b id="h-coins">0</b></div>
+    <div class="hud-trick-score" id="h-score">技巧 <b>0</b></div>
+  </div>
+  <div class="prog"><i id="h-prog"></i></div>
+  <div class="hud-split" id="h-split"></div>
+  <div id="h-trick"></div>
+  <div id="h-toast"></div>
+  <button id="btn-pause" class="hud-pause">❚❚</button>
+</div>
+
+<!-- 触屏操控 -->
+<div id="pad" class="hidden">
+  <div class="pad-l">
+    <button class="pbtn st" data-k="left">◀</button>
+    <button class="pbtn st" data-k="right">▶</button>
+  </div>
+  <div class="pad-mid">
+    <button class="pbtn sm" data-k="wheelie">翘头</button>
+    <button class="pbtn sm" data-k="stoppie">翘尾</button>
+  </div>
+  <div class="pad-r">
+    <button class="pbtn big brake" data-k="brake">刹车</button>
+    <button class="pbtn big gas" data-k="gas">加速</button>
+  </div>
+</div>
+
+<!-- 倒计时 -->
+<div id="countdown" class="overlay hidden"><div class="cd-num">3</div></div>
+
+<!-- 暂停 -->
+<div id="pause" class="overlay hidden">
+  <div class="panel">
+    <h3>已暂停</h3>
+    <button class="btn primary" id="btn-resume">继续骑行</button>
+    <button class="btn ghost" id="btn-restart">重新开始</button>
+    <button class="btn ghost" id="btn-quit">返回车库</button>
+  </div>
+</div>
+
+<!-- 结算 -->
+<section id="result" class="screen hidden">
+  <div class="panel wide">
+    <div class="res-flag" id="res-flag">🏁 完赛</div>
+    <h3 id="res-track">城市平路</h3>
+    <div class="res-grid">
+      <div class="res-item"><span>用时</span><b id="res-time">0:00.0</b></div>
+      <div class="res-item"><span>捡到金币</span><b id="res-coins">0</b></div>
+      <div class="res-item"><span>技巧分</span><b id="res-score">0</b></div>
+      <div class="res-item"><span>金币结算</span><b id="res-earn">+0</b></div>
+    </div>
+    <div class="res-best" id="res-best"></div>
+    <div class="res-unlock" id="res-unlock"></div>
+    <div class="res-actions">
+      <button class="btn ghost" id="btn-again">再跑一次</button>
+      <button class="btn primary" id="btn-back">回到车库</button>
+    </div>
+  </div>
+</section>
+
+<!-- 帮助 -->
+<div id="help" class="overlay hidden">
+  <div class="panel wide help-panel">
+    <h3>怎么玩</h3>
+    <div class="help-body">
+      <div class="help-col">
+        <h4>📱 体感模式（手机横握）</h4>
+        <ul>
+          <li><b>左右摆动手机</b> → 转向（左摆左转 / 右摆右转）</li>
+          <li><b>车头向上扬</b> → 翘头（提速、赚技巧分）</li>
+          <li><b>车头向下压</b> → 翘尾（急刹、快速降速）</li>
+          <li><b>左手区</b> 按住 → 刹车减速</li>
+          <li><b>右手区</b> 按住 → 加速</li>
+        </ul>
+      </div>
+      <div class="help-col">
+        <h4>💻 键盘 / 触屏</h4>
+        <ul>
+          <li><b>↑ / W</b> 加速，<b>↓ / S</b> 刹车</li>
+          <li><b>← →</b> 或 <b>A D</b> 转向</li>
+          <li><b>Q</b> 翘头，<b>E</b> 翘尾</li>
+          <li>屏幕按钮：左下 ◀ ▶ 转向，中间翘头翘尾，右下 刹车 / 加速</li>
+        </ul>
+        <h4>🏁 规则</h4>
+        <ul>
+          <li>跑完全程计时，越快越好</li>
+          <li>路上捡金币，撞障碍会掉速</li>
+          <li>金币攒够可解锁更好的车</li>
+        </ul>
+      </div>
+    </div>
+    <button class="btn primary" id="btn-help-close">知道了</button>
+  </div>
+</div>
+
+<script src="js/save.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/controls.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
