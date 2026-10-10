@@ -51,6 +51,12 @@
   });
 
   function call(msg, timeoutMs) {
+    /* 本页已加载全站门卫（/gate.js）时，直接复用它那条「已登录」的通道：
+       ① 不用再起第二个 iframe；② 会话只有一份，登录态不会两边不一致。
+       门卫不存在时（旧缓存页面等）退回自建通道。 */
+    if (window.ZHZBridge && typeof window.ZHZBridge.call === "function") {
+      return window.ZHZBridge.call(msg, timeoutMs);
+    }
     boot();
     return new Promise(function (resolve) {
       if (failed) { resolve({ ok: false, offline: true, message: "云端通道不可用" }); return; }
