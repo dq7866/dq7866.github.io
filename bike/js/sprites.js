@@ -181,11 +181,11 @@ var Sprites = (function () {
      o: { type, pose:'normal'|'wheelie'|'stoppie', pedal, wheel, steer,
           ghost:false, tint:null, alpha:1 } */
   var BIKES = {
-    commuter: { frame: '#2563eb', frame2: '#1e40af', jersey: '#eef2f7', jersey2: '#b9c2d0', helmet: '#3b4757', bar: 54, chest: 20, hip: 16, rack: true },
-    road:     { frame: '#e11d48', frame2: '#9f1239', jersey: '#f7f9fc', jersey2: '#c2cbd8', helmet: '#dc2626', bar: 48, chest: 17.5, hip: 14.5, drop: true },
-    mtb:      { frame: '#16a34a', frame2: '#166534', jersey: '#2b3648', jersey2: '#1b2432', helmet: '#f59e0b', bar: 62, chest: 21, hip: 17, fat: true },
-    gravel:   { frame: '#0ea5e9', frame2: '#0369a1', jersey: '#fde68a', jersey2: '#cfa94e', helmet: '#0f766e', bar: 52, chest: 18.5, hip: 15.5, drop: true },
-    ebike:    { frame: '#7c3aed', frame2: '#5b21b6', jersey: '#242c3a', jersey2: '#151b26', helmet: '#a855f7', bar: 56, chest: 20, hip: 16.5, fat: true, battery: true }
+    commuter: { frame: '#2563eb', frame2: '#1e40af', jersey: '#eef2f7', jersey2: '#b9c2d0', sleeve: '#ccd5e1', helmet: '#3b4757', bar: 54, chest: 20, hip: 16, rack: true },
+    road:     { frame: '#e11d48', frame2: '#9f1239', jersey: '#f7f9fc', jersey2: '#c2cbd8', sleeve: '#d5dce7', helmet: '#dc2626', bar: 48, chest: 17.5, hip: 14.5, drop: true },
+    mtb:      { frame: '#16a34a', frame2: '#166534', jersey: '#2b3648', jersey2: '#1b2432', sleeve: '#1e2836', helmet: '#f59e0b', bar: 62, chest: 21, hip: 17, fat: true },
+    gravel:   { frame: '#0ea5e9', frame2: '#0369a1', jersey: '#fde68a', jersey2: '#cfa94e', sleeve: '#e2c364', helmet: '#0f766e', bar: 52, chest: 18.5, hip: 15.5, drop: true },
+    ebike:    { frame: '#7c3aed', frame2: '#5b21b6', jersey: '#242c3a', jersey2: '#151b26', sleeve: '#19212e', helmet: '#a855f7', bar: 56, chest: 20, hip: 16.5, fat: true, battery: true }
   };
 
   function taper(g, x1, y1, x2, y2, w, col) {
@@ -305,9 +305,26 @@ var Sprites = (function () {
     var gripY = shY + (col.drop ? 30 : 24) + (pose === 'wheelie' ? -3 : pose === 'stoppie' ? 4 : 0);
     taper(g, shX - bw - 2, gripY, shX + bw + 2, gripY, 4.6, ghost ? jersey : '#262c36');
     if (!ghost) {                                    // 把套（浅色端头，示意手握的位置）
-      g.fillStyle = '#454e5c';
+      g.fillStyle = '#6b7482';
       g.fillRect(shX + bw - 6, gripY - 2.6, 9.5, 5.2);
       g.fillRect(shX - bw - 3.5, gripY - 2.6, 9.5, 5.2);
+    }
+
+    /* ---- 手臂（画在胸腔下层：内侧被胸口遮住，只从身体两侧露出，向前伸向把端） ---- */
+    var elY = shY + (col.drop ? 21 : 17);
+    var sleeve = ghost ? (o.tint || '#dff2ff') : (col.sleeve || jersey);
+    for (var sd = -1; sd <= 1; sd += 2) {
+      var sx = shX + sd * (cw - 3);
+      var ex = shX + sd * (cw + 4.5);
+      var gx = shX + sd * bw;
+      taper(g, sx, shY + 8, ex, elY, 9, sleeve);                         // 上臂（袖）
+      taper(g, ex, elY + 1, gx, gripY, 7.2, sd < 0 ? skin : skinD);      // 前臂
+      g.fillStyle = ghost ? jersey : '#2c333f';                          // 手套
+      g.beginPath(); g.arc(gx, gripY, 5.4, 0, TAU); g.fill();
+      if (!ghost) {                                                       // 指节高光
+        g.fillStyle = 'rgba(255,255,255,.25)';
+        g.beginPath(); g.arc(gx - sd * 1.8, gripY - 2, 2.2, 0, TAU); g.fill();
+      }
     }
 
     /* ---- 臀部短裤（坐在坐垫上） ---- */
@@ -319,7 +336,7 @@ var Sprites = (function () {
     g.quadraticCurveTo(hw + 2.5, hipY + 6, hw, hipY - 6);
     g.closePath(); g.fill();
 
-    /* ---- 躯干（骑行服） ---- */
+    /* ---- 躯干（骑行服，圆肩） ---- */
     var grad = g.createLinearGradient(-cw, 0, cw, 0);
     grad.addColorStop(0, jersey);
     grad.addColorStop(.55, jersey);
@@ -327,11 +344,11 @@ var Sprites = (function () {
     g.fillStyle = grad;
     g.beginPath();
     g.moveTo(-hw, hipY - 6);
-    g.bezierCurveTo(-hw - 2, hipY - 22, -cw + 2, shY + 14, shX - cw, shY + 3);
-    g.quadraticCurveTo(shX - cw - 1, shY - 3, shX - cw + 4, shY - 4);
-    g.lineTo(shX + cw - 4, shY - 4);
-    g.quadraticCurveTo(shX + cw + 1, shY - 3, shX + cw, shY + 3);
-    g.bezierCurveTo(cw - 2, shY + 14, hw + 2, hipY - 22, hw, hipY - 6);
+    g.bezierCurveTo(-hw - 2, hipY - 24, -cw + 1, shY + 18, shX - cw + 1, shY + 7);
+    g.quadraticCurveTo(shX - cw, shY - 2, shX - cw + 5, shY - 4);
+    g.lineTo(shX + cw - 5, shY - 4);
+    g.quadraticCurveTo(shX + cw, shY - 2, shX + cw - 1, shY + 7);
+    g.bezierCurveTo(cw - 1, shY + 18, hw + 2, hipY - 24, hw, hipY - 6);
     g.closePath(); g.fill();
     if (!ghost) {
       // 布料纹理
@@ -346,22 +363,6 @@ var Sprites = (function () {
       g.beginPath(); g.moveTo(3, hipY - 4); g.quadraticCurveTo(5, (hipY + shY) / 2, shX + 3, shY); g.stroke();
       g.strokeStyle = 'rgba(255,255,255,.34)'; g.lineWidth = 2.6;
       g.beginPath(); g.moveTo(-cw + 1, shY + 8); g.quadraticCurveTo(-cw, hipY - 16, -hw + 4, hipY - 4); g.stroke();
-    }
-
-    /* ---- 手臂：肩→肘向外下，前臂收向把端；手明显在身体两侧之外 ---- */
-    var elY = shY + (col.drop ? 21 : 17);
-    for (var sd = -1; sd <= 1; sd += 2) {
-      var sx = shX + sd * (cw - 2);
-      var ex = shX + sd * (cw + 4);
-      var gx = shX + sd * bw;
-      taper(g, sx, shY + 5, ex, elY, 9.4, jersey);                       // 上臂（袖）
-      taper(g, ex, elY + 1, gx, gripY, 7.2, sd < 0 ? skin : skinD);      // 前臂
-      g.fillStyle = ghost ? jersey : '#2c333f';                          // 手套
-      g.beginPath(); g.arc(gx, gripY, 5.4, 0, TAU); g.fill();
-      if (!ghost) {                                                       // 指节高光
-        g.fillStyle = 'rgba(255,255,255,.25)';
-        g.beginPath(); g.arc(gx - sd * 1.8, gripY - 2, 2.2, 0, TAU); g.fill();
-      }
     }
 
     /* ---- 头部 ---- */
