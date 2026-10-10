@@ -1,17 +1,42 @@
-/* 风驰骑行 —— Service Worker：首次加载后整站离线可用（游戏本体很小，纯静态） */
-var CACHE = 'windrider-v1';
+/* 风驰骑行 —— Service Worker：首次加载后整站离线可用（游戏本体 + AI 贴图素材，约 0.7MB） */
+var CACHE = 'windrider-v2';
 var ASSETS = [
   './',
   './index.html',
   './css/bike.css',
   './js/save.js',
+  './js/progress.js',
   './js/sprites.js',
   './js/engine.js',
   './js/controls.js',
   './js/game.js',
   './js/cloud.js',
   './js/main.js',
-  './manifest.webmanifest'
+  './manifest.webmanifest',
+  './img/tex-asphalt.webp',
+  './img/tex-asphalt-wet.webp',
+  './img/tex-grass.webp',
+  './img/tex-dry.webp',
+  './img/mat-carbon.webp',
+  './img/mat-fabric.webp',
+  './img/mat-leather.webp',
+  './img/mat-rubber.webp',
+  './img/tree-broad.webp',
+  './img/tree-pine.webp',
+  './img/tree-poplar.webp',
+  './img/tree-bush.webp',
+  './img/rock-boulder.webp',
+  './img/cactus.webp',
+  './img/rock-pile.webp',
+  './img/cone.webp',
+  './img/barrier.webp',
+  './img/sign.webp',
+  './img/lamp.webp',
+  './img/cliff.webp',
+  './img/turbine.webp',
+  './img/sky-day.webp',
+  './img/sky-dusk.webp',
+  './img/sky-rain.webp'
 ];
 
 self.addEventListener('install', function (e) {

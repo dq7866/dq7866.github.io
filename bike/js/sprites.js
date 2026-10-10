@@ -1,5 +1,7 @@
-/* 风驰骑行 —— 矢量精灵（零素材，全部用 Canvas 2D 现画，天生离线可用） */
+/* 风驰骑行 —— 精灵与绘制：AI 贴图资产 + 程序化骑手（零框架依赖）
+   资产加载失败时自动回退到内置程序绘制，游戏永远可玩。 */
 var Sprites = (function () {
+  var TAU = Math.PI * 2;
   function mk(w, h) { var c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
   function rr(g, x, y, w, h, r) {
     g.beginPath();
@@ -11,272 +13,379 @@ var Sprites = (function () {
     g.closePath();
   }
 
-  /* ---------------- 金币 ---------------- */
+  /* ================= 资产清单 ================= */
+  var SRC = {
+    'tex-asphalt': 'img/tex-asphalt.webp',
+    'tex-asphalt-wet': 'img/tex-asphalt-wet.webp',
+    'tex-grass': 'img/tex-grass.webp',
+    'tex-dry': 'img/tex-dry.webp',
+    'mat-carbon': 'img/mat-carbon.webp',
+    'mat-fabric': 'img/mat-fabric.webp',
+    'mat-leather': 'img/mat-leather.webp',
+    'mat-rubber': 'img/mat-rubber.webp',
+    'tree-broad': 'img/tree-broad.webp',
+    'tree-pine': 'img/tree-pine.webp',
+    'tree-poplar': 'img/tree-poplar.webp',
+    'tree-bush': 'img/tree-bush.webp',
+    'rock-boulder': 'img/rock-boulder.webp',
+    'cactus': 'img/cactus.webp',
+    'rock-pile': 'img/rock-pile.webp',
+    'cone': 'img/cone.webp',
+    'barrier': 'img/barrier.webp',
+    'sign': 'img/sign.webp',
+    'lamp': 'img/lamp.webp',
+    'cliff': 'img/cliff.webp',
+    'turbine': 'img/turbine.webp',
+    'sky-day': 'img/sky-day.webp',
+    'sky-dusk': 'img/sky-dusk.webp',
+    'sky-rain': 'img/sky-rain.webp'
+  };
+  var c = {};          // 名称 -> 可绘制对象（Image 或兜底 canvas）
+  var loaded = 0, total = 0;
+
+  function flat(w, h, color) {
+    var cv = mk(w, h), g = cv.getContext('2d');
+    g.fillStyle = color; g.fillRect(0, 0, w, h);
+    return cv;
+  }
+
+  /* ================= 兜底程序绘制（与 AI 版近似宽高比） ================= */
+  function fallbackTree(w, h, col, trunk) {
+    var cv = mk(w, h), g = cv.getContext('2d');
+    g.fillStyle = trunk; g.fillRect(w * .46, h * .62, w * .08, h * .38);
+    var cs = [col[0], col[1], col[2]];
+    for (var i = 0; i < 3; i++) {
+      g.fillStyle = cs[i];
+      g.beginPath();
+      g.arc(w * .5 + (i - 1) * w * .17, h * .42 - i * h * .1, w * .34 - i * w * .06, 0, TAU);
+      g.fill();
+    }
+    return cv;
+  }
+  function fallbackCone() {
+    var cv = mk(144, 230), g = cv.getContext('2d');
+    g.fillStyle = '#ea580c';
+    g.beginPath(); g.moveTo(72, 10); g.lineTo(112, 196); g.lineTo(32, 196); g.closePath(); g.fill();
+    g.fillStyle = '#fff'; g.fillRect(48, 104, 48, 26);
+    g.fillStyle = '#c2410c'; g.beginPath(); g.ellipse(72, 206, 58, 15, 0, 0, TAU); g.fill();
+    return cv;
+  }
+  function fallbackBarrier() {
+    var cv = mk(276, 250), g = cv.getContext('2d');
+    for (var i = 0; i < 6; i++) { g.fillStyle = i % 2 ? '#f3f4f6' : '#dc2626'; g.fillRect(8 + i * 44, 30, 44, 90); }
+    g.strokeStyle = '#7f1d1d'; g.lineWidth = 4; g.strokeRect(8, 30, 260, 90);
+    g.fillStyle = '#991b1b'; g.fillRect(38, 120, 22, 110); g.fillRect(216, 120, 22, 110);
+    return cv;
+  }
+  function fallbackRock(w, h, col, col2) {
+    var cv = mk(w, h), g = cv.getContext('2d');
+    g.fillStyle = col;
+    g.beginPath();
+    g.moveTo(w * .04, h * .96); g.lineTo(w * .18, h * .38); g.lineTo(w * .46, h * .1);
+    g.lineTo(w * .76, h * .26); g.lineTo(w * .96, h * .66); g.lineTo(w * .96, h * .96);
+    g.closePath(); g.fill();
+    g.fillStyle = col2;
+    g.beginPath(); g.moveTo(w * .18, h * .38); g.lineTo(w * .46, h * .1); g.lineTo(w * .58, h * .44);
+    g.lineTo(w * .34, h * .62); g.closePath(); g.fill();
+    return cv;
+  }
+
+  function buildFallbacks() {
+    c['tex-asphalt'] = flat(256, 256, '#4b5563');
+    c['tex-asphalt-wet'] = flat(256, 256, '#2f3640');
+    c['tex-grass'] = flat(256, 256, '#5d7a58');
+    c['tex-dry'] = flat(256, 256, '#8d7a59');
+    c['mat-carbon'] = flat(64, 64, '#1a1d22');
+    c['mat-fabric'] = flat(64, 64, '#e8edf5');
+    c['mat-leather'] = flat(64, 64, '#1c1f24');
+    c['mat-rubber'] = flat(64, 64, '#15181d');
+    c['tree-broad'] = fallbackTree(240, 300, ['#15803d', '#16a34a', '#22c55e'], '#5b3a1e');
+    c['tree-pine'] = fallbackTree(200, 380, ['#14532d', '#166534', '#15803d'], '#4a3319');
+    c['tree-poplar'] = fallbackTree(110, 460, ['#a16207', '#ca8a04', '#eab308'], '#6b4423');
+    c['tree-bush'] = fallbackTree(340, 300, ['#3f6212', '#4d7c0f', '#65a30d'], '#57371b');
+    c['rock-boulder'] = fallbackRock(260, 300, '#8a5f52', '#a9766a');
+    c['cactus'] = fallbackRock(200, 380, '#3f7d3f', '#4d9a4d');
+    c['rock-pile'] = fallbackRock(300, 210, '#64748b', '#94a3b8');
+    c['cone'] = fallbackCone();
+    c['barrier'] = fallbackBarrier();
+    c['sign'] = fallbackRock(190, 360, '#3b82f6', '#60a5fa');
+    c['lamp'] = fallbackRock(350, 500, '#6b7280', '#9ca3af');
+    c['cliff'] = fallbackRock(460, 900, '#8a5f52', '#a9766a');
+    c['turbine'] = fallbackRock(360, 700, '#e6edf5', '#cfd9e4');
+    c['sky-day'] = flat(64, 64, '#6fb1e8');
+    c['sky-dusk'] = flat(64, 64, '#f0a35f');
+    c['sky-rain'] = flat(64, 64, '#4a5566');
+    c['coin'] = coin();
+    c['puddle'] = puddle();
+  }
+
+  function init() {
+    buildFallbacks();
+    total = 0; loaded = 0;
+    for (var k in SRC) {
+      total++;
+      (function (key) {
+        var im = new Image();
+        im.onload = function () {
+          c[key] = im; loaded++;
+          if (key.indexOf('mat-') === 0) patCache = {};   // 材质到位后重建图案
+        };
+        im.onerror = function () { loaded++; };
+        im.src = SRC[key];
+      })(k);
+    }
+  }
+  function art(key) { return c[key] || null; }
+  /* 仅当该键是已装载的图片时返回 true（用于天空等有平色兜底的场合） */
+  function has(key) { return !!(c[key] && c[key].naturalWidth); }
+  function ready() { return { loaded: loaded, total: total }; }
+
+  /* 材质图案（按 ctx 缓存） */
+  var patCache = {};
+  function pat(key, g) {
+    var e = patCache[key];
+    if (!e || e.ctx !== g) {
+      e = { ctx: g, p: g.createPattern(c[key], 'repeat') };
+      patCache[key] = e;
+    }
+    return e.p;
+  }
+  function refreshPat() { patCache = {}; }   // 贴图装载完成后重建
+
+  /* ================= 金币 / 水坑 ================= */
   function coin() {
-    var S = 128, c = mk(S, S), g = c.getContext('2d'), cx = S / 2, cy = S / 2, R = S * 0.40;
+    var S = 128, cv = mk(S, S), g = cv.getContext('2d'), cx = S / 2, cy = S / 2, R = S * .40;
     var grd = g.createRadialGradient(cx - R * .3, cy - R * .35, R * .1, cx, cy, R);
     grd.addColorStop(0, '#fff7cc'); grd.addColorStop(.45, '#fbbf24'); grd.addColorStop(1, '#b45309');
-    g.beginPath(); g.arc(cx, cy, R, 0, 7); g.fillStyle = grd; g.fill();
+    g.beginPath(); g.arc(cx, cy, R, 0, TAU); g.fillStyle = grd; g.fill();
     g.lineWidth = R * .13; g.strokeStyle = 'rgba(120,53,15,.55)'; g.stroke();
-    g.beginPath(); g.arc(cx, cy, R * .62, 0, 7); g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = R * .1; g.stroke();
+    g.beginPath(); g.arc(cx, cy, R * .62, 0, TAU); g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = R * .1; g.stroke();
     g.fillStyle = 'rgba(146,64,14,.85)'; g.font = 'bold ' + (R * .95) + 'px sans-serif';
     g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('¥', cx, cy + R * .04);
     g.globalAlpha = .5; g.beginPath();
-    g.ellipse(cx - R * .35, cy - R * .42, R * .22, R * .12, -0.6, 0, 7); g.fillStyle = '#fff'; g.fill();
-    return c;
+    g.ellipse(cx - R * .35, cy - R * .42, R * .22, R * .12, -0.6, 0, TAU); g.fillStyle = '#fff'; g.fill();
+    return cv;
   }
-
-  /* ---------------- 障碍物 ---------------- */
-  function cone() {
-    var c = mk(96, 128), g = c.getContext('2d');
-    g.fillStyle = '#ea580c';
-    g.beginPath(); g.moveTo(48, 8); g.lineTo(74, 104); g.lineTo(22, 104); g.closePath(); g.fill();
-    g.fillStyle = '#fff'; g.fillRect(30, 56, 36, 16);
-    g.fillStyle = '#c2410c'; g.beginPath(); g.ellipse(48, 108, 42, 11, 0, 0, 7); g.fill();
-    return c;
-  }
-  function rock() {
-    var c = mk(128, 96), g = c.getContext('2d');
-    g.fillStyle = '#64748b';
-    g.beginPath();
-    g.moveTo(8, 88); g.lineTo(26, 40); g.lineTo(56, 16); g.lineTo(92, 30); g.lineTo(118, 66); g.lineTo(120, 88);
-    g.closePath(); g.fill();
-    g.fillStyle = '#94a3b8';
-    g.beginPath(); g.moveTo(26, 40); g.lineTo(56, 16); g.lineTo(70, 44); g.lineTo(42, 62); g.closePath(); g.fill();
-    g.fillStyle = 'rgba(30,41,59,.5)';
-    g.beginPath(); g.moveTo(70, 44); g.lineTo(118, 66); g.lineTo(120, 88); g.lineTo(76, 88); g.closePath(); g.fill();
-    return c;
-  }
-  function barrier() {
-    var c = mk(180, 96), g = c.getContext('2d');
-    for (var i = 0; i < 6; i++) { g.fillStyle = i % 2 ? '#fff' : '#dc2626'; g.fillRect(i * 30, 18, 30, 34); }
-    g.strokeStyle = '#7f1d1d'; g.lineWidth = 3; g.strokeRect(0, 18, 180, 34);
-    g.fillStyle = '#334155'; g.fillRect(16, 52, 14, 40); g.fillRect(150, 52, 14, 40);
-    g.fillStyle = '#1e293b'; g.beginPath(); g.ellipse(23, 92, 18, 7, 0, 0, 7); g.fill();
-    g.beginPath(); g.ellipse(157, 92, 18, 7, 0, 0, 7); g.fill();
-    return c;
-  }
-  function puddle() { // 洼地水坑（减速）
-    var c = mk(240, 80), g = c.getContext('2d');
+  function puddle() {
+    var cv = mk(240, 80), g = cv.getContext('2d');
     g.fillStyle = 'rgba(56,132,190,.72)';
-    g.beginPath(); g.ellipse(120, 46, 108, 28, 0, 0, 7); g.fill();
+    g.beginPath(); g.ellipse(120, 46, 108, 28, 0, 0, TAU); g.fill();
     g.fillStyle = 'rgba(255,255,255,.35)';
-    g.beginPath(); g.ellipse(86, 34, 34, 8, -0.25, 0, 7); g.fill();
-    g.beginPath(); g.ellipse(160, 50, 22, 6, 0.2, 0, 7); g.fill();
-    return c;
+    g.beginPath(); g.ellipse(86, 34, 34, 8, -0.25, 0, TAU); g.fill();
+    g.beginPath(); g.ellipse(160, 50, 22, 6, 0.2, 0, TAU); g.fill();
+    return cv;
   }
 
-  /* ---------------- 路旁景物 ---------------- */
-  function tree(kind) {
-    var c = mk(160, 240), g = c.getContext('2d');
-    g.fillStyle = '#5b3a1e'; g.fillRect(70, 150, 20, 84);
-    if (kind === 0) { // 阔叶
-      var cs = ['#15803d', '#16a34a', '#22c55e'];
-      for (var i = 0; i < 3; i++) {
-        g.fillStyle = cs[i];
-        g.beginPath(); g.arc(80 + (i - 1) * 26, 118 - i * 16, 46 - i * 5, 0, 7); g.fill();
-      }
-    } else {          // 针叶
-      g.fillStyle = '#166534';
-      for (var j = 0; j < 3; j++) {
-        var yy = 150 - j * 44;
-        g.beginPath(); g.moveTo(80, yy - 96); g.lineTo(80 + 54, yy); g.lineTo(80 - 54, yy); g.closePath(); g.fill();
-      }
-    }
-    return c;
-  }
-  function cactus() {
-    var c = mk(120, 220), g = c.getContext('2d');
-    g.fillStyle = '#3f7d3f'; rr(g, 46, 40, 28, 172, 14); g.fill();
-    rr(g, 16, 96, 22, 66, 11); g.fill(); g.fillRect(30, 142, 22, 18);
-    rr(g, 82, 74, 22, 66, 11); g.fill(); g.fillRect(70, 122, 22, 18);
-    return c;
-  }
-  /* 峡谷岩壁柱（窄道两侧） */
-  function cliff() {
-    var c = mk(200, 300), g = c.getContext('2d');
-    g.fillStyle = '#8a5f52';
-    g.beginPath();
-    g.moveTo(30, 300); g.lineTo(16, 120); g.lineTo(58, 34); g.lineTo(120, 14); g.lineTo(178, 70); g.lineTo(190, 300);
-    g.closePath(); g.fill();
-    g.fillStyle = '#a9766a';
-    g.beginPath(); g.moveTo(58, 34); g.lineTo(120, 14); g.lineTo(140, 150); g.lineTo(70, 190); g.closePath(); g.fill();
-    g.fillStyle = 'rgba(60,32,28,.4)';
-    g.beginPath(); g.moveTo(140, 150); g.lineTo(190, 300); g.lineTo(150, 300); g.closePath(); g.fill();
-    // 岩层横纹
-    g.strokeStyle = 'rgba(70,42,36,.35)'; g.lineWidth = 4;
-    for (var i = 0; i < 5; i++) { g.beginPath(); g.moveTo(20 + i * 3, 90 + i * 42); g.lineTo(186 - i * 3, 96 + i * 42); g.stroke(); }
-    return c;
-  }
-  /* 风力发电机（风原路旁） */
-  function turbine() {
-    var c = mk(200, 320), g = c.getContext('2d');
-    g.fillStyle = '#e6edf5';
-    g.beginPath(); g.moveTo(94, 316); g.lineTo(104, 84); g.lineTo(112, 84); g.lineTo(122, 316); g.closePath(); g.fill();
-    g.fillStyle = 'rgba(120,140,160,.5)';
-    g.beginPath(); g.moveTo(112, 84); g.lineTo(122, 316); g.lineTo(112, 316); g.closePath(); g.fill();
-    var cx = 108, cy = 84;
-    g.fillStyle = '#cfd9e4';
-    for (var i = 0; i < 3; i++) {
-      var a = i * Math.PI * 2 / 3 - 0.4;
-      g.save(); g.translate(cx, cy); g.rotate(a);
-      g.beginPath(); g.moveTo(0, 0); g.lineTo(-9, -112); g.lineTo(9, -112); g.closePath(); g.fill();
-      g.restore();
-    }
-    g.fillStyle = '#9aa8b6'; g.beginPath(); g.arc(cx, cy, 11, 0, 7); g.fill();
-    return c;
-  }
-  /* 幽灵车（半透明剪影，用来标识纪录保持者的行驶轨迹） */
-  function ghostBike(tint) {
-    var col = tint || '#e6f6ff';
-    var W = 220, H = 190, c = mk(W, H), g = c.getContext('2d');
-    var cx = W / 2, wheelR = 40, wheelY = H - wheelR - 8;
-    g.globalAlpha = .55;
-    g.strokeStyle = col; g.lineWidth = 11; g.lineCap = 'round';
-    g.beginPath(); g.arc(cx, wheelY, wheelR, 0, 7); g.stroke();
-    g.lineWidth = 9;
-    g.beginPath(); g.moveTo(cx, wheelY - 4); g.lineTo(cx, wheelY - 58); g.stroke();
-    g.beginPath(); g.moveTo(cx - 26, wheelY - 2); g.lineTo(cx, wheelY - 52); g.stroke();
-    g.beginPath(); g.moveTo(cx + 26, wheelY - 2); g.lineTo(cx, wheelY - 52); g.stroke();
-    g.fillStyle = col;
-    g.beginPath();
-    g.moveTo(cx - 24, wheelY - 58);
-    g.quadraticCurveTo(cx - 34, wheelY - 96, cx - 20, wheelY - 118);
-    g.lineTo(cx + 20, wheelY - 118);
-    g.quadraticCurveTo(cx + 34, wheelY - 96, cx + 24, wheelY - 58);
-    g.closePath(); g.fill();
-    g.beginPath(); g.arc(cx, wheelY - 134, 19, Math.PI * 1.02, Math.PI * 1.98); g.fill();
-    g.globalAlpha = 1;
-    return c;
-  }
-
-  /* ---------------- 自行车 + 骑手（后视） ---------------- */
-  // 每个车型 3 个姿态：normal / wheelie（翘头）/ stoppie（翘尾）
+  /* ================= 骑手 + 自行车（后视，程序绘制 + 材质） =================
+     坐标：原点在后轮触地点，向上为负 y；s 为整体缩放。
+     o: { type, pose:'normal'|'wheelie'|'stoppie', pedal, wheel, steer,
+          ghost:false, tint:null, alpha:1 } */
   var BIKES = {
-    commuter: { frame: '#2563eb', frame2: '#1e40af', jersey: '#e2e8f0', helmet: '#475569', rack: true },
-    road:     { frame: '#e11d48', frame2: '#9f1239', jersey: '#f8fafc', helmet: '#ef4444', drop: true },
-    mtb:      { frame: '#16a34a', frame2: '#166534', jersey: '#1f2937', helmet: '#f59e0b', fat: true },
-    gravel:   { frame: '#0ea5e9', frame2: '#0369a1', jersey: '#fef3c7', helmet: '#0f766e', drop: true },
-    ebike:    { frame: '#7c3aed', frame2: '#5b21b6', jersey: '#111827', helmet: '#a855f7', fat: true, battery: true }
+    commuter: { frame: '#2563eb', frame2: '#1e40af', jersey: '#eef2f7', jersey2: '#b9c2d0', helmet: '#3b4757', bar: 36, rack: true },
+    road:     { frame: '#e11d48', frame2: '#9f1239', jersey: '#f7f9fc', jersey2: '#c2cbd8', helmet: '#dc2626', bar: 30, drop: true },
+    mtb:      { frame: '#16a34a', frame2: '#166534', jersey: '#2b3648', jersey2: '#1b2432', helmet: '#f59e0b', bar: 46, fat: true },
+    gravel:   { frame: '#0ea5e9', frame2: '#0369a1', jersey: '#fde68a', jersey2: '#cfa94e', helmet: '#0f766e', bar: 34, drop: true },
+    ebike:    { frame: '#7c3aed', frame2: '#5b21b6', jersey: '#242c3a', jersey2: '#151b26', helmet: '#a855f7', bar: 40, fat: true, battery: true }
   };
 
-  function bikeRear(col, pose) {
-    var W = 220, H = 190, c = mk(W, H), g = c.getContext('2d');
-    var cx = W / 2, wheelR = col.fat ? 44 : 40, wheelY = H - wheelR - 8;
-    var lift = pose === 'wheelie' ? 10 : (pose === 'stoppie' ? -5 : 0);
-    var lean = pose === 'wheelie' ? -8 : (pose === 'stoppie' ? 7 : 0); // 骑手前后倾
+  function taper(g, x1, y1, x2, y2, w, col) {
+    g.strokeStyle = col; g.lineWidth = w; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
+  }
 
-    // 地面阴影
-    g.fillStyle = 'rgba(0,0,0,.28)';
-    g.beginPath(); g.ellipse(cx, H - 6, wheelR * 1.5, 8, 0, 0, 7); g.fill();
-
-    // 后轮
-    g.save();
-    g.beginPath(); g.arc(cx, wheelY, wheelR, 0, 7);
-    g.lineWidth = col.fat ? 13 : 9; g.strokeStyle = '#111827'; g.stroke();
-    g.beginPath(); g.arc(cx, wheelY, wheelR - 6, 0, 7);
-    g.lineWidth = 2.5; g.strokeStyle = '#6b7280'; g.stroke();
-    g.strokeStyle = 'rgba(156,163,175,.75)'; g.lineWidth = 1.6;
-    for (var s = 0; s < 10; s++) {
-      var a = s / 10 * Math.PI * 2;
-      g.beginPath(); g.moveTo(cx, wheelY);
-      g.lineTo(cx + Math.cos(a) * (wheelR - 6), wheelY + Math.sin(a) * (wheelR - 6)); g.stroke();
+  function drawWheel(g, cx, cy, R, ang, blur, fat, ghost) {
+    g.lineCap = 'butt';
+    g.beginPath(); g.arc(cx, cy, R + 2.5, 0, TAU);
+    g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,.35)'; g.stroke();
+    g.beginPath(); g.arc(cx, cy, R, 0, TAU);
+    g.lineWidth = fat ? 13 : 9.5; g.strokeStyle = '#171a20'; g.stroke();
+    g.beginPath(); g.arc(cx, cy, R + 1, 0, TAU);
+    g.lineWidth = 2; g.strokeStyle = 'rgba(255,255,255,.10)'; g.stroke();
+    g.beginPath(); g.arc(cx, cy, R - 7, 0, TAU);
+    g.lineWidth = 3.6; g.strokeStyle = ghost ? 'rgba(255,255,255,.5)' : '#c9ced6'; g.stroke();
+    if (blur > .16) {
+      g.beginPath(); g.arc(cx, cy, R - 8, 0, TAU);
+      g.fillStyle = 'rgba(196,202,211,' + (blur * .5).toFixed(3) + ')'; g.fill();
     }
-    g.beginPath(); g.arc(cx, wheelY, 5, 0, 7); g.fillStyle = '#9ca3af'; g.fill();
+    g.save(); g.translate(cx, cy); g.rotate(ang);
+    g.strokeStyle = 'rgba(212,218,227,' + Math.max(0, 1 - blur * 1.35).toFixed(3) + ')';
+    g.lineWidth = 1.7;
+    for (var i = 0; i < 12; i++) {
+      g.rotate(TAU / 12);
+      g.beginPath(); g.moveTo(0, 0); g.lineTo(0, -(R - 9)); g.stroke();
+    }
     g.restore();
+    g.beginPath(); g.arc(cx, cy, 4.6, 0, TAU); g.fillStyle = '#9aa1ab'; g.fill();
+    g.beginPath(); g.arc(cx, cy, 2, 0, TAU); g.fillStyle = '#5c636e'; g.fill();
+  }
 
-    // 车身 + 骑手（整体抬升 lift）
+  function drawRider(g, cx, gy, s, o) {
+    o = o || {};
+    var col = BIKES[o.type] || BIKES.commuter;
+    var pose = o.pose || 'normal';
+    var ghost = !!o.ghost;
+    var R = col.fat ? 44 : 40;
+    var steer = Math.max(-1, Math.min(1, o.steer || 0));
+    var pedal = o.pedal || 0;
+
     g.save();
-    g.translate(0, -lift);
+    g.translate(cx, gy); g.scale(s, s);
+    if (o.alpha != null && o.alpha < 1) g.globalAlpha = o.alpha;
 
-    // 后上叉 / 座管
-    g.strokeStyle = col.frame; g.lineWidth = 8; g.lineCap = 'round';
-    g.beginPath(); g.moveTo(cx, wheelY - 4); g.lineTo(cx, wheelY - 58); g.stroke();
-    g.lineWidth = 7;
-    g.beginPath(); g.moveTo(cx - 26, wheelY - 2); g.lineTo(cx, wheelY - 52); g.stroke();
-    g.beginPath(); g.moveTo(cx + 26, wheelY - 2); g.lineTo(cx, wheelY - 52); g.stroke();
+    var skin = ghost ? (o.tint || '#dff2ff') : '#e6b088';
+    var skinD = ghost ? (o.tint || '#dff2ff') : '#cf9a72';
+    var jersey = ghost ? (o.tint || '#dff2ff') : col.jersey;
+    var jersey2 = ghost ? (o.tint || '#dff2ff') : col.jersey2;
+    var shorts = ghost ? (o.tint || '#dff2ff') : '#232a36';
+    var shoe = ghost ? (o.tint || '#dff2ff') : '#1a1e26';
+    var frameC = ghost ? (o.tint || '#dff2ff') : col.frame;
+    var frame2 = ghost ? (o.tint || '#dff2ff') : col.frame2;
 
-    // 坐垫
-    g.fillStyle = '#1f2937';
-    g.beginPath(); g.ellipse(cx, wheelY - 62, 16, 7, 0, 0, 7); g.fill();
+    /* ---- 接触阴影 ---- */
+    if (!ghost) {
+      g.fillStyle = 'rgba(0,0,0,.30)';
+      g.beginPath(); g.ellipse(0, -3, R * 1.55, 9, 0, 0, TAU); g.fill();
+    }
 
-    // 双腿（蹬踏姿态：一上一下）
-    var legY = wheelY - 30;
-    g.strokeStyle = '#0f172a'; g.lineWidth = 11; g.lineCap = 'round';
-    g.beginPath(); g.moveTo(cx - 16, wheelY - 52); g.lineTo(cx - 24, legY); g.lineTo(cx - 20, wheelY - 8); g.stroke();
-    g.beginPath(); g.moveTo(cx + 16, wheelY - 52); g.lineTo(cx + 22, legY - 14); g.lineTo(cx + 24, wheelY - 24); g.stroke();
+    /* ---- 后轮 ---- */
+    drawWheel(g, 0, -R, R, o.wheel || 0, o.blur || 0, col.fat, ghost);
 
-    // 躯干（含前倾/后仰）
-    var torsoTop = wheelY - 118 + lean;
-    g.fillStyle = col.jersey;
+    /* ---- 车架 ---- */
+    taper(g, -13, -96, -5, -R + 3, 5, frame2);
+    taper(g, 13, -96, 5, -R + 3, 5, frame2);
+    taper(g, 0, -104, 0, -R + 6, 5.5, frame2);
+    if (col.battery && !ghost) {
+      g.fillStyle = '#334155'; rr(g, -30, -46, 60, 20, 5); g.fill();
+      g.fillStyle = '#22d3ee'; g.fillRect(24, -39, 9, 6);
+    }
+    if (col.rack && !ghost) { g.fillStyle = '#6b7280'; rr(g, -30, -34, 60, 7, 3); g.fill(); }
+
+    /* ---- 坐垫（会被臀部部分遮挡） ---- */
+    g.fillStyle = ghost ? (o.tint || '#dff2ff') : '#20242c';
+    g.beginPath(); g.ellipse(0, -110, 15.5, 6, 0, 0, TAU); g.fill();
+    if (!ghost) {
+      g.fillStyle = 'rgba(255,255,255,.18)';
+      g.beginPath(); g.ellipse(-5, -112, 7.5, 2.4, 0, 0, TAU); g.fill();
+    }
+
+    /* ---- 腿（都在躯干之下：先远侧、后近侧） ---- */
+    var hipY = pose === 'stoppie' ? -102 : -106;
+    var shortsD = ghost ? (o.tint || '#dff2ff') : '#171d26';
+    function leg(side, phase, dark) {
+      var a = pedal + phase;
+      var py = -32 - 20 * Math.cos(a);              // 踏板 y（曲柄竖直投影）
+      var px = side * 19;
+      var hx = side * 13 + steer * 2;
+      var kx = side * 21 + steer * 3;
+      var ky = (hipY + py) / 2 - 6;
+      taper(g, hx, hipY + 4, kx, ky, 12.5, dark ? shortsD : shorts);
+      taper(g, kx, ky, px, py + 2, 9, dark ? skinD : skin);
+      g.fillStyle = shoe;                            // 鞋
+      g.beginPath(); g.ellipse(px + side * 2, py + 2, 8.5, 4.5, 0, 0, TAU); g.fill();
+      if (!ghost) {                                  // 袜口
+        g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = 2;
+        g.beginPath(); g.moveTo(px - 3.5, py - 3); g.lineTo(px + 3.5, py - 3); g.stroke();
+      }
+    }
+    leg(-1, Math.PI, true);
+
+    /* ---- 车把与手（横杆在躯干之后，只露两端） ---- */
+    var shY = -148 + (pose === 'wheelie' ? -5 : pose === 'stoppie' ? 5 : 0) + (o.bob || 0);
+    var shX = steer * 3;
+    var bw = col.bar / 2;
+    var gripY = shY + 17 + (pose === 'wheelie' ? -3 : pose === 'stoppie' ? 4 : 0);
+    taper(g, -bw - 2, gripY - 1, bw + 2, gripY - 1, 5, ghost ? jersey : '#2a303a');
+
+    /* ---- 臀部短裤（坐在坐垫上） ---- */
+    g.fillStyle = shorts;
     g.beginPath();
-    g.moveTo(cx - 24, wheelY - 58);
-    g.quadraticCurveTo(cx - 34, wheelY - 96, cx - 20, torsoTop);
-    g.lineTo(cx + 20, torsoTop);
-    g.quadraticCurveTo(cx + 34, wheelY - 96, cx + 24, wheelY - 58);
+    g.moveTo(-16, hipY - 6);
+    g.quadraticCurveTo(-18.5, hipY + 6, -12.5, hipY + 11);
+    g.lineTo(12.5, hipY + 11);
+    g.quadraticCurveTo(18.5, hipY + 6, 16, hipY - 6);
     g.closePath(); g.fill();
-    // 手臂（向前伸，被躯干遮住大半）
-    g.strokeStyle = col.jersey; g.lineWidth = 10;
-    g.beginPath(); g.moveTo(cx - 20, torsoTop + 20); g.lineTo(cx - 34, torsoTop + 42); g.stroke();
-    g.beginPath(); g.moveTo(cx + 20, torsoTop + 20); g.lineTo(cx + 34, torsoTop + 42); g.stroke();
 
-    // 头盔
-    var helmY = torsoTop - 16;
-    g.fillStyle = col.helmet;
-    g.beginPath(); g.arc(cx, helmY, 19, Math.PI * 1.02, Math.PI * 1.98); g.fill();
-    g.fillRect(cx - 19, helmY - 3, 38, 9);
-    g.fillStyle = 'rgba(255,255,255,.85)';
-    g.beginPath(); g.arc(cx - 6, helmY - 6, 5, 0, 7); g.fill();
-    // 后颈
-    g.fillStyle = '#e8b48c';
-    g.fillRect(cx - 7, helmY + 12, 14, 8);
-
-    // 货架 / 电池 / 特色
-    if (col.battery) {
-      g.fillStyle = '#334155'; rr(g, cx - 30, wheelY - 34, 60, 20, 5); g.fill();
-      g.fillStyle = '#22d3ee'; g.fillRect(cx + 24, wheelY - 27, 9, 6);
+    /* ---- 躯干（骑行服） ---- */
+    var grad = g.createLinearGradient(-22, 0, 22, 0);
+    grad.addColorStop(0, jersey);
+    grad.addColorStop(.55, jersey);
+    grad.addColorStop(1, jersey2);
+    g.fillStyle = grad;
+    g.beginPath();
+    g.moveTo(-16, hipY - 6);
+    g.bezierCurveTo(-18, hipY - 22, -20, shY + 14, shX - 21, shY + 3);
+    g.quadraticCurveTo(shX - 22, shY - 3, shX - 17, shY - 4);
+    g.lineTo(shX + 17, shY - 4);
+    g.quadraticCurveTo(shX + 22, shY - 3, shX + 21, shY + 3);
+    g.bezierCurveTo(20, shY + 14, 18, hipY - 22, 16, hipY - 6);
+    g.closePath(); g.fill();
+    if (!ghost) {
+      // 布料纹理
+      g.save();
+      g.globalCompositeOperation = 'multiply';
+      g.globalAlpha = .22;
+      g.fillStyle = pat('mat-fabric', g);
+      g.fill();
+      g.restore();
+      // 脊背阴影 + 左侧轮廓光
+      g.strokeStyle = 'rgba(0,0,0,.13)'; g.lineWidth = 3.4; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(3, hipY - 4); g.quadraticCurveTo(5, (hipY + shY) / 2, shX + 3, shY); g.stroke();
+      g.strokeStyle = 'rgba(255,255,255,.34)'; g.lineWidth = 2.6;
+      g.beginPath(); g.moveTo(-19, shY + 8); g.quadraticCurveTo(-20, hipY - 16, -16, hipY - 4); g.stroke();
     }
-    if (col.rack) { g.fillStyle = '#64748b'; rr(g, cx - 30, wheelY - 22, 60, 7, 3); g.fill(); }
+
+    /* ---- 手臂（上臂=袖，前臂=皮肤，手=手套） ---- */
+    for (var sd = -1; sd <= 1; sd += 2) {
+      var sx = shX + sd * 18;
+      var ex = shX + sd * (bw + 8);
+      var ey = shY + 11;
+      var gx = sd * (bw - 1);
+      taper(g, sx, shY + 3, ex, ey, 9, jersey);                 // 上臂
+      taper(g, ex, ey, gx, gripY, 7.2, sd < 0 ? skin : skinD);  // 前臂
+      g.fillStyle = ghost ? jersey : '#2c333f';                 // 手套
+      g.beginPath(); g.arc(gx, gripY, 5.2, 0, TAU); g.fill();
+    }
+
+    /* ---- 头部 ---- */
+    var hx2 = shX + steer * 3.5;
+    var hy = shY - 17 + (pose === 'wheelie' ? -3 : pose === 'stoppie' ? 3 : 0);
+    if (!ghost) {
+      g.fillStyle = skin;                                   // 后颈
+      rr(g, hx2 - 6.5, hy + 6, 13, 10, 4); g.fill();
+      g.fillStyle = 'rgba(0,0,0,.16)';
+      g.fillRect(hx2 - 6.5, hy + 12, 13, 4);
+    }
+    var hgr = g.createRadialGradient(hx2 - 5, hy - 5, 3, hx2, hy, 16);
+    hgr.addColorStop(0, ghost ? jersey : '#e7ecf3');
+    hgr.addColorStop(.45, ghost ? jersey : col.helmet);
+    hgr.addColorStop(1, ghost ? jersey : '#20242c');
+    g.fillStyle = hgr;
+    g.beginPath(); g.arc(hx2, hy, 14.5, 0, TAU); g.fill();
+    g.fillStyle = 'rgba(0,0,0,.30)';                        // 头盔下缘
+    g.beginPath(); g.ellipse(hx2, hy + 10, 13.5, 5, 0, 0, TAU); g.fill();
+    if (!ghost) {
+      g.strokeStyle = 'rgba(255,255,255,.4)'; g.lineWidth = 2;   // 通风口
+      g.beginPath(); g.moveTo(hx2 - 7, hy - 8); g.quadraticCurveTo(hx2 - 4, hy - 11, hx2 - 1, hy - 9); g.stroke();
+      g.beginPath(); g.moveTo(hx2 + 1, hy - 9); g.quadraticCurveTo(hx2 + 4, hy - 11, hx2 + 7, hy - 8); g.stroke();
+    }
+
+    leg(1, 0, false);
+
     g.restore();
-    return c;
   }
 
-  var cache = {};
-  function init() {
-    cache.coin = coin();
-    cache.cone = cone();
-    cache.rock = rock();
-    cache.barrier = barrier();
-    cache.puddle = puddle();
-    cache.tree0 = tree(0);
-    cache.tree1 = tree(1);
-    cache.cactus = cactus();
-    cache.cliff = cliff();
-    cache.turbine = turbine();
-    cache.ghost = ghostBike('#cdeeff');
-    cache.ghostMine = ghostBike('#ffd88a');
-    cache.bikes = {};
-    for (var k in BIKES) {
-      cache.bikes[k] = {
-        normal: bikeRear(BIKES[k], 'normal'),
-        wheelie: bikeRear(BIKES[k], 'wheelie'),
-        stoppie: bikeRear(BIKES[k], 'stoppie')
-      };
-    }
-  }
-
-  // 玩家车体：根据 pitch(-1..1) 在三个姿态间选取
-  function playerBike(type, pitch) {
-    var set = cache.bikes[type] || cache.bikes.commuter;
-    if (pitch > 0.28) return set.wheelie;
-    if (pitch < -0.28) return set.stoppie;
-    return set.normal;
-  }
-
+  /* ================= 导出 ================= */
   return {
     init: init,
-    c: cache,
-    playerBike: playerBike,
-    bikeColors: BIKES
+    art: art,
+    has: has,
+    c: c,
+    ready: ready,
+    refreshPat: refreshPat,
+    pat: pat,
+    drawRider: drawRider,
+    BIKES: BIKES,
+    coinSprite: coin,
+    puddleSprite: puddle
   };
 })();

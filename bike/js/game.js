@@ -90,6 +90,7 @@ var Game = (function () {
   var hooks = {}, last = 0, raf = 0, tickN = 0;
   var pendingRes = null;
   var splits = [], SPLIT_AT = [.25, .5, .75];
+  var pedalPh = 0, wheelAng = 0;   // 骑行动画：蹬踏相位 / 车轮转角
 
   function setKeys() {
     ACCEL = MAX / 4.6 * accelMul;
@@ -103,6 +104,7 @@ var Game = (function () {
     pos = 0; speed = 0; playerX = 0; vx = 0; bgOffset = 0; shake = 0;
     elapsed = 0; coinsGot = 0; trickScore = 0; wheelieT = 0; dist = 0;
     finished = false; splits = []; ghostRec = ''; gAcc = 0; windPhase = 0; windNow = 0;
+    pedalPh = 0; wheelAng = 0;
   }
 
   function init(canvas, h) {
@@ -175,6 +177,10 @@ var Game = (function () {
     var seg = Engine.findSegment(pos + Engine.PLAYERZ);
     var pct = speed / MAX;
     var dx = dt * 2 * pct;
+
+    // 骑行动画：蹬踏节奏随车速，车轮按滚动转动
+    pedalPh += dt * (1.2 + pct * 10.5);
+    wheelAng += dt * (1.5 + pct * 24);
 
     /* 转向：横向速度模型 —— 抓地力越低，轮胎越"跟不上"指令，收油后还在飘 */
     var steer = Controls.steer;
@@ -274,6 +280,8 @@ var Game = (function () {
     if (speed < 0) speed = 0;
     pos += speed * dt;
     shake = Math.max(0, shake - dt * 2);
+    pedalPh += dt * (0.6 + (speed / MAX) * 8);
+    wheelAng += dt * (0.8 + (speed / MAX) * 18);
   }
 
   function collect() {
@@ -291,7 +299,7 @@ var Game = (function () {
           hooks.onCoin && hooks.onCoin(coinsGot);
         } else if (sp.kind === 'puddle' && gap < 0.55) {
           speed *= 0.965;
-        } else if ((sp.kind === 'cone' || sp.kind === 'rock' || sp.kind === 'barrier') && gap < (sp.w / 640) * 0.24) {
+        } else if ((sp.kind === 'cone' || sp.kind === 'rock' || sp.kind === 'barrier') && gap < (sp.hit || 0.2)) {
           if (!sp._hit) {
             sp._hit = true;
             speed *= 0.42;
@@ -398,41 +406,44 @@ var Game = (function () {
     var gi = Math.floor(gz / Engine.SEG);
     if (gi < view.baseIndex + 1 || gi >= view.baseIndex + view.drawn) return;
     var seg = Engine.segAt(gi);
-    var img = ghost.mine ? Sprites.c.ghostMine : Sprites.c.ghost;
-    var box = Engine.spriteBox(seg, gp.x, 470, W, H, img.height / img.width);
+    var box = Engine.spriteBox(seg, gp.x, 470, W, H, 0.93);
     if (!box) return;
     var near = 1 - Math.min(1, (gi - view.baseIndex) / view.drawn);
+    var tint = ghost.mine ? 'rgba(255,214,130,.85)' : 'rgba(186,232,255,.85)';
     ctx.save();
-    ctx.globalAlpha = 0.35 + 0.55 * near;
-    ctx.drawImage(img, box.x, box.y, box.w, box.h);
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = 0.3 + 0.5 * near;
+    Sprites.drawRider(ctx, box.x + box.w / 2, box.y + box.h, box.w / 200, {
+      type: 'road', pose: 'normal', ghost: true, tint: tint,
+      pedal: elapsed * 7, wheel: elapsed * 26, steer: 0, blur: 0
+    });
+    ctx.restore();
     if (near > 0.05) {
       ctx.font = '600 12px "PingFang SC","Microsoft YaHei",sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = ghost.mine ? 'rgba(255,214,130,.9)' : 'rgba(180,232,255,.95)';
       ctx.fillText((ghost.mine ? '你最佳 ' : '') + ghost.nickname, box.x + box.w / 2, box.y - 6);
     }
-    ctx.restore();
   }
 
   function drawPlayer() {
-    var img = Sprites.playerBike(bikeType, Controls.pitch);
-    var base = Math.min(W, H) * 0.38;
-    var w = base, h = w * img.height / img.width;
-    var x = W / 2 - w / 2;
-    var y = H - h * 0.80;
-    var jx = (Math.random() - .5) * (speed / MAX) * 4;
-    var jy = (Math.random() - .5) * (speed / MAX) * 3;
-    var lean = Controls.steer * 0.22 + Math.max(-0.18, Math.min(0.18, vx * 0.16));
+    var pitch = Controls.pitch;
+    var pose = pitch > .28 ? 'wheelie' : (pitch < -.28 ? 'stoppie' : 'normal');
+    var s = Math.min(W, H) * 0.40 / 190;         // 角色原生高约 185 单位
+    var h = 190 * s;
+    var gy = H - Math.max(8, H * 0.018);
+    var lean = Controls.steer * 0.20 + Math.max(-0.16, Math.min(0.16, vx * 0.14));
+    var bob = Math.sin(pedalPh * 2) * 1.1 * (speed / MAX);
     ctx.save();
-    ctx.translate(W / 2, y + h);
+    if (shake > .2) {
+      ctx.translate((Math.random() - .5) * shake * 6, (Math.random() - .5) * shake * 5);
+    }
+    ctx.translate(W / 2, gy);
     ctx.rotate(lean);
-    ctx.translate(-W / 2, -(y + h));
-    ctx.globalAlpha = .28;
-    ctx.fillStyle = '#000';
-    ctx.beginPath(); ctx.ellipse(W / 2, y + h - 4, w * .34, h * .05, 0, 0, 7); ctx.fill();
-    ctx.globalAlpha = 1;
-    ctx.drawImage(img, x + jx, y + jy, w, h);
+    Sprites.drawRider(ctx, 0, 0, s, {
+      type: bikeType, pose: pose,
+      pedal: pedalPh, wheel: wheelAng,
+      steer: Controls.steer, blur: speed / MAX, bob: bob
+    });
     ctx.restore();
   }
 
