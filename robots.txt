@@ -7,3 +7,4 @@ Sitemap: https://dq7866.online/games/sitemap.xml
 Sitemap: https://dq7866.online/edu/sitemap.xml
 Sitemap: https://dq7866.online/symbolpass/sitemap.xml
 Sitemap: https://dq7866.online/toolbox/sitemap.xml
+Sitemap: https://dq7866.online/forest/sitemap.xml
