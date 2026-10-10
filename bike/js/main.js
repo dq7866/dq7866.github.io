@@ -45,7 +45,21 @@
     var li = Save.xpInLevel();
     $('m-xp').style.width = Math.min(100, li.cur / li.need * 100).toFixed(1) + '%';
     $('m-nick').textContent = d.nickname || '匿名骑手';
-    $('btn-sensor').textContent = '体感转向：' + (d.sensorOn ? '开' : '关');
+    var sOn = Controls.isSensorOn();
+    var lvBtn = $('btn-sens-lv');
+    if (lvBtn) {
+      var canSens = Controls.sensorAvail();
+      lvBtn.textContent = '灵敏度：' + SENS_NAME[Controls.sens];
+      lvBtn.style.opacity = sOn ? '1' : '.55';
+      lvBtn.title = canSens ? '体感灵敏度：切换 稳 / 标准 / 灵敏' : '这台设备没有重力感应接口';
+    }
+    var sBtn = $('btn-sensor');
+    if (sBtn) {
+      sBtn.textContent = '🎮 体感转向：' + (sOn ? '开' : '关');
+      sBtn.className = 'btn ghost' + (sOn ? ' on' : '');
+      sBtn.title = sOn ? '体感已开启，点一下关闭' : '点一下开启体感转向（左右摆把骑行）';
+    }
+    applySensorUI();
 
     // 赛季积分 + 每日任务徽标
     var ss = Progress.season();
@@ -152,15 +166,143 @@
   /* ---------------- 提示 ---------------- */
   var toastTimer = 0;
   function toast(txt, ms) {
-    var el = $('h-toast'); if (!el) return;
-    el.textContent = txt; el.classList.add('show');
+    var el = $('h-toast'), gt = $('g-toast');
+    var inRace = playing && el && !$('hud').classList.contains('hidden');
+    if (inRace) { el.textContent = txt; el.classList.add('show'); }
+    else if (gt) { gt.textContent = txt; gt.classList.add('show'); }
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { el.classList.remove('show'); }, ms || 1400);
+    toastTimer = setTimeout(function () {
+      if (el) el.classList.remove('show');
+      if (gt) gt.classList.remove('show');
+    }, ms || 1400);
   }
   function trick(txt, color) {
     var el = $('h-trick'); if (!el) return;
     el.textContent = txt; el.style.color = color || '#a78bfa';
     el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  }
+
+  /* ---------------- 体感（重力感应 / 陀螺仪） ---------------- */
+  var SENS_NAME = ['稳', '标准', '灵敏'];
+  var guideStart = false;      // 引导层是否由「开始骑行」触发
+  var guideBlocked = false;    // 环境不支持（微信内核 / 非 https / 无接口）
+  var diagTimer = null;
+
+  function applySensorUI() {
+    var on = Controls.isSensorOn();
+    var pad = $('pad');
+    if (pad) pad.classList.toggle('sensor', on);
+    var hs = $('h-sensor');
+    if (hs) hs.classList.toggle('hidden', !(on && playing));
+  }
+
+  function sensorReasonNote(why) {
+    if (why === 'denied') return '体感授权被拒绝：iPhone 到「设置 → Safari → 动作与方向访问」打开后重试';
+    if (why === 'noevent') return '浏览器拿不到重力感应数据——多半是在微信里打开的，请点右上角「···」→ 在浏览器打开';
+    if (why === 'unsupported') return '这个浏览器不支持重力感应，只能用屏幕按钮';
+    if (why === 'insecure') return '必须用 https 打开才能用重力感应';
+    return '体感没能开启，请用屏幕按钮';
+  }
+
+  function sensorOn(cb) {
+    toast('正在申请体感权限…', 3000);
+    Controls.enableSensor(function (ok, why) {
+      if (ok) {
+        Save.setSensor(true);
+        toast('✅ 体感已开启' + (why === 'motion' ? '（兼容模式，仅左右转向）' : '') + '：左右摆把转向', 2800);
+      } else {
+        Save.setSensor(false);
+        toast('❌ ' + sensorReasonNote(why), 4600);
+        if (why === 'noevent' || why === 'unsupported' || why === 'denied') {
+          setTimeout(function () { if (!playing) openDiag(); }, 1600);
+        }
+      }
+      applySensorUI(); renderMenu();
+      cb && cb(ok);
+    });
+  }
+
+  function toggleSens() {
+    if (!Controls.isSensorOn()) { toast('先开启体感转向，再来调灵敏度', 1800); return; }
+    var n = (Controls.sens + 1) % 3;
+    Controls.setSens(n); Save.setSens(n); renderMenu();
+    toast('体感灵敏度：' + SENS_NAME[n] + (n === 0 ? '（要摆得更多）' : n === 2 ? '（小幅即转）' : ''), 1600);
+  }
+
+  /* ---- 首次引导层 ---- */
+  function openGuide(fromStart) {
+    guideStart = !!fromStart;
+    var warn = $('sg-warn'), onBtn = $('sg-on'), w = '';
+    if (Controls.inWeChat()) {
+      w = '⚠️ 检测到你在<b>微信里打开</b>本页。微信内置浏览器（尤其 iPhone）会屏蔽重力感应，开启了也不会动。' +
+          '<br>请点右上角 <b>···</b> → <b>在浏览器打开</b>，再回来开体感。';
+    } else if (!Controls.isSecure()) {
+      w = '⚠️ 当前不是 https 打开，手机浏览器会屏蔽重力感应。';
+    } else if (!Controls.sensorAvail()) {
+      w = '⚠️ 这台设备的浏览器没有重力感应接口，只能先用屏幕按钮。';
+    }
+    guideBlocked = !!w;
+    if (w) { warn.innerHTML = w; warn.classList.remove('hidden'); onBtn.textContent = '知道了'; }
+    else { warn.classList.add('hidden'); onBtn.textContent = '开启体感转向'; }
+    $('sg-sub').textContent = guideStart ? '出发前花 10 秒设置一下，全程都爽：' : '手机横握，像握真车把一样：';
+    $('sensor-guide').classList.remove('hidden');
+  }
+  function closeGuide() { $('sensor-guide').classList.add('hidden'); }
+
+  /* ---- 诊断弹层 ---- */
+  function fmtN(v) { return (v == null || !isFinite(v)) ? '—' : (typeof v === 'number' ? v.toFixed(1) : String(v)); }
+  function openDiag() {
+    $('diag').classList.remove('hidden');
+    Controls.rawReset();
+    Controls.probe();
+    renderDiag();
+    if (diagTimer) clearInterval(diagTimer);
+    diagTimer = setInterval(renderDiag, 250);
+  }
+  function closeDiag() {
+    if (diagTimer) { clearInterval(diagTimer); diagTimer = null; }
+    $('diag').classList.add('hidden');
+  }
+  function diagVerdict(st) {
+    if (!st.env.secure) return '<b>结论：</b>不是 https 打开，浏览器会直接屏蔽重力感应。<span class="fix">→ 用 https:// 网址重新打开。</span>';
+    if (st.env.wechat) return '<b>结论：</b>当前在微信内置浏览器里。iOS 微信会静默屏蔽重力感应，授权了也收不到数据。<span class="fix">→ 点右上角「···」→「在浏览器打开」，再开体感。</span>';
+    if (!st.avail && !st.motionAvail) return '<b>结论：</b>这个浏览器没有重力感应接口。<span class="fix">→ 换系统自带浏览器（Safari / Chrome）打开。</span>';
+    if (st.perm === 'denied') return '<b>结论：</b>授权被拒绝了。<span class="fix">→ iPhone：设置 → Safari → 动作与方向访问，打开后回到本页点「重新申请权限」。</span>';
+    if (st.evts === 0 && st.perm === 'granted') return '<b>结论：</b>已授权但一条数据都没收到，属于浏览器层面的限制。<span class="fix">→ 换系统浏览器打开（千万别用微信内置浏览器）。</span>';
+    if (st.evts === 0) return '<b>结论：</b>还没探测到数据。<span class="fix">→ 点「重新申请权限」，然后左右摆动一下手机。</span>';
+    if (st.channel === 'motion') return '<b>结论：</b>走的是兼容通道（用重力加速度反算倾角），可以玩，但只支持左右转向，翘头翘尾请用屏幕按钮。';
+    return '<b>结论：</b>一切正常 ✓ 体感数据正常到达（' + st.evts + ' 条）。<span class="fix">→ 横握手机左右摆把即可转向；把舒服的姿势摆好，点「校准中位」定为零点。</span>';
+  }
+  function renderDiag() {
+    var st = Controls.status();
+    function row(k, v, cls) { return '<div class="diag-row"><i>' + k + '</i><b class="' + (cls || '') + '">' + v + '</b></div>'; }
+    function yn(b) { return b ? ['是', 'ok'] : ['否', 'no']; }
+    var r, h = '';
+    r = yn(st.env.secure);  h += row('HTTPS 安全上下文', r[0], r[1]);
+    r = yn(st.env.mobile);  h += row('移动设备', r[0], r[1]);
+    h += row('微信内置浏览器', st.env.wechat ? '是（会屏蔽）' : '否', st.env.wechat ? 'warn' : 'ok');
+    r = yn(st.avail);       h += row('DeviceOrientation 接口', r[0], r[1]);
+    r = yn(st.motionAvail); h += row('DeviceMotion 接口', r[0], r[1]);
+    h += row('需系统授权', st.needPerm ? '是' : '否', st.needPerm ? 'warn' : '');
+    var PM = { unknown: ['未申请', 'warn'], granted: ['已允许', 'ok'], denied: ['被拒绝', 'no'], unsupported: ['不支持', 'no'], error: ['调用出错', 'no'] };
+    var pm = PM[st.perm] || ['未知', 'warn'];
+    h += row('授权状态', pm[0], pm[1]);
+    var CH = { none: '无', orient: 'deviceorientation', absolute: 'deviceorientationabsolute', motion: 'devicemotion 兼容' };
+    h += row('数据通道', CH[st.channel] || st.channel, st.channel === 'none' ? 'no' : 'ok');
+    h += row('已收到事件', st.evts + ' 条', st.evts > 0 ? 'ok' : 'no');
+    h += row('屏幕方向角', st.screenAngle + '°', '');
+    h += row('灵敏度', SENS_NAME[st.sens], '');
+    $('diag-grid').innerHTML = h;
+
+    var l = st.last;
+    $('diag-live').textContent =
+      'alpha=' + fmtN(l.alpha) + '  beta=' + fmtN(l.beta) + '  gamma=' + fmtN(l.gamma) + '\n' +
+      '转向轴=' + fmtN(l.sx) + '°   俯仰轴=' + fmtN(l.sy) + '°\n' +
+      '相对中位：转向 ' + fmtN(st.raw.steer) + '°  俯仰 ' + fmtN(st.raw.pitch) + '°\n' +
+      '最近事件 ' + (st.age < 0 ? '无' : st.age.toFixed(0) + ' ms 前') +
+      '   控制量 steer=' + Controls.steer.toFixed(2) + '  pitch=' + Controls.pitch.toFixed(2);
+
+    $('diag-verdict').innerHTML = diagVerdict(st);
   }
 
   /* ---------------- HUD ---------------- */
@@ -194,6 +336,8 @@
     playing = true;
     hud.split.textContent = '';
     hud.track.textContent = Engine.TRACKS[selTrack].name;
+    applySensorUI();
+    if (Controls.isSensorOn()) toast('🎮 体感转向已开启：横握手机左右摆把', 2400);
 
     // 先挂上自己的最佳幽灵（离线也能跟自己比），再后台拉云端幽灵
     prepareGhost(Engine.TRACKS[selTrack].id);
@@ -495,7 +639,12 @@
   }
 
   function bindUI() {
-    $('btn-start').addEventListener('click', function () { Sfx.resume(); startRun(); });
+    $('btn-start').addEventListener('click', function () {
+      Sfx.resume();
+      // 手机端首次：先引导开体感。这一下点击同时也是系统授权的合法「用户手势」。
+      if (Controls.isMobile() && !Controls.isSensorOn() && !Save.get().sensorAsked) { openGuide(true); return; }
+      startRun();
+    });
     $('btn-again').addEventListener('click', startRun);
     $('btn-back').addEventListener('click', endToMenu);
     $('btn-res-lb').addEventListener('click', function () { lbTrack = selTrack; openLb(); });
@@ -560,14 +709,44 @@
 
     $('btn-sensor').addEventListener('click', function () {
       if (Controls.isSensorOn()) {
-        Controls.disableSensor(); Save.setSensor(false); toast('体感转向已关闭', 1400); renderMenu(); return;
+        Controls.disableSensor(); Save.setSensor(false);
+        applySensorUI(); renderMenu();
+        toast('体感转向已关闭，改用屏幕按钮', 1600);
+        return;
       }
-      Controls.enableSensor(function (ok) {
-        if (ok) { Save.setSensor(true); toast('体感已开启：左右摆动手机转向', 2200); }
-        else { Save.setSensor(false); toast('此设备/浏览器不支持体感，请用屏幕按钮', 2400); }
-        renderMenu();
+      sensorOn();
+    });
+
+    $('btn-sens-lv').addEventListener('click', toggleSens);
+    $('btn-diag').addEventListener('click', openDiag);
+    $('btn-diag-close').addEventListener('click', closeDiag);
+    $('btn-diag-cal').addEventListener('click', function () {
+      Controls.calibrate(); Controls.rawReset();
+      toast('已把当前姿势定为零点（中位）', 1800);
+    });
+    $('btn-diag-again').addEventListener('click', function () {
+      Controls.rawReset();
+      Controls.probe(function (ok, why) {
+        toast(ok ? '权限已就绪，摆一摆手机看读数' : '申请失败：' + sensorReasonNote(why), 2800);
+        renderDiag();
       });
     });
+
+    /* ---- 体感引导层 ---- */
+    $('sg-on').addEventListener('click', function () {
+      if (guideBlocked) { closeGuide(); toast('这台设备/浏览器用不了体感，先用屏幕按钮吧', 2800); return; }
+      sensorOn(function (ok) {
+        Save.setSensorAsked(true);
+        closeGuide();
+        if (ok && guideStart) startRun();
+      });
+    });
+    $('sg-skip').addEventListener('click', function () {
+      Save.setSensorAsked(true);
+      closeGuide();
+      if (guideStart) startRun();
+    });
+    $('sg-diag-link').addEventListener('click', function (e) { e.preventDefault(); closeGuide(); openDiag(); });
 
     /* 每日任务 */
     $('btn-daily').addEventListener('click', openDaily);
@@ -604,6 +783,7 @@
   function boot() {
     Sprites.init();
     Controls.init();
+    Controls.setSens(Save.get().sensorSens || 1);   // 恢复上次的灵敏度档位
     Game.init($('cv'), {
       onTick: updateHud,
       onFinish: showResult,
@@ -622,8 +802,20 @@
     Progress.ensureDaily();
     renderMenu();
     cloudBoot();
+    // 上次开着体感：提示重新授权（iOS 每次刷新页面都要重新授权）
     if (Save.get().sensorOn && !Controls.isSensorOn()) {
-      setTimeout(function () { toast('点「体感转向」可重新开启体感（需点一下授权）', 2600); }, 1200);
+      setTimeout(function () { toast('点菜单里的「🎮 体感转向」重新开启（系统要求点一下授权）', 3200); }, 1200);
+    }
+    // 手机端第一次来：等横屏后弹体感引导
+    if (Controls.isMobile() && !Save.get().sensorOn && !Save.get().sensorAsked) {
+      var fire = function () {
+        if (window.innerWidth > window.innerHeight) {
+          window.removeEventListener('resize', fire);
+          openGuide(false);
+        }
+      };
+      window.addEventListener('resize', fire);
+      setTimeout(fire, 900);
     }
   }
 

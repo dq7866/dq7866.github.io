@@ -19,6 +19,17 @@ html, body {
 #cv { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
 .hidden { display: none !important; }
 
+/* ---------- 全局提示 ---------- */
+#g-toast {
+  position: fixed; left: 50%; bottom: 18%; z-index: 200;
+  transform: translateX(-50%) translateY(8px);
+  padding: 10px 20px; border-radius: 999px; background: rgba(0,0,0,.84);
+  border: 1px solid var(--line); font-size: 14px; font-weight: 700;
+  max-width: 84vw; text-align: center; line-height: 1.5;
+  opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s;
+}
+#g-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
 /* ---------- 竖屏提示 ---------- */
 #rotate {
   position: fixed; inset: 0; z-index: 999; display: none;
@@ -31,7 +42,8 @@ html, body {
 @keyframes rot { 0%,100% { transform: rotate(0) } 50% { transform: rotate(-90deg) } }
 @media (orientation: portrait) {
   #rotate { display: flex; }
-  #menu, #hud, #pad, #result, #pause, #help, #countdown { display: none !important; }
+  #menu, #hud, #pad, #result, #pause, #help, #countdown,
+  #sensor-guide, #diag { display: none !important; }
 }
 
 /* ---------- 通用组件 ---------- */
@@ -317,5 +329,64 @@ html, body {
 @media (max-height: 480px) {
   .s-pts b { font-size: 30px; }
   .lb-list { max-height: 34vh; }
+}
+
+/* ---------- 体感：入口态 ---------- */
+#btn-sensor.on { background: rgba(52,211,153,.18); border-color: rgba(52,211,153,.5); color: #6ee7b7; }
+.btn.ghost.icon { padding: 12px 14px; }
+.hud-sensor { font-size: 12.5px; color: #6ee7b7; margin-top: 3px; }
+/* 体感开启时转向按钮淡化（仍可按，留作救急） */
+#pad.sensor .pbtn.st { opacity: .3; }
+
+/* ---------- 体感引导层 ---------- */
+.sg-panel { width: min(660px, 94vw); align-items: center; }
+.sg-panel h3 { text-align: center; font-size: 21px; }
+.sg-sub { font-size: 13.5px; color: var(--dim); }
+.sg-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin: 6px 0; }
+.sg-step {
+  display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center;
+  padding: 14px 8px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid var(--line);
+}
+.sg-ico { font-size: 30px; line-height: 1.1; }
+.sg-step b { font-size: 14px; }
+.sg-step span { font-size: 11.5px; color: var(--dim); line-height: 1.4; }
+.sg-warn {
+  width: 100%; font-size: 12.5px; line-height: 1.65; color: #fcd34d;
+  background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.35);
+  border-radius: 12px; padding: 10px 13px;
+}
+.sg-actions { display: flex; gap: 12px; margin-top: 6px; }
+.sg-fine { font-size: 11.5px; color: var(--dim); line-height: 1.65; text-align: center; max-width: 540px; }
+.sg-fine b { color: var(--ink); }
+.sg-fine a { color: var(--teal); }
+
+/* ---------- 体感诊断 ---------- */
+.diag-panel { width: min(680px, 94vw); align-items: stretch; }
+.diag-panel h3 { text-align: center; }
+.diag-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; }
+.diag-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px;
+  padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,.05);
+}
+.diag-row i { font-style: normal; color: var(--dim); flex: none; }
+.diag-row b { font-weight: 700; text-align: right; }
+.diag-row b.ok { color: #6ee7b7; }
+.diag-row b.no { color: #fca5a5; }
+.diag-row b.warn { color: #fcd34d; }
+.diag-live {
+  font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; color: #a5f3fc;
+  background: rgba(0,0,0,.35); border-radius: 10px; padding: 10px 12px; line-height: 1.6;
+  white-space: pre-wrap; word-break: break-all; min-height: 46px;
+}
+.diag-verdict { font-size: 13px; line-height: 1.75; color: #cbd5e1; }
+.diag-verdict b { color: var(--amber); }
+.diag-verdict .fix { display: block; margin-top: 4px; color: #7dd3fc; }
+
+@media (max-height: 460px) {
+  .sg-steps { gap: 8px; }
+  .sg-step { padding: 9px 6px; }
+  .sg-ico { font-size: 22px; }
+  .sg-panel h3 { font-size: 18px; }
+  .diag-live { font-size: 11.5px; }
 }
 

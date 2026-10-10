@@ -1,8 +1,9 @@
 /* 风驰骑行 —— Service Worker：首次加载后整站离线可用（游戏本体 + AI 贴图素材，约 0.7MB） */
-var CACHE = 'windrider-v4';
+var CACHE = 'windrider-v5';
 var ASSETS = [
   './',
   './index.html',
+  './sensor-test.html',
   './css/bike.css',
   './js/save.js',
   './js/progress.js',

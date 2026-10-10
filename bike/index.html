@@ -26,6 +26,9 @@
 
 <canvas id="cv"></canvas>
 
+<!-- 全局提示（菜单/弹层里也看得见） -->
+<div id="g-toast"></div>
+
 <!-- 竖屏提示 -->
 <div id="rotate">
   <div class="rot-ico">📱</div>
@@ -60,7 +63,9 @@
     </div>
   </div>
   <footer class="m-foot">
-    <button id="btn-sensor" class="btn ghost">体感转向：关</button>
+    <button id="btn-sensor" class="btn ghost">🎮 体感转向：关</button>
+    <button id="btn-sens-lv" class="btn ghost" title="体感灵敏度">灵敏度：标准</button>
+    <button id="btn-diag" class="btn ghost icon" title="体感打不开？点这里自查">🔍</button>
     <button id="btn-help" class="btn ghost">操作说明</button>
     <button id="btn-daily" class="btn ghost">📅 每日任务 <b id="m-daily" class="dot">0/0</b></button>
     <button id="btn-lb" class="btn ghost">🏆 排行榜</button>
@@ -79,6 +84,7 @@
     <div class="hud-coins">💰 <b id="h-coins">0</b></div>
     <div class="hud-trick-score" id="h-score">技巧 <b>0</b></div>
     <div class="hud-wind hidden" id="h-wind">风 <b>→</b></div>
+    <div class="hud-sensor hidden" id="h-sensor">🎮 体感转向中</div>
   </div>
   <div class="prog"><i id="h-prog"></i></div>
   <div class="hud-split" id="h-split"></div>
@@ -222,6 +228,7 @@
           <li><b>车头向下压</b> → 翘尾（急刹、快速降速）</li>
           <li><b>左手区</b> 按住 → 刹车减速</li>
           <li><b>右手区</b> 按住 → 加速</li>
+          <li>觉得太灵 / 太钝：菜单里点「灵敏度」切档</li>
         </ul>
       </div>
       <div class="help-col">
@@ -231,6 +238,12 @@
           <li><b>← →</b> 或 <b>A D</b> 转向</li>
           <li><b>Q</b> 翘头，<b>E</b> 翘尾</li>
           <li>屏幕按钮：左下 ◀ ▶ 转向，中间翘头翘尾，右下 刹车 / 加速</li>
+        </ul>
+        <h4>⚠️ 体感没反应？</h4>
+        <ul>
+          <li>微信内置浏览器屏蔽重力感应：点右上角 <b>···</b> → <b>在浏览器打开</b></li>
+          <li>iPhone 需在 <b>设置 → Safari → 动作与方向访问</b> 打开</li>
+          <li>必须 <b>https</b> 打开，本页是 https ✓</li>
         </ul>
       </div>
     </div>
@@ -257,6 +270,44 @@
       </ul>
     </div>
     <button class="btn primary" id="btn-help-close">知道了</button>
+  </div>
+</div>
+
+<!-- 体感引导（首次在手机上进入时弹出） -->
+<div id="sensor-guide" class="overlay hidden">
+  <div class="panel sg-panel">
+    <h3>🎮 用体感骑车，比点按钮顺得多</h3>
+    <p class="sg-sub" id="sg-sub">手机横握，像握真车把一样：</p>
+    <div class="sg-steps">
+      <div class="sg-step"><div class="sg-ico">📱</div><b>横握手机</b><span>两手拿住机身两侧</span></div>
+      <div class="sg-step"><div class="sg-ico">🔄</div><b>左右摆把</b><span>机身左右倾斜 = 转向</span></div>
+      <div class="sg-step"><div class="sg-ico">🔺</div><b>上抬 / 下压</b><span>抬头翘头、低头翘尾</span></div>
+    </div>
+    <div class="sg-warn hidden" id="sg-warn"></div>
+    <div class="sg-actions">
+      <button class="btn ghost" id="sg-skip">先用屏幕按钮</button>
+      <button class="btn primary" id="sg-on">开启体感转向</button>
+    </div>
+    <p class="sg-fine" id="sg-fine">开启时会弹出系统的“动作与方向”授权，点<b>允许</b>即可。
+      每次重新打开网页都要再授权一次——这是手机系统的限制，不是网页的毛病。
+      <a href="#" id="sg-diag-link">打不开？点这里自查</a>
+    </p>
+  </div>
+</div>
+
+<!-- 体感诊断 -->
+<div id="diag" class="overlay hidden">
+  <div class="panel wide diag-panel">
+    <h3>🔍 体感诊断</h3>
+    <p class="panel-tip">下面是这台设备的真实情况。打不开体感时，把结论一行告诉开发者即可定位。</p>
+    <div class="diag-grid" id="diag-grid"></div>
+    <div class="diag-live" id="diag-live">等待传感器数据…</div>
+    <div class="diag-verdict" id="diag-verdict"></div>
+    <div class="res-actions">
+      <button class="btn ghost" id="btn-diag-cal">校准中位</button>
+      <button class="btn ghost" id="btn-diag-again">重新申请权限</button>
+      <button class="btn primary" id="btn-diag-close">关闭</button>
+    </div>
   </div>
 </div>
 

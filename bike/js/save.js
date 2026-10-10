@@ -15,6 +15,8 @@ var Save = (function () {
     upgrades: {},         // { tire|aero|drive|susp|brake : 0..5 }
     totalDist: 0,         // 累计里程（米）
     sensorOn: false,
+    sensorAsked: false,   // 是否已经问过「要不要用体感」
+    sensorSens: 1,        // 体感灵敏度 0 稳 / 1 标准 / 2 灵敏
     soundOn: true,
     cloudOn: true,        // 云同步开关
     lastSync: 0,
@@ -147,6 +149,8 @@ var Save = (function () {
     setUp: function (part, lv) { data.upgrades[part] = Math.max(0, Math.min(5, lv | 0)); flush(); },
 
     setSensor: function (v) { data.sensorOn = !!v; flush(); },
+    setSensorAsked: function (v) { data.sensorAsked = (v === undefined ? true : !!v); flush(); },
+    setSens: function (n) { data.sensorSens = Math.max(0, Math.min(2, n | 0)); flush(); },
     setSound: function (v) { data.soundOn = !!v; flush(); },
     setCloud: function (v) { data.cloudOn = !!v; flush(); },
     setLastSync: function (t) { data.lastSync = t; flush(); },
