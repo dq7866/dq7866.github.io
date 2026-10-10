@@ -18,7 +18,9 @@ var Save = (function () {
     soundOn: true,
     cloudOn: true,        // 云同步开关
     lastSync: 0,
-    rides: 0
+    rides: 0,
+    missions: null,       // 每日任务 { date, items[{id,type,target,text,reward,prog,done,claimed}], bonus }
+    season: null          // 赛季进度 { id:'2026-10', points, rides, claimed[] }
   };
 
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
@@ -58,6 +60,9 @@ var Save = (function () {
     if (typeof d.coins !== 'number' || !isFinite(d.coins) || d.coins < 0) d.coins = 0;
     if (!d.playerId || typeof d.playerId !== 'string' || d.playerId.length < 8) d.playerId = uid();
     if (typeof d.nickname !== 'string') d.nickname = '';
+    if (!d.missions || typeof d.missions !== 'object') d.missions = null;
+    if (!d.season || typeof d.season !== 'object') d.season = null;
+    d._lvReward = 0;
     return d;
   }
 
@@ -92,10 +97,30 @@ var Save = (function () {
     addXp: function (n) {
       var before = levelOf(data.xp);
       data.xp = Math.max(0, data.xp + Math.round(n));
-      flush();
       var after = levelOf(data.xp);
+      var reward = 0;
+      if (after > before) {
+        // 升级奖励：每升一级送「等级 × 50」金币
+        for (var lv = before + 1; lv <= after; lv++) reward += lv * 50;
+        data.coins = Math.max(0, data.coins + reward);
+      }
+      data._lvReward = reward;
+      flush();
       return after > before ? after : 0; // 返回升级后的新等级，没升级返回 0
     },
+    lastLevelReward: function () { return data._lvReward || 0; },
+    titleOf: function (lv) {
+      lv = lv | 0;
+      if (lv >= 60) return '传奇骑手';
+      if (lv >= 50) return '骑行大师';
+      if (lv >= 40) return '骑行达人';
+      if (lv >= 30) return '风驰骑手';
+      if (lv >= 20) return '骑行好手';
+      if (lv >= 10) return '熟练骑手';
+      if (lv >= 5) return '上路骑手';
+      return '骑行新手';
+    },
+    title: function () { return this.titleOf(levelOf(data.xp)); },
     has: function (id) { return data.unlocked.indexOf(id) >= 0; },
     unlock: function (id) { if (this.has(id) === false) { data.unlocked.push(id); flush(); } },
     bestOf: function (tid) { return data.best[tid] == null ? null : data.best[tid]; },

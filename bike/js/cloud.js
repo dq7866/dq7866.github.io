@@ -99,6 +99,14 @@
     },
     /* 云存档 */
     save: function (player, data) { return call({ type: "bike:save", player: player, data: data }); },
-    load: function (player) { return call({ type: "bike:load", player: player }); }
+    load: function (player) { return call({ type: "bike:load", player: player }); },
+
+    /* 赛季：累加积分 / 赛季榜 */
+    seasonAdd: function (season, player, nick, points) {
+      return call({ type: "bike:season", season: season, player: player, nick: nick, points: points });
+    },
+    seasonLb: function (season, limit) {
+      return call({ type: "bike:seasonlb", season: season, limit: limit || 20 });
+    }
   };
 })();

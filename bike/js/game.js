@@ -317,11 +317,24 @@ var Game = (function () {
     var lvUp = Save.addXp(xpGain);
     if (lvUp) Sfx.levelUp();
     var rec = track ? Save.setBest(track.id, time, ghostRec) : false;
+
+    // 完赛统一进账：驱动每日任务进度 + 本赛季积分（须在 record 判定之后调用）
+    var prog = null;
+    try {
+      prog = Progress.onFinish({
+        trackId: track.id, time: time, coins: coinsGot, trick: trickScore,
+        earn: earn, dist: dist, record: rec
+      });
+    } catch (e) { prog = null; }
+
     pendingRes = {
       trackId: track.id, trackName: track.name + ' ' + track.icon,
       time: time, coins: coinsGot, trick: Math.round(trickScore),
       earn: earn, dist: dist, record: rec, best: track ? Save.bestOf(track.id) : null,
       bonus: bonus, ghost: ghostRec, xp: xpGain, levelUp: lvUp, level: Save.level(),
+      lvReward: Save.lastLevelReward(),
+      seasonPoints: prog ? prog.points : 0, seasonTotal: prog ? prog.points_total : 0,
+      missions: (function () { try { return Progress.daily(); } catch (e) { return null; } })(),
       bike: bikeType
     };
     setTimeout(function () { running = false; hooks.onFinish && hooks.onFinish(pendingRes); }, 900);

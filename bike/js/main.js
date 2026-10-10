@@ -41,10 +41,21 @@
     $('m-coins').textContent = d.coins;
     $('m-dist').textContent = (d.totalDist / 1000).toFixed(1);
     $('m-level').textContent = Save.level();
+    if ($('m-title')) $('m-title').textContent = Save.title();
     var li = Save.xpInLevel();
     $('m-xp').style.width = Math.min(100, li.cur / li.need * 100).toFixed(1) + '%';
     $('m-nick').textContent = d.nickname || '匿名骑手';
     $('btn-sensor').textContent = '体感转向：' + (d.sensorOn ? '开' : '关');
+
+    // 赛季积分 + 每日任务徽标
+    var ss = Progress.season();
+    if ($('m-season')) $('m-season').textContent = '赛季 ' + ss.points + ' 分';
+    var dl = Progress.daily();
+    var dBadge = $('m-daily');
+    if (dBadge) {
+      dBadge.textContent = dl.done + '/' + dl.total;
+      dBadge.className = 'dot' + (dl.ready ? ' ready' : (dl.done >= dl.total ? ' done' : ''));
+    }
 
     var cloud = $('m-cloud');
     if (cloudState === 'ok') { cloud.textContent = '已同步'; cloud.parentNode.className = 'chip cloud ok'; }
@@ -265,6 +276,20 @@
       cl.textContent = '☁ 离线模式：成绩只存在本机（开启云同步即可上榜）';
     }
 
+    var se = $('res-season');
+    if (se) {
+      var t = r.seasonPoints > 0 ? '🏁 本赛季 +' + r.seasonPoints + ' 分（共 ' + r.seasonTotal + ' 分）' : '';
+      if (r.levelUp) t += (t ? '　' : '') + '⭐ 升到 ' + r.level + ' 级，奖励 ' + (r.lvReward || 0) + ' 金币';
+      se.textContent = t;
+    }
+    var dly = $('res-daily');
+    if (dly) {
+      var ms = r.missions;
+      if (ms && ms.allDone) dly.textContent = '📅 今日任务已全部完成，回菜单领奖励';
+      else if (ms) dly.textContent = '📅 今日任务 ' + ms.done + '/' + ms.total + (ms.ready ? '（有奖励可领）' : '');
+      else dly.textContent = '';
+    }
+
     var un = $('res-unlock'), msg = '';
     if (r.levelUp) msg += '⭐ 升级了！现在是 ' + r.level + ' 级　';
     for (var i = 0; i < BIKES.length; i++) {
@@ -275,6 +300,7 @@
     un.textContent = msg;
     $('result').classList.remove('hidden');
     syncUp();
+    syncSeason();
   }
 
   /* ---------------- 排行榜 ---------------- */
@@ -338,6 +364,99 @@
     });
   }
 
+  /* ---------------- 每日任务 ---------------- */
+  function openDaily() {
+    renderDaily();
+    $('daily').classList.remove('hidden');
+  }
+  function renderDaily() {
+    var s = Progress.daily();
+    $('d-date').textContent = s.date;
+    var h = '';
+    for (var i = 0; i < s.items.length; i++) {
+      var it = s.items[i];
+      var pct = Math.min(100, it.prog / it.target * 100);
+      var right;
+      if (it.claimed) right = '<span class="d-btn done">已领取</span>';
+      else if (it.done) right = '<button class="d-btn claim" data-i="' + it.id + '">领 +' + it.reward + ' 💰</button>';
+      else right = '<span class="d-rw">+' + it.reward + ' 💰</span>';
+      var pv = it.type === 'track' ? (it.prog >= it.target ? '已完成' : '未完成')
+        : Math.min(Math.round(it.prog), it.target) + ' / ' + it.target;
+      h += '<div class="d-item' + (it.done ? ' done' : '') + '">' +
+        '<div class="d-mid">' +
+        '<div class="d-name">' + esc(it.text) + (it.done ? ' ✔' : '') + '</div>' +
+        '<div class="d-bar"><i style="width:' + pct.toFixed(0) + '%"></i></div>' +
+        '<div class="d-prog">' + pv + '</div>' +
+        '</div>' + right + '</div>';
+    }
+    $('d-list').innerHTML = h;
+    var ft = '已完成 ' + s.done + '/' + s.total;
+    if (s.bonus) ft += '　✅ 全部完成，额外 +150 金币已到手';
+    else if (s.claimed >= s.total) ft += '　🎉 三项都领完了！';
+    else if (s.allDone) ft += '　🎁 全部完成，快去领取（含额外奖励）';
+    $('d-foot').textContent = ft;
+  }
+
+  /* ---------------- 赛季 ---------------- */
+  function openSeason() {
+    var ss = Progress.season();
+    $('s-name').textContent = Progress.seasonName();
+    $('s-points').textContent = ss.points;
+    $('s-rides').textContent = '本赛季已骑行 ' + ss.rides + ' 趟';
+    var th = '';
+    for (var i = 0; i < ss.tiers.length; i++) {
+      var t = ss.tiers[i];
+      var btn;
+      if (t.claimed) btn = '<span class="d-btn done">已领取</span>';
+      else if (t.got) btn = '<button class="d-btn claim" data-p="' + t.p + '">领 ' + t.coins + ' 💰</button>';
+      else btn = '<span class="d-rw">还差 ' + (t.p - ss.points) + ' 分</span>';
+      th += '<div class="s-tier' + (t.got ? ' got' : '') + '">' +
+        '<span class="s-ico">' + t.icon + '</span>' +
+        '<div class="d-mid"><div class="d-name">' + t.name + '档 · ' + t.p + ' 分</div>' +
+        '<div class="d-prog">奖励 ' + t.coins + ' 金币</div></div>' + btn + '</div>';
+    }
+    $('s-tiers').innerHTML = th;
+    $('season').classList.remove('hidden');
+    loadSeasonLb();
+  }
+  function loadSeasonLb() {
+    var list = $('s-list'), me = $('s-me');
+    me.textContent = '';
+    if (!window.BikeCloud) { list.innerHTML = '<div class="lb-empty">云端组件未加载</div>'; return; }
+    if (cloudState !== 'ok') {
+      list.innerHTML = '<div class="lb-empty">云端没连上（离线环境）<br>你的赛季积分已存在本机：' + Progress.season().points + ' 分</div>';
+      return;
+    }
+    list.innerHTML = '<div class="lb-empty">加载中…</div>';
+    BikeCloud.seasonLb(Progress.season().id, 20).then(function (r) {
+      if (!r || !r.ok) { list.innerHTML = '<div class="lb-empty">赛季榜暂时取不到</div>'; return; }
+      var rows = r.rows || [];
+      if (!rows.length) { list.innerHTML = '<div class="lb-empty">本赛季还没有人上榜<br><b>你跑第一趟就是榜首</b></div>'; return; }
+      var h = '', mine = 0, myPts = Progress.season().points;
+      for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        var isMe = row.player_id === Save.playerId();
+        if (isMe) mine = row.rank;
+        var gcls = row.rank === 1 ? 'g1' : row.rank === 2 ? 'g2' : row.rank === 3 ? 'g3' : '';
+        h += '<div class="lb-row' + (isMe ? ' me' : '') + '">' +
+          '<span class="rk ' + gcls + '">' + row.rank + '</span>' +
+          '<span>' + esc(row.nickname) + (isMe ? ' <small>（你）</small>' : '') + '</span>' +
+          '<span class="tm">' + (row.points || 0) + ' 分</span></div>';
+      }
+      list.innerHTML = h;
+      me.textContent = mine > 0 ? '你当前第 ' + mine + ' 名'
+        : (myPts ? '你已有 ' + myPts + ' 分，跑一趟即可上榜' : '还没开始本赛季');
+    });
+  }
+  function syncSeason() {
+    if (cloudState !== 'ok' || !window.BikeCloud || !Save.get().cloudOn) return;
+    var delta = Progress.syncDelta();
+    if (delta <= 0) return;
+    BikeCloud.seasonAdd(Progress.season().id, Save.playerId(), Save.nickname() || '匿名骑手', delta).then(function (r) {
+      if (r && r.ok) Progress.markSynced();
+    });
+  }
+
   /* ---------------- 云同步 ---------------- */
   function setCloud(txt, state) {
     cloudState = state;
@@ -354,6 +473,7 @@
       setCloud('已同步', 'ok');
       renderMenu();
       syncUp();
+      syncSeason();
     });
   }
   var syncTimer = 0;
@@ -449,6 +569,32 @@
       });
     });
 
+    /* 每日任务 */
+    $('btn-daily').addEventListener('click', openDaily);
+    $('btn-daily-close').addEventListener('click', function () { $('daily').classList.add('hidden'); });
+    $('d-list').addEventListener('click', function (e) {
+      var b = e.target.closest('.d-btn.claim'); if (!b) return;
+      var res = Progress.claim(b.getAttribute('data-i'));
+      if (res) {
+        Sfx.trick();
+        toast('🎁 任务奖励 +' + (res.got + res.bonus) + ' 金币' + (res.bonus ? '（含全完成奖励）' : ''), 2200);
+        renderDaily(); renderMenu(); syncUp();
+      }
+    });
+
+    /* 赛季 */
+    $('btn-season').addEventListener('click', openSeason);
+    $('btn-season-close').addEventListener('click', function () { $('season').classList.add('hidden'); });
+    $('s-tiers').addEventListener('click', function (e) {
+      var b = e.target.closest('.d-btn.claim'); if (!b) return;
+      var got = Progress.claimTier(parseInt(b.getAttribute('data-p'), 10));
+      if (got) {
+        Sfx.levelUp();
+        toast('🏅 赛季档位奖励 +' + got + ' 金币', 2200);
+        openSeason(); renderMenu(); syncUp();
+      }
+    });
+
     document.addEventListener('touchmove', function (e) {
       if (e.target.closest && e.target.closest('#pad')) e.preventDefault();
     }, { passive: false });
@@ -473,6 +619,7 @@
     bindMenu();
     bindUI();
     selBike = Save.has('commuter') ? 'commuter' : 'commuter';
+    Progress.ensureDaily();
     renderMenu();
     cloudBoot();
     if (Save.get().sensorOn && !Controls.isSensorOn()) {
