@@ -9,3 +9,4 @@ Sitemap: https://dq7866.online/symbolpass/sitemap.xml
 Sitemap: https://dq7866.online/toolbox/sitemap.xml
 Sitemap: https://dq7866.online/forest/sitemap.xml
 Sitemap: https://dq7866.online/bike/sitemap.xml
+Sitemap: https://dq7866.online/guardian/sitemap.xml

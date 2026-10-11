@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#141018">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="冰火守门人">
+<meta name="format-detection" content="telephone=no">
+<title>冰火守门人 Element Gatekeeper · 3D 双生守门塔防</title>
+<meta name="description" content="冰火守门人：伪 3D 透视贴图的塔防式守门游戏。火娃融冰魔、水娃蚀岩魔，双生角色随时切换、元素相克；击杀掉落的宝石缀成贪心尾巴，每波只有一扇门亮灯，走错门宝石全吐。5 张场景、4 档难度、等级勋章、每日任务与月度赛季、云端排行榜，单人离线可玩，也可建房与好友实时对战互坑。打开即玩。">
+<meta name="keywords" content="冰火守门人,塔防游戏,网页游戏,免费游戏,3D游戏,双人游戏,联机对战,森林冰火人,只有一道门,元素相克,每日任务,赛季排行榜">
+<link rel="canonical" href="https://dq7866.online/guardian/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="冰火守门人 · 3D 双生守门塔防">
+<meta property="og:description" content="双生守门人 + 元素相克 + 只有一扇门的抉择 + 贪心宝石尾巴，5 场景 4 难度，离线可玩、联机对战。">
+<meta property="og:url" content="https://dq7866.online/guardian/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 6 C40 20 50 26 50 38 A18 18 0 1 1 14 38 C14 26 24 20 32 6 Z' fill='%23f0511a'/%3E%3Ccircle cx='26' cy='40' r='4' fill='%23fff'/%3E%3Ccircle cx='38' cy='40' r='4' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/guardian.css">
+</head>
+<body>
+
+<canvas id="cv" width="960" height="640"></canvas>
+<div id="toast"></div>
+
+<!-- ============ 主菜单 ============ -->
+<section id="menu" class="screen">
+  <header class="mhead">
+    <div class="brand">
+      <h1><span class="f">冰火</span><span class="w">守门人</span></h1>
+      <em>Element Gatekeeper</em>
+    </div>
+    <div class="wallet">
+      <span class="lv" title="守门人等级给移速 / 射速 / 生命加成，等级越高解锁更多场景"><b id="m-level">1</b> 级 <em id="m-title">见习守门人</em><i class="xpbar"><u id="m-xp"></u></i></span>
+      <span title="金币：完成任务、赛季奖励获得">💰 <b id="m-coins">0</b></span>
+      <button id="btn-nick" class="chip" title="点击修改昵称">👤 <b id="m-nick">匿名守门人</b></button>
+      <button id="btn-cloud" class="chip cloud" title="云端存档状态，点击立即同步">☁ <b id="m-cloud">连接中…</b></button>
+    </div>
+  </header>
+
+  <div class="mbody">
+    <div class="mcol">
+      <h2>选择战场 <small id="m-lockhint"></small></h2>
+      <div id="m-scenes" class="cards"></div>
+      <div class="scene-desc" id="m-sdesc"></div>
+    </div>
+    <div class="mcol narrow">
+      <h2>难度</h2>
+      <div id="m-diffs" class="cards vertical"></div>
+      <div class="best" id="m-best">本模式最佳：—</div>
+      <button class="btn-main" id="btn-start">开始守门</button>
+      <button class="btn-ghost duel" id="btn-duel">🤝 联机对战</button>
+    </div>
+  </div>
+
+  <footer class="mfoot">
+    <button id="btn-lb">🏆 排行榜</button>
+    <button id="btn-season">🏁 赛季</button>
+    <button id="btn-medal">🎖 勋章</button>
+    <button id="btn-daily">📅 每日任务 <b id="m-daily" class="dot">0/3</b></button>
+    <button id="btn-help">❓ 操作</button>
+    <button id="btn-sound">🔊 音效</button>
+  </footer>
+</section>
+
+<!-- ============ 结算 ============ -->
+<section id="over" class="screen hidden">
+  <h2 id="overTitle">城门失守</h2>
+  <div class="gradebox"><span class="grade" id="overGrade">C</span><span class="gradelab">评级</span></div>
+  <div class="stat" id="overStat"></div>
+  <div class="rewards" id="overRewards"></div>
+  <div class="medals" id="overMedals"></div>
+  <p class="tip" id="overTip"></p>
+  <div class="btnrow">
+    <button class="btn-main" id="btn-again">再来一局</button>
+    <button class="btn-ghost" id="btn-menu">返回菜单</button>
+  </div>
+</section>
+
+<!-- ============ 暂停 ============ -->
+<section id="pauseLayer" class="screen hidden compact">
+  <h2>已暂停</h2>
+  <p>按 <b>P</b> 或点击下方按钮继续</p>
+  <button class="btn-main" id="btn-resume">继续守门</button>
+  <button class="btn-ghost" id="btn-quit">放弃本局</button>
+</section>
+
+<!-- ============ 对战大厅 ============ -->
+<section id="lobby" class="screen hidden">
+  <h2>联机对战</h2>
+  <p class="lead">双方各守自己的城门（同一战场与难度），用<b>互坑手段</b>互相干扰：派精英怪、冰封、空投炸弹。<br>
+     谁先被魔物冲垮城门谁就输。每 15 秒获得 1 点互坑点，最多攒 3 点。</p>
+  <div class="lobby-grid">
+    <div class="lobby-card">
+      <h3>创建房间</h3>
+      <p>生成 4 位房间码发给好友</p>
+      <button class="btn-main" id="btn-host">创建房间</button>
+    </div>
+    <div class="lobby-card">
+      <h3>加入房间</h3>
+      <input id="joinCode" maxlength="4" placeholder="房间码" autocomplete="off" spellcheck="false">
+      <button class="btn-main" id="btn-join">加入</button>
+    </div>
+  </div>
+  <div class="lobby-status" id="lobbyStatus"></div>
+  <div class="btnrow"><button class="btn-ghost" id="btn-lobby-close">返回</button></div>
+</section>
+
+<!-- ============ 对战 HUD（局内） ============ -->
+<div id="duelBar" class="hidden">
+  <span id="duelRoom">房间 ----</span>
+  <span id="duelPts">互坑点 1</span>
+  <div class="impairs" id="duelImpairs"></div>
+</div>
+
+<!-- ============ 通用面板 ============ -->
+<div id="panel" class="modal hidden">
+  <div class="sheet">
+    <div class="sh-head"><h3 id="panelTitle">面板</h3><button id="panelClose" aria-label="关闭">✕</button></div>
+    <div id="panelBody" class="sh-body"></div>
+  </div>
+</div>
+
+<script src="/gate.js"></script>
+<script src="js/save.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/progress.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/engine3d.js"></script>
+<script src="js/game.js"></script>
+<script src="js/cloud.js"></script>
+<script src="js/net.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
