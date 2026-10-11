@@ -65,8 +65,9 @@
   /* ---------------- 站点身份 ----------------
      工具箱与风驰骑行是两套完全独立的登录：各自注册、各自登录、各自额度。
      门卫脚本是同一份，靠 URL 判断自己站在哪一边（/bike/… → 骑行，其余 → 工具箱）。 */
-  var SCOPE = /^\/bike(\/|$)/.test(location.pathname) ? "bike" : "toolbox";
-  var SITE_NAME = SCOPE === "bike" ? "风驰骑行" : "在线工具箱";
+  var SCOPE = /^\/bike(\/|$)/.test(location.pathname) ? "bike"
+            : (/^\/guardian(\/|$)/.test(location.pathname) ? "guardian" : "toolbox");
+  var SITE_NAME = SCOPE === "bike" ? "风驰骑行" : (SCOPE === "guardian" ? "冰火守门人" : "在线工具箱");
 
   /* 一级域里的两个键：会话镜像 / 上次账号（都按站点分开，互不覆盖） */
   var LS_SESSION = "zhz_session_" + SCOPE + "_v1";
