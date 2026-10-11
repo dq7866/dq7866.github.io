@@ -169,6 +169,19 @@ var Progress = (function () {
   function syncDelta() { var se = ensureSeason(); return Math.max(0, se.points - (se.synced || 0)); }
   function markSynced() { var se = ensureSeason(); se.synced = se.points; Save.save(); }
 
+  /* ================= 每日挑战 ================= */
+  var DAILY_REWARD = 200;
+  function dailyChallengeDone() { return Save.get().dailyCh === dayKey(); }
+  function claimDailyChallenge() {
+    var s = Save.get(), k = dayKey();
+    if (s.dailyCh === k) return 0;
+    s.dailyCh = k;
+    s.dailyChDone = (s.dailyChDone || 0) + 1;
+    Save.addCoins(DAILY_REWARD);
+    Save.save();
+    return DAILY_REWARD;
+  }
+
   /* ================= 统一结算入口 ================= */
   /* r = { sceneId, diffId, score, wave, gem, tail, kills, elites, bosses, flawless, durationMs, duel } */
   function onFinish(r) {
@@ -219,6 +232,8 @@ var Progress = (function () {
     daily: dailySummary, claim: claim, ensureDaily: ensureDaily,
     season: seasonSummary, seasonName: seasonName, claimTier: claimTier,
     syncDelta: syncDelta, markSynced: markSynced,
+    DAILY_REWARD: DAILY_REWARD, dailyChallengeDone: dailyChallengeDone, claimDailyChallenge: claimDailyChallenge,
+    dayKey: dayKey,
     onFinish: onFinish, pointsFor: pointsFor, TIERS: TIERS
   };
 })();

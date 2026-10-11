@@ -14,7 +14,8 @@ var Save = (function () {
       v: 1, nickname: "", level: 1, xp: 0, coins: 0,
       medals: [], best: {}, runs: 0, bosses: 0, gems: 0, kills: 0,
       elites: 0, maxWave: 0, flawless: 0, duels: 0, scenes: {},
-      missions: null, season: null, sound: true, tutorial: false, synced: 0
+      missions: null, season: null, sound: true, tutorial: false, synced: 0,
+      dailyCh: "", dailyChDone: 0
     };
   }
   function readJSON(k, def) {
@@ -59,7 +60,7 @@ var Save = (function () {
   function bestOf(modeKey) { return get().best[modeKey] || null; }
   function setBest(modeKey, rec) {
     var s = get(), cur = s.best[modeKey];
-    if (!cur || rec.score > cur.score) { s.best[modeKey] = rec; s.synced = s.synced; save(); return true; }
+    if (!cur || rec.score > cur.score) { s.best[modeKey] = rec; save(); return true; }
     return false;
   }
 

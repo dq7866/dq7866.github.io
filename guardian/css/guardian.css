@@ -16,6 +16,7 @@ body {
   position: absolute; inset: 0; margin: auto;
   width: min(100vw, calc(100vh * 1.5), 1100px); height: auto; aspect-ratio: 3 / 2;
   border-radius: 14px; display: block; box-shadow: 0 20px 70px rgba(0, 0, 0, .6);
+  touch-action: none;   /* 手机上拖动 = 虚拟摇杆，别让浏览器抢去滚动/缩放 */
 }
 .hidden { display: none !important; }
 
@@ -207,4 +208,56 @@ body {
   .mcol.narrow { flex: none; }
   .cards { grid-template-columns: repeat(2, 1fr); }
   #cv { width: 100vw; border-radius: 0; }
+  #touchBar { bottom: 78px; right: 10px; }
+  #touchBar button { width: 56px; height: 56px; font-size: 21px; }
+  #touchBar #tb-pause { width: 44px; height: 44px; font-size: 17px; }
+}
+
+/* ---------------- 移动端触摸控件 ---------------- */
+#touchBar {
+  position: absolute; right: 14px; bottom: 96px; z-index: 8;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+#touchBar button {
+  cursor: pointer; border: 1px solid rgba(255, 255, 255, .28); font-family: inherit;
+  background: rgba(16, 12, 20, .74); color: #ffd9a8; border-radius: 50%;
+  width: 62px; height: 62px; font-size: 24px; line-height: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .5); -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#touchBar button:active { transform: scale(.94); background: rgba(255, 122, 60, .32); }
+#touchBar button i { font-size: 10px; font-style: normal; letter-spacing: 1px; margin-top: 1px; }
+#touchBar #tb-pause { width: 50px; height: 50px; font-size: 19px; }
+#touchBar #tb-pause i { display: none; }
+
+/* ---------------- 新手引导 ---------------- */
+.guide-body { font-size: 13.5px; line-height: 1.9; color: #cbbfae; text-align: left; min-height: 96px; }
+.guide-body .gicon { font-size: 34px; display: block; text-align: center; margin-bottom: 8px; }
+.guide-body b { color: #ffd9a8; }
+.guide-dots { display: flex; gap: 7px; justify-content: center; }
+.guide-dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, .22); }
+.guide-dots i.on { background: #ff8a4c; }
+
+/* ---------------- 结算补充信息 ---------------- */
+.extrastat { font-size: 12.5px; color: #9d9280; line-height: 1.8; }
+
+/* ---------------- 每日挑战按钮 ---------------- */
+.btn-ghost.daily { border-color: rgba(255, 210, 74, .45); color: #ffe4a0; }
+.btn-ghost.daily b { color: #ffd24a; font-size: 11.5px; font-weight: 600; margin-left: 4px; }
+
+/* ---------------- 排行榜：高亮自己 ---------------- */
+.rank-row.me { background: rgba(255, 122, 60, .15); border-radius: 8px; }
+.rank-row.me .nm { color: #ffd9a8; font-weight: 700; }
+.rank-row .tagme { font-size: 10.5px; color: #ff9a4c; margin-left: 6px; }
+
+/* ---------------- 手机竖屏提示 ---------------- */
+#rotateHint {
+  display: none;
+}
+@media (max-width: 900px) and (orientation: portrait) {
+  #rotateHint {
+    display: block; position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+    font-size: 11px; color: #8f8574; z-index: 9; white-space: nowrap;
+  }
 }

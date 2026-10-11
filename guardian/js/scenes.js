@@ -95,9 +95,45 @@ var Config = (function () {
     return out;
   }
 
+  /* ================= 每日挑战 =================
+     按日期种子固定「场景 + 难度 + 挑战修饰符」：全世界的玩家同一天面对同一套条件，
+     成绩进独立日榜（daily:YYYY-MM-DD），首次完成还有金币奖励。
+     同一天多次挑战只记最高分，榜与奖励都不重复给。 */
+  var DAILY_MODS = [
+    { id: "lava",      icon: "🌋", name: "岩浆喷发", desc: "地面会周期性喷出岩浆，踩中掉血" },
+    { id: "sandstorm", icon: "🌪", name: "昏黄沙暴", desc: "沙暴间歇遮蔽视野，考验节奏感" },
+    { id: "bossrush",  icon: "👹", name: "巨像频出", desc: "巨像出现得更频繁，压力更大" }
+  ];
+  function hashSeed(str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = (h * 16777619) >>> 0; }
+    return h >>> 0;
+  }
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+  function todayKey(d) {
+    d = d || new Date();
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+  }
+  function dailyChallenge(dateKey) {
+    var k = dateKey || todayKey();
+    var h = hashSeed("gk-daily-" + k);
+    var sc = SCENES[h % SCENES.length];
+    var pool = ["normal", "hard", "hell"];
+    var df = diffById(pool[Math.floor(h / 7) % pool.length]);
+    var mod = DAILY_MODS[Math.floor(h / 53) % DAILY_MODS.length];
+    return {
+      key: "daily:" + k, date: k,
+      scene: sc.id, diff: df.id, mod: mod.id,
+      sceneName: sc.name, diffName: df.name, sceneIcon: sc.icon, diffIcon: df.icon,
+      modName: mod.name, modIcon: mod.icon, modDesc: mod.desc,
+      label: "每日挑战 · " + sc.name + " · " + df.name
+    };
+  }
+
   return {
     SCENES: SCENES, DIFFS: DIFFS, LEVELS: LEVELS,
     sceneById: sceneById, diffById: diffById, levelInfo: levelInfo, xpFor: xpFor,
-    modeKey: modeKey, modeLabel: modeLabel, allModes: allModes
+    modeKey: modeKey, modeLabel: modeLabel, allModes: allModes,
+    DAILY_MODS: DAILY_MODS, dailyChallenge: dailyChallenge, todayKey: todayKey
   };
 })();

@@ -68,7 +68,9 @@ var Net = (function () {
             if (id > lastEventId) lastEventId = id;
             if (cbEvent) cbEvent(ev.kind, ev.payload || {});
           });
-          status({ type: "sync", peerOnline: true, hasPeer: room.hasPeer });
+          /* 对手在线判定：以对方上报状态的时间戳为准（超过 9 秒没更新视为掉线） */
+          var peerOnline = !!(r.peerState && r.peerState.ts && (Date.now() - r.peerState.ts) < 9000);
+          status({ type: "sync", peerOnline: peerOnline, hasPeer: room.hasPeer });
         } else if (r && r.reason === "no_room") {
           status({ type: "error", message: "房间已解散" });
           stop();

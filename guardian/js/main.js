@@ -8,9 +8,13 @@
   "use strict";
   var cv = document.getElementById("cv");
   function $(id) { return document.getElementById(id); }
-  var SCREENS = ["menu", "over", "pauseLayer", "lobby"];
+  var SCREENS = ["menu", "over", "pauseLayer", "lobby", "guide"];
   var sel = { scene: "frost", diff: "normal" };
   var lastTs = 0, menuT = 0, cloudOk = false, syncing = false, inDuel = false;
+  var dailyRun = null;      // 当前进行的每日挑战配置（非挑战局为 null）
+  var lastReport = "";      // 最近一局的战报文本（复制用）
+  /* 触摸设备（手机 / 平板）：显示局内触摸控件（切换守门人 / 暂停） */
+  var touchUI = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -39,6 +43,12 @@
     else { menuT += dt; Game.drawMenuBg(menuT); }
   }
 
+  /* 触摸设备才显示局内触摸控件（切换守门人 / 暂停） */
+  function showTouch(on) {
+    if (!touchUI) return;
+    $("touchBar").classList.toggle("hidden", !on);
+  }
+
   /* ================= 菜单 ================= */
   function renderMenu() {
     var s = Save.get();
@@ -51,6 +61,8 @@
     $("m-xp").style.width = Math.max(2, Math.min(100, s.xp / need * 100)) + "%";
     var d = Progress.daily();
     $("m-daily").textContent = d.claimed + "/" + d.total;
+    var ch = Config.dailyChallenge(), chDone = Progress.dailyChallengeDone();
+    $("m-dailych").textContent = chDone ? "✓ 今日已完成" : ch.modIcon + " " + ch.modName;
     renderScenes();
     renderDiffs();
     renderBest();
@@ -111,17 +123,42 @@
   /* ================= 开始 / 结算 ================= */
   function startSolo() {
     inDuel = false;
+    dailyRun = null;
     hideAll();
     $("duelBar").classList.add("hidden");
+    showTouch(true);
     Game.start(sel.scene, sel.diff, { duel: false });
+  }
+  /* 每日挑战：按日期种子固定场景 / 难度 / 机制，绕开解锁限制，成绩进独立日榜。
+     注意不要改 sel —— 否则玩完挑战回到菜单，玩家自己选的战场会被偷偷换掉。 */
+  function startDaily() {
+    var ch = Config.dailyChallenge();
+    inDuel = false;
+    dailyRun = ch;
+    hideAll();
+    $("duelBar").classList.add("hidden");
+    showTouch(true);
+    Game.start(ch.scene, ch.diff, { daily: true, perk: ch.mod, modeKey: ch.key });
+    showToast("每日挑战开始：" + ch.modIcon + " " + ch.modName);
   }
   function onOver(d) {
     var S = d.S;
     $("overTitle").textContent = d.reason || "城门失守";
     $("overGrade").textContent = Game.gradeOf(S);
     $("overStat").textContent = "本局 " + S.score + " 分　撑到第 " + S.wave + " 波　结算宝石 " + S.gemBanked + " 颗";
+    /* 补充战绩：时长 / 击杀 / 最长尾巴 */
+    var mins = Math.floor(S.t / 60), secs = Math.floor(S.t % 60);
+    $("overExtra").textContent = "本局时长 " + (mins ? mins + " 分 " : "") + secs + " 秒　·　击杀 " + S.kills +
+      " 只（精英 " + S.elites + " · 巨像 " + S.bosses + "）　·　最长尾巴 " + (S.maxTail || 0) + " 颗";
+
+    var extraReward = "";
+    if (S.daily) {
+      var bonus = Progress.claimDailyChallenge();
+      extraReward = '<br>🎯 今日挑战完成' + (bonus ? '，额外奖励 <b>' + bonus + "</b> 金币（明天再来）" : "（今日奖励已领过）");
+    }
     $("overRewards").innerHTML = "经验 <b>+" + d.res.xp + "</b>　金币 <b>+" + d.res.coins + "</b>　赛季积分 <b>+" + d.res.points + "</b>" +
       (d.isBest ? '　·　<span style="color:#ffd24a">刷新本模式纪录！</span>' : "") +
+      extraReward +
       (d.res.levelUps ? '<br>🎉 升到 ' + d.res.level + " 级：" + Config.levelInfo(d.res.level).title + "（移速/射速/生命提升）" : "");
     $("overMedals").innerHTML = (d.res.medals || []).map(function (m) {
       return '<span class="medal-chip">' + m.icon + " " + esc(m.name) + "</span>";
@@ -133,7 +170,12 @@
       "站到亮灯的门上才算结算，走错门宝石全吐。"
     ];
     $("overTip").textContent = (d.res.medals && d.res.medals.length) ? "解锁了新勋章，去勋章墙看看。" : tips[Math.floor(Math.random() * tips.length)];
+    /* 战报文本（复制分享用） */
+    lastReport = "【冰火守门人】" + (S.daily ? Config.dailyChallenge().date + " 每日挑战 · " : "") +
+      Config.modeLabel(S.sc.id, S.df.id) + "　评级 " + Game.gradeOf(S) + "　" + S.score + " 分 · 第 " + S.wave + " 波 · " +
+      "击杀 " + S.kills + " 只 · 结算宝石 " + S.gemBanked + " 颗　https://dq7866.online/guardian/";
     show("over");
+    showTouch(false);
     if (inDuel) { showToast("对战结束，成绩已记录"); }
     submitScore();
     syncCloud(false);
@@ -143,13 +185,32 @@
   function submitScore() {
     var g = Game.state();
     if (!g || !cloudOk) return;
-    var mode = Config.modeKey(g.sc.id, g.df.id);
+    var mode = g.modeKey || Config.modeKey(g.sc.id, g.df.id);
     GkCloud.submit({
       mode: mode, player: Save.playerId(), nick: Save.nick(),
       score: g.score, wave: g.wave, grade: Game.gradeOf(g)
     }).then(function (r) {
       if (r && r.ok && r.isBest && r.rank) showToast("云端榜第 " + r.rank + " 名！");
     });
+  }
+
+  /* 复制战报：优先用剪贴板 API，失败退回 textarea 选中法 */
+  function shareReport() {
+    if (!lastReport) { showToast("先打完一局再来分享"); return; }
+    function fallback() {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = lastReport;
+        ta.style.cssText = "position:fixed;left:-9999px;top:0";
+        document.body.appendChild(ta); ta.select();
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        showToast(ok ? "战报已复制，去粘贴分享吧" : "复制失败，请手动截图");
+      } catch (e) { showToast("复制失败，请手动截图"); }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(lastReport).then(function () { showToast("战报已复制，去粘贴分享吧"); }, fallback);
+    } else fallback();
   }
 
   /* ================= 云同步 ================= */
@@ -214,11 +275,37 @@
       if (!r || !r.ok) { box.innerHTML = '<p class="tip">排行榜暂时不可用（云端未连接，稍后再试）。</p>'; return; }
       var rows = r.rows || [];
       if (!rows.length) { box.innerHTML = '<p class="tip">这个模式还没有人上榜，去抢第一名。</p>'; return; }
-      box.innerHTML = rows.map(function (x, i) {
-        return '<div class="rank-row ' + (i < 3 ? "top" + (i + 1) : "") + '"><div class="no">' + (i + 1) + '</div>' +
-          '<div class="nm">' + esc(x.nickname) + '<div class="sub">第 ' + (x.wave || 0) + ' 波 · 评级 ' + esc(x.grade || "-") + '</div></div>' +
+      var myId = Save.playerId(), myRank = 0;
+      var list = rows.map(function (x, i) {
+        var me = (x.player_id || x.playerId) === myId;
+        if (me && !myRank) myRank = i + 1;
+        return '<div class="rank-row ' + (i < 3 ? "top" + (i + 1) : "") + (me ? " me" : "") + '"><div class="no">' + (i + 1) + '</div>' +
+          '<div class="nm">' + esc(x.nickname) + (me ? '<span class="tagme">我</span>' : "") +
+          '<div class="sub">第 ' + (x.wave || 0) + ' 波 · 评级 ' + esc(x.grade || "-") + '</div></div>' +
           '<div class="sc">' + (x.score || 0) + '</div></div>';
       }).join("");
+      box.innerHTML = (myRank ? '<p class="tip">你在本榜暂列第 <b style="color:#ffd24a">' + myRank + "</b> 名</p>" : "") + list;
+    });
+  }
+  /* 独立打开某个模式的榜（每日挑战用） */
+  function openLbKey(key, label) {
+    openPanel("排行榜 · " + esc(label), '<div id="lbList">加载中…</div>');
+    GkCloud.lb(key, 30).then(function (r) {
+      var box = $("lbList");
+      if (!box) return;
+      if (!r || !r.ok) { box.innerHTML = '<p class="tip">排行榜暂时不可用（云端未连接，稍后再试）。</p>'; return; }
+      var rows = r.rows || [];
+      if (!rows.length) { box.innerHTML = '<p class="tip">今天还没有人完成，你可以抢第一个。</p>'; return; }
+      var myId = Save.playerId(), myRank = 0;
+      var list = rows.map(function (x, i) {
+        var me = (x.player_id || x.playerId) === myId;
+        if (me && !myRank) myRank = i + 1;
+        return '<div class="rank-row ' + (i < 3 ? "top" + (i + 1) : "") + (me ? " me" : "") + '"><div class="no">' + (i + 1) + '</div>' +
+          '<div class="nm">' + esc(x.nickname) + (me ? '<span class="tagme">我</span>' : "") +
+          '<div class="sub">第 ' + (x.wave || 0) + ' 波 · 评级 ' + esc(x.grade || "-") + '</div></div>' +
+          '<div class="sc">' + (x.score || 0) + '</div></div>';
+      }).join("");
+      box.innerHTML = (myRank ? '<p class="tip">你在本榜暂列第 <b style="color:#ffd24a">' + myRank + "</b> 名</p>" : "") + list;
     });
   }
   function bindTabs(redo) {
@@ -260,10 +347,15 @@
       if (!r || !r.ok) { box.innerHTML = '<p class="tip">赛季榜暂时不可用。</p>'; return; }
       var rows = r.rows || [];
       if (!rows.length) { box.innerHTML = '<p class="tip">本赛季还没有人上榜。</p>'; return; }
-      box.innerHTML = rows.map(function (x, i) {
-        return '<div class="rank-row ' + (i < 3 ? "top" + (i + 1) : "") + '"><div class="no">' + (i + 1) + '</div>' +
-          '<div class="nm">' + esc(x.nickname) + '</div><div class="sc">' + (x.points || 0) + ' 分</div></div>';
+      var myId = Save.playerId(), myRank = 0;
+      var list = rows.map(function (x, i) {
+        var me = (x.player_id || x.playerId) === myId;
+        if (me && !myRank) myRank = i + 1;
+        return '<div class="rank-row ' + (i < 3 ? "top" + (i + 1) : "") + (me ? " me" : "") + '"><div class="no">' + (i + 1) + '</div>' +
+          '<div class="nm">' + esc(x.nickname) + (me ? '<span class="tagme">我</span>' : "") + '</div>' +
+          '<div class="sc">' + (x.points || 0) + ' 分</div></div>';
       }).join("");
+      box.innerHTML = (myRank ? '<p class="tip">你本赛季暂列第 <b style="color:#ffd24a">' + myRank + "</b> 名</p>" : "") + list;
     });
   }
 
@@ -300,16 +392,63 @@
   function openHelp() {
     openPanel("操作说明", [
       "<p><b>移动</b>：WASD / 方向键；手机为在画面上拖动（虚拟摇杆）。</p>",
-      "<p><b>切换守门人</b>：空格 或 E；手机为右下角按钮。</p>",
-      "<p><b>暂停 / 静音</b>：P / M。</p>",
+      "<p><b>切换守门人</b>：空格 或 E；手机为<b>右下角 🔄 按钮</b>。</p>",
+      "<p><b>暂停 / 静音</b>：P / M；手机为<b>右下角 ⏸ 按钮</b>。</p>",
       "<h3 style='margin:12px 0 6px;font-size:14px'>核心规则</h3>",
       "<p>火娃融化冰魔、水娃蚀穿岩魔，<b>打错对象完全免疫</b>——先看清这波主什么魔再切人。</p>",
       "<p>击杀掉落的宝石会缀成跟屁虫尾巴；每波只有<b>一扇门亮灯</b>，把尾巴带到亮灯的门上才算结算，<b>走错门宝石全部吐光</b>。</p>",
       "<p>尾巴越长结算加成越高，但被魔物撞到会断尾——贪心要适度。</p>",
       "<p>每 5 波出现巨像，血量下降时<b>弱点会中途变换</b>，得跟着切人。</p>",
+      "<h3 style='margin:12px 0 6px;font-size:14px'>每日挑战</h3>",
+      "<p>每天 0 点换一套固定条件（场景 + 难度 + 特殊机制），全世界同一天面对同一关，成绩进独立日榜，首次完成还有额外金币。</p>",
       "<h3 style='margin:12px 0 6px;font-size:14px'>联机对战</h3>",
-      "<p>建房得 4 位房间码，好友输入即可加入。双方各守自己的城门，用互坑手段互相捣乱：派精英怪、冰封、空投炸弹、自加护盾。每 15 秒获得 1 点互坑点（上限 3）。</p>"
+      "<p>建房得 4 位房间码，好友输入即可加入。双方各守自己的城门，用互坑手段互相捣乱：派精英怪、冰封、空投炸弹、自加护盾。每 15 秒获得 1 点互坑点（上限 3）。</p>",
+      "<h3 style='margin:12px 0 6px;font-size:14px'>离线与安装</h3>",
+      "<p>游戏可离线运行。手机上用浏览器菜单里的「<b>添加到主屏幕</b>」即可像 App 一样全屏打开。</p>",
+      "<p style='margin-top:12px'><button class='btn-ghost' id='btn-replay-guide'>重新看一遍新手引导</button></p>"
     ].join(""));
+    var rg = $("btn-replay-guide");
+    if (rg) rg.onclick = function () { closePanel(); openGuide(); };
+  }
+
+  /* ================= 每日挑战 ================= */
+  function openDailyChallenge() {
+    var ch = Config.dailyChallenge(), done = Progress.dailyChallengeDone();
+    var html = '<p class="tip">每天 0 点换一套固定条件，全世界同一天面对同一关；成绩进独立日榜，首次完成额外奖励 ' +
+      Progress.DAILY_REWARD + ' 金币。已完成的次数：<b>' + (Save.get().dailyChDone || 0) + "</b> 次。</p>" +
+      '<div class="lobby-card" style="margin:12px 0">' +
+      '<h3>' + ch.sceneIcon + " " + esc(ch.sceneName) + "　" + ch.diffIcon + " " + esc(ch.diffName) +
+      (done ? '　<span style="color:#9fdc9f">今日已完成 ✓</span>' : "") + "</h3>" +
+      '<p><b>特殊机制：' + ch.modIcon + " " + esc(ch.modName) + "</b><br>" + esc(ch.modDesc) + "</p>" +
+      '<p class="tip">日期 ' + ch.date + "（每日挑战不受场景 / 难度解锁限制）</p>" +
+      "</div>" +
+      '<div class="btnrow"><button class="btn-main" id="btn-ch-start">开始挑战</button>' +
+      '<button class="btn-ghost" id="btn-ch-lb">查看今日榜</button></div>';
+    openPanel("每日挑战", html);
+    $("btn-ch-start").onclick = function () { closePanel(); startDaily(); };
+    $("btn-ch-lb").onclick = function () { openLbKey(ch.key, "每日挑战 " + ch.date); };
+  }
+
+  /* ================= 新手引导 ================= */
+  var GUIDE_STEPS = [
+    { icon: "🏃", html: "在画面上<b>按住拖动</b>（手机）或用 <b>WASD / 方向键</b>（电脑）移动当前守门人。<b>自动开火</b>——你只管走位。" },
+    { icon: "🔥💧", html: "按 <b>空格 / E</b>（手机点右下角 <b>🔄</b>）<b>切换火娃与水娃</b>：火娃融冰魔、水娃蚀岩魔，<b>打错完全免疫</b>——先看清这波主什么魔！" },
+    { icon: "🚪", html: "击杀掉落的宝石缀成尾巴。<b>每波只有一扇门亮灯</b>，把尾巴带到亮门上才算结算，<b>走错门宝石全吐</b>。尾巴越长加成越高，但被撞会断——贪心要适度。" }
+  ];
+  var guideIdx = 0;
+  function renderGuide() {
+    var st = GUIDE_STEPS[guideIdx];
+    $("guideBody").innerHTML = '<span class="gicon">' + st.icon + "</span>" + st.html;
+    $("guideDots").innerHTML = GUIDE_STEPS.map(function (_, i) {
+      return '<i class="' + (i === guideIdx ? "on" : "") + '"></i>';
+    }).join("");
+    $("btn-guide-next").textContent = (guideIdx === GUIDE_STEPS.length - 1) ? "开始守门" : "下一步";
+  }
+  function openGuide() { guideIdx = 0; renderGuide(); show("guide"); }
+  function closeGuide(goPlay) {
+    Save.get().tutorial = true; Save.save();
+    show("menu");
+    if (goPlay) startSolo();
   }
 
   /* ================= 联机 ================= */
@@ -355,9 +494,11 @@
   }
   function startDuel(role) {
     inDuel = true;
+    dailyRun = null;
     hideAll();
     Game.start(sel.scene, sel.diff, { duel: true, side: role });
     $("duelBar").classList.remove("hidden");
+    showTouch(true);
     var st = Net.state();
     $("duelRoom").textContent = "房间 " + (st ? st.code : "----");
     renderImpairs();
@@ -392,10 +533,34 @@
   /* ================= 事件绑定 ================= */
   function bind() {
     $("btn-start").onclick = startSolo;
-    $("btn-again").onclick = function () { if (inDuel) { show("lobby"); } else startSolo(); };
-    $("btn-menu").onclick = function () { Game.quit(); if (inDuel) { Net.stop(); inDuel = false; $("duelBar").classList.add("hidden"); } renderMenu(); show("menu"); };
+    $("btn-daily-ch").onclick = openDailyChallenge;
+    $("btn-share").onclick = shareReport;
+    $("btn-again").onclick = function () {
+      if (inDuel) { show("lobby"); }
+      else if (dailyRun) { startDaily(); }
+      else startSolo();
+    };
+    $("btn-menu").onclick = function () {
+      Game.quit(); showTouch(false);
+      if (inDuel) { Net.stop(); inDuel = false; $("duelBar").classList.add("hidden"); }
+      renderMenu(); show("menu");
+    };
     $("btn-resume").onclick = function () { Game.togglePause(); };
-    $("btn-quit").onclick = function () { Game.quit(); $("pauseLayer").classList.add("hidden"); if (inDuel) { Net.stop(); inDuel = false; $("duelBar").classList.add("hidden"); } renderMenu(); show("menu"); };
+    $("btn-quit").onclick = function () {
+      Game.quit(); showTouch(false);
+      $("pauseLayer").classList.add("hidden");
+      if (inDuel) { Net.stop(); inDuel = false; $("duelBar").classList.add("hidden"); }
+      renderMenu(); show("menu");
+    };
+    /* 触摸控件 */
+    $("tb-switch").onclick = function () { Game.switchGuardian(); };
+    $("tb-pause").onclick = function () { Game.togglePause(); };
+    /* 新手引导 */
+    $("btn-guide-next").onclick = function () {
+      if (guideIdx < GUIDE_STEPS.length - 1) { guideIdx++; renderGuide(); }
+      else closeGuide(true);
+    };
+    $("btn-guide-skip").onclick = function () { closeGuide(false); };
     $("btn-duel").onclick = openLobby;
     $("btn-host").onclick = doHost;
     $("btn-join").onclick = doJoin;
@@ -453,6 +618,18 @@
   })(0);
   requestAnimationFrame(loop);
 
+  /* 首次进入：弹出 3 步新手引导（看完写 tutorial=true，之后不再打扰） */
+  if (!Save.get().tutorial) setTimeout(function () { if (Game.scene() === "menu") openGuide(); }, 900);
+
+  /* PWA：注册 Service Worker —— 首次访问后整站（含 3D 贴图）离线可用。
+     file:// 直接打开时浏览器禁用 SW，此时静默跳过，游戏本体照常运行。 */
+  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js", { scope: "./" }).catch(function () {});
+    });
+  }
+
   /* 供自动化测试读取 */
-  window.__GKUI = { sel: sel, save: Save, game: Game, net: Net, progress: Progress, config: Config };
+  window.__GKUI = { sel: sel, save: Save, game: Game, net: Net, progress: Progress, config: Config,
+                    openGuide: openGuide, openDailyChallenge: openDailyChallenge, dailyRun: function () { return dailyRun; } };
 })();

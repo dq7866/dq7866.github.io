@@ -107,18 +107,21 @@ var Game = (function () {
     cur = { sceneId: sc.id, diffId: df.id };
     S = {
       sc: sc, df: df, lv: lv, duel: !!opt.duel, mySide: opt.side || "host",
+      daily: !!opt.daily, perk: opt.perk || sc.perk,   /* 每日挑战可强制启用某个机制 */
       wave: 0, score: 0, gemBanked: 0, kills: 0, elites: 0, bosses: 0, maxTail: 0,
       lives: df.lives, t: 0, shake: 0, banner: "", bannerT: 0, toast: null, toastT: 0,
       enemies: [], shots: [], gems: [], parts: [], texts: [], hazards: [],
       spawnLeft: 0, spawnT: 0, inter: 2.8, waveDone: false,
       lit: ri(0, 2), waveEle: "ice", flawless: true,
-      freezeT: 0, shieldT: 0, sandT: 0, lavaT: 0, impairCd: 0,
-      enemyScore: 0, over: false, reason: "",
+      freezeT: 0, shieldT: 0, sandT: 0, lavaT: 0, impairCd: 0, sandGust: 0,
+      enemyScore: 0, over: false, reason: "", modeKey: opt.modeKey || null,
       peer: opt.duel ? { name: "对手", lives: df.lives, score: 0, online: false } : null
     };
     S.g1 = mkG("fire", laneX(1));
     S.g2 = mkG("water", laneX(3));
     S.act = S.g1;
+    if (S.perk === "lava") S.lavaT = rnd(3.5, 6);
+    if (S.perk === "sandstorm") S.sandT = rnd(5, 9);
     nextWave();
     return S;
   }
@@ -142,8 +145,8 @@ var Game = (function () {
       (S.waveEle === "ice" ? "第 " + n + " 波 · 冰魔来袭（火娃克制）" :
        S.waveEle === "rock" ? "第 " + n + " 波 · 岩魔来袭（水娃克制）" : "第 " + n + " 波 · 混编来袭");
     S.bannerT = 2.6;
-    if (n % 5 === 0 || (S.sc.perk === "bossrush" && n % 3 === 0)) sfx.boss(); else sfx.wave();
-    if (S.sc.perk === "sandstorm") S.sandT = rnd(6, 11);
+    if (n % 5 === 0 || (S.perk === "bossrush" && n % 3 === 0)) sfx.boss(); else sfx.wave();
+    if (S.perk === "sandstorm") S.sandT = rnd(6, 11);
   }
 
   /* ---------------- 生成 ---------------- */
@@ -185,13 +188,14 @@ var Game = (function () {
     if (S.shieldT > 0) S.shieldT -= dt;
     if (S.impairCd > 0) S.impairCd -= dt;
 
-    /* 场景机制 */
-    if (S.sc.perk === "sandstorm") {
+    /* 场景机制：S.perk 优先（每日挑战会强制启用某个机制） */
+    var perk = S.perk;
+    if (perk === "sandstorm") {
       S.sandT -= dt;
       if (S.sandT <= 0) { S.sandT = rnd(6, 11); S.sandGust = 1.6; toast("沙暴来袭！视野受阻", "#e8d3a0"); }
     }
     if (S.sandGust > 0) S.sandGust -= dt;
-    if (S.sc.perk === "lava") {
+    if (perk === "lava") {
       S.lavaT -= dt;
       if (S.lavaT <= 0) {
         S.lavaT = rnd(5.5, 9);
@@ -199,7 +203,7 @@ var Game = (function () {
         S.hazards.push({ x: lx, z: rnd(0.15, 0.7), warn: 1.1, live: 0.9, hit: false });
       }
     }
-    if (S.sc.perk === "bossrush" && S.wave >= 3 && !S._bossExtra) {
+    if (perk === "bossrush" && S.wave >= 3 && !S._bossExtra) {
       S._bossExtra = true;
       S.spawnLeft += 2;
     }
@@ -315,9 +319,12 @@ var Game = (function () {
           beep(700, 0.13, "sine", 0.06, 300);
         }
       }
-      /* 撞击守门人 */
-      [S.g1, S.g2].forEach(function (g) {
-        if (g.down) return;
+      /* 撞击守门人（用显式循环：两个都倒下时要立刻终止本帧剩余结算，
+         写成 forEach 的话 return 只跳出回调，漏怪/断尾判定仍会继续跑） */
+      var gs = [S.g1, S.g2], died = false;
+      for (var gi = 0; gi < gs.length; gi++) {
+        var g = gs[gi];
+        if (g.down) continue;
         var dd = Math.sqrt(dist2(e, g));
         if (dd < e.r + GW) {
           g.hp -= 34 * dt; g.hurtT = 0.12;
@@ -328,7 +335,7 @@ var Game = (function () {
             g.trail.length = 0;
             sfx.dead(); S.shake = 0.9;
             toast((g.ele === "fire" ? "🔥 火娃" : "💧 水娃") + " 被击倒了（5 秒后归队）", "#ff8f8f");
-            if (S.g1.down && S.g2.down) { gameOver("两位守门人同时倒下了"); return; }
+            if (S.g1.down && S.g2.down) { gameOver("两位守门人同时倒下了"); died = true; break; }
           }
         }
         /* 撞断尾巴 */
@@ -342,7 +349,8 @@ var Game = (function () {
             break;
           }
         }
-      });
+      }
+      if (died) return;
       /* 漏怪 */
       if (e.z < BREACH_Z) {
         S.enemies.splice(i, 1);
@@ -546,6 +554,28 @@ var Game = (function () {
     ctx.restore();
 
     if (S) { drawHUD(); drawBanner(); }
+    drawJoystick();
+  }
+
+  /* 虚拟摇杆可视化：手机端在画面上按住拖动的实时反馈（桌面端不显示） */
+  function drawJoystick() {
+    if (!joy) return;
+    var base = 44, max = 46;
+    var dx = joy.dx, dy = joy.dy, len = Math.sqrt(dx * dx + dy * dy);
+    if (len > max) { dx = dx / len * max; dy = dy / len * max; }
+    ctx.save();
+    ctx.globalAlpha = .38;
+    ctx.fillStyle = "rgba(12,10,16,.9)";
+    ctx.beginPath(); ctx.arc(joy.ox, joy.oy, base, 0, 6.2832); ctx.fill();
+    ctx.globalAlpha = .55;
+    ctx.lineWidth = 2.5; ctx.strokeStyle = "rgba(255,255,255,.6)";
+    ctx.beginPath(); ctx.arc(joy.ox, joy.oy, base, 0, 6.2832); ctx.stroke();
+    ctx.globalAlpha = .88;
+    var grd = ctx.createRadialGradient(joy.ox + dx - 7, joy.oy + dy - 7, 2, joy.ox + dx, joy.oy + dy, 22);
+    grd.addColorStop(0, "#ffeed0"); grd.addColorStop(1, "#ff8a3c");
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.arc(joy.ox + dx, joy.oy + dy, 21, 0, 6.2832); ctx.fill();
+    ctx.restore();
   }
 
   function drawDecos(sc) {
@@ -939,7 +969,7 @@ var Game = (function () {
   return {
     mount: mount, start: start, update: update, draw: draw, drawMenuBg: drawMenuBg,
     togglePause: togglePause,
-    quit: function () { if (S) S.over = true; S = null; scene = "menu"; paused = false; },
+    quit: function () { if (S) S.over = true; S = null; scene = "menu"; paused = false; joy = null; keys = {}; },
     state: function () { return S; },
     scene: function () { return scene; }, cur: function () { return cur; },
     switchGuardian: switchGuardian, setMuted: function (m) { muted = !!m; }, isMuted: function () { return muted; },

@@ -10,8 +10,8 @@
 <meta name="apple-mobile-web-app-title" content="冰火守门人">
 <meta name="format-detection" content="telephone=no">
 <title>冰火守门人 Element Gatekeeper · 3D 双生守门塔防</title>
-<meta name="description" content="冰火守门人：伪 3D 透视贴图的塔防式守门游戏。火娃融冰魔、水娃蚀岩魔，双生角色随时切换、元素相克；击杀掉落的宝石缀成贪心尾巴，每波只有一扇门亮灯，走错门宝石全吐。5 张场景、4 档难度、等级勋章、每日任务与月度赛季、云端排行榜，单人离线可玩，也可建房与好友实时对战互坑。打开即玩。">
-<meta name="keywords" content="冰火守门人,塔防游戏,网页游戏,免费游戏,3D游戏,双人游戏,联机对战,森林冰火人,只有一道门,元素相克,每日任务,赛季排行榜">
+<meta name="description" content="冰火守门人：伪 3D 透视贴图的塔防式守门游戏。火娃融冰魔、水娃蚀岩魔，双生角色随时切换、元素相克；击杀掉落的宝石缀成贪心尾巴，每波只有一扇门亮灯，走错门宝石全吐。5 张场景、4 档难度、每日挑战、等级勋章、每日任务与月度赛季、云端排行榜，单人离线可玩，也可建房与好友实时对战互坑。打开即玩。">
+<meta name="keywords" content="冰火守门人,塔防游戏,网页游戏,免费游戏,3D游戏,双人游戏,联机对战,森林冰火人,只有一道门,元素相克,每日挑战,每日任务,赛季排行榜">
 <link rel="canonical" href="https://dq7866.online/guardian/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="冰火守门人 · 3D 双生守门塔防">
@@ -26,6 +26,7 @@
 
 <canvas id="cv" width="960" height="640"></canvas>
 <div id="toast"></div>
+<div id="rotateHint">📱 手机横屏体验更佳</div>
 
 <!-- ============ 主菜单 ============ -->
 <section id="menu" class="screen">
@@ -53,6 +54,7 @@
       <div id="m-diffs" class="cards vertical"></div>
       <div class="best" id="m-best">本模式最佳：—</div>
       <button class="btn-main" id="btn-start">开始守门</button>
+      <button class="btn-ghost daily" id="btn-daily-ch">🎯 每日挑战 <b id="m-dailych"></b></button>
       <button class="btn-ghost duel" id="btn-duel">🤝 联机对战</button>
     </div>
   </div>
@@ -72,12 +74,25 @@
   <h2 id="overTitle">城门失守</h2>
   <div class="gradebox"><span class="grade" id="overGrade">C</span><span class="gradelab">评级</span></div>
   <div class="stat" id="overStat"></div>
+  <div class="extrastat" id="overExtra"></div>
   <div class="rewards" id="overRewards"></div>
   <div class="medals" id="overMedals"></div>
   <p class="tip" id="overTip"></p>
   <div class="btnrow">
     <button class="btn-main" id="btn-again">再来一局</button>
+    <button class="btn-ghost" id="btn-share">📋 复制战报</button>
     <button class="btn-ghost" id="btn-menu">返回菜单</button>
+  </div>
+</section>
+
+<!-- ============ 新手引导 ============ -->
+<section id="guide" class="screen hidden compact">
+  <h2>30 秒上手</h2>
+  <div class="guide-body" id="guideBody"></div>
+  <div class="guide-dots" id="guideDots"></div>
+  <div class="btnrow">
+    <button class="btn-main" id="btn-guide-next">下一步</button>
+    <button class="btn-ghost" id="btn-guide-skip">跳过</button>
   </div>
 </section>
 
@@ -115,6 +130,12 @@
   <span id="duelRoom">房间 ----</span>
   <span id="duelPts">互坑点 1</span>
   <div class="impairs" id="duelImpairs"></div>
+</div>
+
+<!-- ============ 移动端触摸控件（触摸设备才显示） ============ -->
+<div id="touchBar" class="hidden">
+  <button id="tb-switch" title="切换守门人（火娃 / 水娃）">🔄<i>切换</i></button>
+  <button id="tb-pause" title="暂停 / 继续">⏸</button>
 </div>
 
 <!-- ============ 通用面板 ============ -->
