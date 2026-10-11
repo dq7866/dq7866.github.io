@@ -1,4 +1,4 @@
-/* 知作坊 · 全站门卫 v1.2
+/* 知作坊 · 全站门卫 v1.5
  * 原理：本页注入隐藏 iframe（门卫域 bridge.html），所有云端调用在 iframe 内完成；
  * 本脚本只做 UI（Shadow DOM 隔离样式）与 postMessage 通信。
  * 规则：免费 15 天 → 宽限 10 天（每次登录提醒打赏）→ 兑换码（100 次/码）。
@@ -18,6 +18,19 @@
  *   现在只有一张表单：账号（自动识别手机号 / 邮箱）+ 验证码 + 密码（选填）。
  *   点「登录 / 注册」时：填了验证码就走验证码通道（新账号顺带设密码），
  *   没填验证码但填了密码就走密码通道（免验证码）。
+ *
+ * v1.3 两站独立（2026-10-11）
+ *   工具箱与风驰骑行各自登录、各自额度，靠 URL 与 scope 分区（见下方 SCOPE）。
+ *
+ * v1.4 修改密码（2026-10-11）
+ *   登录用户可在管理小面板改密：邮箱账号走验证码二次验证，手机号账号走旧密码。
+ *
+ * v1.5 修复本机预览不出登录卡（2026-10-11）
+ *   旧写法在 IS_DEV 时把桥接指向同源 location.origin，但站点根目录并没有
+ *   bridge.html（它只发布在门卫域）→ iframe 请求 404 → 桥接永不宣告就绪 →
+ *   12 秒兜底后只显示「额度服务暂不可用」，登录卡根本出不来。
+ *   线上不受影响（IS_DEV=false 时本来就指向门卫域），只坑本机 hexo s 预览。
+ *   现在桥接恒在门卫域、本机预览加 ?dev=1（桥接据此放行 localhost 来源）。
  */
 (function () {
   "use strict";
@@ -26,15 +39,28 @@
 
   /* ---------------- 配置 ---------------- */
   var IS_DEV = /^(127\.0\.0\.1|localhost)$/.test(location.hostname);
-  /* 正式环境桥接在门卫域；本机调试时直接指向同源（把 bridge.html 放到服务根目录即可全链路联调） */
-  var GATE_ORIGIN = IS_DEV ? location.origin : "https://zhizuofang.app.workbuddy.host";
+
+  /* 桥接页只发布在门卫域，本机预览也必须走它。
+     ⚠️ 不要改回「本机指向同源」：站点根目录没有 bridge.html，
+        那样会在本机静默退化成「额度服务暂不可用」而看不到任何登录入口。
+     🔧 本机联调测试台若要把桥接换成同源的测试副本，用 ?zhzbridge=<绝对地址> 覆盖。 */
+  var GATE_ORIGIN = "https://zhizuofang.app.workbuddy.host";
+  var BRIDGE_ORIGIN = GATE_ORIGIN;
   var BRIDGE_URL = GATE_ORIGIN + "/bridge.html" + (IS_DEV ? "?dev=1" : "");
+  if (IS_DEV) {
+    var _ov = (location.search.match(/[?&]zhzbridge=([^&]+)/) || [])[1];
+    if (_ov) {
+      BRIDGE_URL = decodeURIComponent(_ov);
+      BRIDGE_ORIGIN = BRIDGE_URL.replace(/^(https?:\/\/[^\/]+).*$/i, "$1");
+    }
+  }
   var QR_SRC = "/images/wechat-qr.jpg";
   var SITE = "https://dq7866.online";
 
   var FREE_DAYS = 15, GRACE_DAYS = 10, CODE_DAYS = 100, WECHAT_ID = "Huangld", PRICE = "3 元";
-  var ALLOWED_ORIGINS = [GATE_ORIGIN];
-  if (IS_DEV) ALLOWED_ORIGINS.push(location.origin);
+  /* 只收桥接域发来的消息；dev 下再放行本页自身来源，兼容旧同源联调方式 */
+  var ALLOWED_ORIGINS = [BRIDGE_ORIGIN];
+  if (IS_DEV && ALLOWED_ORIGINS.indexOf(location.origin) < 0) ALLOWED_ORIGINS.push(location.origin);
 
   /* ---------------- 站点身份 ----------------
      工具箱与风驰骑行是两套完全独立的登录：各自注册、各自登录、各自额度。
@@ -178,7 +204,7 @@
       if (msg.scope === undefined) msg.scope = SCOPE;
       msg.seq = ++seq;
       pendingReplies[msg.seq] = resolve;
-      iframe.contentWindow.postMessage(msg, GATE_ORIGIN);
+      iframe.contentWindow.postMessage(msg, BRIDGE_ORIGIN);
       setTimeout(function () {
         if (pendingReplies[msg.seq]) { delete pendingReplies[msg.seq]; resolve({ type: "gate:error", message: "连接超时，请检查网络后刷新" }); }
       }, timeoutMs || 15000);
@@ -221,7 +247,7 @@
   migrateLegacySession();
   var helloTries = 0;
   function sayHello() {
-    try { iframe.contentWindow.postMessage({ type: "gate:hello", scope: SCOPE, session: readSession() }, GATE_ORIGIN); } catch (e) {}
+    try { iframe.contentWindow.postMessage({ type: "gate:hello", scope: SCOPE, session: readSession() }, BRIDGE_ORIGIN); } catch (e) {}
   }
   sayHello();
   var helloTimer = setInterval(function () {
