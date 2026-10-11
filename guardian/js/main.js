@@ -159,6 +159,10 @@
   }
   function syncCloud(first) {
     if (syncing) return;
+    /* 未登录：不硬提交，角标给「离线可玩」，避免匿名用户看到误导性的「同步失败」 */
+    var sess = null;
+    try { sess = window.ZHZBridge && window.ZHZBridge.session && window.ZHZBridge.session(); } catch (e) {}
+    if (!sess) { cloudOk = false; setCloud("离线可玩", true); return; }
     syncing = true;
     setCloud("同步中…");
     var s = Save.get();
