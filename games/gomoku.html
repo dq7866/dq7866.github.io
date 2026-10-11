@@ -123,6 +123,7 @@
 
   let board, current, history, gameOver, mode;
   let aiThinking = false;
+  let aiTimer = null;
 
   function init() {
     board = Array.from({length:SIZE}, () => Array(SIZE).fill(0));
@@ -130,6 +131,7 @@
     history = [];
     gameOver = false;
     aiThinking = false;
+    if (aiTimer) { clearTimeout(aiTimer); aiTimer = null; }
     mode = document.querySelector('.mode-btn.active').dataset.mode;
     updateInfo();
     draw();
@@ -214,10 +216,14 @@
     // AI 回合
     if (mode === 'ai' && current === 2 && !gameOver) {
       aiThinking = true;
-      setTimeout(() => {
-        const mv = aiMove();
-        if (mv) place(mv.r, mv.c);
+      aiTimer = setTimeout(() => {
+        aiTimer = null;
+        let mv = null;
+        try { mv = aiMove(); } catch (err) { mv = null; }
+        /* 必须先解锁再落子：place() 的守卫里有 aiThinking，
+           否则 AI 自己的这步会被挡掉 → current 永远停在 2 → 玩家也点不动（死锁） */
         aiThinking = false;
+        if (mv && !gameOver && current === 2) place(mv.r, mv.c);
       }, 400);
     }
   }
@@ -317,6 +323,9 @@
 
   function undo() {
     if (gameOver || history.length === 0) return;
+    /* 撤销 AI 尚未落下的那一步，避免悔棋后 AI 又冒出来一颗 */
+    if (aiTimer) { clearTimeout(aiTimer); aiTimer = null; }
+    aiThinking = false;
     // 人机模式悔两步
     const steps = (mode === 'ai' && history.length >= 2) ? 2 : 1;
     for (let i=0;i<steps;i++) {
