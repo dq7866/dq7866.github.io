@@ -16,6 +16,9 @@
   var ALLOWED = [ORIGIN];
   if (IS_DEV) ALLOWED.push(location.origin);
 
+  /* 本页属于风驰骑行：门卫按站点隔离登录与额度，退回自建通道时也要报上门牌号 */
+  var SCOPE = "bike";
+
   var iframe = null, ready = false, seq = 0, pending = {}, helloTimer = null, failed = false;
 
   function boot() {
@@ -33,7 +36,7 @@
     var tries = 0;
     helloTimer = setInterval(function () {
       if (ready || ++tries > 20) { clearInterval(helloTimer); return; }
-      try { iframe.contentWindow.postMessage({ type: "gate:hello" }, ORIGIN); } catch (e) {}
+      try { iframe.contentWindow.postMessage({ type: "gate:hello", scope: SCOPE }, ORIGIN); } catch (e) {}
     }, 600);
   }
 
@@ -70,6 +73,7 @@
       function send() {
         seq += 1;
         msg.seq = seq;
+        if (msg.scope === undefined) msg.scope = SCOPE;
         pending[seq] = {
           resolve: resolve,
           timer: setTimeout(function () {

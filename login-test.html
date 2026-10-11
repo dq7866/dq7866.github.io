@@ -56,10 +56,11 @@
     <div class="verdict" id="verdict">正在检测…</div>
     <div class="btns" style="margin-top:12px">
       <button class="p" id="again">重新检测</button>
+      <button id="switch">检测另一个栏目</button>
       <button id="clear">清除本机登录状态</button>
-      <button id="back">返回工具箱</button>
+      <button id="back">返回本栏目</button>
     </div>
-    <div class="tip">本页只做只读检测，不会登录、不会发送验证码。「清除本机登录状态」只清本机记录的登录凭证，云端账号不受影响。</div>
+    <div class="tip">本页只做只读检测，不会登录、不会发送验证码。「清除本机登录状态」只清本机记录的登录凭证（两个栏目一起清），云端账号不受影响。<br>工具箱与风驰骑行是两套独立登录：在一处登录不会让另一处也登录，额度也各自计算。</div>
     <pre id="raw" style="display:none"></pre>
   </div>
 </div>
@@ -70,7 +71,11 @@
   var ORIGIN = "https://zhizuofang.app.workbuddy.host";
   var IS_DEV = /^(127\.0\.0\.1|localhost)$/.test(location.hostname);
   var BRIDGE = ORIGIN + "/bridge.html" + (IS_DEV ? "?dev=1" : "");
-  var LS_SESSION = "zhz_session_v1";
+  /* 工具箱与风驰骑行是两套独立登录，自检也要指明查的是哪一边 */
+  var SCOPE = /site=bike/.test(location.search) ? "bike" : "toolbox";
+  var SITE_NAME = SCOPE === "bike" ? "风驰骑行" : "在线工具箱";
+  var LS_SESSION = "zhz_session_" + SCOPE + "_v1";
+  var LS_OTHER = "zhz_session_" + (SCOPE === "bike" ? "toolbox" : "bike") + "_v1";
   var raw = {};
 
   function $(id) { return document.getElementById(id); }
@@ -85,10 +90,11 @@
     try { document.cookie = "__zc=1;path=/"; var ok = document.cookie.indexOf("__zc=1") >= 0; document.cookie = "__zc=;max-age=0;path=/"; return ok; }
     catch (e) { return false; }
   }
-  function readSession() {
-    try { var o = JSON.parse(localStorage.getItem(LS_SESSION) || "null"); return o && o.key && o.value ? o : null; }
+  function readKey(k) {
+    try { var o = JSON.parse(localStorage.getItem(k) || "null"); return o && o.key && o.value ? o : null; }
     catch (e) { return null; }
   }
+  function readSession() { return readKey(LS_SESSION); }
 
   function renderEnv() {
     var ua = navigator.userAgent;
@@ -107,14 +113,16 @@
   }
 
   function renderStore() {
-    var ls = lsTest(), ck = cookieTest(), s = readSession();
+    var ls = lsTest(), ck = cookieTest(), s = readSession(), o = readKey(LS_OTHER);
     var html = "";
+    html += row("本次检测站点", '<b>' + SITE_NAME + '</b>（' + SCOPE + '）');
     html += row("localStorage", yn(ls, "可用", "被禁用"));
     html += row("Cookie", yn(ck, "可写", "被禁用"));
     html += row("无痕/隐私模式", ls ? "未检测到" : '<span class="y">疑似开启</span>');
-    html += row("已保存的登录凭证", s ? '<span class="g">有（' + String(s.key).slice(-8) + '…）</span>' : "无");
+    html += row("本栏目登录凭证", s ? '<span class="g">有（' + String(s.key).slice(-8) + '…）</span>' : "无");
+    html += row("另一栏目登录凭证", o ? '<span class="g">有（两站各自独立，互不影响）</span>' : "无");
     $("store").innerHTML = html;
-    raw.storage = { localStorage: ls, cookie: ck, hasSession: !!s };
+    raw.storage = { localStorage: ls, cookie: ck, scope: SCOPE, hasSession: !!s, hasOther: !!o };
     return { ls: ls, ck: ck, session: s };
   }
 
@@ -126,7 +134,7 @@
       iframe.src = BRIDGE;
       document.body.appendChild(iframe);
 
-      var out = { ready: false, bridgeStorage: "", sessionOk: false, session: null };
+      var out = { ready: false, bridgeStorage: "", sessionOk: false, session: null, scope: SCOPE };
       function finish() {
         if (done) return; done = true;
         try { iframe.parentNode.removeChild(iframe); } catch (e) {}
@@ -138,7 +146,7 @@
         if (!d || typeof d !== "object") return;
         if (d.type === "gate:ready") {
           out.ready = true; out.bridgeStorage = d.storage || "";
-          iframe.contentWindow.postMessage({ type: "gate:session-state" }, ORIGIN);
+          iframe.contentWindow.postMessage({ type: "gate:session-state", scope: SCOPE }, ORIGIN);
           return;
         }
         if (d.type === "gate:session-state") {
@@ -151,7 +159,7 @@
       function hello() {
         if (done) return;
         if (++tries > 40) { finish(); return; }
-        try { iframe.contentWindow.postMessage({ type: "gate:hello", session: session }, ORIGIN); } catch (e) {}
+        try { iframe.contentWindow.postMessage({ type: "gate:hello", scope: SCOPE, session: session }, ORIGIN); } catch (e) {}
         setTimeout(hello, 250);
       }
       hello();
@@ -181,12 +189,14 @@
     } else if (!st.ls && !st.ck) {
       v = "<b>本机存储被禁用</b>（无痕模式 / 浏览器设置里屏蔽了 Cookie 与网站数据）。登录状态无法保存，会出现“登录后又回到登录页”。请退出无痕模式，或在浏览器设置里允许本站使用 Cookie。";
     } else if (!br.bridgeStorage || br.bridgeStorage !== "ok") {
-      v = "<b>跨站存储受限，但已自动兜底</b>：门卫把登录状态托管到了 dq7866.online 本页存储里。" +
+      v = "<b>跨站存储受限，但已自动兜底</b>：门卫把「" + SITE_NAME + "」的登录状态托管到了 dq7866.online 本页存储里。" +
           (br.sessionOk ? "当前已登录，可以正常使用。" : "若登录后仍回到登录页，请把这条结论告诉开发者。");
     } else if (br.sessionOk) {
-      v = "<b>一切正常，已登录。</b>额度、兑换码都可以正常使用。";
+      v = "<b>「" + SITE_NAME + "」一切正常，已登录。</b>额度、兑换码都可以正常使用。" +
+          "（提醒：另一个栏目的登录与额度是独立的，不会互相影响。）";
     } else {
-      v = "<b>环境正常，只是还没登录。</b>回到页面点「开始骑行」或工具箱入口登录即可（首次用手机号 + 验证码 + 设置密码）。";
+      v = "<b>环境正常，只是还没登录「" + SITE_NAME + "」。</b>回到 " + (SCOPE === "bike" ? "/bike/" : "/toolbox/") +
+          " 登录即可（首次用手机号或邮箱 + 验证码 + 设置密码）。";
     }
     $("verdict").innerHTML = v;
     $("raw").textContent = JSON.stringify(raw, null, 2);
@@ -194,11 +204,16 @@
 
   $("again").onclick = run;
   $("clear").onclick = function () {
-    try { localStorage.removeItem(LS_SESSION); } catch (e) {}
-    alert("已清除本机保存的登录凭证。");
+    try {
+      localStorage.removeItem("zhz_session_toolbox_v1");
+      localStorage.removeItem("zhz_session_bike_v1");
+      localStorage.removeItem("zhz_session_v1");
+    } catch (e) {}
+    alert("已清除本机保存的登录凭证（两个栏目都清了）。云端账号不受影响。");
     run();
   };
-  $("back").onclick = function () { location.href = "/toolbox/"; };
+  $("back").onclick = function () { location.href = SCOPE === "bike" ? "/bike/" : "/toolbox/"; };
+  $("switch").onclick = function () { location.search = SCOPE === "bike" ? "" : "?site=bike"; };
 
   run();
 })();

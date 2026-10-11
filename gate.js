@@ -25,8 +25,9 @@
   window.__ZHZ_GATE__ = true;
 
   /* ---------------- 配置 ---------------- */
-  var GATE_ORIGIN = "https://zhizuofang.app.workbuddy.host";
   var IS_DEV = /^(127\.0\.0\.1|localhost)$/.test(location.hostname);
+  /* 正式环境桥接在门卫域；本机调试时直接指向同源（把 bridge.html 放到服务根目录即可全链路联调） */
+  var GATE_ORIGIN = IS_DEV ? location.origin : "https://zhizuofang.app.workbuddy.host";
   var BRIDGE_URL = GATE_ORIGIN + "/bridge.html" + (IS_DEV ? "?dev=1" : "");
   var QR_SRC = "/images/wechat-qr.jpg";
   var SITE = "https://dq7866.online";
@@ -35,13 +36,36 @@
   var ALLOWED_ORIGINS = [GATE_ORIGIN];
   if (IS_DEV) ALLOWED_ORIGINS.push(location.origin);
 
-  /* 一级域里的两个键：会话镜像 / 上次账号 */
-  var LS_SESSION = "zhz_session_v1";
-  var LS_PHONE = "zhz_last_phone";
+  /* ---------------- 站点身份 ----------------
+     工具箱与风驰骑行是两套完全独立的登录：各自注册、各自登录、各自额度。
+     门卫脚本是同一份，靠 URL 判断自己站在哪一边（/bike/… → 骑行，其余 → 工具箱）。 */
+  var SCOPE = /^\/bike(\/|$)/.test(location.pathname) ? "bike" : "toolbox";
+  var SITE_NAME = SCOPE === "bike" ? "风驰骑行" : "在线工具箱";
+
+  /* 一级域里的两个键：会话镜像 / 上次账号（都按站点分开，互不覆盖） */
+  var LS_SESSION = "zhz_session_" + SCOPE + "_v1";
+  var LS_PHONE = "zhz_last_phone_" + SCOPE;
+  var LS_SESSION_LEGACY = "zhz_session_v1";   /* v1.2 之前的单会话键，仅用于一次性迁移 */
 
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+  /* 老版本全站只有一个会话键，也没有 scope 前缀。
+     升级后把这唯一一份会话判给工具箱（用户之前多半是在那里登录的），
+     骑行从头开始 —— 这正是「两站独立」该有的样子。
+     注意 key 要补上前缀，否则桥接页按 zhz:toolbox:… 找不到它。 */
+  function migrateLegacySession() {
+    try {
+      if (SCOPE !== "toolbox" || lsGet(LS_SESSION)) return;
+      var raw = lsGet(LS_SESSION_LEGACY);
+      if (!raw) return;
+      var o = JSON.parse(raw);
+      if (o && o.key && o.value && o.key.indexOf("zhz:") !== 0) o.key = "zhz:toolbox:" + o.key;
+      lsSet(LS_SESSION, JSON.stringify(o));
+      lsDel(LS_SESSION_LEGACY);
+    } catch (e) { lsDel(LS_SESSION_LEGACY); }
+  }
 
   function readSession() {
     var raw = lsGet(LS_SESSION);
@@ -51,8 +75,15 @@
       return o && o.key && o.value ? o : null;
     } catch (e) { lsDel(LS_SESSION); return null; }
   }
+  /* 桥接页回传的键在 v1.3 之前不带 zhz:<scope>: 前缀。
+     发布过渡期两边版本可能不一致，这里统一补齐，避免会话镜像写进去却对不上。 */
+  function normKey(k) {
+    if (!k) return k;
+    return k.indexOf("zhz:") === 0 ? k : ("zhz:" + SCOPE + ":" + k);
+  }
   function writeSession(key, value) {
     if (!key) return;
+    key = normKey(key);
     if (value == null) {
       var cur = readSession();
       if (cur && cur.key === key) lsDel(LS_SESSION);
@@ -143,6 +174,8 @@
   function bridge(msg, timeoutMs) {
     return new Promise(function (resolve) {
       if (!ready) { resolve({ type: "gate:error", message: "门卫通道未就绪" }); return; }
+      /* 每条消息都带上本页所属站点，桥接页据此选会话与额度分区 */
+      if (msg.scope === undefined) msg.scope = SCOPE;
       msg.seq = ++seq;
       pendingReplies[msg.seq] = resolve;
       iframe.contentWindow.postMessage(msg, GATE_ORIGIN);
@@ -157,8 +190,13 @@
     var d = ev.data;
     if (!d || typeof d !== "object" || !d.type) return;
 
-    /* iframe 把会话交上来 → 存进一级域（修复登录失效的关键一环） */
-    if (d.type === "gate:session") { writeSession(d.key, d.value); return; }
+    /* iframe 把会话交上来 → 存进一级域（修复登录失效的关键一环）。
+       只认自己站点的会话：另一个站点的会话镜像不该覆盖本页的。 */
+    if (d.type === "gate:session") {
+      if (d.scope && d.scope !== SCOPE) return;
+      writeSession(d.key, d.value);
+      return;
+    }
 
     if (d.type === "gate:ready") {
       if (!ready) {
@@ -177,12 +215,13 @@
     }
   });
 
-  /* ready 前重试握手：hello 里带上本页保存的会话，iframe 收到即回灌。
+  /* ready 前重试握手：hello 里带上站点与本站点保存的会话，iframe 收到即回灌。
      顺序很关键——必须等这条带会话的 hello 到达后再由 iframe 宣告 ready，
      否则 iframe 会在会话回灌前就放行。 */
+  migrateLegacySession();
   var helloTries = 0;
   function sayHello() {
-    try { iframe.contentWindow.postMessage({ type: "gate:hello", session: readSession() }, GATE_ORIGIN); } catch (e) {}
+    try { iframe.contentWindow.postMessage({ type: "gate:hello", scope: SCOPE, session: readSession() }, GATE_ORIGIN); } catch (e) {}
   }
   sayHello();
   var helloTimer = setInterval(function () {
@@ -197,7 +236,8 @@
     onReady: onReady,
     signOut: doSignOut,
     session: readSession,
-    diag: function () { return { storage: localStoreState(), bridgeStorage: bridgeStorage, hasSession: !!readSession() }; }
+    scope: SCOPE,
+    diag: function () { return { scope: SCOPE, storage: localStoreState(), bridgeStorage: bridgeStorage, hasSession: !!readSession() }; }
   };
 
   /* ---------------- UI 构建 ---------------- */
@@ -221,8 +261,8 @@
   function buildLoginCard() {
     var card = el("div", "card");
     card.innerHTML =
-      '<div class="brand"><div class="logo">知</div><div><h2>知作坊</h2><p>dq7866.online</p></div></div>' +
-      '<p class="lead">登录后继续访问。新账号自动注册：注册即送 <b>' + FREE_DAYS + '</b> 天免费 + <b>' + GRACE_DAYS + '</b> 天宽限；宽限用完后，微信打赏 ' + PRICE + ' 领兑换码可再解锁 <b>' + CODE_DAYS + '</b> 次。</p>' +
+      '<div class="brand"><div class="logo">知</div><div><h2>知作坊 · ' + SITE_NAME + '</h2><p>dq7866.online</p></div></div>' +
+      '<p class="lead">登录后继续访问「' + SITE_NAME + '」。新账号自动注册：注册即送 <b>' + FREE_DAYS + '</b> 天免费 + <b>' + GRACE_DAYS + '</b> 天宽限；宽限用完后，微信打赏 ' + PRICE + ' 领兑换码可再解锁 <b>' + CODE_DAYS + '</b> 次。<br><span style="color:#a89f96;font-size:12px">本站的登录与额度独立于另一个栏目，互不影响。</span></p>' +
 
       '<div class="field"><input id="zhz-account" type="text" maxlength="40" autocomplete="username" placeholder="手机号或邮箱"></div>' +
       '<div class="field row"><input id="zhz-code" type="text" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="验证码"><button id="zhz-send" class="btn-code" type="button">获取验证码</button></div>' +
@@ -412,7 +452,7 @@
   function buildPayCard(remainingText) {
     var card = el("div", "card");
     card.innerHTML =
-      '<div class="brand"><div class="logo">知</div><div><h2>' + (remainingText || "支持一下") + '</h2><p>dq7866.online</p></div></div>' +
+      '<div class="brand"><div class="logo">知</div><div><h2>' + (remainingText || "支持一下") + '</h2><p>dq7866.online · ' + SITE_NAME + '</p></div></div>' +
       '<p class="lead">免费体验已用完。如果这些内容对你有帮助，欢迎微信打赏 <b>' + PRICE + '</b>，即可领取兑换码、再解锁 <b>' + CODE_DAYS + '</b> 次使用（1 天 = 1 次）。</p>' +
       '<img class="qr" src="' + QR_SRC + '" alt="微信二维码">' +
       '<p class="center" style="font-size:13px;color:#4a4238">微信扫码添加：<span class="wxid">' + WECHAT_ID + '</span></p>' +
@@ -485,7 +525,7 @@
     var st = lastState || {};
     var dg = (window.ZHZBridge && window.ZHZBridge.diag) ? window.ZHZBridge.diag() : {};
     panel.innerHTML =
-      '<h3>我的账号' + (st.user && st.user.label ? ' · ' + esc(st.user.label) : '') + '</h3>' +
+      '<h3>' + SITE_NAME + ' · 我的账号' + (st.user && st.user.label ? ' ' + esc(st.user.label) : '') + '</h3>' +
       '<div class="meta">免费 ' + (st.freeLeft != null ? st.freeLeft : "-") + ' 天 · 宽限 ' + (st.graceLeft != null ? st.graceLeft : "-") + ' 天 · 兑换余额 ' + (st.bonus != null ? st.bonus : "-") + ' 次<br>1 天 = 1 次 · 打赏 ' + PRICE + ' 可领码加 ' + CODE_DAYS + ' 次（微信 ' + WECHAT_ID + '）</div>' +
       '<div class="field" style="display:flex;gap:8px"><input id="zhz-r2" type="text" maxlength="20" placeholder="兑换码" style="flex:1"><button id="zhz-go2" class="btn-mini" type="button">兑换</button></div>' +
       '<div class="err" id="zhz-err3"></div>' +
@@ -522,7 +562,7 @@
     if (r.state === "free" || r.state === "bonus") { showBadge(r); return; }
     if (r.state === "grace") {
       showBadge(r);
-      var KEY = "zhz_gate_reminded";
+      var KEY = "zhz_gate_reminded_" + SCOPE;
       var reminded = false;
       try { reminded = sessionStorage.getItem(KEY) === "1"; } catch (e) {}
       if (!reminded && !payLayer) {
