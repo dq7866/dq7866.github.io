@@ -439,6 +439,11 @@
   renderMenu();
   bind();
   syncCloud(true);
+  /* 门卫 iframe 握手是异步的：初始化时通道往往还没就绪，等 ready 后再补一次同步，
+     否则登录用户会在角标上看到「离线可玩」（首次调用被 gate:error 打断且无人重试） */
+  if (window.ZHZBridge && typeof window.ZHZBridge.onReady === "function") {
+    window.ZHZBridge.onReady(function () { syncCloud(false); });
+  }
   requestAnimationFrame(loop);
 
   /* 供自动化测试读取 */
