@@ -439,11 +439,18 @@
   renderMenu();
   bind();
   syncCloud(true);
-  /* 门卫 iframe 握手是异步的：初始化时通道往往还没就绪，等 ready 后再补一次同步，
-     否则登录用户会在角标上看到「离线可玩」（首次调用被 gate:error 打断且无人重试） */
-  if (window.ZHZBridge && typeof window.ZHZBridge.onReady === "function") {
-    window.ZHZBridge.onReady(function () { syncCloud(false); });
-  }
+  /* 云同步要等两件事：① 门卫 iframe 握手完成（否则 bridge 秒回 gate:error）；
+     ② 会话镜像回灌父页（登录用户刷新后，会话先存在 iframe 侧，SDK 首次写存储时
+     才镜像到一级域 localStorage，比 ready 晚几秒）。这里轮询等齐后再补一次同步，
+     匿名用户则保持「离线可玩」不发起无谓请求。 */
+  (function waitSync(n) {
+    if (!window.ZHZBridge || typeof window.ZHZBridge.ready !== "function") return;
+    if (!window.ZHZBridge.ready()) { if (n < 40) setTimeout(function () { waitSync(n + 1); }, 500); return; }
+    var sess = null;
+    try { sess = window.ZHZBridge.session(); } catch (e) {}
+    if (sess) { syncCloud(false); return; }
+    if (n < 40) setTimeout(function () { waitSync(n + 1); }, 800);
+  })(0);
   requestAnimationFrame(loop);
 
   /* 供自动化测试读取 */
