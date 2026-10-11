@@ -502,6 +502,169 @@
     wireRedeem(card, function () { removeLayer(payLayer); payLayer = null; requestStatus(); });
   }
 
+  /* ---------- 修改密码（已登录用户） ----------
+     两条通道，进卡片时按账号类型自动选（gate:whoami 探测）：
+       ① 有邮箱 → 验证码（平台 resetPasswordForEmail）。这是「先重新验证身份」的正路，
+          验证的是「你收得到这个账号的邮件」，不需要旧密码。
+       ② 无邮箱（手机号注册）→ 旧密码（平台 resetPasswordForOld）。
+          平台没有暴露「手机验证码改密」这条通道，旧密码是这类账号唯一能自助的方式。
+     两条都走 SDK，不自己拼 fetch。改完会话由 SDK 重建，不掉线。 */
+  var pwdLayer = null;
+  function showPwdCard() {
+    if (pwdLayer) return;
+    var card = el("div", "card");
+    card.innerHTML =
+      '<div class="brand"><div class="logo">知</div><div><h2>修改密码 · ' + SITE_NAME + '</h2><p>dq7866.online</p></div></div>' +
+
+      /* —— 模式 A：邮箱账号，验证码二次验证 —— */
+      '<div id="zhz-mode-otp" class="hidden">' +
+        '<p class="lead">为确认是本人操作，修改密码前要先用<b>验证码</b>验证一次身份。<br><span style="color:#a89f96;font-size:12px">不需要输入旧密码；验证码会发到你注册时用的邮箱。</span></p>' +
+        '<div class="field row"><input id="zhz-pcode" type="text" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="验证码"><button id="zhz-psend" class="btn-code" type="button">获取验证码</button></div>' +
+        '<div class="hint tiny" id="zhz-ptarget">点「获取验证码」开始验证。</div>' +
+        '<div class="field"><input id="zhz-np1" type="password" maxlength="32" autocomplete="new-password" placeholder="新密码（6-32 位）"></div>' +
+        '<div class="field"><input id="zhz-np2" type="password" maxlength="32" autocomplete="new-password" placeholder="再输一次新密码"></div>' +
+        '<div class="err" id="zhz-perr"></div>' +
+        '<button id="zhz-pok" class="btn-main" type="button">确认修改</button>' +
+        '<div class="ok" id="zhz-pokmsg"></div>' +
+      '</div>' +
+
+      /* —— 模式 B：手机号账号，平台无手机验证码改密，用当前密码确认身份 —— */
+      '<div id="zhz-mode-old" class="hidden">' +
+        '<p class="lead">你的账号是<b>手机号注册</b>的，平台还没有开放手机验证码改密。<br>为确认是本人操作，请输入<b>当前密码</b>，再设置新密码。</p>' +
+        '<div class="field"><input id="zhz-op0" type="password" maxlength="32" autocomplete="current-password" placeholder="当前密码"></div>' +
+        '<div class="field"><input id="zhz-np1o" type="password" maxlength="32" autocomplete="new-password" placeholder="新密码（6-32 位）"></div>' +
+        '<div class="field"><input id="zhz-np2o" type="password" maxlength="32" autocomplete="new-password" placeholder="再输一次新密码"></div>' +
+        '<div class="err" id="zhz-perr2"></div>' +
+        '<button id="zhz-pok2" class="btn-main" type="button">确认修改</button>' +
+        '<div class="ok" id="zhz-pokmsg2"></div>' +
+        '<div class="hint tiny">注册时没设过密码、或忘记当前密码？微信联系站长 ' + WECHAT_ID + ' 处理。</div>' +
+      '</div>' +
+
+      '<div class="err" id="zhz-perr0"></div>' +
+      '<button id="zhz-pback" class="btn-ghost" type="button">返回</button>';
+    pwdLayer = fullLayer(card, true);
+
+    var $ = function (id) { return card.querySelector("#" + id); };
+    var modeOtp = $("zhz-mode-otp"), modeOld = $("zhz-mode-old");
+    function perr(t) { $("zhz-perr").textContent = t || ""; }      /* 模式 A 的错误区 */
+    function perr2(t) { $("zhz-perr2").textContent = t || ""; }    /* 模式 B 的错误区 */
+    function perr0(t) { $("zhz-perr0").textContent = t || ""; }    /* 通用（探测失败等） */
+    function pnote(t, color) { var n = $("zhz-ptarget"); n.textContent = t || ""; n.style.color = color || ""; }
+
+    var pTimer = null, sent = false;
+    function countdown(btn) {
+      var left = 60;
+      btn.disabled = true; btn.textContent = left + " s";
+      pTimer = setInterval(function () {
+        left--;
+        if (left <= 0) { clearInterval(pTimer); pTimer = null; btn.disabled = false; btn.textContent = "重新发送"; }
+        else btn.textContent = left + " s";
+      }, 1000);
+    }
+    function closePwd() {
+      if (pTimer) { clearInterval(pTimer); pTimer = null; }
+      removeLayer(pwdLayer); pwdLayer = null;
+    }
+    /* 成功统一收尾：SDK 已用新密码重建会话，不需要重新登录 */
+    function done(msgId) {
+      $(msgId).textContent = "修改成功，正在返回…";
+      $("zhz-pok").disabled = true; $("zhz-pok2").disabled = true; $("zhz-pback").disabled = true;
+      setTimeout(function () { closePwd(); requestStatus(); }, 1600);
+    }
+
+    /* —— 模式 A ①：发验证码 —— */
+    $("zhz-psend").onclick = async function () {
+      perr(""); sent = false;
+      var btn = this; btn.disabled = true; btn.textContent = "发送中…";
+      var r = await bridge({ type: "gate:reset-start" }, 25000);
+      if (!r || r.type !== "gate:reset-start" || !r.ok) {
+        btn.disabled = false; btn.textContent = "获取验证码";
+        if (r && r.reason === "no_email") {
+          /* 兜底：正常流程不会走到这里（进卡片前已按账号类型分流） */
+          perr("该账号没有绑定邮箱，请改用「当前密码」方式修改");
+        } else if (r && r.reason === "unauthenticated") {
+          perr("登录状态已失效，请刷新页面重新登录");
+        } else {
+          perr((r && r.message) || "验证码发送失败，请稍后再试");
+        }
+        return;
+      }
+      sent = true;
+      pnote("验证码已发送到 " + esc(r.target || "你的注册邮箱") + "，请查收（含垃圾邮件箱）。重新获取会让旧验证码失效。", "#0a8f4c");
+      countdown(btn);
+      try { $("zhz-pcode").focus(); } catch (e) {}
+    };
+
+    /* —— 模式 A ②：验证码 + 新密码 —— */
+    $("zhz-pok").onclick = async function () {
+      var code = $("zhz-pcode").value.trim();
+      var p1 = $("zhz-np1").value, p2 = $("zhz-np2").value;
+      if (!sent) { perr("请先点「获取验证码」"); return; }
+      if (!code) { perr("请输入收到的验证码"); return; }
+      if (p1.length < 6 || p1.length > 32) { perr("新密码请用 6-32 位字符"); return; }
+      if (p1 !== p2) { perr("两次输入的新密码不一致"); return; }
+      perr("");
+      var btn = this; btn.disabled = true; btn.textContent = "提交中…";
+      var r = await bridge({ type: "gate:reset-submit", nonce: code, password: p1 }, 25000);
+      btn.disabled = false; btn.textContent = "确认修改";
+      if (!r || r.type !== "gate:reset-submit" || !r.ok) {
+        if (r && r.reason === "no_challenge") { sent = false; perr("请先点「获取验证码」"); }
+        else perr((r && r.message) || "密码修改失败，请稍后再试");
+        return;
+      }
+      sent = false;
+      pnote("密码已修改成功。下次登录可用新密码免验证码登录。", "#0a8f4c");
+      done("zhz-pokmsg");
+    };
+
+    /* —— 模式 B：当前密码 + 新密码 —— */
+    $("zhz-pok2").onclick = async function () {
+      var op = $("zhz-op0").value;
+      var p1 = $("zhz-np1o").value, p2 = $("zhz-np2o").value;
+      if (!op) { perr2("请输入当前密码"); return; }
+      if (p1.length < 6 || p1.length > 32) { perr2("新密码请用 6-32 位字符"); return; }
+      if (p1 !== p2) { perr2("两次输入的新密码不一致"); return; }
+      if (p1 === op) { perr2("新密码不能与当前密码相同"); return; }
+      perr2("");
+      var btn = this; btn.disabled = true; btn.textContent = "提交中…";
+      var r = await bridge({ type: "gate:reset-old", oldPassword: op, newPassword: p1 }, 25000);
+      btn.disabled = false; btn.textContent = "确认修改";
+      if (!r || r.type !== "gate:reset-old" || !r.ok) {
+        if (r && r.reason === "bad_old_password") perr2("当前密码不正确");
+        else if (r && r.reason === "unauthenticated") perr2("登录状态已失效，请刷新页面重新登录");
+        else perr2((r && r.message) || "密码修改失败，请稍后再试");
+        return;
+      }
+      done("zhz-pokmsg2");
+    };
+
+    $("zhz-pback").onclick = closePwd;
+
+    ["zhz-pcode", "zhz-np1", "zhz-np2"].forEach(function (id) {
+      $(id).addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { e.preventDefault(); $("zhz-pok").click(); }
+      });
+    });
+    ["zhz-op0", "zhz-np1o", "zhz-np2o"].forEach(function (id) {
+      $(id).addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { e.preventDefault(); $("zhz-pok2").click(); }
+      });
+    });
+
+    /* —— 进卡片先探测账号类型，再决定显示哪套表单 —— */
+    (async function pickMode() {
+      var r = await bridge({ type: "gate:whoami" }, 15000);
+      if (!r || r.type !== "gate:whoami" || !r.ok) {
+        perr0(r && r.reason === "unauthenticated"
+          ? "登录状态已失效，请刷新页面重新登录"
+          : ((r && r.message) || "账号信息读取失败，请稍后再试"));
+        return;
+      }
+      if (r.hasEmail) modeOtp.classList.remove("hidden");
+      else modeOld.classList.remove("hidden");
+    })();
+  }
+
   /* 角标 + 管理小面板 */
   var badge = null, panel = null, lastState = null;
   function showBadge(st) {
@@ -529,7 +692,10 @@
       '<div class="meta">免费 ' + (st.freeLeft != null ? st.freeLeft : "-") + ' 天 · 宽限 ' + (st.graceLeft != null ? st.graceLeft : "-") + ' 天 · 兑换余额 ' + (st.bonus != null ? st.bonus : "-") + ' 次<br>1 天 = 1 次 · 打赏 ' + PRICE + ' 可领码加 ' + CODE_DAYS + ' 次（微信 ' + WECHAT_ID + '）</div>' +
       '<div class="field" style="display:flex;gap:8px"><input id="zhz-r2" type="text" maxlength="20" placeholder="兑换码" style="flex:1"><button id="zhz-go2" class="btn-mini" type="button">兑换</button></div>' +
       '<div class="err" id="zhz-err3"></div>' +
-      '<button id="zhz-out2" class="btn-mini red" type="button">退出登录</button>' +
+      '<div style="display:flex;gap:8px">' +
+        '<button id="zhz-pwd2" class="btn-mini" type="button" style="flex:1">修改密码</button>' +
+        '<button id="zhz-out2" class="btn-mini red" type="button" style="flex:1">退出登录</button>' +
+      '</div>' +
       '<div class="diag">本机存储 ' + (dg.storage === "ok" ? "可用" : "受限") + ' · 通道 ' + (dg.bridgeStorage === "ok" ? "可用" : (dg.bridgeStorage || "-")) + ' · 登录态 ' + (dg.hasSession ? "已保存" : "无") + '</div>';
     root.appendChild(panel);
     var err = panel.querySelector("#zhz-err3");
@@ -548,6 +714,10 @@
       }
     };
     panel.querySelector("#zhz-out2").onclick = doSignOut;
+    panel.querySelector("#zhz-pwd2").onclick = function () {
+      removeLayer(panel); panel = null;      /* 先收起面板，再打开改密卡，避免两层叠着 */
+      showPwdCard();
+    };
   }
   async function doSignOut() {
     try { await bridge({ type: "gate:signout" }, 6000); } catch (e) {}
