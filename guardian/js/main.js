@@ -46,13 +46,14 @@
   function fsEl() { return document.documentElement; }
   function canFullscreen() { var e = fsEl(); return !!(e.requestFullscreen || e.webkitRequestFullscreen); }
   function isFullscreen() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function afterFs() { if (touchUI) lockLandscape(); else updateFsBtn(); }
   function requestFs() {
     var e = fsEl();
     try {
       var p = (e.requestFullscreen || e.webkitRequestFullscreen).call(e, { navigationUI: "hide" });
-      if (p && p.then) p.then(lockLandscape, lockLandscape);
-      else lockLandscape();
-    } catch (err) { lockLandscape(); }
+      if (p && p.then) p.then(afterFs, afterFs);
+      else afterFs();
+    } catch (err) { afterFs(); }
   }
   function lockLandscape() {
     try {
@@ -69,9 +70,15 @@
   }
   function updateFsBtn() {
     var b = $("btn-fs"); if (!b) return;
-    if (!touchUI || !canFullscreen()) { b.classList.add("hidden"); return; }
+    var on = isFullscreen();
+    /* 桌面和手机都显示；浏览器不支持元素全屏（iPhone Safari）时才隐藏，
+       免得留下一个点了没反应的按钮。 */
+    if (!canFullscreen()) { b.classList.add("hidden"); return; }
     b.classList.remove("hidden");
-    b.textContent = isFullscreen() ? "⛶ 退出全屏" : "⛶ 全屏";
+    b.textContent = on ? "⛶ 退出全屏" : "⛶ 全屏";
+    /* 触摸栏里的全屏键（游戏中用，风格与 🔄切换 / ⏸ 一致） */
+    var t = $("tb-fs");
+    if (t) { t.innerHTML = "⛶<i>" + (on ? "退出" : "全屏") + "</i>"; t.title = on ? "退出全屏" : "全屏显示"; }
   }
   /* 竖屏点「开始守门」时：直接请求全屏并锁横屏（Android Chrome 有效；
      iOS Safari 不支持则退回 rot90 旋转显示，照样能玩） */
@@ -621,6 +628,7 @@
     /* 触摸控件 */
     $("tb-switch").onclick = function () { Game.switchGuardian(); };
     $("tb-pause").onclick = function () { Game.togglePause(); };
+    if ($("tb-fs")) $("tb-fs").onclick = toggleFullscreen;
     /* 新手引导 */
     $("btn-guide-next").onclick = function () {
       if (guideIdx < GUIDE_STEPS.length - 1) { guideIdx++; renderGuide(); }
