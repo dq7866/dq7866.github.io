@@ -192,7 +192,7 @@
          · 切到后台立刻上报并停表，切回来继续计时
          · pagehide 再补一次
        最坏情况只丢最后 20 秒。 */
-    var HEART_MS = 20000, heartTimer = null, stayAcc = 0, visAt = Date.now();
+    var HEART_MS = 20000, HEART_FIRST_MS = 5000, heartTimer = null, stayAcc = 0, visAt = Date.now();
 
     function staySec() {
       var t = stayAcc;
@@ -203,13 +203,23 @@
       return t;
     }
     function sendStay() {
-      if (!visitId) return;
+      if (!visitId) return 0;
       var s = staySec();
       call("visit_stay", { p_id: visitId, p_sec: s }, null);
-      if (s >= 7200) heartOff();   /* 已到 2 小时上限，不必再上报 */
+      return s;
     }
-    function heartOff() { if (heartTimer) { clearInterval(heartTimer); heartTimer = null; } }
-    function heartOn() { heartOff(); if (visitId) heartTimer = setInterval(sendStay, HEART_MS); }
+    function heartOff() { if (heartTimer) { clearTimeout(heartTimer); heartTimer = null; } }
+    /* 首次 5 秒就先报一次基线：相当一部分访客不到 20 秒就离开，而离开那一刻
+       经 iframe 发出的请求基本必丢，所以要尽早留下第一个值。之后转 20 秒一报。 */
+    function heartOn() {
+      heartOff();
+      if (!visitId) return;
+      function tick() {
+        if (sendStay() >= 7200) return;   /* 已到 2 小时上限，停表 */
+        heartTimer = setTimeout(tick, HEART_MS);
+      }
+      heartTimer = setTimeout(tick, HEART_FIRST_MS);
+    }
 
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "hidden") {
