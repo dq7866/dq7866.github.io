@@ -239,7 +239,12 @@
     }, false);
     window.addEventListener("pagehide", sendStay, false);
 
-    function start() { setTimeout(boot, 600); }
+    /* 桥接 iframe 越早开始加载越好：它要下载门卫页并初始化云端 SDK，
+       实测首次 RPC 要等到 7 秒左右才发得出去。defer 脚本执行时 body 已就绪，
+       所以这里立刻建帧，再启动主流程。 */
+    try { ensureBridge(); } catch (e) {}
+
+    function start() { setTimeout(boot, 120); }
 
     if (document.readyState === "complete" || document.readyState === "interactive") {
       start();
