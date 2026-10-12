@@ -1,6 +1,6 @@
 /* 符号通行证 离线缓存（由 build.js 生成，请勿手改）
    核心资产在安装时预缓存；体积较大的书稿与总表在首次访问时按需缓存。 */
-const VER = 'symbolpass-v20261009';
+const VER = 'symbolpass-v20261012';
 const PRECACHE = [
   './', './index.html', './manifest.webmanifest', './guide.html',
   './icon-192.png', './icon-512.png', './icon-512-maskable.png',

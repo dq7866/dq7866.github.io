@@ -369,12 +369,8 @@
       <div class="badge">✨ 永久免费 · 无广告 · 大部分游戏支持离线游玩</div>
     </header>
 
-    <div class="site-nav" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:-6px 0 20px;">
-      <a href="/" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid rgba(255,255,255,.45);border-radius:20px;font-size:13.5px;font-weight:600;color:#fff;text-decoration:none;">🏠 知作坊 · 博客</a>
-      <a href="/edu/" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid rgba(255,255,255,.45);border-radius:20px;font-size:13.5px;font-weight:600;color:#fff;text-decoration:none;">📚 不只是成绩 · 教育专栏</a>
-      <a href="/symbolpass/" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid rgba(255,255,255,.45);border-radius:20px;font-size:13.5px;font-weight:600;color:#fff;text-decoration:none;">🔣 符号通行证</a>
-      <a href="/toolbox/" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid rgba(255,255,255,.45);border-radius:20px;font-size:13.5px;font-weight:600;color:#fff;text-decoration:none;">🧰 免费工具箱</a>
-    </div>
+    <!-- 站内其他板块（统一由 /site-cards.js 渲染） -->
+    <div data-zhz-sc="bar" data-zhz-sc-theme="dark" style="margin:-4px 0 22px;"></div>
 
     <div class="filter-bar">
       <input type="search" id="searchBox" placeholder="🔍 搜索游戏名称…" autocomplete="off">
@@ -937,6 +933,7 @@ searchBox.addEventListener('input', applyFilter);
   本站内容不设门槛、全部免费开放。若它帮到了你，欢迎 <a href="https://zhizuofang.app.workbuddy.host/tip.html" target="_blank" rel="noopener" style="color:#ff4d00;font-weight:700;text-decoration:none">赞赏支持</a>
 </div>
 <!-- /zhz-tip -->
+<script src="/site-cards.js" defer></script>
 <script src="/stats.js" defer></script>
 </body>
 </html>

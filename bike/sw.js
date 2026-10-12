@@ -1,9 +1,11 @@
 /* 风驰骑行 —— Service Worker：首次加载后整站离线可用（游戏本体 + AI 贴图素材，约 0.7MB） */
-var CACHE = 'windrider-v8';
+var CACHE = 'windrider-v9';
 var ASSETS = [
   './',
   './index.html',
-  '/fs-button.js',   /* 全屏按钮在站点根目录（scope 外），预缓存后离线打开也能全屏 */
+  '/fs-button.js',
+  '/site-cards.js',   /* 站内板块推介（scope 外根文件） */
+  '/fs-button.js',    /* 全屏按钮在站点根目录（scope 外），预缓存后离线打开也能全屏 */
   './sensor-test.html',
   './css/bike.css',
   './js/save.js',

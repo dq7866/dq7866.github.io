@@ -1,10 +1,11 @@
 /* 冰火守门人 —— Service Worker：首次加载后整站离线可用（游戏本体 + 3D 贴图素材）
    缓存策略：stale-while-revalidate —— 先用缓存秒开，后台静默拉新版供下次使用。
    改动本站资源后务必把 CACHE 版本号 +1，否则老用户看不到更新。 */
-var CACHE = 'guardian-v4';
+var CACHE = 'guardian-v5';
 var ASSETS = [
   './',
   './index.html',
+  '/site-cards.js',   /* 站内板块推介（scope 外根文件） */
   './css/guardian.css',
   './js/save.js',
   './js/scenes.js',

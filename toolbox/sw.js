@@ -1,6 +1,6 @@
 /* 免费工具箱 · Service Worker
    策略：同源资源「网络优先（强制绕过 HTTP 缓存）」，失败时回退到本地缓存 —— 既保证总会拿到最新文件，又能离线使用。 */
-const CACHE = "toolbox-online-v1";
+const CACHE = "toolbox-online-v2";
 const ASSETS = [
   "index.html",
   "tts-tools.html",
