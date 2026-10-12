@@ -1,6 +1,9 @@
 User-agent: *
 Allow: /
 
+# 站长后台不收录
+Disallow: /admin/
+
 # 站点地图
 Sitemap: https://dq7866.online/sitemap.xml
 Sitemap: https://dq7866.online/games/sitemap.xml

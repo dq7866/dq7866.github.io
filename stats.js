@@ -152,7 +152,7 @@
     }
 
     /* ---------------- 主流程 ---------------- */
-    var visitId = null, staySent = false, ipRetried = false, t0 = Date.now();
+    var visitId = null, ipRetried = false;
 
     /* ipip.net 偶发超时会让这次访问没有真实 IP。云端此时只回 ip_known:false
        （不会拿平台网关 IP 顶替），这里补一次重试，拿到就回填。 */
@@ -178,24 +178,48 @@
           try {
             var d = res && res.data;
             if (!d || !d.ok) return;
-            if (d.id) visitId = d.id;
+            if (d.id) { visitId = d.id; heartOn(); }
             if (d.ip_known === false && d.id) backfillIp(d.id);
           } catch (e) {}
         });
       });
     }
 
-    function sendStay() {
-      if (staySent || !visitId) return;
-      staySent = true;
-      var sec = Math.round((Date.now() - t0) / 1000);
-      if (sec < 1) sec = 1;
-      if (sec > 7200) sec = 7200;
-      call("visit_stay", { p_id: visitId, p_sec: sec }, null);
+    /* ---------------- 停留时长 ----------------
+       只在 pagehide 上报是不行的：那一刻 iframe 随父页一起销毁，fetch 会被
+       浏览器掐断，实测真实访客的停留时长几乎全丢。所以改成心跳：
+         · 每 20 秒上报一次「累计可见时长」，云端只取最大值（单调不回退）
+         · 切到后台立刻上报并停表，切回来继续计时
+         · pagehide 再补一次
+       最坏情况只丢最后 20 秒。 */
+    var HEART_MS = 20000, heartTimer = null, stayAcc = 0, visAt = Date.now();
+
+    function staySec() {
+      var t = stayAcc;
+      if (document.visibilityState !== "hidden") t += (Date.now() - visAt) / 1000;
+      t = Math.round(t);
+      if (t < 1) t = 1;
+      if (t > 7200) t = 7200;
+      return t;
     }
+    function sendStay() {
+      if (!visitId) return;
+      var s = staySec();
+      call("visit_stay", { p_id: visitId, p_sec: s }, null);
+      if (s >= 7200) heartOff();   /* 已到 2 小时上限，不必再上报 */
+    }
+    function heartOff() { if (heartTimer) { clearInterval(heartTimer); heartTimer = null; } }
+    function heartOn() { heartOff(); if (visitId) heartTimer = setInterval(sendStay, HEART_MS); }
 
     document.addEventListener("visibilitychange", function () {
-      if (document.visibilityState === "hidden") sendStay();
+      if (document.visibilityState === "hidden") {
+        stayAcc += (Date.now() - visAt) / 1000;
+        sendStay();
+        heartOff();
+      } else {
+        visAt = Date.now();
+        heartOn();
+      }
     }, false);
     window.addEventListener("pagehide", sendStay, false);
 
