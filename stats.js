@@ -215,16 +215,19 @@
       return s;
     }
     function heartOff() { if (heartTimer) { clearTimeout(heartTimer); heartTimer = null; } }
-    /* 首次 5 秒就先报一次基线：相当一部分访客不到 20 秒就离开，而离开那一刻
-       经 iframe 发出的请求基本必丢，所以要尽早留下第一个值。之后转 20 秒一报。 */
+    /* 首次拿到访问 ID 就立刻报一次基线（此时约等于"页面已打开时长"，
+       本身就是准确的停留下限），3 秒后再报一次，之后 20 秒一报。
+       离开那一刻经 iframe 发出的请求基本必丢，所以尽早留下值最关键。 */
     function heartOn() {
       heartOff();
       if (!visitId) return;
+      var delay = 0;
       function tick() {
         if (sendStay() >= 7200) return;   /* 已到 2 小时上限，停表 */
-        heartTimer = setTimeout(tick, HEART_MS);
+        delay = (delay === 0) ? HEART_FIRST_MS : HEART_MS;
+        heartTimer = setTimeout(tick, delay);
       }
-      heartTimer = setTimeout(tick, HEART_FIRST_MS);
+      heartTimer = setTimeout(tick, delay);
     }
 
     document.addEventListener("visibilitychange", function () {
