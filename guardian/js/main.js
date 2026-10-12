@@ -16,6 +16,70 @@
   /* 触摸设备（手机 / 平板）：显示局内触摸控件（切换守门人 / 暂停） */
   var touchUI = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);
 
+  /* ================= 横竖屏自适应 =================
+     游戏按横屏（3:2）设计。手机竖屏时（很多人还开着竖屏锁定，浏览器永远是竖屏）
+     画面会被压成一条小横条，所以这里给 <html> 挂 rot90：CSS 把 --vw/--vh 互换
+     并把 #stage 整体旋转 90°，竖屏设备上自动得到横屏版面；玩家把手机横过来
+     则自动恢复正常方向。桌面端和横屏手机不受影响。 */
+  var hintT1 = null, hintT2 = null, fitT = null;
+  function portraitLike() { return window.innerHeight > window.innerWidth; }
+  function fitViewport() {
+    var rot = touchUI && portraitLike() && Math.min(window.innerWidth, window.innerHeight) <= 820;
+    var root = document.documentElement;
+    var was = root.classList.contains("rot90");
+    root.classList.toggle("rot90", rot);
+    if (rot && !was) {
+      root.classList.remove("fade");
+      root.classList.add("hint");
+      clearTimeout(hintT1); clearTimeout(hintT2);
+      hintT1 = setTimeout(function () { root.classList.add("fade"); }, 4200);
+      hintT2 = setTimeout(function () { root.classList.remove("hint", "fade"); }, 5200);
+    } else if (!rot) {
+      clearTimeout(hintT1); clearTimeout(hintT2);
+      root.classList.remove("hint", "fade");
+    }
+    updateFsBtn();
+  }
+  function scheduleFit() { clearTimeout(fitT); fitT = setTimeout(fitViewport, 90); }
+
+  /* ---- 全屏 / 横屏锁定（尽力而为，失败静默） ---- */
+  function fsEl() { return document.documentElement; }
+  function canFullscreen() { var e = fsEl(); return !!(e.requestFullscreen || e.webkitRequestFullscreen); }
+  function isFullscreen() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function requestFs() {
+    var e = fsEl();
+    try {
+      var p = (e.requestFullscreen || e.webkitRequestFullscreen).call(e, { navigationUI: "hide" });
+      if (p && p.then) p.then(lockLandscape, lockLandscape);
+      else lockLandscape();
+    } catch (err) { lockLandscape(); }
+  }
+  function lockLandscape() {
+    try {
+      var o = screen.orientation || screen.mozOrientation;
+      if (o && o.lock) { var r = o.lock("landscape"); if (r && r.catch) r.catch(function () {}); }
+    } catch (err) {}
+    updateFsBtn();
+  }
+  function toggleFullscreen() {
+    if (isFullscreen()) {
+      try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (err) {}
+    } else requestFs();
+    setTimeout(updateFsBtn, 120);
+  }
+  function updateFsBtn() {
+    var b = $("btn-fs"); if (!b) return;
+    if (!touchUI || !canFullscreen()) { b.classList.add("hidden"); return; }
+    b.classList.remove("hidden");
+    b.textContent = isFullscreen() ? "⛶ 退出全屏" : "⛶ 全屏";
+  }
+  /* 竖屏点「开始守门」时：直接请求全屏并锁横屏（Android Chrome 有效；
+     iOS Safari 不支持则退回 rot90 旋转显示，照样能玩） */
+  function goLandscape() {
+    if (!touchUI || !portraitLike()) return;
+    if (isFullscreen()) lockLandscape(); else requestFs();
+  }
+
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
@@ -127,6 +191,7 @@
     hideAll();
     $("duelBar").classList.add("hidden");
     showTouch(true);
+    goLandscape();
     Game.start(sel.scene, sel.diff, { duel: false });
   }
   /* 每日挑战：按日期种子固定场景 / 难度 / 机制，绕开解锁限制，成绩进独立日榜。
@@ -138,6 +203,7 @@
     hideAll();
     $("duelBar").classList.add("hidden");
     showTouch(true);
+    goLandscape();
     Game.start(ch.scene, ch.diff, { daily: true, perk: ch.mod, modeKey: ch.key });
     showToast("每日挑战开始：" + ch.modIcon + " " + ch.modName);
   }
@@ -586,6 +652,7 @@
     };
     $("btn-cloud").onclick = function () { syncCloud(false); showToast("正在同步云端存档…"); };
     $("panelClose").onclick = closePanel;
+    $("btn-fs").onclick = toggleFullscreen;
     $("panel").onclick = function (e) { if (e.target === $("panel")) closePanel(); };
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") {
@@ -603,6 +670,18 @@
   if (!Save.get().sound) { Game.setMuted(true); $("btn-sound").textContent = "🔇 已静音"; }
   renderMenu();
   bind();
+  /* 横竖屏自适应：首次校准 + 方向/尺寸变化时重算（旋转、切前后台、地址栏收放都会触发） */
+  fitViewport();
+  window.addEventListener("orientationchange", scheduleFit);
+  window.addEventListener("resize", scheduleFit);
+  if (window.visualViewport && window.visualViewport.addEventListener) {
+    window.visualViewport.addEventListener("resize", scheduleFit);
+  }
+  if (screen.orientation && screen.orientation.addEventListener) {
+    screen.orientation.addEventListener("change", scheduleFit);
+  }
+  document.addEventListener("fullscreenchange", scheduleFit);
+  document.addEventListener("webkitfullscreenchange", scheduleFit);
   syncCloud(true);
   /* 云同步要等两件事：① 门卫 iframe 握手完成（否则 bridge 秒回 gate:error）；
      ② 会话镜像回灌父页（登录用户刷新后，会话先存在 iframe 侧，SDK 首次写存储时
@@ -631,5 +710,6 @@
 
   /* 供自动化测试读取 */
   window.__GKUI = { sel: sel, save: Save, game: Game, net: Net, progress: Progress, config: Config,
-                    openGuide: openGuide, openDailyChallenge: openDailyChallenge, dailyRun: function () { return dailyRun; } };
+                    openGuide: openGuide, openDailyChallenge: openDailyChallenge, dailyRun: function () { return dailyRun; },
+                    fitViewport: fitViewport, isLandscapeLock: function () { return document.documentElement.classList.contains("rot90"); } };
 })();

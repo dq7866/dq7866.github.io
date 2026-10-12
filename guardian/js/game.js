@@ -93,8 +93,22 @@ var Game = (function () {
     if (k === "escape" && scene === "pause") togglePause();
   }
   function pt(e) {
+    /* 手机竖屏时 #stage 被整体旋转 90°（见 guardian.css 的 html.rot90），
+       此时 getBoundingClientRect 给的是外接矩形，不能直接线性映射，
+       要先用外接矩形中心求出屏幕偏移，再逆旋转回画布本地坐标。 */
     var r = cv.getBoundingClientRect();
-    return { x: (e.clientX - r.left) / r.width * E3.W, y: (e.clientY - r.top) / r.height * E3.H };
+    var w = cv.offsetWidth, h = cv.offsetHeight;         // 未旋转的渲染尺寸
+    var dx = e.clientX - (r.left + r.width / 2);
+    var dy = e.clientY - (r.top + r.height / 2);
+    var u, v;
+    if (document.documentElement.classList.contains("rot90")) {
+      u = w / 2 + dy;                                     // 本地 x 轴 ↦ 屏幕向下
+      v = h / 2 - dx;                                     // 本地 y 轴 ↦ 屏幕向左
+    } else {
+      u = w / 2 + dx;
+      v = h / 2 + dy;
+    }
+    return { x: u / w * E3.W, y: v / h * E3.H };
   }
   var isTouch = ("ontouchstart" in window) || navigator.maxTouchPoints > 0;
 

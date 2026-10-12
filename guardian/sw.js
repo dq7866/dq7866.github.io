@@ -1,7 +1,7 @@
 /* 冰火守门人 —— Service Worker：首次加载后整站离线可用（游戏本体 + 3D 贴图素材）
    缓存策略：stale-while-revalidate —— 先用缓存秒开，后台静默拉新版供下次使用。
    改动本站资源后务必把 CACHE 版本号 +1，否则老用户看不到更新。 */
-var CACHE = 'guardian-v2';
+var CACHE = 'guardian-v3';
 var ASSETS = [
   './',
   './index.html',

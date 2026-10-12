@@ -24,9 +24,13 @@
 </head>
 <body>
 
+<!-- 整个游戏装进 #stage：手机竖屏时由 html.rot90 把这一层整体旋转 90°，
+     于是横屏游戏在竖屏设备（含开了竖屏锁定的手机）上也能满屏可玩 -->
+<div id="stage">
+
 <canvas id="cv" width="960" height="640"></canvas>
 <div id="toast"></div>
-<div id="rotateHint">📱 手机横屏体验更佳</div>
+<div id="rotateHint">📱 已自动转横屏显示 · 手机横过来更大</div>
 
 <!-- ============ 主菜单 ============ -->
 <section id="menu" class="screen">
@@ -66,6 +70,7 @@
     <button id="btn-daily">📅 每日任务 <b id="m-daily" class="dot">0/3</b></button>
     <button id="btn-help">❓ 操作</button>
     <button id="btn-sound">🔊 音效</button>
+    <button id="btn-fs" class="hidden">⛶ 全屏</button>
   </footer>
 </section>
 
@@ -156,5 +161,6 @@
 <script src="js/cloud.js"></script>
 <script src="js/net.js"></script>
 <script src="js/main.js"></script>
+</div><!-- /#stage -->
 </body>
 </html>
