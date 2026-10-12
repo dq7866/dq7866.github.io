@@ -148,7 +148,7 @@
       var d = r && r.data;
       if (typeof d === "string") { try { d = JSON.parse(d); } catch (e) {} }
       if (d && d.ok && d.token) {
-        setToken(d.token); authLost = false; enterApp();
+        setToken(d.token); authLost = false; enterApp(d.user || u);
       } else {
         $("#lg-err").textContent = reasonText(d);
       }
@@ -164,7 +164,8 @@
     $("#lg-pass").value = "";
     if (silent) $("#lg-err").textContent = "登录已过期，请重新登录";
   }
-  function enterApp() {
+  function enterApp(user) {
+    if (user) $("#who").textContent = user;
     $("#login").classList.add("hidden");
     $("#app").classList.remove("hidden");
     go("overview");
@@ -905,8 +906,7 @@
     ensureBridge();
     rpc("admin_check", { p_token: t }).then(function (d) {
       if (d.ok) {
-        $("#who").textContent = d.user;
-        enterApp();
+        enterApp(d.user);
       } else {
         setToken("");
         $("#login").classList.remove("hidden");
