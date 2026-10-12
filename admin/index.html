@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>站长管理后台 · 知作坊</title>
+<link rel="stylesheet" href="admin.css?v=1">
+</head>
+<body>
+
+<!-- ============ 登录 ============ -->
+<div id="login" class="hidden">
+  <div class="loginbox">
+    <div class="brand">
+      <div class="ic">🛢️</div>
+      <h1>知作坊 · 站长后台</h1>
+      <p>DQ7866.ONLINE</p>
+    </div>
+    <label>管理员账号</label>
+    <input id="lg-user" autocomplete="username" placeholder="请输入用户名">
+    <label>密码</label>
+    <input id="lg-pass" type="password" autocomplete="current-password" placeholder="请输入密码">
+    <button class="btn primary block" id="lg-btn">登 录</button>
+    <div class="err" id="lg-err"></div>
+  </div>
+</div>
+
+<!-- ============ 主界面 ============ -->
+<div id="app" class="hidden">
+  <header class="top">
+    <div class="logo"><b>知作坊 · 站长后台</b><span>DQ7866.ONLINE</span></div>
+    <div class="sp"></div>
+    <div class="meta">
+      <span>统计范围
+        <select id="day-sel" style="padding:5px 8px;background:#10141d;border:1px solid #2e394d;border-radius:7px;color:#e7ebf3;margin-left:5px"></select>
+      </span>
+      <span>👤 <b id="who" style="color:#f2c47a">—</b></span>
+      <button class="btn sm" id="btn-out">退出登录</button>
+    </div>
+  </header>
+  <nav class="tabs" id="tabs"></nav>
+  <div id="content"></div>
+</div>
+
+<div id="toast"></div>
+<div id="modal" class="hidden"></div>
+
+<script src="admin.js?v=1"></script>
+</body>
+</html>
