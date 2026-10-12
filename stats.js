@@ -152,36 +152,42 @@
     }
 
     /* ---------------- 主流程 ---------------- */
-    var visitId = null, ipRetried = false;
+    var visitId = null, ipRetried = false, wantIp = null;
 
-    /* ipip.net 偶发超时会让这次访问没有真实 IP。云端此时只回 ip_known:false
-       （不会拿平台网关 IP 顶替），这里补一次重试，拿到就回填。 */
-    function backfillIp(id) {
-      if (ipRetried || payload.ip) return;
+    /* IP 与打点解耦：myip.ipip.net 实测常常要 3~6 秒才回来。原先等它回来才打点，
+       结果是前几秒就离开的访客连记录都来不及落库、停留更无从计起。
+       所以改成先立刻打点（不带 IP），IP 拿到后用 visit_ip 补写。 */
+    function flushIp() {
+      if (!visitId || !wantIp || !wantIp.ip) return;
+      call("visit_ip", { p_id: visitId, p_ip: wantIp.ip, p_region: wantIp.region || "" }, null);
+      wantIp = null;
+    }
+    function backfillIp() {
+      if (ipRetried || (wantIp && wantIp.ip)) return;
       ipRetried = true;
       setTimeout(function () {
         fetchIp(function (info) {
           if (!info || !info.ip) return;
-          call("visit_ip", { p_id: id, p_ip: info.ip, p_region: info.region || "" }, null);
+          wantIp = info;
+          flushIp();
         });
-      }, 2500);
+      }, 3000);
     }
 
     function boot() {
       try { ensureBridge(); } catch (e) {}
+      call("visit_log", { p: payload }, function (res) {
+        try {
+          var d = res && res.data;
+          if (!d || !d.ok) return;
+          if (d.id) { visitId = d.id; heartOn(); }
+          flushIp();
+          if (d.ip_known === false) backfillIp();
+        } catch (e) {}
+      });
       fetchIp(function (info) {
-        if (info) {
-          if (info.ip) payload.ip = info.ip;
-          if (info.region) payload.region = info.region;
-        }
-        call("visit_log", { p: payload }, function (res) {
-          try {
-            var d = res && res.data;
-            if (!d || !d.ok) return;
-            if (d.id) { visitId = d.id; heartOn(); }
-            if (d.ip_known === false && d.id) backfillIp(d.id);
-          } catch (e) {}
-        });
+        if (info && info.ip) { wantIp = info; flushIp(); }
+        else backfillIp();
       });
     }
 
@@ -192,7 +198,7 @@
          · 切到后台立刻上报并停表，切回来继续计时
          · pagehide 再补一次
        最坏情况只丢最后 20 秒。 */
-    var HEART_MS = 20000, HEART_FIRST_MS = 5000, heartTimer = null, stayAcc = 0, visAt = Date.now();
+    var HEART_MS = 20000, HEART_FIRST_MS = 3000, heartTimer = null, stayAcc = 0, visAt = Date.now();
 
     function staySec() {
       var t = stayAcc;
