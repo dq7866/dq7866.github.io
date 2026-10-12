@@ -48,22 +48,87 @@
   }
 
   /* ---------------- 桥接 ---------------- */
-  var frame = null, frameReady = false, seq = 0, pending = {};
+  /* 后台不直连云端（跨域必被 CORS 拦），所有请求都经门卫域 bridge.html 转发。
+     该帧是第三方 iframe，冷启动要几秒，因此：
+       ① 进页面就预热 —— 用户输账号密码的这十几秒里帧已经加载完；
+       ② 帧加载状态实时回显到登录页（区分「服务连不上」和「密码不对」）；
+       ③ 超时按原因给不同提示，并且帧根本没加载上时丢弃重建，下次点击即可重连。 */
+  var frame = null, frameLoaded = false, seq = 0, pending = {}, netCb = null;
+  var CALL_TIMEOUT = 30000, FRAME_WAIT = 15000, PROBE_TIMEOUT = 12000, frameWatch = null;
+  var probed = false, probeP = null;
+
+  function setNet(state, text) { if (netCb) netCb(state, text); }
+
+  function dropFrame() {
+    try { if (frame && frame.parentNode) frame.parentNode.removeChild(frame); } catch (e) {}
+    frame = null; frameLoaded = false; probed = false; probeP = null;
+  }
+
+  /* iframe 的 onload 在「加载失败」时同样会触发（浏览器加载的是错误页），
+     所以不能用它判断通道可用。这里发一条无副作用的探测请求
+     （admin_check 带假令牌必然回 auth 失败，能收到回复即证明链路通），
+     收到回复才算真正就绪。返回 Promise<boolean>，登录前先等它。 */
+  function probeBridge() {
+    if (probed) return Promise.resolve(true);
+    if (probeP) return probeP;
+    probeP = new Promise(function (resolve) {
+      var settled = false, timer = null;
+      function fail() {
+        if (settled) return; settled = true;
+        setNet("bad", "服务无响应——网络可能拦截了 zhizuofang.app.workbuddy.host，点登录可重连");
+        dropFrame();
+        resolve(false);
+      }
+      timer = setTimeout(fail, PROBE_TIMEOUT);
+      (function trySend() {
+        if (settled) return;
+        if (!frameLoaded) { setTimeout(trySend, 300); return; }   /* 等帧加载完再发 */
+        var s = ++seq;
+        pending[s] = {
+          fn: "admin_check", args: { p_token: "__probe__" },
+          resolve: function () {
+            if (settled) return; settled = true;
+            clearTimeout(timer);
+            probed = true;
+            setNet("ok", "服务已连接");
+            resolve(true);
+          },
+          timer: timer
+        };
+        sendAll();
+      })();
+    });
+    return probeP;
+  }
 
   function ensureBridge() {
     if (frame) return;
+    if (!document.body) return;
     try {
       frame = document.createElement("iframe");
       frame.setAttribute("aria-hidden", "true");
       frame.title = "admin-bridge";
       frame.style.cssText = "position:absolute;width:0;height:0;border:0;left:-9999px;top:0;";
-      frame.onload = function () { frameReady = true; sendAll(); };
+      frame.onload = function () {
+        frameLoaded = true;
+        clearTimeout(frameWatch);
+        frameWatch = null;
+        setNet("wait", "正在校验服务…");
+        probeBridge();
+      };
+      frame.onerror = function () { setNet("bad", "无法加载桥接服务，请检查网络后重试"); };
       frame.src = BRIDGE;
       document.body.appendChild(frame);
+      setNet("wait", "正在连接服务…");
+      clearTimeout(frameWatch);
+      frameWatch = setTimeout(function () {
+        if (frameLoaded) return;
+        setNet("bad", "无法连接服务（网络可能拦截了 zhizuofang.app.workbuddy.host），点登录可重连");
+      }, FRAME_WAIT);
     } catch (e) { frame = null; }
   }
   function sendAll() {
-    if (!frame || !frameReady || !frame.contentWindow) return;
+    if (!frame || !frameLoaded || !frame.contentWindow) return;
     Object.keys(pending).forEach(function (k) {
       var it = pending[k];
       try {
@@ -85,7 +150,10 @@
     return new Promise(function (resolve) {
       ensureBridge();
       var s = ++seq;
-      var timer = setTimeout(function () { delete pending[s]; resolve(null); }, 20000);
+      var timer = setTimeout(function () {
+        delete pending[s];
+        resolve({ ok: false, reason: frameLoaded ? "timeout" : "bridge_unreachable" });
+      }, CALL_TIMEOUT);
       pending[s] = { fn: fn, args: args || {}, resolve: resolve, timer: timer };
       sendAll();
     });
@@ -94,8 +162,13 @@
   var authLost = false;
   function rpc(fn, args) {
     return call(fn, args).then(function (r) {
-      if (!r) return { ok: false, message: "云端无响应，请检查网络后重试" };
-      if (r.ok === false) return { ok: false, message: r.message || "调用失败" };
+      if (!r) return { ok: false, reason: "timeout" };
+      if (r.ok === false && r.reason === "bridge_unreachable") {
+        /* 帧压根没加载上（网络拦截 / 首次超时）→ 丢弃它，下次调用会自动重建并重连 */
+        dropFrame();
+        return { ok: false, reason: "bridge_unreachable" };
+      }
+      if (r.ok === false) return { ok: false, reason: r.reason, message: r.message || "调用失败" };
       var d = r.data;
       if (typeof d === "string") { try { d = JSON.parse(d); } catch (e) {} }
       if (d && d.ok === false && d.reason === "auth" && !authLost) {
@@ -123,7 +196,9 @@
       bad_action: "操作类型无效",
       auth: "登录已过期，请重新登录",
       rate_limited: "操作过于频繁，请稍后再试",
-      not_allowed: "该函数不在白名单内"
+      not_allowed: "该函数不在白名单内",
+      timeout: "云端响应超时，请重试",
+      bridge_unreachable: "服务连接失败——浏览器可能拦截了 zhizuofang.app.workbuddy.host，请检查网络，或换用 Chrome / Edge 再试"
     };
     return m[d.reason] || d.message || "操作失败";
   }
@@ -140,18 +215,30 @@
   /* ---------------- 登录 / 登出 ---------------- */
   function doLogin() {
     var u = $("#lg-user").value.trim(), p = $("#lg-pass").value;
-    if (!u || !p) { $("#lg-err").textContent = "请输入用户名和密码"; return; }
-    var btn = $("#lg-btn");
-    btn.disabled = true; btn.textContent = "登录中…"; $("#lg-err").textContent = "";
-    call("admin_login", { p_user: u, p_pass: p }).then(function (r) {
-      btn.disabled = false; btn.textContent = "登 录";
-      var d = r && r.data;
-      if (typeof d === "string") { try { d = JSON.parse(d); } catch (e) {} }
-      if (d && d.ok && d.token) {
-        setToken(d.token); authLost = false; enterApp(d.user || u);
-      } else {
-        $("#lg-err").textContent = reasonText(d);
+    var err = $("#lg-err"), btn = $("#lg-btn");
+    if (!u || !p) { err.textContent = "请输入用户名和密码"; return; }
+    btn.disabled = true; err.textContent = "";
+    ensureBridge();
+    /* 首帧还在加载/校验时明说「连接中」，并且先等通道确认可用再发登录请求，
+       避免用户白等 30 秒才看到「网络异常」。 */
+    if (probed) btn.textContent = "登录中…";
+    else { btn.textContent = "连接中…"; setNet("wait", "正在连接服务…"); }
+    probeBridge().then(function (good) {
+      if (!good) {
+        btn.disabled = false; btn.textContent = "登 录";
+        err.textContent = "服务连接失败——浏览器可能拦截了 zhizuofang.app.workbuddy.host，请检查网络，或换用 Chrome / Edge 再试";
+        return;
       }
+      if (!probed) btn.textContent = "登录中…";
+      rpc("admin_login", { p_user: u, p_pass: p }).then(function (d) {
+        btn.disabled = false; btn.textContent = "登 录";
+        if (d && d.ok && d.token) {
+          $("#lg-pass").value = "";
+          setToken(d.token); authLost = false; enterApp(d.user || u);
+        } else {
+          err.textContent = reasonText(d);
+        }
+      });
     });
   }
   function logout(silent) {
@@ -712,7 +799,7 @@
       var trackOn = ov.track === "on";
       host.innerHTML =
         '<div class="card" style="margin-bottom:14px"><h3>🔍 访客 IP 自检</h3>' +
-        '<div class="note">服务端记录的 IP 来自平台网关，样本显示它可能是<b>平台侧出口 IP</b>而不是访客真实 IP。为此后台同时从访客浏览器直连 ipip.net 取真实 IP 与归属地，两条都存。下面显示的就是<b>你这台设备</b>的公网 IP，可用来核对统计是否准确。</div>' +
+        '<div class="note">访客 IP 由访客浏览器直连 ipip.net 取得（真实公网 IP + 归属地），平台网关的出口 IP <b>不会</b>混进统计——它只另有存档用于排查，所以偶尔看到「未知」是取 IP 失败的真实结果。下面显示的是<b>你这台设备</b>的公网 IP，可用来核对统计是否准确。</div>' +
         '<div class="kv" id="ip-self"><div class="k">浏览器公网 IP</div><div class="v">检测中…</div></div>' +
         '<div style="margin-top:14px;display:flex;gap:9px;flex-wrap:wrap">' +
         '<button class="btn" id="ip-again">重新检测</button>' +
@@ -891,9 +978,38 @@
     $$("nav.tabs button").forEach(function (b) {
       b.onclick = function () { go(b.getAttribute("data-p")); };
     });
-    $("#lg-btn").onclick = doLogin;
-    $("#lg-pass").onkeydown = function (e) { if (e.key === "Enter") doLogin(); };
-    $("#lg-user").onkeydown = function (e) { if (e.key === "Enter") $("#lg-pass").focus(); };
+    /* ---- 登录表单 ---- */
+    /* 用 form 的 submit 统一收口（回车、点按钮都走这里），不再单独绑按钮 click，
+       否则会出现一次点击触发两遍登录。 */
+    function submitLogin(e) { if (e && e.preventDefault) e.preventDefault(); doLogin(); return false; }
+    var lf = $("#lg-form");
+    if (lf) lf.onsubmit = submitLogin;
+    $("#lg-pass").onkeydown = function (e) { if (e.key === "Enter") submitLogin(e); };
+    $("#lg-user").onkeydown = function (e) { if (e.key === "Enter") { e.preventDefault(); $("#lg-pass").focus(); } };
+
+    /* ---- 密码显示 / 隐藏 ---- */
+    var eye = $("#lg-eye"), pwIn = $("#lg-pass");
+    if (eye && pwIn) {
+      eye.onclick = function () {
+        var show = pwIn.type === "password";
+        pwIn.type = show ? "text" : "password";
+        eye.classList.toggle("on", show);
+        eye.setAttribute("aria-pressed", show ? "true" : "false");
+        eye.title = show ? "隐藏密码" : "显示密码";
+        eye.setAttribute("aria-label", eye.title);
+        pwIn.focus();
+        try { pwIn.setSelectionRange(pwIn.value.length, pwIn.value.length); } catch (e) {}
+      };
+    }
+
+    /* ---- 桥接状态回显到登录页（把「网络不通」和「密码错误」区分开） ---- */
+    netCb = function (state, text) {
+      var n = $("#lg-net");
+      if (!n) return;
+      n.className = "net" + (state === "ok" ? " ok" : state === "bad" ? " bad" : "");
+      n.textContent = text || "";
+    };
+    ensureBridge();   /* 进页面就预热桥接，用户输账号的十几秒里帧已就绪 */
     $("#btn-out").onclick = function () { logout(false); };
 
     /* 天数切换 */
@@ -904,15 +1020,23 @@
     if (!t) { $("#login").classList.remove("hidden"); return; }
     $("#login").classList.add("hidden");
     ensureBridge();
-    rpc("admin_check", { p_token: t }).then(function (d) {
-      if (d.ok) {
-        enterApp(d.user);
-      } else {
+    probeBridge().then(function (good) {
+      var le = $("#lg-err");
+      if (!good) {
         setToken("");
         $("#login").classList.remove("hidden");
-        var le = $("#lg-err");
-        if (le) le.textContent = "登录状态已失效，请重新登录。";
+        if (le) le.textContent = "服务连接失败，请检查网络后重新登录。";
+        return;
       }
+      rpc("admin_check", { p_token: t }).then(function (d) {
+        if (d.ok) {
+          enterApp(d.user);
+        } else {
+          setToken("");
+          $("#login").classList.remove("hidden");
+          if (le) le.textContent = "登录状态已失效，请重新登录。";
+        }
+      });
     });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, false);

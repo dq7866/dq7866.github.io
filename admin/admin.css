@@ -59,6 +59,21 @@ button, input, select { font-family: inherit; font-size: 14px; }
   border-radius: 9px; color: var(--tx); outline: none; transition: border-color .15s;
 }
 .loginbox input:focus { border-color: var(--gold); }
+/* 密码框 + 显示/隐藏按钮 */
+.pw { position: relative; }
+.pw input { padding-right: 42px; }
+.pw .eye {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  background: none; border: 0; border-radius: 7px; color: var(--tx3); cursor: pointer;
+  transition: color .15s, background .15s;
+}
+.pw .eye:hover { color: var(--gold2); background: rgba(232, 180, 99, .1); }
+.pw .eye.on { color: var(--gold2); }
+/* 桥接连接状态提示（登录页底部小字，用于区分「网络不通」和「密码错误」） */
+.net { font-size: 12px; color: var(--tx3); margin-top: 10px; text-align: center; min-height: 16px; }
+.net.ok { color: var(--green); }
+.net.bad { color: #ffb3b8; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   padding: 10px 16px; border-radius: 9px; border: 1px solid var(--line2);

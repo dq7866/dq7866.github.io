@@ -17,12 +17,20 @@
       <h1>知作坊 · 站长后台</h1>
       <p>DQ7866.ONLINE</p>
     </div>
-    <label>管理员账号</label>
-    <input id="lg-user" autocomplete="username" placeholder="请输入用户名">
-    <label>密码</label>
-    <input id="lg-pass" type="password" autocomplete="current-password" placeholder="请输入密码">
-    <button class="btn primary block" id="lg-btn">登 录</button>
-    <div class="err" id="lg-err"></div>
+    <form class="lgform" id="lg-form" autocomplete="on" novalidate>
+      <label for="lg-user">管理员账号</label>
+      <input id="lg-user" name="username" autocomplete="username" placeholder="请输入用户名">
+      <label for="lg-pass">密码</label>
+      <div class="pw">
+        <input id="lg-pass" name="password" type="password" autocomplete="current-password" placeholder="请输入密码">
+        <button type="button" class="eye" id="lg-eye" title="显示密码" aria-label="显示密码" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 5C7 5 3.1 8.1 1.5 12 3.1 15.9 7 19 12 19s8.9-3.1 10.5-7C20.9 8.1 17 5 12 5zm0 11.5A4.5 4.5 0 1 1 16.5 12 4.5 4.5 0 0 1 12 16.5zm0-7A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5z" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <button type="submit" class="btn primary block" id="lg-btn">登 录</button>
+      <div class="err" id="lg-err"></div>
+      <div class="net" id="lg-net"></div>
+    </form>
   </div>
 </div>
 
