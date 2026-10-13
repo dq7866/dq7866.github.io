@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#8a6a3b">
+<title>离线包下载 · 知作坊（断网可用 · 网盘自取）</title>
+<meta name="description" content="知作坊离线包下载：博客、教育专栏、游戏盒、符号通行证、风驰骑行、冰火守门人、智慧林间学堂、免费工具箱标准版，共 8 个离线包。解压即用、断网可用，网盘链接与解压密码全部公开。">
+<meta name="keywords" content="知作坊,离线包,离线版,免费下载,网盘,免费小游戏,免费工具箱,教育专栏">
+<link rel="canonical" href="https://dq7866.online/offline/">
+<link rel="icon" href="/favicon.svg">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --paper:#f7f4ee; --card:#fffdf9; --ink:#2f2a24; --ink2:#6b6459; --ink3:#9a9184;
+    --line:#e4ddd1; --line2:#efe9de; --seal:#8a6a3b; --seal2:#b08a52;
+    --ok:#3f7d4e; --warn:#b4531f; --blue:#1f5fd0;
+  }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
+    background:var(--paper); color:var(--ink); line-height:1.75;
+    -webkit-text-size-adjust:100%; padding:0 16px 60px;
+  }
+  .wrap{max-width:900px;margin:0 auto}
+  a{color:var(--seal);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* 头部 */
+  header{padding:44px 0 26px;text-align:center;border-bottom:1px solid var(--line)}
+  .back{display:inline-block;font-size:13.5px;color:var(--ink3);margin-bottom:20px}
+  .back:hover{color:var(--seal)}
+  h1{font-size:clamp(26px,5vw,36px);letter-spacing:.02em;font-weight:800}
+  .sub{color:var(--ink2);margin-top:10px;font-size:15px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}
+  .chip{font-size:12.5px;padding:5px 12px;border:1px solid var(--line);border-radius:99px;color:var(--ink2);background:#fff}
+
+  /* 网盘大按钮 */
+  .pan{margin:26px 0 0;padding:22px;border-radius:18px;background:linear-gradient(135deg,#fff8ec,#fdf1e0);border:1px solid #efdcc0;text-align:center}
+  .pan h2{font-size:17px;margin-bottom:6px;font-weight:800}
+  .pan p{font-size:13.5px;color:var(--ink2);margin-bottom:16px}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;justify-content:center;
+    background:var(--seal);color:#fff;font-size:15.5px;font-weight:700;
+    padding:13px 26px;border-radius:12px;box-shadow:0 4px 14px rgba(138,106,59,.28);
+    transition:transform .15s ease,box-shadow .15s ease;border:0;cursor:pointer;
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 7px 20px rgba(138,106,59,.34);text-decoration:none}
+  .pan .url{margin-top:12px;font-size:12.5px;color:var(--ink3);word-break:break-all}
+  .pan .note{margin-top:10px;font-size:12.5px;color:var(--warn)}
+
+  /* 区块标题 */
+  h2.sec{font-size:19px;margin:42px 0 6px;padding-left:12px;border-left:4px solid var(--seal);font-weight:800}
+  .sec-desc{font-size:14px;color:var(--ink2);margin:0 0 18px;padding-left:16px}
+
+  /* 包卡片 */
+  .packs{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(272px,1fr))}
+  .p{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:15px 16px;display:flex;flex-direction:column;gap:9px}
+  .p-top{display:flex;align-items:flex-start;gap:10px}
+  .p-ico{width:38px;height:38px;flex:0 0 38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;background:#f2ece1}
+  .p-name{font-size:15.5px;font-weight:800;line-height:1.4}
+  .p-size{font-size:12.5px;color:var(--ink3);font-weight:500}
+  .p-desc{font-size:13.5px;color:var(--ink2);line-height:1.68}
+  .p-how{font-size:12.5px;color:var(--ink2);background:#f8f4ec;border-radius:9px;padding:8px 10px;line-height:1.6}
+  .p-how b{color:var(--ink);font-weight:700}
+  .p-pwd{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:9px;border-top:1px dashed var(--line2)}
+  .p-pwd span.lab{font-size:12px;color:var(--ink3);flex:0 0 auto}
+  .p-pwd code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;background:#f2ece1;color:#5c4a26;padding:3px 7px;border-radius:6px;letter-spacing:.02em;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cp{font-size:11.5px;color:var(--seal);border:1px solid #e3d3b8;background:#fff;border-radius:7px;padding:3px 8px;cursor:pointer;flex:0 0 auto}
+  .cp:hover{background:#fdf6e9}
+  .tagline{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:2px}
+  .t-free{background:#e8f4ea;color:var(--ok)}
+  .t-trial{background:#fdeee2;color:var(--warn)}
+
+  /* 须知 */
+  .rules{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:20px 22px}
+  .rules li{font-size:14px;color:var(--ink2);margin:9px 0;list-style:none;padding-left:26px;position:relative;line-height:1.72}
+  .rules li::before{content:"·";position:absolute;left:10px;top:-1px;color:var(--seal);font-weight:900;font-size:19px}
+  .rules li b{color:var(--ink)}
+  .kbd{font-family:ui-monospace,Menlo,Consolas,monospace;background:#f2ece1;border-radius:5px;padding:1px 6px;font-size:12.5px}
+
+  /* 在线入口 */
+  .links{display:flex;flex-wrap:wrap;gap:9px}
+  .links a{font-size:13.5px;padding:9px 14px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink2)}
+  .links a:hover{border-color:var(--seal2);color:var(--seal);text-decoration:none}
+
+  footer{margin-top:44px;padding-top:22px;border-top:1px solid var(--line);text-align:center;font-size:13px;color:var(--ink3);line-height:2}
+  .zhzsc-sec{margin-top:34px}
+  @media (max-width:520px){
+    .packs{grid-template-columns:1fr}
+    header{padding:30px 0 20px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <a class="back" href="/">← 返回知作坊首页</a>
+    <h1>离线包下载</h1>
+    <p class="sub">8 个离线包，解压即用，断网也能干活。<br>网盘链接与解压密码全部公开，不设门槛。</p>
+    <div class="chips">
+      <span class="chip">无需注册</span>
+      <span class="chip">无需安装</span>
+      <span class="chip">断网可用</span>
+      <span class="chip">密码公开</span>
+      <span class="chip">共约 1.65 GB</span>
+    </div>
+  </header>
+
+  <div class="pan">
+    <h2>📦 百度网盘下载（8 个包全在这里）</h2>
+    <p>建议用电脑下载，先存到网盘再慢慢下。</p>
+    <a class="btn" href="https://pan.baidu.com/s/5uf305miFaLM_PnPk5J_gg" target="_blank" rel="noopener">前往网盘下载 →</a>
+    <div class="url">https://pan.baidu.com/s/5uf305miFaLM_PnPk5J_gg</div>
+    <div class="note">如打开后提示需要提取码，请到 <a href="/board/">留言板</a> 留个言，我补给你。</div>
+  </div>
+
+  <h2 class="sec">八个包，都是什么</h2>
+  <p class="sec-desc">除特别标注外，全部解压后双击 <span class="kbd">index.html</span> 即可，用 Edge / Chrome 打开。</p>
+
+  <div class="packs">
+
+    <div class="p">
+      <div class="p-top">
+        <div class="p-ico">📕</div>
+        <div>
+          <div class="p-name">知作坊博客 · 离线版</div>
+          <div class="p-size">1.0 MB ｜ 54 个文件</div>
+        </div>
+      </div>
+      <div class="p-desc">博客全部文章 + 公告 + 留言板页面。断网也能安静读完，适合没网的时候翻。</div>
+      <div class="p-how"><b>打开：</b>解压后双击 <span class="kbd">index.html</span>。留言板需联网，站内搜索离线不可用（用 Ctrl+F 代替）。</div>
+      <div class="p-pwd"><span class="lab">解压密码</span><code>7kGIMTYcLmjShFTy</code><button class="cp" data-copy="7kGIMTYcLmjShFTy">复制</button></div>
+    </div>
+
+    <div class="p">
+      <div class="p-top">
+        <div class="p-ico">📚</div>
+        <div>
+          <div class="p-name">不只是成绩 · 教育篇 · 离线版</div>
+          <div class="p-size">467 KB ｜ 51 个文件</div>
+        </div>
+      </div>
+      <div class="p-desc">6 大系列 31 期图文，含「全系列一页读完」合并长文，带打印样式，Ctrl+P 可直接存 PDF。</div>
+      <div class="p-how"><b>打开：</b>解压后双击 <span class="kbd">index.html</span>，纯图文离线阅读。</div>
+      <div class="p-pwd"><span class="lab">解压密码</span><code>SYorRcHHpaUNaoCP</code><button class="cp" data-copy="SYorRcHHpaUNaoCP">复制</button></div>
+    </div>
+
+    <div class="p">
+      <div class="p-top">
+        <div class="p-ico">🌳</div>
+        <div>
+          <div class="p-name">智慧林间学堂 · 离线完整版 <span class="tagline t-trial">试用 30 天</span></div>
+          <div class="p-size">183 MB ｜ 内置运行环境</div>
+        </div>
+      </div>
+      <div class="p-desc">226 张知识图鉴、937 道题、4191 条中文配音，外加在线版没有的 <b>3D 恐龙展厅</b>、家长中心、诗词林、故事屋。</div>
+      <div class="p-how"><b>打开：</b>解压后双击 <span class="kbd">启动.bat</span>（内置 Node，电脑什么都不用装）。试用 30 天，到期把机器码发我换解锁码。</div>
+      <div class="p-pwd"><span class="lab">解压密码</span><code>Yc4sJhdynP2e6xUi</code><button class="cp" data-copy="Yc4sJhdynP2e6xUi">复制</button></div>
+    </div>
+
+    <div class="p">
+      <div class="p-top">
+        <div class="p-ico">🎮</div>
+        <div>
+          <div class="p-name">欢乐游戏盒 · 离线版</div>
+          <div class="p-size">424 KB ｜ 37 个文件</div>
+        </div>
+      </div>
+      <div class="p-desc">23 款小游戏全离线：俄罗斯方块、贪吃蛇、扫雷、2048、数独、五子棋、消消乐、合成大西瓜……</div>
+      <div class="p-how"><b>打开：</b>解压后双击 <span class="kbd">index.html</span>。进度、金币、成就存本机浏览器里，清浏览器数据会清零。</div>
+      <div class="p-pwd"><span class="lab">解压密码</span><code>IUzZCRHzPokEhbvl</code><button class="cp" data-copy="IUzZCRHzPokEhbvl">复制</button></div>
+    </div>
+
+    <div class="p">
+      <div class="p-top">
+        <div class="p-ico">🚴</div>
+        <div>
+          <div class="p-name">风驰骑行 · 离线版</div>
+          <div class="p-size">774 KB ｜ 18 个文件</div>
+        </div>
+      </div>
+      <div class="p-desc">6 条赛道体感竞速、车库改装、每日任务、赛季。离线版用触屏按钮或键盘玩。</div>
+      <div class="p-how"><b>打开：</b>解压后双击 <span class="kbd">index.html</span>。<b>体感转向离线用不了</b>（浏览器要求 https），想体感请用手机开线上版。</div>
+      <div class="p-pwd"><span class="lab">解压密码</span><code>Yv2O692vJ8qGjy1l</code><button class="cp" data-copy="Yv2O692vJ8qGjy1l">复制</button></div>
+    </div>
+
+    <div class="p">
+      <div class="p-top">
+        <div class="p-ico">🔥</div>
+        <div>
+          <div class="p-name">冰火守门人 · 离线版</div>
+          <div class="p-size">526 KB ｜ 独立离线包</div>
+        </div>
+      </div>
+      <div class="p-desc">双生守门人元素相克，5 张场景、4 档难度、每日挑战与赛季。单人离线可玩。</div>
+      <div class="p-how"><b>打开：</b>解压后双击 <span class="kbd">index.html</span>。云端排行榜离线时显示「离线模式」，游戏照常玩。</div>
+      <div class="p-pwd"><span class="lab">解压密码</span><code>hGdM9lUKw3V0uIwk</code><button class="cp" data-copy="hGdM9lUKw3V0uIwk">复制</button></div>
+    </div>
+
+    <div class="p">
+      <div class="p-top">
+        <div class="p-ico">🔣</div>
+        <div>
+          <div class="p-name">符号通行证 · 离线版</div>
+          <div class="p-size">187 KB ｜ 14 个文件</div>
+        </div>
+      </div>
+      <div class="p-desc">200 个原创图形符号 + 439 条旅行例句，符号表可打印。这包最小，塞手机里当备用。</div>
+      <div class="p-how"><b>打开：</b>解压后双击 <span class="kbd">index.html</span> 即用。符号、例句、朗读全离线。</div>
+      <div class="p-pwd"><span class="lab">解压密码</span><code>IM2eESKxoe1j1Gji</code><button class="cp" data-copy="IM2eESKxoe1j1Gji">复制</button></div>
+    </div>
+
+    <div class="p">
+      <div class="p-top">
+        <div class="p-ico">🧰</div>
+        <div>
+          <div class="p-name">免费工具箱 · 标准版 <span class="tagline t-trial">含授权系统</span></div>
+          <div class="p-size">1.45 GB ｜ 6845 个文件</div>
+        </div>
+      </div>
+      <div class="p-desc">完整标准版：30 个工具 + 本地模型 + 本机服务 + 依赖安装器，不联网也能跑图片/PDF/OCR 等重活。</div>
+      <div class="p-how"><b>打开：</b>解压后双击 <span class="kbd">启动.bat</span>（缺依赖看 <span class="kbd">SoureSetup\安装说明.txt</span>）。授权走原有试用/兑换码机制。</div>
+      <div class="p-pwd"><span class="lab">解压密码</span><code>RXIGM5ZXQ5DjcOdf</code><button class="cp" data-copy="RXIGM5ZXQ5DjcOdf">复制</button></div>
+    </div>
+
+  </div>
+
+  <h2 class="sec">下载之前，先看这几条</h2>
+  <p class="sec-desc">都是踩过坑的经验，早看少折腾。</p>
+  <div class="rules">
+    <ul>
+      <li><b>压缩包都带密码</b>，就在上面的卡片里，点「复制」即可。加密不是为了藏，是为了防网盘扫描误判、防止链接被和谐。</li>
+      <li><b>务必下载后再解压，别在网盘里在线解压。</b>网盘在线解压会失败或乱码，这是网盘的限制，不是包的问题。</li>
+      <li><b>解压工具</b>：WinRAR / 7-Zip / Bandizip 都行，选对密码即可。文件名是 UTF-8 中文，Win10 1803 以上系统正常显示。</li>
+      <li><b>打开方式</b>：解压出来是一个文件夹，进去双击里面的 <span class="kbd">index.html</span>（用 Edge 或 Chrome）。不要直接在压缩包里双击运行。</li>
+      <li><b>离线包 ≠ 在线版</b>：离线包里没有云端排行榜、赛季榜、留言板这些需要联网的功能，其余内容一致。想要最新内容，直接用在线版。</li>
+      <li><b>免费与试用说明</b>：博客、教育篇、游戏盒、符号通行证、骑行、守门人这几个离线包<b>完全免费，无期限</b>；智慧林间学堂完整版试用 30 天（到期发机器码给我换解锁码，免费）；工具箱标准版走原有授权机制。</li>
+      <li><b>可以自己留着、也可以转给朋友</b>，别拿去卖就行。包内素材均为原创或可商用授权，用着放心。</li>
+    </ul>
+  </div>
+
+  <h2 class="sec">不想下载？在线版直接玩</h2>
+  <p class="sec-desc">所有内容在线也能用，而且永远是最新版。</p>
+  <div class="links">
+    <a href="/">📕 博客</a>
+    <a href="/edu/">📚 教育专栏</a>
+    <a href="/forest/">🌳 智慧林间学堂</a>
+    <a href="/games/">🎮 欢乐游戏盒</a>
+    <a href="/symbolpass/">🔣 符号通行证</a>
+    <a href="/toolbox/">🧰 工具箱</a>
+    <a href="/bike/">🚴 风驰骑行</a>
+    <a href="/guardian/">🔥 冰火守门人</a>
+    <a href="/board/">💬 留言板</a>
+  </div>
+
+  <footer>
+    <div>© 2026 知作坊 · 所有内容不设门槛，全部免费开放</div>
+    <div>有问题、要解锁码、找不到提取码 —— 去 <a href="/board/">留言板</a> 说一声就行</div>
+  </footer>
+
+  <div data-zhz-sc="bar" data-zhz-sc-theme="light"></div>
+
+</div>
+
+<script src="/site-cards.js" defer></script>
+<script>
+(function(){
+  document.addEventListener("click", function(e){
+    var b = e.target.closest(".cp");
+    if(!b) return;
+    var t = b.getAttribute("data-copy") || "";
+    var done = function(){ var o = b.textContent; b.textContent = "已复制"; setTimeout(function(){ b.textContent = o; }, 1400); };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(done, function(){ fallback(t, done); });
+    } else { fallback(t, done); }
+    function fallback(txt, cb){
+      var ta = document.createElement("textarea");
+      ta.value = txt; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand("copy"); cb(); }catch(err){}
+      document.body.removeChild(ta);
+    }
+  });
+})();
+</script>
+<script src="/stats.js" defer></script>
+</body>
+</html>

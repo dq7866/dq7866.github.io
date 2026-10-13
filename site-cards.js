@@ -69,13 +69,18 @@
       k: "board", emoji: "💬", name: "留言板", sub: "公告 · 联系我",
       desc: "站内公告、留言与联系方式，无需注册即可留言",
       url: "/board/", color: "#7c6cf0"
+    },
+    {
+      k: "offline", emoji: "📦", name: "离线包下载", sub: "Offline Packs",
+      desc: "8 个离线包，断网可用；网盘自取，解压密码全公开",
+      url: "/offline/", color: "#c2410c"
     }
   ];
 
   /* 首页导览的分组（bar 模式不使用分组，按 SITES 顺序平铺） */
   var GROUPS = [
     { t: "阅读与学习", keys: ["home", "edu", "forest"] },
-    { t: "实用工具", keys: ["symbolpass", "toolbox"] },
+    { t: "工具与下载", keys: ["symbolpass", "toolbox", "offline"] },
     { t: "游戏", keys: ["games", "bike", "guardian"] },
     { t: "交流", keys: ["board"] }
   ];
