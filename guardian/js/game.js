@@ -83,7 +83,8 @@ var Game = (function () {
   }
   function onKey(e, down) {
     var k = keyName(e);
-    if (["left", "right", "up", "down", " "].indexOf(k) >= 0) e.preventDefault();
+    /* 小游戏的键盘事件对象没有 preventDefault，先判存在再调 */
+    if (e.preventDefault && ["left", "right", "up", "down", " "].indexOf(k) >= 0) e.preventDefault();
     if (down && keys[k]) return;
     keys[k] = down;
     if (!down) return;
@@ -91,6 +92,106 @@ var Game = (function () {
     if (k === "p") { togglePause(); }
     if (k === "m") { muted = !muted; toast(muted ? "已静音" : "声音开启", "#ffd9a8"); }
     if (k === "escape" && scene === "pause") togglePause();
+  }
+
+  /* ---- 宿主差异：设置读写 + 重力感应（网页版）---- */
+  function hostPref(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function hostPrefSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function tiltSensor(on) { tiltSensorWeb(on); }
+  /* ================= 通用输入层 =================
+     目标：不挑设备。键盘、鼠标、触屏、倾斜手机，手上有什么就能玩什么。
+     三种移动方式自动共存，优先级：
+        键盘 / 拖动摇杆   >   点按目标   >   重力感应
+     —— 「按着走」和「点哪走哪」两种习惯都能用，不需要先做设置。 */
+  var tapMove = null;              /* 点按目标（画布逻辑坐标） */
+  var pressAt = null;              /* 本次按下落点，用来区分「轻点」与「拖动」 */
+  var TAP_SLOP = 14;               /* 位移小于此值算轻点（像素） */
+  var TILT_DEAD = 3.5, TILT_FULL = 16;   /* 重力感应死区 / 满速阈值 */
+  var tiltOn = false, tiltInvert = false, tiltSample = 0, tiltZero = null, tiltVal = 0;
+
+  tiltOn = hostPref("gk_tilt") === "1";
+  tiltInvert = hostPref("gk_tilt_inv") === "1";
+
+  function tiltTick() {
+    if (!tiltOn) { tiltVal = 0; return; }
+    if (tiltZero === null) tiltZero = tiltSample;      /* 第一次拿到数据先当中位 */
+    var d = (tiltSample - tiltZero) * (tiltInvert ? -1 : 1);
+    var m = Math.abs(d);
+    if (m < TILT_DEAD) { tiltVal = 0; return; }
+    tiltVal = (d > 0 ? 1 : -1) * Math.min(1, (m - TILT_DEAD) / (TILT_FULL - TILT_DEAD));
+  }
+  /* 方向传感器（网页版 / 小游戏的浏览器调试模式通用） */
+  function screenAngle() {
+    try {
+      if (typeof screen !== "undefined" && screen.orientation && typeof screen.orientation.angle === "number")
+        return screen.orientation.angle;
+      if (typeof window !== "undefined" && typeof window.orientation === "number") return window.orientation;
+    } catch (e) {}
+    return 0;
+  }
+  function onOrient(e) {
+    /* 竖屏时左右滚转是 gamma；横屏时左右滚转落在 beta 上，且随旋转方向反号 */
+    var a = screenAngle(), v;
+    if (Math.abs(a) === 90) v = (a === 90 ? 1 : -1) * (e.beta || 0);
+    else v = e.gamma || 0;
+    tiltSample = v;
+  }
+  function tiltSensorWeb(on) {
+    if (typeof window === "undefined" || typeof DeviceOrientationEvent === "undefined") {
+      if (on) toast("这台设备没有方向传感器", "#ff9a9a");
+      tiltOn = false; return;
+    }
+    if (!on) { window.removeEventListener("deviceorientation", onOrient); return; }
+    var bind = function () { window.addEventListener("deviceorientation", onOrient); };
+    if (typeof DeviceOrientationEvent.requestPermission === "function") {
+      /* iOS 13+ 必须在用户手势里申请授权（开关本身就是手势） */
+      try {
+        DeviceOrientationEvent.requestPermission().then(function (r) {
+          if (r === "granted") bind();
+          else { tiltOn = false; toast("未授权使用方向传感器", "#ff9a9a"); }
+        })["catch"](function () { tiltOn = false; });
+      } catch (e) { tiltOn = false; }
+    } else bind();
+  }
+  function tiltSet(on) {
+    tiltOn = !!on;
+    hostPrefSet("gk_tilt", tiltOn ? "1" : "0");
+    tiltZero = null; tiltVal = 0;
+    tiltSensor(tiltOn);
+    if (!tiltOn) toast("重力感应已关", "#ffd9a8");
+  }
+  function tiltSetInv(v) {
+    tiltInvert = !!v;
+    hostPrefSet("gk_tilt_inv", tiltInvert ? "1" : "0");
+    toast(tiltInvert ? "重力感应方向已反向" : "重力感应方向已还原", "#ffd9a8");
+  }
+  function tiltCal() { tiltZero = tiltSample; toast("已把当前姿势设为中位", "#9fdc9f"); }
+
+  /* 点按目标若落在天边（走不到的地方），先压回到可达高度 */
+  function clampTap(p) {
+    try {
+      var top = E3.project(0, GZ_MAX).y + 4;
+      if (p.y < top) p.y = top;
+    } catch (e) {}
+    return p;
+  }
+
+  /* 目标点标记：让玩家随时看得见「它正走向哪里」 */
+  function drawTapTarget() {
+    if (!tapMove || !S || scene !== "play") return;
+    var a = S.act; if (!a || a.down) return;
+    var p = E3.project(a.x, a.z);
+    ctx.save();
+    if (ctx.setLineDash) ctx.setLineDash([6, 8]);
+    ctx.globalAlpha = .3; ctx.strokeStyle = "#ffd9a8"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(p.x, p.y - 10); ctx.lineTo(tapMove.x, tapMove.y); ctx.stroke();
+    if (ctx.setLineDash) ctx.setLineDash([]);
+    var r = 13 + Math.sin((S.t || 0) * 6) * 2.2;
+    ctx.globalAlpha = .85; ctx.lineWidth = 2.5; ctx.strokeStyle = "#ffd9a8";
+    ctx.beginPath(); ctx.arc(tapMove.x, tapMove.y, r, 0, 6.2832); ctx.stroke();
+    ctx.globalAlpha = .95; ctx.fillStyle = "#ff8a3c";
+    ctx.beginPath(); ctx.arc(tapMove.x, tapMove.y, 3.2, 0, 6.2832); ctx.fill();
+    ctx.restore();
   }
   function pt(e) {
     /* 手机竖屏时 #stage 被整体旋转 90°（见 guardian.css 的 html.rot90），
@@ -119,6 +220,7 @@ var Game = (function () {
     var df = Config.diffById(diffId) || Config.DIFFS[1];
     var lv = Config.levelInfo(Save.get().level);
     cur = { sceneId: sc.id, diffId: df.id };
+    tapMove = null; pressAt = null;
     S = {
       sc: sc, df: df, lv: lv, duel: !!opt.duel, mySide: opt.side || "host",
       daily: !!opt.daily, perk: opt.perk || sc.perk,   /* 每日挑战可强制启用某个机制 */
@@ -260,14 +362,32 @@ var Game = (function () {
     var sp = (active ? 0.95 : 0.42) * S.lv.speed;
     var ax = 0, az = 0;
     if (active && S.freezeT <= 0) {
+      /* ① 键盘：WASD / 方向键 */
       if (keys.left) ax -= 1;
       if (keys.right) ax += 1;
       if (keys.up) az += 1;
       if (keys.down) az -= 1;
+      var manual = !!(ax || az);
+      /* ② 鼠标左键 / 手指按住拖动 = 虚拟摇杆 */
       if (joy) {
         var jl = Math.sqrt(joy.dx * joy.dx + joy.dy * joy.dy);
-        if (jl > 8) { ax = joy.dx / jl; az = -joy.dy / jl; }
+        if (jl > 8) { ax = joy.dx / jl; az = -joy.dy / jl; manual = true; }
       }
+      if (manual) tapMove = null;          /* 手动输入优先，顺手取消点按目标 */
+      /* ③ 点按移动：轻点画面任意位置，守门人自己走过去 */
+      if (!manual && tapMove) {
+        var pp = E3.project(g.x, g.z);
+        var tdx = tapMove.x - pp.x, tdy = tapMove.y - pp.y;
+        var tl = Math.sqrt(tdx * tdx + tdy * tdy);
+        if (tl > 22) {
+          ax = tdx / tl; az = -tdy / tl;
+          if (ax > 0 ? g.x >= 1 - GW - 0.004 : g.x <= -1 + GW + 0.004) ax = 0;
+          if (az > 0 ? g.z >= GZ_MAX - 0.004 : g.z <= GZ_MIN + 0.004) az = 0;
+          if (!ax && !az) tapMove = null;  /* 目标在身后、已不可达 */
+        } else tapMove = null;             /* 走到了就停 */
+      }
+      /* ④ 重力感应：手机横屏左右摆动（可选，默认关） */
+      if (!ax && !az && tiltOn) { tiltTick(); ax = tiltVal; }
     }
     if (ax || az) {
       var l = Math.sqrt(ax * ax + az * az);
@@ -569,6 +689,7 @@ var Game = (function () {
 
     if (S) { drawHUD(); drawBanner(); }
     drawJoystick();
+    drawTapTarget();
   }
 
   /* 虚拟摇杆可视化：手机端在画面上按住拖动的实时反馈（桌面端不显示） */
@@ -966,30 +1087,53 @@ var Game = (function () {
     ctx = cv.getContext("2d");
     window.addEventListener("keydown", function (e) { onKey(e, true); });
     window.addEventListener("keyup", function (e) { onKey(e, false); });
+    /* 鼠标与触屏共用一套指针事件：
+         按住拖动 = 虚拟摇杆；几乎没动就松手 = 轻点 → 点哪走哪。 */
     cv.addEventListener("pointerdown", function (e) {
-      if (scene !== "play") return;
       var p = pt(e);
+      pressAt = { x: p.x, y: p.y, id: e.pointerId, moved: false };
+      if (scene !== "play") { joy = null; return; }
       joy = { ox: p.x, oy: p.y, dx: 0, dy: 0, id: e.pointerId };
       try { cv.setPointerCapture(e.pointerId); } catch (err) {}
     });
     cv.addEventListener("pointermove", function (e) {
-      if (joy && e.pointerId === joy.id) { var p = pt(e); joy.dx = p.x - joy.ox; joy.dy = p.y - joy.oy; }
+      if (joy && e.pointerId === joy.id) {
+        var p = pt(e);
+        joy.dx = p.x - joy.ox; joy.dy = p.y - joy.oy;
+        if (pressAt && pressAt.id === e.pointerId &&
+            Math.abs(joy.dx) + Math.abs(joy.dy) > TAP_SLOP) pressAt.moved = true;
+      }
     });
-    function endJ(e) { if (joy && e.pointerId === joy.id) joy = null; }
-    cv.addEventListener("pointerup", endJ);
-    cv.addEventListener("pointercancel", endJ);
+    function endJ(e, cancelled) {
+      if (pressAt && pressAt.id === e.pointerId) {
+        if (!cancelled && !pressAt.moved && scene === "play")
+          tapMove = clampTap({ x: pressAt.x, y: pressAt.y });
+        pressAt = null;
+      }
+      if (joy && e.pointerId === joy.id) joy = null;
+    }
+    cv.addEventListener("pointerup", function (e) { endJ(e, false); });
+    cv.addEventListener("pointercancel", function (e) { endJ(e, true); });
   }
 
   return {
     mount: mount, start: start, update: update, draw: draw, drawMenuBg: drawMenuBg,
     togglePause: togglePause,
-    quit: function () { if (S) S.over = true; S = null; scene = "menu"; paused = false; joy = null; keys = {}; },
+    quit: function () { if (S) S.over = true; S = null; scene = "menu"; paused = false; joy = null; keys = {}; tapMove = null; pressAt = null; },
     state: function () { return S; },
     scene: function () { return scene; }, cur: function () { return cur; },
     switchGuardian: switchGuardian, setMuted: function (m) { muted = !!m; }, isMuted: function () { return muted; },
     inject: injectEvent, netState: netState, applyPeer: applyPeer, setNet: function (n) { net = n; },
     onOver: function (f) { cbOver = f; }, onStart: function (f) { cbStart = f; }, onPause: function (f) { cbPause = f; },
-    isTouch: isTouch, gradeOf: gradeOf
+    isTouch: isTouch, gradeOf: gradeOf,
+    /* 供界面层调用：重力感应开关 / 反向 / 校准 */
+    tilt: {
+      on: function () { return tiltOn; },
+      set: tiltSet,
+      inv: function () { return tiltInvert; },
+      setInv: tiltSetInv,
+      cal: tiltCal
+    }
   };
 
   function switchGuardian() {
