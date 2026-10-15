@@ -94,10 +94,20 @@ var Game = (function () {
     if (k === "escape" && scene === "pause") togglePause();
   }
 
-  /* ---- 宿主差异：设置读写 + 重力感应（网页版）---- */
+  /* ---- 宿主差异：设置读写 + 姿态传感器 ----
+     两种宿主，网页层只认一个数：「当前屏幕水平方向的倾角（度）」。
+       · 安卓 APK：Java 层 TiltBridge 直接读系统传感器（window.ZhzTilt），
+         数据准、频率稳、不挑 ROM（见 TiltBridge.java）。
+       · 浏览器 / 小游戏：走 deviceorientation 事件（见 tiltSensorWeb）。 */
   function hostPref(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function hostPrefSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-  function tiltSensor(on) { tiltSensorWeb(on); }
+
+  var tiltHost = (typeof window !== "undefined" && window.ZhzTilt) ? window.ZhzTilt : null;
+  var tiltHostRot = 0;          /* 宿主上报的屏幕旋转角（度） */
+  function tiltSensor(on) {
+    if (tiltHost) return;       /* APK：Java 侧随生命周期常驻采样，开关只决定我们读不读 */
+    tiltSensorWeb(on);
+  }
   /* ================= 通用输入层 =================
      目标：不挑设备。键盘、鼠标、触屏、倾斜手机，手上有什么就能玩什么。
      三种移动方式自动共存，优先级：
@@ -106,19 +116,68 @@ var Game = (function () {
   var tapMove = null;              /* 点按目标（画布逻辑坐标） */
   var pressAt = null;              /* 本次按下落点，用来区分「轻点」与「拖动」 */
   var TAP_SLOP = 14;               /* 位移小于此值算轻点（像素） */
-  var TILT_DEAD = 3.5, TILT_FULL = 16;   /* 重力感应死区 / 满速阈值 */
+  var TILT_DEAD = 3.2;                   /* 死区（度）：小于它就当没动，吃掉手抖 */
+  var TILT_FULLS = [10, 14, 20];         /* 满速阈值三档：灵敏 / 标准 / 稳健 */
   var tiltOn = false, tiltInvert = false, tiltSample = 0, tiltZero = null, tiltVal = 0;
+  var tiltFull = 14;                     /* 当前满速阈值（度） */
+  var tiltSmooth = 0;                    /* 指示条用的平滑显示值 */
+  var tiltGaugeFrames = 0;               /* 指示条实际绘制的帧数（可观测性 / 自检用） */
+  var tiltAvail = false;                 /* 是否真的收到过传感器数据 */
+  var tiltWait = 0;                      /* 等数据的帧数，超时判为「本机不支持」 */
 
   tiltOn = hostPref("gk_tilt") === "1";
   tiltInvert = hostPref("gk_tilt_inv") === "1";
+  (function () {
+    var v = parseFloat(hostPref("gk_tilt_full"));
+    if (v >= 6 && v <= 30) tiltFull = v;
+  })();
+
+  /* 把宿主（APK 的 Java 桥）报来的重力向量换算成「屏幕水平方向的倾角（度）」。
+     设备坐标 → 屏幕坐标的映射随旋转角变化：
+       旋转 0°   → 设备 +x 轴        旋转 180° → 设备 -x 轴
+       旋转 90°  → 设备 -y 轴        旋转 270° → 设备 +y 轴
+     重力在屏幕水平方向的分量 = sin(倾角)，反算用 asin 即得真实角度。 */
+  function tiltSampleHost() {
+    if (!tiltHost) return;
+    try {
+      if (tiltHost.ok() !== 1) return;
+      tiltHostRot = tiltHost.rot();
+      var a = String(tiltHost.raw()).split(",");
+      var gx = parseFloat(a[0]), gy = parseFloat(a[1]);
+      if (!isFinite(gx) || !isFinite(gy)) return;
+      var r = tiltHostRot;
+      var h = (r === 90) ? -gy : (r === 270) ? gy : (r === 180) ? -gx : gx;
+      if (h > 1) h = 1; else if (h < -1) h = -1;
+      tiltSample = Math.asin(h) * 180 / Math.PI;
+      tiltAvail = true;
+      tiltWait = 0;
+    } catch (e) {}
+  }
 
   function tiltTick() {
     if (!tiltOn) { tiltVal = 0; return; }
-    if (tiltZero === null) tiltZero = tiltSample;      /* 第一次拿到数据先当中位 */
+    tiltSampleHost();
+    if (!tiltAvail) {
+      /* 开了却一直没数据：多半这台机器真没有传感器，如实关掉，别让玩家干等 */
+      if (tiltHost && ++tiltWait > 130) {
+        tiltWait = 0;
+        tiltSet(false, true);
+        toast("这台设备没有重力传感器", "#ff9a9a");
+      }
+      tiltVal = 0;
+      return;
+    }
+    if (tiltZero === null) tiltZero = tiltSample;      /* 第一帧真数据：当前姿势即中位 */
     var d = (tiltSample - tiltZero) * (tiltInvert ? -1 : 1);
     var m = Math.abs(d);
-    if (m < TILT_DEAD) { tiltVal = 0; return; }
-    tiltVal = (d > 0 ? 1 : -1) * Math.min(1, (m - TILT_DEAD) / (TILT_FULL - TILT_DEAD));
+    if (m < TILT_DEAD) {
+      /* 没在主动操控 → 中位缓慢跟随。换姿势、躺床上玩都能自动对准；
+         又因为「想走就必须超过死区」，不会把慢速移动吃掉。 */
+      tiltZero += (tiltSample - tiltZero) * 0.012;
+      tiltVal = 0;
+      return;
+    }
+    tiltVal = (d > 0 ? 1 : -1) * Math.min(1, (m - TILT_DEAD) / (tiltFull - TILT_DEAD));
   }
   /* 方向传感器（网页版 / 小游戏的浏览器调试模式通用） */
   function screenAngle() {
@@ -135,6 +194,7 @@ var Game = (function () {
     if (Math.abs(a) === 90) v = (a === 90 ? 1 : -1) * (e.beta || 0);
     else v = e.gamma || 0;
     tiltSample = v;
+    tiltAvail = true;
   }
   function tiltSensorWeb(on) {
     if (typeof window === "undefined" || typeof DeviceOrientationEvent === "undefined") {
@@ -153,19 +213,42 @@ var Game = (function () {
       } catch (e) { tiltOn = false; }
     } else bind();
   }
-  function tiltSet(on) {
+  function tiltSet(on, quiet) {
     tiltOn = !!on;
     hostPrefSet("gk_tilt", tiltOn ? "1" : "0");
-    tiltZero = null; tiltVal = 0;
+    tiltZero = null; tiltVal = 0; tiltSmooth = 0; tiltWait = 0;
     tiltSensor(tiltOn);
-    if (!tiltOn) toast("重力感应已关", "#ffd9a8");
+    if (quiet) return;
+    if (tiltOn) {
+      /* 有宿主桥就先假定有硬件（拿不到数据会在 tiltTick 里超时回滚）；
+         浏览器则先看有没有 DeviceOrientationEvent。 */
+      if (!tiltHost && typeof DeviceOrientationEvent === "undefined") {
+        tiltOn = false; hostPrefSet("gk_tilt", "0");
+        toast("这台设备没有重力感应", "#ff9a9a");
+        return;
+      }
+      toast("重力感应已开 · 左右摆动手机", "#9fdc9f");
+    } else {
+      toast("重力感应已关", "#ffd9a8");
+    }
   }
   function tiltSetInv(v) {
     tiltInvert = !!v;
     hostPrefSet("gk_tilt_inv", tiltInvert ? "1" : "0");
     toast(tiltInvert ? "重力感应方向已反向" : "重力感应方向已还原", "#ffd9a8");
   }
-  function tiltCal() { tiltZero = tiltSample; toast("已把当前姿势设为中位", "#9fdc9f"); }
+  function tiltSetFull(v) {
+    v = parseFloat(v);
+    if (!(v >= 6 && v <= 30)) return;
+    tiltFull = v;
+    hostPrefSet("gk_tilt_full", String(v));
+    toast("灵敏度：" + (v <= 10 ? "灵敏" : v >= 20 ? "稳健" : "标准"), "#ffd9a8");
+  }
+  function tiltCal() {
+    if (!tiltAvail) { toast("还没收到传感器数据", "#ff9a9a"); return; }
+    tiltZero = tiltSample; tiltVal = 0; tiltSmooth = 0;
+    toast("已把当前姿势设为中位", "#9fdc9f");
+  }
 
   /* 点按目标若落在天边（走不到的地方），先压回到可达高度 */
   function clampTap(p) {
@@ -193,6 +276,37 @@ var Game = (function () {
     ctx.beginPath(); ctx.arc(tapMove.x, tapMove.y, 3.2, 0, 6.2832); ctx.fill();
     ctx.restore();
   }
+  /* 倾斜指示条：重力感应操控的「仪表盘」。
+     没有反馈，玩家就不知道手机倾了多少、够不够快，手感会发虚——
+     所以把「当前倾角 / 死区 / 中位 / 满速」直接画在画面底边上。 */
+  function drawTiltGauge() {
+    if (!tiltOn || !S || scene !== "play" || S.over) return;
+    tiltGaugeFrames++;
+    var W = E3.W, H = E3.H;
+    var w = 170, h = 6, x = (W - w) / 2, y = H - 17;
+    tiltSmooth += (tiltVal - tiltSmooth) * 0.22;        /* 缓动，指针不跟手抖乱跳 */
+    if (Math.abs(tiltSmooth) < 0.004) tiltSmooth = 0;
+    ctx.save();
+    /* 槽 */
+    ctx.globalAlpha = .46; ctx.fillStyle = "#0a0810";
+    ctx.beginPath(); ctx.arc(x + h / 2, y + h / 2, h / 2, 0, 6.2832); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + w - h / 2, y + h / 2, h / 2, 0, 6.2832); ctx.fill();
+    ctx.fillRect(x + h / 2, y, w - h, h);
+    /* 死区：中央一段亮色，示意「这块不动」 */
+    var dw = w * (TILT_DEAD / tiltFull);
+    ctx.globalAlpha = .28; ctx.fillStyle = "#ffffff";
+    ctx.fillRect(x + w / 2 - dw, y + 1, dw * 2, h - 2);
+    /* 中位线 */
+    ctx.globalAlpha = .5; ctx.strokeStyle = "#ffd9a8"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x + w / 2, y - 2.5); ctx.lineTo(x + w / 2, y + h + 2.5); ctx.stroke();
+    /* 滑块：右倾偏冷色、左倾偏暖色，一眼看出方向 */
+    var px = x + w / 2 + (w / 2 - h) * clamp(tiltSmooth, -1, 1);
+    ctx.globalAlpha = .95;
+    ctx.fillStyle = tiltSmooth >= 0 ? "#7fd8ff" : "#ff9a6a";
+    ctx.beginPath(); ctx.arc(px, y + h / 2, h / 2 + 1.4, 0, 6.2832); ctx.fill();
+    ctx.restore();
+  }
+
   function pt(e) {
     /* 手机竖屏时 #stage 被整体旋转 90°（见 guardian.css 的 html.rot90），
        此时 getBoundingClientRect 给的是外接矩形，不能直接线性映射，
@@ -373,8 +487,15 @@ var Game = (function () {
         var jl = Math.sqrt(joy.dx * joy.dx + joy.dy * joy.dy);
         if (jl > 8) { ax = joy.dx / jl; az = -joy.dy / jl; manual = true; }
       }
-      if (manual) tapMove = null;          /* 手动输入优先，顺手取消点按目标 */
-      /* ③ 点按移动：轻点画面任意位置，守门人自己走过去 */
+      /* ③ 重力感应：手机横屏左右摆动 —— 手机端的主操控。
+            必须排在「点按移动」之前：点按目标一旦生效就会替玩家按着方向，
+            若把重力判在后面，玩家再怎么晃手机也抢不回控制权。 */
+      if (!manual && tiltOn) {
+        tiltTick();
+        if (tiltVal) { ax = tiltVal; az = 0; manual = true; }
+      }
+      if (manual) tapMove = null;          /* 主动输入优先，顺手取消点按目标 */
+      /* ④ 点按移动：轻点画面任意位置，守门人自己走过去 */
       if (!manual && tapMove) {
         var pp = E3.project(g.x, g.z);
         var tdx = tapMove.x - pp.x, tdy = tapMove.y - pp.y;
@@ -386,8 +507,6 @@ var Game = (function () {
           if (!ax && !az) tapMove = null;  /* 目标在身后、已不可达 */
         } else tapMove = null;             /* 走到了就停 */
       }
-      /* ④ 重力感应：手机横屏左右摆动（可选，默认关） */
-      if (!ax && !az && tiltOn) { tiltTick(); ax = tiltVal; }
     }
     if (ax || az) {
       var l = Math.sqrt(ax * ax + az * az);
@@ -689,6 +808,7 @@ var Game = (function () {
 
     if (S) { drawHUD(); drawBanner(); }
     drawJoystick();
+    drawTiltGauge();
     drawTapTarget();
   }
 
@@ -1132,7 +1252,15 @@ var Game = (function () {
       set: tiltSet,
       inv: function () { return tiltInvert; },
       setInv: tiltSetInv,
-      cal: tiltCal
+      cal: tiltCal,
+      full: function () { return tiltFull; },
+      setFull: tiltSetFull,
+      fulls: function () { return TILT_FULLS.slice(); },
+      dead: function () { return TILT_DEAD; },
+      avail: function () { return tiltAvail; },
+      host: function () { return tiltHost ? "apk" : "web"; },
+      ratio: function () { return tiltSmooth; },
+      gaugeFrames: function () { return tiltGaugeFrames; }
     }
   };
 
