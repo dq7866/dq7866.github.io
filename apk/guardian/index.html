@@ -1,4 +1,637 @@
-<!DOCTYPE html>
+<!doctype html>
+
+
+
+<html lang="zh-CN" class="h-full scroll-smooth">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content="Hexo " />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    
+
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+
+<link rel="prefetch" as="script" href="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js" />
+<link rel="prefetch" as="style" href="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css" />
+<link rel="prefetch" as="script" href="/js/lightgallery.min.js?v=28acbf30" />
+
+
+
+    
+    
+<script data-cfasync="false">
+;(() => {
+    // Progressive enhancement marker (mobile nav CSS uses html.js before paint).
+    document.documentElement.classList.add('js');
+    const shiro = (window.__shiro = window.__shiro || {});
+    const defaultTheme = "light";
+    shiro.themeDefault = defaultTheme;
+    
+    const states = defaultTheme === 'system' ? ['system', 'light', 'dark'] : ['light', 'dark'];
+    let saved;
+    try { saved = localStorage.getItem('theme'); } catch (_) {}
+    const state = saved && states.includes(saved) ? saved : defaultTheme;
+    const html = document.documentElement;
+    html.setAttribute('data-theme-state', state);
+    const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    // Pagefind dark contract only when search is enabled.
+    const syncPagefindTheme = false;
+    shiro.searchEnabled = syncPagefindTheme;
+    // Single source for theme-toggle.js and system-follow listener.
+    const applyResolvedTheme = (dark) => {
+        html.setAttribute('data-theme', dark ? 'dark' : 'light');
+        if (syncPagefindTheme) {
+            if (dark) html.setAttribute('data-pf-theme', 'dark');
+            else html.removeAttribute('data-pf-theme');
+        }
+        html.style.colorScheme = dark ? 'dark' : 'light';
+    };
+    shiro.applyResolvedTheme = applyResolvedTheme;
+    applyResolvedTheme(state === 'dark' || (state !== 'light' && darkQuery.matches));
+    if (defaultTheme === 'system') {
+        // Follow OS theme while in system mode even if the toggle script is absent.
+        const followSystem = () => {
+            if (html.getAttribute('data-theme-state') !== 'system') return;
+            applyResolvedTheme(darkQuery.matches);
+        };
+        if (darkQuery.addEventListener) darkQuery.addEventListener('change', followSystem);
+        else if (darkQuery.addListener) darkQuery.addListener(followSystem);
+    }
+    // Preloader skip: the session collection must contain this page's font-bundle URL.
+    const fontsReadyToken = "https://fonts.googleapis.com/css2?family=Cardo:wght@400;700\u0026family=Yuji+Syuku\u0026family=Zen+Old+Mincho:wght@400;600\u0026family=Cormorant+Garamond:wght@400;600\u0026family=Noto+Serif+SC:wght@400;600\u0026display=swap";
+    shiro.fontsReadyToken = fontsReadyToken;
+    try {
+        const storedFontsReady = sessionStorage.getItem('shiro:fonts-ready');
+        const readyFontTokens = storedFontsReady === fontsReadyToken
+            ? [storedFontsReady]
+            : JSON.parse(storedFontsReady || '[]');
+        if (
+            fontsReadyToken
+            && Array.isArray(readyFontTokens)
+            && readyFontTokens.indexOf(fontsReadyToken) !== -1
+        ) {
+            html.classList.add('shiro-preloader-done');
+        }
+    } catch (_) {}
+})();
+</script>
+
+    
+
+    
+
+
+
+
+
+
+
+
+<title>知作坊</title>
+
+
+<meta name="description" content="冰火 守门人 ELEMENT GATEKEEPER · 安卓版 版本 1.1.0 大小 0.66 MB 安卓 5.0+ 零权限 · 纯离线 无需注册 ⬇ 下载安卓版 APK guardian-v1.1.0.apk · 0.67 MB · 直接安装 手机扫码直接下载 用系统相机或微信扫一扫，打开本页后点上方按钮。 也可以在电脑上点按钮把安装包传到手机。 安装步骤（首次安装） 点上方按钮下载..." />
+
+
+<meta name="author" content="尘世悟说" />
+
+
+<meta name="keywords" content="知作坊,今世警世百回,故事,歌词,创作手记,尘世悟说,免费小游戏" />
+
+
+<meta property="og:title" content="知作坊" />
+
+<meta property="og:description" content="冰火 守门人 ELEMENT GATEKEEPER · 安卓版 版本 1.1.0 大小 0.66 MB 安卓 5.0+ 零权限 · 纯离线 无需注册 ⬇ 下载安卓版 APK guardian-v1.1.0.apk · 0.67 MB · 直接安装 手机扫码直接下载 用系统相机或微信扫一扫，打开本页后点上方按钮。 也可以在电脑上点按钮把安装包传到手机。 安装步骤（首次安装） 点上方按钮下载..." />
+
+<meta property="og:url" content="https://dq7866.online/apk/guardian/index.html" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="知作坊" />
+
+
+<meta property="og:locale" content="zh_CN" />
+
+
+<meta property="og:image" content="https://dq7866.online/apk/guardian/icon-192.png" />
+
+<meta property="og:image:alt" content="冰火守门人图标" />
+
+
+
+<meta property="og:image:width" content="192" />
+<meta property="og:image:height" content="192" />
+
+
+
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="知作坊" />
+
+<meta name="twitter:description" content="冰火 守门人 ELEMENT GATEKEEPER · 安卓版 版本 1.1.0 大小 0.66 MB 安卓 5.0+ 零权限 · 纯离线 无需注册 ⬇ 下载安卓版 APK guardian-v1.1.0.apk · 0.67 MB · 直接安装 手机扫码直接下载 用系统相机或微信扫一扫，打开本页后点上方按钮。 也可以在电脑上点按钮把安装包传到手机。 安装步骤（首次安装） 点上方按钮下载..." />
+
+
+<meta name="twitter:image" content="https://dq7866.online/apk/guardian/icon-192.png" />
+
+<meta name="twitter:image:alt" content="冰火守门人图标" />
+
+
+
+<link rel="canonical" href="https://dq7866.online/apk/guardian/index.html" />
+
+
+
+
+
+
+
+<link rel="icon" href="/favicon.svg" />
+
+
+
+
+    
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Yuji+Syuku&family=Zen+Old+Mincho:wght@400;600&family=Cormorant+Garamond:wght@400;600&family=Noto+Serif+SC:wght@400;600&display=swap" />
+
+<link rel="stylesheet" href="/css/style.min.css?v=72525358">
+
+
+<link rel="stylesheet" href="/css/toc.min.css?v=d9987942">
+
+<script defer data-cfasync="false" src="/js/preloader.min.js?v=a3906902"></script>
+
+<link rel="alternate" href="/atom.xml" title="知作坊" type="application/atom+xml">
+</head>
+
+
+<body class="h-full fog-bg text-text-body" data-shiro-lightgallery="true">
+    <!-- Preloader: font CSS load + fonts.ready, or preloader.min.js deadline. -->
+    <div id="shiroPreloader" class="shiro-preloader" aria-hidden="true">
+        <div class="shiro-preloader-ripple" aria-hidden="true">
+            <span class="shiro-preloader-ring"></span>
+            <span class="shiro-preloader-ring"></span>
+        </div>
+    </div>
+    <a href="#main-content" class="shiro-skip-link">跳到正文</a>
+    
+    
+<svg width="0" height="0" class="absolute pointer-events-none" aria-hidden="true">
+    <defs>
+        <filter id="seal-roughness" x="-20%" y="-20%" width="140%" height="140%">
+            <feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" />
+        </filter>
+        <filter id="text-erosion">
+            <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="1" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" />
+        </filter>
+    </defs>
+</svg>
+
+    
+
+    
+    
+
+    <div class="min-h-full px-4 pt-14 pb-6 md:pb-5">
+
+        <!-- Paper Card -->
+        <div
+            class="paper mx-auto w-full max-w-4xl rounded-xl px-5 sm:px-8 md:px-12 lg:px-14 pt-10 pb-6 md:pt-12 md:pb-8">
+
+            
+
+
+<header data-pagefind-ignore>
+
+    <div class="flex items-start justify-center">
+        <div class="text-center">
+            <div class="relative inline-block">
+                
+                <p class="site-title">
+                    <a href="/">知作坊</a>
+                </p>
+                
+                <!-- Seal: Mathematically Centered -->
+                
+                <div
+                    class="absolute left-full top-1/2 -translate-y-1/2 ml-1 sm:ml-4 origin-left scale-75 sm:scale-110">
+                    
+<svg width="52" height="52" viewBox="0 0 100 100" aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg">
+    <path d="M15,12 Q50,5 85,12 Q95,50 88,88 Q50,95 12,88 Q5,50 15,12 Z"
+        fill="var(--color-seal-fill)" filter="url(#seal-roughness)" opacity="0.92" />
+    <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
+        font-size="42" fill="var(--color-on-seal)" filter="url(#text-erosion)"
+        class="seal-text select-none">白</text>
+</svg>
+
+                </div>
+                
+            </div>
+            
+            <p class="site-subtitle">
+                心灵火花的闪烁
+            </p>
+            
+            
+            
+            <div class="mt-3 sm:mt-4 flex items-center justify-center gap-2">
+                
+                
+                
+                <button id="themeToggle" type="button" class="focus-elegant header-pill-btn" aria-label="浅色" data-label-system="跟随系统" data-label-light="浅色" data-label-dark="深色" disabled>
+                    
+<svg data-icon="system" class="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="2" y="3" width="20" height="14" rx="2" stroke-width="1.5"/>
+    <path d="M8 21h8M12 17v4" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
+
+                    
+<svg data-icon="light" class="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="4" stroke-width="1.5"/>
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
+
+                    
+<svg data-icon="dark" class="size-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+                </button>
+                
+                
+            </div>
+            
+        </div>
+    </div>
+</header>
+
+<!-- Navigation -->
+
+<nav class="mt-8 md:mt-10" aria-label="菜单" data-pagefind-ignore>
+    <!-- Mobile Toggle -->
+    <div class="flex items-center justify-center md:hidden">
+        
+        <button id="menuBtn" type="button"
+            class="focus-elegant inline-flex cursor-pointer items-center gap-2 rounded-full border border-border-strong bg-paper/95 px-4 py-2 text-sm text-text-body shadow-xs"
+            aria-expanded="false" aria-controls="mobileMenu" disabled>
+            <span class="text-base leading-none tracking-widest">菜单</span>
+            
+<svg class="size-4 text-text-chrome transition-transform duration-200" id="menuChevron"
+    viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <path fill-rule="evenodd"
+        d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08z"
+        clip-rule="evenodd" />
+</svg>
+
+        </button>
+    </div>
+
+    <!-- Desktop Menu -->
+    <div class="hidden md:block">
+        <ul class="nav-desktop flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base text-text-body px-4">
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/">首页</a>
+</li>
+            
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
+            
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/games/">游戏盒</a>
+</li>
+            
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
+            
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/edu/">教育专栏</a>
+</li>
+            
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
+            
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/forest/">森林学堂</a>
+</li>
+            
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
+            
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/symbolpass/">符号通行证</a>
+</li>
+            
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
+            
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/toolbox/">工具箱</a>
+</li>
+            
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
+            
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/bike/">骑行游戏</a>
+</li>
+            
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
+            
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/guardian/">守门人</a>
+</li>
+            
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
+            
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/board/">留言板</a>
+</li>
+            
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
+            
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/offline/">离线包</a>
+</li>
+            
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
+            
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/archives">归档</a>
+</li>
+            
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
+            
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/categories">分类</a>
+</li>
+            
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
+            
+            
+            <li>
+
+
+<a class="nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
+    href="/tags">标签</a>
+</li>
+            
+            
+        </ul>
+    </div>
+
+    <!-- Mobile Menu Panel: open without JS; html.js collapses before paint until toggled. -->
+    <div id="mobileMenu" class="menu-panel md:hidden mt-4" data-open="false">
+        <ul
+            class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-border-strong bg-paper/95 shadow-xs">
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/">首页</a>
+</li>
+            
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
+            
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/games/">游戏盒</a>
+</li>
+            
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
+            
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/edu/">教育专栏</a>
+</li>
+            
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
+            
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/forest/">森林学堂</a>
+</li>
+            
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
+            
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/symbolpass/">符号通行证</a>
+</li>
+            
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
+            
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/toolbox/">工具箱</a>
+</li>
+            
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
+            
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/bike/">骑行游戏</a>
+</li>
+            
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
+            
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/guardian/">守门人</a>
+</li>
+            
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
+            
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/board/">留言板</a>
+</li>
+            
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
+            
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/offline/">离线包</a>
+</li>
+            
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
+            
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/archives">归档</a>
+</li>
+            
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
+            
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/categories">分类</a>
+</li>
+            
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
+            
+            
+            <li>
+
+
+<a class="focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors"
+    href="/tags">标签</a>
+</li>
+            
+            
+        </ul>
+    </div>
+    
+    <script data-cfasync="false">
+    if (document.documentElement.classList.contains('js')) {
+        var menuPanel = document.getElementById('mobileMenu');
+        if (menuPanel) menuPanel.inert = true;
+    }
+    </script>
+</nav>
+
+
+
+            <!-- Main Content -->
+            <main id="main-content" class="section-divider" tabindex="-1">
+                
+
+
+
+
+
+
+
+
+
+<article class="py-2">
+    <header class="text-center mb-8">
+        
+        <h1 class="page-title mb-4" data-pagefind-body data-pagefind-meta="title">
+            
+        </h1>
+        
+    </header>
+
+    
+    
+<!-- Inline TOC (viewports below the `toc` breakpoint, where the fixed sidebar cannot fit beside the paper card).
+     html.js collapses the body before paint; toggle is disabled until toc.js binds. No-JS keeps body open. -->
+<nav id="tocInline" class="toc-inline toc:hidden mb-8" aria-label="目录" data-pagefind-ignore>
+    <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="tocInlineBody" disabled>
+        <span class="toc-toggle-title">目录</span>
+        
+<svg class="toc-chevron size-4 text-text-chrome transition-transform duration-200"
+    viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <path fill-rule="evenodd"
+        d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08z"
+        clip-rule="evenodd" />
+</svg>
+
+    </button>
+    <div class="toc-body" id="tocInlineBody" data-open="false"><ul class="toc-list"><li class="toc-item" data-level="0"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E6%AD%A5%E9%AA%A4%E9%A6%96%E6%AC%A1%E5%AE%89%E8%A3%85" data-target="安装步骤首次安装">安装步骤（首次安装）</a></li><li class="toc-item" data-level="0"><a class="toc-link" href="#%E8%BF%99%E4%B8%AA%E7%89%88%E6%9C%AC%E6%9C%89%E4%BB%80%E4%B9%88" data-target="这个版本有什么">这个版本有什么</a></li><li class="toc-item" data-level="0"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%80%BC%E5%BE%97%E6%94%BE%E5%BF%83%E8%A3%85" data-target="为什么值得放心装">为什么值得放心装</a></li></ul></div>
+    
+    <script data-cfasync="false">
+    if (document.documentElement.classList.contains('js')) {
+        var tocBody = document.getElementById('tocInlineBody');
+        if (tocBody) tocBody.inert = true;
+    }
+    </script>
+</nav>
+
+<!-- Sidebar TOC (`toc` breakpoint and up; see --breakpoint-toc in source/css/_core/tokens.css) -->
+<nav id="tocSidebar" class="toc-sidebar hidden toc:block" aria-label="目录" data-pagefind-ignore>
+    <div class="toc-sidebar-inner">
+        <p class="toc-sidebar-title">目录</p>
+        <div class="toc-body"><ul class="toc-list"><li class="toc-item" data-level="0"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E6%AD%A5%E9%AA%A4%E9%A6%96%E6%AC%A1%E5%AE%89%E8%A3%85" data-target="安装步骤首次安装">安装步骤（首次安装）</a></li><li class="toc-item" data-level="0"><a class="toc-link" href="#%E8%BF%99%E4%B8%AA%E7%89%88%E6%9C%AC%E6%9C%89%E4%BB%80%E4%B9%88" data-target="这个版本有什么">这个版本有什么</a></li><li class="toc-item" data-level="0"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%80%BC%E5%BE%97%E6%94%BE%E5%BF%83%E8%A3%85" data-target="为什么值得放心装">为什么值得放心装</a></li></ul></div>
+    </div>
+</nav>
+
+    
+
+    <div class="prose-shiro" data-pagefind-body>
+        <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
@@ -64,7 +697,7 @@
 <body>
 <div class="wrap">
   <div class="head">
-    <img class="icon" src="icon-192.png" alt="冰火守门人图标">
+    <img class="icon" src="icon-192.png" alt="冰火守门人图标" decoding="async" width="192" height="192" loading="eager">
     <h1><span class="f">冰火</span><span class="w">守门人</span></h1>
     <div class="sub">ELEMENT GATEKEEPER · 安卓版</div>
   </div>
@@ -83,13 +716,13 @@
 
   <div class="card" style="margin-top:16px">
     <div class="qrbox">
-      <img id="qr-img" src="qr.png" alt="扫码下载二维码">
+      <img id="qr-img" src="qr.png" alt="扫码下载二维码" decoding="async" loading="lazy" width="330" height="330">
       <p><b>手机扫码直接下载</b><br>用系统相机或微信扫一扫，打开本页后点上方按钮。<br>也可以在电脑上点按钮把安装包传到手机。</p>
     </div>
   </div>
 
   <div class="card">
-    <h2>安装步骤（首次安装）</h2>
+    <h2 id="安装步骤首次安装">安装步骤（首次安装）</h2>
     <ol>
       <li>点上方按钮下载 APK（浏览器可能提示「此类文件可能有害」，这是所有非商店安装包的通用提示，选<b>仍要下载</b>）。</li>
       <li>下载完成点开安装包，系统询问「是否允许安装未知应用」时选<b>允许</b>。</li>
@@ -98,7 +731,7 @@
   </div>
 
   <div class="card">
-    <h2>这个版本有什么</h2>
+    <h2 id="这个版本有什么">这个版本有什么</h2>
     <p class="feat">
       伪 3D 透视塔防：<b>火娃融冰魔、水娃蚀岩魔</b>，双生守门人随时切换，元素相克；<br>
       每波只有<b>一扇门</b>亮灯，走错门宝石全吐；击杀掉落的宝石缀成贪心尾巴；<br>
@@ -111,7 +744,7 @@
   </div>
 
   <div class="card">
-    <h2>为什么值得放心装</h2>
+    <h2 id="为什么值得放心装">为什么值得放心装</h2>
     <p class="feat">
       本安装包<b>不申请任何权限</b>：不要网络、不要存储、不要身份信息；<br>
       游戏数据全部离线保存在手机里，没有账号、没有内购、没有广告。
@@ -128,6 +761,81 @@
 </div>
 <!-- 下载页不进门卫（对所有访客开放）：只挂统计与站内板块卡片 -->
 <script src="/site-cards.js" defer></script>
+<script src="/stats.js" defer></script>
+<!-- zhz-tip -->
+<div style="box-sizing:border-box;max-width:880px;margin:34px auto 42px;padding:18px 20px 0;border-top:1px solid rgba(140,130,120,.16);text-align:center;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;line-height:1.8;color:#8a8078">
+  本站内容不设门槛、全部免费开放。若它帮到了你，欢迎 <a href="https://zhizuofang.app.workbuddy.host/tip.html" target="_blank" rel="noopener" style="color:#ff4d00;font-weight:700;text-decoration:none">赞赏支持</a>
+</div>
+<!-- /zhz-tip -->
+</body>
+</html>
+
+    </div>
+
+    <!-- Tags -->
+    
+
+    
+
+    
+    
+</article>
+
+
+            </main>
+
+            <footer class="section-divider site-footer" data-pagefind-ignore>
+    <div class="site-footer-meta text-center text-sm text-text-chrome leading-relaxed">
+        <p>&copy; <span class="oldstyle-nums">2026</span> 知作坊<a href="/admin/" rel="nofollow" title="站长后台" aria-label="站长后台" style="color:inherit;opacity:.42;text-decoration:none;margin-left:.8em;font-size:.85em;letter-spacing:.1em">管理</a></p>
+        <p class="font-eng text-footnote tracking-wide opacity-90">Elegant theme by <a href="https://github.com/Acris/hexo-theme-shiro" target="_blank" rel="noopener noreferrer" class="link-chrome">Shiro</a> · Made by <a href="https://acris.me" target="_blank" rel="noopener noreferrer" class="link-chrome">Acris</a>
+                        with <span aria-label="love" title="love">❤️</span></p>
+    </div>
+</footer>
+
+        </div>
+
+        <!-- Note Text — decorative aside, not part of main content or footer -->
+        <aside class="mt-4 text-center" aria-hidden="true" role="presentation">
+            <p class="site-note font-title text-xs sm:text-sm text-text-subtle/70 tracking-note select-none" lang="ja">
+                白は、余白の名。
+            </p>
+        </aside>
+    </div>
+
+    
+    
+
+    <!-- Scripts -->
+    
+    
+    <script>
+        
+        (window.__shiro = window.__shiro || {}).i18n = window.__shiro.i18n || {};
+        
+        
+        
+        (window.__shiro = window.__shiro || {}).i18n = window.__shiro.i18n || {};
+window.__shiro.i18n["gallery"] = {"view_image":"查看图片","visit_source":"查看原始链接"};
+        (window.__shiro = window.__shiro || {})["lightgallery"] = {"css":"https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css","js":"https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js","themeCss":"/css/lightgallery.min.css?v=6d7f41e6","cssIntegrity":"","jsIntegrity":"","script":"/js/lightgallery.min.js?v=28acbf30"};
+        
+        
+    </script>
+    
+    
+    <script defer src="/js/runtime.min.js?v=c4cf3add"></script>
+    
+    <script defer src="/js/lightgallery-bootstrap.min.js?v=2c692569"></script>
+    
+    <script defer src="/js/toc.min.js?v=8ec1c86f"></script>
+    
+    <script defer src="/js/theme-toggle.min.js?v=96dad201"></script>
+    
+    <script defer src="/js/mobile-menu.min.js?v=f6003010"></script>
+    
+    
+
+    
+
 <script src="/stats.js" defer></script>
 </body>
 </html>
