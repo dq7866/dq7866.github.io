@@ -2,35 +2,25 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0d0221">
-<title>渣男行天下 · 3D 割草闯关</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>渣男行天下 · 正在进入</title>
+<meta http-equiv="refresh" content="0; url=/zanan/">
 <style>
-  html,body{margin:0;padding:0;height:100%;background:#0d0221;overflow:hidden}
-  #frame{position:fixed;inset:0;width:100%;height:100%;border:0;display:none}
-  #boot{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    color:#c9a7eb;font-family:system-ui,sans-serif;text-align:center;padding:20px}
-  #boot .t{font-size:34px;color:#ff4d9e;text-shadow:0 0 26px #f72585;letter-spacing:6px;margin-bottom:14px}
-  #boot .s{font-size:13px;letter-spacing:2px;animation:p 1.4s ease-in-out infinite}
-  #boot a{color:#ffd60a;margin-top:18px;font-size:13px}
-  @keyframes p{0%,100%{opacity:.45}50%{opacity:1}}
-  #err{display:none;margin-top:14px;font-size:12.5px;line-height:1.8;max-width:340px}
-  #err a{display:inline-block;margin-top:6px}
+  html,body{margin:0;height:100%;background:#0d0221;color:#c9a7eb;font-family:system-ui,sans-serif;
+    display:flex;align-items:center;justify-content:center;text-align:center;padding:20px}
+  a{color:#ffd60a}
+  .t{font-size:30px;color:#ff4d9e;letter-spacing:4px;margin-bottom:12px}
+  .s{font-size:13px;opacity:.8}
+  .alt{margin-top:16px;font-size:12.5px;opacity:.7}
 </style>
 </head>
 <body>
-<iframe id="frame" src="https://zhanan-game.app.workbuddy.host/" allow="fullscreen; accelerometer; gyroscope" allowfullscreen></iframe>
-<div id="boot">
+<div>
   <div class="t">渣男行天下</div>
-  <div class="s">正在载入 3D 世界…</div>
-  <div id="err">载入时间较长或遇到问题时，可<a href="https://zhanan-game.app.workbuddy.host/" target="_blank" rel="noopener">在官方站直接打开 →</a></div>
+  <div class="s">正在进入原生版（加载更快、支持离线）…</div>
+  <div class="alt">若未自动跳转，请<a href="/zanan/">点此进入</a><br>
+  需要云端排行榜 / 好友 / 公会登录功能，请用<a href="https://zhanan-game.app.workbuddy.host/" target="_blank" rel="noopener">云端登录版</a></div>
 </div>
-<script>
-var f=document.getElementById('frame'),b=document.getElementById('boot'),er=document.getElementById('err');
-var shown=false;
-f.addEventListener('load',function(){shown=true;f.style.display='block';b.style.display='none';});
-setTimeout(function(){if(!shown)er.style.display='block';},3000);
-</script>
+<script>location.replace('/zanan/');</script>
 </body>
 </html>
