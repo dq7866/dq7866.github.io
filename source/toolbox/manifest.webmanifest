@@ -1,0 +1,30 @@
+{
+  "name": "免费工具箱 · 知作坊在线版",
+  "short_name": "免费工具箱",
+  "description": "纯浏览器本地处理的免费工具箱：图片压缩/转换/拼图/加水印、PDF 合并拆分转换、二维码美化、表格互转、颜色与配色、密码生成、Markdown 编辑、房贷个税计算等，无需登录、不上传文件。",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f4f2ee",
+  "theme_color": "#ff4d00",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

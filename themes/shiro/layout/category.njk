@@ -1,0 +1,65 @@
+{% extends "_layout.njk" %}
+{% from "_macro/ui.njk" import section_title, icon_folder with context %}
+{% from "_macro/archive.njk" import render_list, render_simple_list with context %}
+
+{% block content %}
+<section class="mx-auto max-w-3xl">
+    {% if is_category() %}
+        {# Prefer full hierarchical label (A / B) over ambiguous leaf name. #}
+        {% set page_cat = category_for_page(page) %}
+        {{ section_title(__('nav.categories'), category_path_label(page_cat) if page_cat else page.category) }}
+        {# Full Hexo assignment list (may be a superset of index exclusive previews). #}
+        {% include "_partial/common/paginated-posts.njk" %}
+    {% else %}
+        {{ section_title(__('nav.categories')) }}
+        {% set cards = category_index_cards() %}
+        {% if cards.length > 0 %}
+            {# One view-model per node: exclusive posts for count/preview; detail page is full set. #}
+            <div class="category-tree max-w-2xl mx-auto">
+                {% for card in cards %}
+                <div id="{{ escape_attr('cat-' + card.id) }}"
+                    class="category-block scroll-mt-24{% if card.showPosts %} category-block--has-posts{% else %} category-block--branch{% endif %}"
+                    style="--category-depth: {{ card.depth }}">
+                    <div class="category-block-head">
+                        {% if card.showPosts %}
+                        {{ icon_folder(class="category-node-icon size-4 shrink-0") }}
+                        {% elif card.depth == 0 %}
+                        {{ icon_folder(class="category-node-icon category-node-icon--branch size-4 shrink-0") }}
+                        {% else %}
+                        <span class="category-tree-dot" aria-hidden="true"></span>
+                        {% endif %}
+                        <h2 class="min-w-0">
+                            <a class="category-node-name block"
+                                href="{{ href_for(card.path) }}"
+                                title="{{ escape_attr(card.fullLabel) }}">{{ escape_html(card.name) }}</a>
+                        </h2>
+                        {% if card.showPosts %}
+                        {# Exclusive total; title notes full detail size when larger (i18n). #}
+                        <span class="category-node-count oldstyle-nums"
+                            title="{% if card.detailFullTotal > card.total %}{{ escape_attr(__('categories.count_hint', card.fullLabel, card.total, card.detailFullTotal)) }}{% else %}{{ escape_attr(card.fullLabel) }}{% endif %}">{{ card.total }}</span>
+                        {% endif %}
+                    </div>
+                    {% if card.showPosts %}
+                    <div class="category-block-body">
+                        {{ render_simple_list(card.posts, 0) }}
+                        {% if card.remaining > 0 %}
+                        <div class="category-more-row">
+                            <a class="focus-elegant btn-ink"
+                                href="{{ href_for(card.path) }}"
+                                aria-label="{{ escape_attr(__('categories.more') + ' ' + __('categories.more_count', card.remaining)) }}">
+                                <span>{{ escape_html(__('categories.more')) }}</span>
+                                <span class="btn-ink-meta oldstyle-nums">{{ escape_html(__('categories.more_count', card.remaining)) }}</span>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            {% include "_partial/common/empty.njk" %}
+        {% endif %}
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,110 @@
+'use strict';
+
+// Pure comments provider readiness (no Hexo registration).
+// Used by helpers + templates so container / scripts / runtime gates stay aligned.
+
+const { isFeatureEnabled } = require('./features');
+
+const GISCUS_MAPPINGS = new Set(['pathname', 'url', 'title', 'og:title', 'specific', 'number']);
+const GISCUS_INPUT_POSITIONS = new Set(['top', 'bottom']);
+
+function normalizeGiscusMapping(value) {
+    const mapping = String(value || '').trim().toLowerCase();
+    return GISCUS_MAPPINGS.has(mapping) ? mapping : 'pathname';
+}
+
+function normalizeGiscusInputPosition(value) {
+    const position = String(value || '').trim().toLowerCase();
+    return GISCUS_INPUT_POSITIONS.has(position) ? position : 'bottom';
+}
+
+function normalizeGiscusBinary(value, fallback) {
+    if (value === true || value === 1) return '1';
+    if (value === false || value === 0) return '0';
+    const text = String(value == null ? '' : value).trim().toLowerCase();
+    if (text === '1' || text === 'true') return '1';
+    if (text === '0' || text === 'false') return '0';
+    return fallback === '1' ? '1' : '0';
+}
+
+/**
+ * Resolve which comment provider (if any) is fully configured for rendering.
+ *
+ * @param {object|null|undefined} themeConfig theme config object (this.theme in helpers)
+ * @param {object|null|undefined} [page] current page (for front-matter comments gate)
+ * @param {object} [options]
+ * @param {boolean} [options.isPost]
+ * @param {boolean} [options.isPage]
+ * @returns {{
+ *   enabled: boolean,
+ *   pageAllows: boolean,
+ *   pageWants: boolean,
+ *   provider: string,
+ *   disqusReady: boolean,
+ *   giscusReady: boolean,
+ *   providerReady: boolean,
+ *   shouldRender: boolean
+ * }}
+ */
+function resolveCommentsState(themeConfig, page, options) {
+    const opts = options || {};
+    const comments = (themeConfig && themeConfig.comments) || {};
+    const enabled = isFeatureEnabled(comments.enabled, false);
+    const provider = String(comments.provider || '').trim().toLowerCase();
+
+    const pageComments = page && page.comments;
+    // Posts: on by default when theme enabled; pages: require comments: true; either may set false.
+    const isPost = !!opts.isPost;
+    const isPage = !!opts.isPage;
+    const pageAllows = pageComments !== false;
+    const pageWants = isPost
+        || (isPage && pageComments === true);
+    const pageGate = enabled && pageAllows && pageWants;
+
+    const disqus = comments.disqus || {};
+    const giscus = comments.giscus || {};
+    // Match client embed validation (Disqus shortname charset).
+    const shortname = String(disqus.shortname || '').trim();
+    const disqusReady = enabled
+        && provider === 'disqus'
+        && /^[a-z0-9-]+$/i.test(shortname);
+
+    const mapping = normalizeGiscusMapping(giscus.mapping);
+    const term = String(giscus.term || '').trim();
+    const repo = String(giscus.repo || '').trim();
+    const repoId = String(giscus.repo_id || '').trim();
+    const category = String(giscus.category || '').trim();
+    const categoryId = String(giscus.category_id || '').trim();
+    const mappingReady = mapping === 'specific'
+        ? !!term
+        : (mapping === 'number' ? /^[1-9]\d*$/.test(term) : true);
+    const giscusReady = enabled
+        && provider === 'giscus'
+        && !!repo
+        && !!repoId
+        && !!category
+        && !!categoryId
+        && mappingReady;
+
+    const providerReady = disqusReady || giscusReady;
+    // shouldRender: page wants comments and a provider is fully configured.
+    const shouldRender = pageGate && providerReady;
+
+    return {
+        enabled,
+        pageAllows,
+        pageWants,
+        provider,
+        disqusReady,
+        giscusReady,
+        providerReady,
+        shouldRender
+    };
+}
+
+module.exports = {
+    resolveCommentsState,
+    normalizeGiscusMapping,
+    normalizeGiscusInputPosition,
+    normalizeGiscusBinary
+};

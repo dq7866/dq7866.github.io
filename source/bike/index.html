@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d1420">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="风驰骑行">
+<meta name="format-detection" content="telephone=no">
+<title>风驰骑行 WindRider · 手机横屏体感自行车竞速</title>
+<meta name="description" content="风驰骑行 WindRider：手机横屏体感自行车竞速游戏。左右摆把转向、上扬翘头、后仰翘尾，6 条赛道（城市平路/起伏乡道/盘山公路/峡谷窄道/雨天湿滑/风口风原），计时竞速、路上捡宝、改装升级、解锁新车、每日任务与月度赛季、云端排行榜与幽灵车同场竞技。打开即玩，可添加到主屏像 App 一样使用。">
+<meta name="keywords" content="自行车游戏,体感游戏,手机骑行游戏,竞速游戏,横屏游戏,免费网页游戏,风驰骑行,幽灵车,排行榜,每日任务,赛季">
+<link rel="canonical" href="https://dq7866.online/bike/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="风驰骑行 WindRider · 手机横屏体感自行车竞速">
+<meta property="og:description" content="横握手机左右摆把就能骑车竞速：6 条赛道、改装升级、每日任务与赛季、云端排行榜与幽灵车对战，打开即玩。">
+<meta property="og:url" content="https://dq7866.online/bike/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='18' cy='44' r='12' fill='none' stroke='%2334d399' stroke-width='5'/%3E%3Ccircle cx='46' cy='44' r='12' fill='none' stroke='%2334d399' stroke-width='5'/%3E%3Cpath d='M18 44 L30 22 L46 44 M30 22 L40 22' fill='none' stroke='%23f59e0b' stroke-width='5'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/bike.css">
+</head>
+<body data-fs-pos="tr" data-fs-top="104">
+
+<canvas id="cv"></canvas>
+
+<!-- 全局提示（菜单/弹层里也看得见） -->
+<div id="g-toast"></div>
+
+<!-- 竖屏提示 -->
+<div id="rotate">
+  <div class="rot-ico">📱</div>
+  <div class="rot-txt">请横握手机<small>旋转屏幕以获得最佳体验</small></div>
+</div>
+
+<!-- 主菜单 -->
+<section id="menu" class="screen">
+  <header class="m-head">
+    <h1>风驰骑行<em>WindRider</em></h1>
+    <div class="m-wallet">
+      <span class="m-lv" title="等级靠骑行积累经验成长，升级还有金币奖励"><b id="m-level">1</b>级 <em id="m-title">骑行新手</em><i class="xpbar"><u id="m-xp"></u></i></span>
+      <span>💰 <b id="m-coins">0</b></span>
+      <span class="dim">里程 <b id="m-dist">0</b> km</span>
+      <button id="chip-skin" class="chip skin-cur" title="当前骑手段位（点击查看全部车手）"><img id="m-skin-img" alt=""><b id="m-skin-name">街头骑士</b></button>
+      <button id="btn-season" class="chip season" title="查看本赛季积分、档位奖励与排名">🏁 <b id="m-season">赛季 0 分</b></button>
+      <button id="btn-nick" class="chip" title="点击修改昵称 / 恢复云存档">👤 <b id="m-nick">匿名骑手</b></button>
+      <button id="btn-sync" class="chip cloud" title="点击立即同步云端存档">☁ <b id="m-cloud">连接中…</b></button>
+    </div>
+  </header>
+  <div class="m-body">
+    <div class="m-col">
+      <h2>选择赛道</h2>
+      <div id="m-tracks" class="cards"></div>
+    </div>
+    <div class="m-col">
+      <h2>我的车库<small>（等级越高越能解锁好车）</small></h2>
+      <div id="m-garage" class="cards"></div>
+      <h2 style="margin-top:14px">骑手段位<small>（升级解锁新形象与加成）</small></h2>
+      <div id="m-skins" class="cards skins"></div>
+    </div>
+    <div class="m-col">
+      <h2>改装升级<small>（金币投入，永久生效）</small></h2>
+      <div id="m-tune" class="cards"></div>
+    </div>
+  </div>
+  <footer class="m-foot">
+    <!-- 站内其他板块（点击弹出图文卡片面板，由 /site-cards.js 渲染） -->
+    <span data-zhz-sc="inline" data-zhz-sc-theme="dark" data-zhz-sc-title="站内其他板块"></span>
+    <button id="btn-sensor" class="btn ghost">🎮 体感转向：关</button>
+    <button id="btn-sens-lv" class="btn ghost" title="体感灵敏度">灵敏度：标准</button>
+    <button id="btn-diag" class="btn ghost icon" title="体感打不开？点这里自查">🔍</button>
+    <button id="btn-help" class="btn ghost">操作说明</button>
+    <button id="btn-daily" class="btn ghost">📅 每日任务 <b id="m-daily" class="dot">0/0</b></button>
+    <button id="btn-lb" class="btn ghost">🏆 排行榜</button>
+    <button id="btn-start" class="btn primary">开始骑行 →</button>
+  </footer>
+</section>
+
+<!-- 游戏 HUD -->
+<div id="hud" class="hidden">
+  <div class="hud-tl">
+    <div class="timer" id="h-time">0:00.0</div>
+    <div class="hud-track" id="h-track">城市平路</div>
+  </div>
+  <div class="hud-tr">
+    <div class="spd"><b id="h-spd">0</b><span>km/h</span></div>
+    <div class="hud-coins">💰 <b id="h-coins">0</b></div>
+    <div class="hud-trick-score" id="h-score">技巧 <b>0</b></div>
+    <div class="hud-wind hidden" id="h-wind">风 <b>→</b></div>
+    <div class="hud-sensor hidden" id="h-sensor">🎮 体感转向中</div>
+  </div>
+  <div class="prog"><i id="h-prog"></i></div>
+  <div class="hud-split" id="h-split"></div>
+  <div id="h-trick"></div>
+  <div id="h-toast"></div>
+  <button id="btn-pause" class="hud-pause">❚❚</button>
+</div>
+
+<!-- 触屏操控 -->
+<div id="pad" class="hidden">
+  <div class="pad-l">
+    <button class="pbtn st" data-k="left">◀</button>
+    <button class="pbtn st" data-k="right">▶</button>
+  </div>
+  <div class="pad-mid">
+    <button class="pbtn sm" data-k="wheelie">翘头</button>
+    <button class="pbtn sm" data-k="stoppie">翘尾</button>
+  </div>
+  <div class="pad-r">
+    <button class="pbtn big brake" data-k="brake">刹车</button>
+    <button class="pbtn big gas" data-k="gas">加速</button>
+  </div>
+</div>
+
+<!-- 倒计时 -->
+<div id="countdown" class="overlay hidden"><div class="cd-num">3</div></div>
+
+<!-- 暂停 -->
+<div id="pause" class="overlay hidden">
+  <div class="panel">
+    <h3>已暂停</h3>
+    <button class="btn primary" id="btn-resume">继续骑行</button>
+    <button class="btn ghost" id="btn-restart">重新开始</button>
+    <button class="btn ghost" id="btn-quit">返回车库</button>
+  </div>
+</div>
+
+<!-- 结算 -->
+<section id="result" class="screen hidden">
+  <div class="panel wide">
+    <div class="res-flag" id="res-flag">🏁 完赛</div>
+    <h3 id="res-track">城市平路</h3>
+    <div class="res-grid">
+      <div class="res-item"><span>用时</span><b id="res-time">0:00.0</b></div>
+      <div class="res-item"><span>捡到金币</span><b id="res-coins">0</b></div>
+      <div class="res-item"><span>技巧分</span><b id="res-score">0</b></div>
+      <div class="res-item"><span>金币结算</span><b id="res-earn">+0</b></div>
+    </div>
+    <div class="res-best" id="res-best"></div>
+    <div class="res-season" id="res-season"></div>
+    <div class="res-cloud" id="res-cloud"></div>
+    <div class="res-daily" id="res-daily"></div>
+    <div class="res-unlock" id="res-unlock"></div>
+    <div class="res-actions">
+      <button class="btn ghost" id="btn-again">再跑一次</button>
+      <button class="btn ghost" id="btn-res-lb">看排行榜</button>
+      <button class="btn primary" id="btn-back">回到车库</button>
+    </div>
+  </div>
+</section>
+
+<!-- 排行榜 -->
+<div id="lb" class="overlay hidden">
+  <div class="panel wide lb-panel">
+    <h3>🏆 云端排行榜</h3>
+    <div class="lb-tabs" id="lb-tabs"></div>
+    <div class="lb-list" id="lb-list"><div class="lb-empty">加载中…</div></div>
+    <div class="lb-me" id="lb-me"></div>
+    <button class="btn primary" id="btn-lb-close">关闭</button>
+  </div>
+</div>
+
+<!-- 每日任务 -->
+<div id="daily" class="overlay hidden">
+  <div class="panel wide">
+    <h3>📅 每日任务 <small id="d-date"></small></h3>
+    <p class="panel-tip">每天 0 点自动刷新；三项全部完成，额外奖励 <b>150</b> 金币。</p>
+    <div class="daily-list" id="d-list"></div>
+    <div class="daily-foot" id="d-foot"></div>
+    <div class="res-actions">
+      <button class="btn primary" id="btn-daily-close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 赛季 -->
+<div id="season" class="overlay hidden">
+  <div class="panel wide season-panel">
+    <h3>🏁 <span id="s-name">赛季</span></h3>
+    <div class="s-hero">
+      <div class="s-pts"><b id="s-points">0</b><span>赛季积分</span></div>
+      <div class="s-meta">
+        <div id="s-rides">本赛季已骑行 0 趟</div>
+        <div id="s-hint">跑得越快、赛道越难，挣的赛季积分越多</div>
+      </div>
+    </div>
+    <h4>积分档位奖励</h4>
+    <div class="s-tiers" id="s-tiers"></div>
+    <h4>本赛季排行榜</h4>
+    <div class="lb-list" id="s-list"><div class="lb-empty">加载中…</div></div>
+    <div class="lb-me" id="s-me"></div>
+    <div class="res-actions">
+      <button class="btn primary" id="btn-season-close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 昵称 / 云存档钥匙 -->
+<div id="nick" class="overlay hidden">
+  <div class="panel">
+    <h3>昵称与云存档</h3>
+    <p class="nick-tip">昵称会显示在排行榜上（最多 12 个字）</p>
+    <input id="nick-input" maxlength="12" placeholder="例如：阿东">
+    <p class="nick-fine">存档钥匙（换手机 / 换浏览器时用它恢复进度）</p>
+    <div class="keyrow">
+      <code id="nick-key">—</code>
+      <button class="btn ghost mini" id="btn-key-copy">复制</button>
+    </div>
+    <div class="keyrow">
+      <input id="key-input" placeholder="粘贴别人的钥匙以恢复存档" maxlength="40">
+      <button class="btn ghost mini" id="btn-key-restore">恢复</button>
+    </div>
+    <label class="nick-chk"><input type="checkbox" id="chk-cloud"> 开启云同步（成绩上传排行榜、装备存云端）</label>
+    <div class="res-actions">
+      <button class="btn ghost" id="btn-nick-cancel">取消</button>
+      <button class="btn primary" id="btn-nick-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 帮助 -->
+<div id="help" class="overlay hidden">
+  <div class="panel wide help-panel">
+    <h3>怎么玩</h3>
+    <div class="help-body">
+      <div class="help-col">
+        <h4>📱 体感模式（手机横握）</h4>
+        <ul>
+          <li><b>左右摆动手机</b> → 转向（左摆左转 / 右摆右转）</li>
+          <li><b>车头向上扬</b> → 翘头（提速、赚技巧分）</li>
+          <li><b>车头向下压</b> → 翘尾（急刹、快速降速）</li>
+          <li><b>左手区</b> 按住 → 刹车减速</li>
+          <li><b>右手区</b> 按住 → 加速</li>
+          <li>觉得太灵 / 太钝：菜单里点「灵敏度」切档</li>
+        </ul>
+      </div>
+      <div class="help-col">
+        <h4>💻 键盘 / 触屏</h4>
+        <ul>
+          <li><b>↑ / W</b> 加速，<b>↓ / S</b> 刹车</li>
+          <li><b>← →</b> 或 <b>A D</b> 转向</li>
+          <li><b>Q</b> 翘头，<b>E</b> 翘尾</li>
+          <li>屏幕按钮：左下 ◀ ▶ 转向，中间翘头翘尾，右下 刹车 / 加速</li>
+        </ul>
+        <h4>⚠️ 体感没反应？</h4>
+        <ul>
+          <li>微信内置浏览器屏蔽重力感应：点右上角 <b>···</b> → <b>在浏览器打开</b></li>
+          <li>iPhone 需在 <b>设置 → Safari → 动作与方向访问</b> 打开</li>
+          <li>必须 <b>https</b> 打开，本页是 https ✓</li>
+        </ul>
+      </div>
+    </div>
+    <div class="help-col" style="margin-top:12px">
+      <h4>🌦️ 六条赛道与它们的脾气</h4>
+      <ul>
+        <li><b>城市平路 ★</b> 缓弯宽敞，练手首选</li>
+        <li><b>起伏乡道 ★★</b> 连续上下坡，下坡冲、上坡掉速（避震改装能缓解）</li>
+        <li><b>盘山公路 ★★★</b> 急弯陡坡，最容易冲出路外</li>
+        <li><b>峡谷窄道 ★★★</b> 路面只有一半宽、发夹弯连着来，几乎不容错</li>
+        <li><b>雨天湿滑 ★★★</b> 轮胎打滑：转向会飘、刹车距离变长，早刹车慢给油</li>
+        <li><b>风口风原 ★★★</b> 侧风周期把车推偏，必须<b>反向压身</b>才能走直线（看右上角风向标）</li>
+      </ul>
+    </div>
+    <div class="help-col" style="margin-top:12px">
+      <h4>🏁 规则与成长</h4>
+      <ul>
+        <li>跑完全程计时，越快越好；路上捡金币、躲障碍</li>
+        <li>金币可以买新车、做<b>改装升级</b>（轮胎抓地 / 气动极速 / 传动加速 / 避震 / 刹车）</li>
+        <li><b>骑手段位</b>：等级达标解锁新骑手形象，每位自带被动加成（极速 / 金币 / 技巧 / 加速），在车库下方免费选用</li>
+        <li>骑行积累经验 → 等级提升（<b>升级还送金币</b>）→ 解锁更强的车，等级越高称号越响亮</li>
+        <li><b>每日任务</b>：每天 3 条，全部完成有额外奖励，金币攒得飞快</li>
+        <li><b>月度赛季</b>：每趟按成绩换赛季积分，达标领档位奖励，还能看本赛季排名</li>
+        <li>开启云同步后：成绩进<b>云端排行榜</b>，还能和别人的<b>幽灵车</b>同场跑</li>
+      </ul>
+    </div>
+    <button class="btn primary" id="btn-help-close">知道了</button>
+  </div>
+</div>
+
+<!-- 体感引导（首次在手机上进入时弹出） -->
+<div id="sensor-guide" class="overlay hidden">
+  <div class="panel sg-panel">
+    <h3>🎮 用体感骑车，比点按钮顺得多</h3>
+    <p class="sg-sub" id="sg-sub">手机横握，像握真车把一样：</p>
+    <div class="sg-steps">
+      <div class="sg-step"><div class="sg-ico">📱</div><b>横握手机</b><span>两手拿住机身两侧</span></div>
+      <div class="sg-step"><div class="sg-ico">🔄</div><b>左右摆把</b><span>机身左右倾斜 = 转向</span></div>
+      <div class="sg-step"><div class="sg-ico">🔺</div><b>上抬 / 下压</b><span>抬头翘头、低头翘尾</span></div>
+    </div>
+    <div class="sg-warn hidden" id="sg-warn"></div>
+    <div class="sg-actions">
+      <button class="btn ghost" id="sg-skip">先用屏幕按钮</button>
+      <button class="btn primary" id="sg-on">开启体感转向</button>
+    </div>
+    <p class="sg-fine" id="sg-fine">开启时会弹出系统的“动作与方向”授权，点<b>允许</b>即可。
+      每次重新打开网页都要再授权一次——这是手机系统的限制，不是网页的毛病。
+      <a href="#" id="sg-diag-link">打不开？点这里自查</a>
+    </p>
+  </div>
+</div>
+
+<!-- 体感诊断 -->
+<div id="diag" class="overlay hidden">
+  <div class="panel wide diag-panel">
+    <h3>🔍 体感诊断</h3>
+    <p class="panel-tip">下面是这台设备的真实情况。打不开体感时，把结论一行告诉开发者即可定位。</p>
+    <div class="diag-grid" id="diag-grid"></div>
+    <div class="diag-live" id="diag-live">等待传感器数据…</div>
+    <div class="diag-verdict" id="diag-verdict"></div>
+    <div class="res-actions">
+      <button class="btn ghost" id="btn-diag-cal">校准中位</button>
+      <button class="btn ghost" id="btn-diag-again">重新申请权限</button>
+      <button class="btn primary" id="btn-diag-close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/save.js"></script>
+<script src="js/progress.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/controls.js"></script>
+<script src="js/game.js"></script>
+<script src="js/cloud.js"></script>
+<script src="js/main.js"></script>
+<script>
+/* PWA：注册 Service Worker，让游戏装到主屏后断网也能玩（本地调试时不注册，避免缓存干扰） */
+(function () {
+  if (!('serviceWorker' in navigator)) return;
+  if (/^(127\.0\.0\.1|localhost)$/.test(location.hostname)) return;
+  if (location.protocol !== 'https:') return;
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js', { scope: './' }).catch(function () {});
+  });
+})();
+</script>
+<!-- 全站门卫：与工具箱同一套账号与额度（登录后才放行本页） -->
+<script src="/gate.js" defer></script>
+<script src="/site-cards.js" defer></script>
+<script src="/stats.js" defer></script>
+<script src="/fs-button.js" defer></script>
+</body>
+</html>

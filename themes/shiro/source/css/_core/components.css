@@ -1,0 +1,610 @@
+@layer components {
+    .seal-text {
+        @apply font-title;
+    }
+
+    .fog-bg {
+        /* Base tone only on the element itself for fast compositing */
+        background: linear-gradient(180deg, var(--color-fog) 0%, var(--color-fog-mid) 55%, var(--color-fog) 100%);
+
+        /* Decorative grain layers stay on a static fixed pseudo-element.
+           Avoid forcing a persistent GPU layer; the texture is not animated. */
+        &::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background:
+                /* [1-3] Color patches — uneven pulp distribution */
+                radial-gradient(ellipse 650px 420px at 25% 45%, rgba(180, 160, 130, 0.025), transparent 65%),
+                radial-gradient(ellipse 480px 380px at 72% 35%, rgba(165, 150, 130, 0.02), transparent 55%),
+                radial-gradient(ellipse 350px 280px at 50% 75%, rgba(170, 155, 135, 0.015), transparent 60%),
+                /* [4-8] Micro grain — scattered pulp particles, varied sizes */
+                radial-gradient(circle at 22% 32%, rgba(0, 0, 0, 0.01) 0 0.5px, transparent 0.9px),
+                radial-gradient(circle at 65% 58%, rgba(0, 0, 0, 0.008) 0 0.7px, transparent 1.1px),
+                radial-gradient(circle at 43% 15%, rgba(0, 0, 0, 0.006) 0 0.4px, transparent 0.8px),
+                radial-gradient(circle at 78% 82%, rgba(0, 0, 0, 0.007) 0 0.6px, transparent 1px),
+                radial-gradient(circle at 12% 68%, rgba(0, 0, 0, 0.005) 0 0.3px, transparent 0.7px);
+            background-size:
+                /* [1-3] */ auto, auto, auto,
+                /* [4-8] */ 170px 210px, 250px 290px, 310px 370px, 190px 230px, 280px 340px;
+        }
+    }
+
+    .paper {
+        @apply relative isolate border border-soft-border bg-paper shadow-paper;
+
+        &::before {
+            content: "";
+            @apply absolute inset-0 pointer-events-none;
+            z-index: -1;
+            opacity: 0.14;
+            background-image:
+                radial-gradient(circle at 18% 28%, rgba(0, 0, 0, 0.07) 0 0.4px, transparent 0.9px),
+                radial-gradient(circle at 76% 65%, rgba(0, 0, 0, 0.06) 0 0.6px, transparent 1px),
+                radial-gradient(circle at 42% 55%, rgba(0, 0, 0, 0.05) 0 0.5px, transparent 0.9px),
+                radial-gradient(circle at 60% 20%, rgba(0, 0, 0, 0.045) 0 0.3px, transparent 0.7px),
+                radial-gradient(circle at 90% 40%, rgba(0, 0, 0, 0.04) 0 0.4px, transparent 0.8px);
+            background-size: 110px 130px, 170px 150px, 210px 230px, 140px 190px, 250px 180px;
+            background-position: 0 0, 45px 35px, 85px 65px, 20px 90px, 130px 15px;
+        }
+    }
+
+    /* Hide underlying controls as well as pixels until fonts settle. The CSS
+       failsafe restores content with the veil even if preloader JS is blocked. */
+    body > :not(.shiro-preloader) {
+        visibility: hidden;
+        animation: shiro-preloader-content-failsafe 0s linear 6.5s forwards;
+    }
+
+    html.shiro-preloader-done body > :not(.shiro-preloader),
+    html.shiro-preloader-dismissed body > :not(.shiro-preloader) {
+        visibility: visible;
+        animation: none;
+    }
+
+    /* Preloader veil; CSS failsafe (6s) must outlive longest JS deadline (5s). */
+    .shiro-preloader {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+        opacity: 1;
+        visibility: visible;
+        background: linear-gradient(180deg, var(--color-fog) 0%, var(--color-fog-mid) 55%, var(--color-fog) 100%);
+        animation: shiro-preloader-failsafe 0.5s var(--ease-soft) 6s forwards;
+    }
+
+    /* Skip the overlay before first paint on later same-tab navigations.
+       :not(.is-loaded) keeps it from cutting the JS fade-out short. */
+    html.shiro-preloader-done .shiro-preloader:not(.is-loaded) {
+        display: none;
+    }
+
+    /* JS-driven dismiss (fast path): cancel the failsafe and fade out.
+       Drop pointer-events immediately so the fading veil does not steal clicks
+       while content is already revealed (shiro-preloader-dismissed). */
+    .shiro-preloader.is-loaded {
+        animation: none;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition:
+            opacity 0.42s var(--ease-soft),
+            visibility 0s linear 0.42s;
+    }
+
+    /* Small status mark: a calm vermilion dot with soft ripples. */
+    .shiro-preloader-ripple {
+        position: relative;
+        z-index: 1;
+        width: 3rem;
+        height: 3rem;
+        color: var(--color-seal);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .shiro-preloader-ripple::before {
+        content: "";
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 9999px;
+        background: currentColor;
+        animation: shiro-preloader-dot-pulse 1.8s var(--ease-soft) infinite;
+    }
+
+    .shiro-preloader-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 9999px;
+        border: 1px solid currentColor;
+        opacity: 0;
+        transform: scale(0.3);
+        animation: shiro-preloader-wave 1.8s var(--ease-soft) infinite;
+    }
+
+    .shiro-preloader-ring:nth-child(2) {
+        animation-delay: 0.9s;
+    }
+
+    @keyframes shiro-preloader-failsafe {
+        from {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        to {
+            opacity: 0;
+            visibility: hidden;
+            /* Match JS .is-loaded dismiss: veil must not intercept after failsafe. */
+            pointer-events: none;
+        }
+    }
+
+    @keyframes shiro-preloader-content-failsafe {
+        to {
+            visibility: visible;
+        }
+    }
+
+    @keyframes shiro-preloader-dot-pulse {
+        0%,
+        100% {
+            opacity: 0.55;
+            transform: scale(0.85);
+        }
+
+        50% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes shiro-preloader-wave {
+        0% {
+            opacity: 0.5;
+            transform: scale(0.3);
+        }
+
+        70% {
+            opacity: 0.08;
+        }
+
+        100% {
+            opacity: 0;
+            transform: scale(1);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .shiro-preloader-ripple::before {
+            animation: none;
+            opacity: 0.9;
+        }
+
+        .shiro-preloader-ring {
+            display: none;
+        }
+    }
+
+    /* MathJax v4 modal dialog (<dialog class="mjx-dialog">, e.g. the Explorer
+       help box) centers itself via the browser's default `margin: auto`, but
+       Tailwind Preflight's `*{margin:0}` overrides that and pins the dialog to
+       the top-left corner. Restore the auto margins for this dialog only so it
+       centers again; MathJax's intended `top: -4%` vertical offset is kept.
+       Theme uses html[data-theme], not prefers-color-scheme — MathJax is loaded
+       with ui/no-dark-mode so OS dark chrome cannot fight a forced light theme;
+       site dark skin is applied below via @variant dark. */
+    dialog.mjx-dialog {
+        margin: auto;
+        color: var(--color-text-body);
+        background-color: var(--color-paper);
+        border: 1px solid var(--color-border-strong, var(--color-soft-border));
+    }
+
+    .btn-ink {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl border border-border-strong px-4 py-2.5 text-sm text-text-body shadow-xs duration-200 ease-soft transition-interactive;
+
+        &:hover {
+            @apply border-seal-fill bg-seal-fill text-on-seal saturate-105 shadow-ink;
+        }
+
+        &:active {
+            @apply translate-y-px shadow-ink-pressed;
+        }
+    }
+
+    /* Optional meta inside button-ink (e.g. remaining post count on category index). */
+    .btn-ink-meta {
+        @apply text-xs tracking-wide text-text-chrome;
+    }
+
+    .btn-ink:hover .btn-ink-meta {
+        @apply text-on-seal;
+    }
+
+    .header-pill-btn {
+        @apply inline-flex cursor-pointer items-center gap-1.5 px-3 py-1 rounded-full border border-border-decorative bg-bg-inset text-xs tracking-wide text-text-chrome duration-300 transition-interactive;
+
+        &:hover {
+            @apply bg-paper text-seal shadow-xs;
+            border-color: color-mix(in srgb, var(--color-seal) 30%, transparent);
+        }
+    }
+
+    /* JS-only header/nav controls. No-JS: hide. With JS: paint from first frame so
+       deferred scripts do not pop controls into the flex row later. */
+    #menuBtn,
+    #themeToggle,
+    #searchToggle {
+        display: none;
+    }
+
+    html.js #menuBtn:not([hidden]),
+    html.js #themeToggle:not([hidden]),
+    html.js #searchToggle:not([hidden]) {
+        display: inline-flex;
+    }
+
+    /* Keep first-paint disabled controls fully opaque (UA dimming would look like a flash). */
+    html.js #menuBtn:disabled,
+    html.js #themeToggle:disabled,
+    html.js #searchToggle:disabled {
+        opacity: 1;
+        cursor: default;
+    }
+
+    /* Progressive enhancement: open without JS; html.js (FOUC head) collapses before paint. */
+    .menu-panel {
+        @apply translate-y-0 opacity-100 transition-menu duration-[260ms] ease-out;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    html.js .menu-panel {
+        @apply max-h-0 -translate-y-1.5 overflow-hidden opacity-0;
+
+        &[data-open="true"] {
+            @apply translate-y-0 opacity-100;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+    }
+
+    /* Reset transform positions for reduced-motion (base layer only disables transitions, not transforms) */
+    @media (prefers-reduced-motion: reduce) {
+        .menu-panel {
+            @apply translate-y-0;
+        }
+
+        .btn-ink {
+            &:active {
+                @apply translate-y-0;
+            }
+        }
+    }
+
+    .site-title {
+        @apply font-title tracking-wide text-text-heading text-[2.2rem] leading-[1.18] sm:text-[2.55rem] md:text-[3.1rem];
+    }
+
+    .site-subtitle {
+        @apply mt-3 text-sm leading-relaxed text-text-chrome sm:text-[0.95rem];
+    }
+
+    .page-title,
+    .section-title {
+        @apply font-bold leading-snug text-text-heading text-[1.8rem] sm:text-[2rem];
+    }
+
+    .page-title {
+        @apply md:text-[2.4rem];
+    }
+
+    .section-title {
+        @apply md:text-[2.2rem];
+    }
+
+    .section-heading {
+        @apply mb-6 flex items-center gap-2 border-b border-border-decorative pb-2 text-xl font-bold text-text-heading;
+    }
+
+    /* Archive year group → yearly archive URL (hover like category names). */
+    .section-heading-link {
+        @apply underline-offset-4 decoration-transparent transition-colors hover:text-seal hover:underline hover:decoration-seal/40;
+    }
+
+    /* Category index (scheme 2): compact branch nav; counts + preview only on leaves. */
+    .category-tree {
+        @apply relative;
+    }
+
+    .category-block {
+        /* Preserve hierarchy without letting deep trees consume the mobile column. */
+        padding-left: clamp(0rem, calc(var(--category-depth, 0) * 1.25rem), 3.75rem);
+
+        @media (min-width: 40rem) {
+            padding-left: clamp(0rem, calc(var(--category-depth, 0) * 1.25rem), 6.25rem);
+        }
+    }
+
+    .category-block--branch {
+        @apply mb-0;
+    }
+
+    .category-block--has-posts {
+        @apply mb-10 last:mb-0 sm:mb-12;
+    }
+
+    /* Tight stack for A → B → C nav before a node’s post list. */
+    .category-block--branch + .category-block--branch .category-block-head,
+    .category-block--branch + .category-block--has-posts .category-block-head {
+        @apply pt-0.5;
+    }
+
+    .category-block-head {
+        @apply flex items-center gap-2 py-1;
+    }
+
+    .category-block--has-posts .category-block-head {
+        @apply mb-3 border-b border-border-decorative py-2 pb-2;
+    }
+
+    .category-tree-dot {
+        @apply size-1.5 shrink-0 rounded-full bg-text-faint;
+    }
+
+    .category-node-icon {
+        @apply text-text-subtle;
+    }
+
+    .category-node-icon--branch {
+        @apply text-text-faint opacity-80;
+    }
+
+    .category-node-name {
+        @apply min-w-0 truncate underline-offset-4 decoration-transparent transition-colors hover:text-seal hover:underline hover:decoration-seal/40;
+    }
+
+    .category-block--branch .category-node-name {
+        @apply text-sm text-text-chrome;
+    }
+
+    .category-block--has-posts .category-node-name {
+        @apply text-lg font-bold text-text-heading;
+    }
+
+    /* Count only on leaves — avoids triple “7” on A / B / C chains. */
+    .category-node-count {
+        @apply ml-auto shrink-0 text-sm tabular-nums text-text-chrome;
+    }
+
+    /* Align post list with leaf title (no extra indent stack). */
+    .category-block-body {
+        @apply pt-1;
+    }
+
+    .category-more-row {
+        /* Match home post-card “read more”: centered under the list. */
+        @apply mt-6 flex justify-center;
+    }
+
+    /* Home meta: parallel category overflow next to primary name. */
+    .meta-cat-more {
+        @apply text-text-chrome;
+    }
+
+    .post-nav-link {
+        @apply flex min-w-0 items-center gap-2 text-text-chrome transition-colors hover:text-seal max-w-[45%];
+    }
+
+    .link-chrome {
+        @apply text-text-chrome underline-offset-4 decoration-border-decorative transition-colors hover:text-seal hover:underline;
+    }
+
+    .link-underline {
+        @apply underline-offset-4 decoration-border-decorative transition-colors hover:underline hover:text-seal hover:decoration-seal/40;
+    }
+
+    .tag-pill {
+        @apply inline-flex items-center rounded-md border border-border-strong bg-bg-inset px-3 py-1.5 text-sm text-text-chrome duration-200 hover:border-seal/50 hover:text-seal;
+        transition-property: color, border-color;
+    }
+
+    /* Shared page chrome divider: used by main content, footer, and post navigation only. */
+    .section-divider {
+        @apply mt-8 border-t border-border-decorative pt-8 md:mt-10 md:pt-10;
+    }
+
+    .post-nav-title {
+        @apply line-clamp-1 underline-offset-4 decoration-border-decorative group-hover:underline group-hover:decoration-seal/40;
+    }
+
+    .pagination {
+        & .page-number,
+        & .extend {
+            @apply text-text-chrome underline-offset-4 decoration-border-decorative transition-colors hover:text-seal hover:underline;
+        }
+
+        & .page-number {
+            @apply oldstyle-nums;
+
+            &.current {
+                @apply cursor-default underline underline-offset-4 text-seal decoration-seal;
+            }
+        }
+
+        & .space {
+            @apply select-none text-text-faint;
+        }
+    }
+
+    /* ── Progress Bar ── */
+    .progress-bar {
+        @apply fixed top-0 inset-x-0 z-50 bg-seal origin-left pointer-events-none;
+        height: 2px;
+        transform: scaleX(0);
+        transition: transform 0.15s linear;
+    }
+
+    .back-to-top-sentinel {
+        @apply absolute left-0 pointer-events-none;
+        top: 50vh;
+        width: 1px;
+        height: 1px;
+    }
+
+    /* ── Back to Top ── */
+    .back-to-top {
+        /* Idle icon uses chrome/body so the control stays AA on paper. */
+        @apply fixed z-40 bottom-8 right-8 size-9 flex cursor-pointer items-center justify-center rounded-full border border-border-strong bg-paper/92 text-text-chrome shadow-sm ease-soft;
+        transition: opacity 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
+        &:hover {
+            @apply border-seal/30 text-seal shadow-md;
+        }
+
+        &[data-visible="false"] {
+            @apply opacity-0 pointer-events-none;
+        }
+
+        &[data-visible="true"] {
+            @apply opacity-100 pointer-events-auto;
+        }
+    }
+
+    .prose-shiro {
+        /* Intentional ~65ch reading measure (Typography default). Optimal line
+           length for long-form prose — do not replace with max-w-none / full paper
+           width. Code blocks may expand past this measure via --shiro-code-bleed
+           (see source/css/_src/code.css); keep both in sync. */
+        @apply mx-auto max-w-[65ch] font-serif leading-relaxed prose;
+        --shiro-code-bleed: 3.5rem;
+        --tw-prose-body: var(--color-text-body);
+        --tw-prose-headings: var(--color-text-heading);
+        --tw-prose-lead: var(--color-text-chrome);
+        --tw-prose-links: var(--color-text-body);
+        --tw-prose-bold: var(--color-text-heading);
+        --tw-prose-counters: var(--color-text-chrome);
+        --tw-prose-bullets: var(--color-text-chrome);
+        --tw-prose-hr: var(--color-border-decorative);
+        --tw-prose-quotes: var(--color-text-chrome);
+        --tw-prose-quote-borders: var(--color-text-faint);
+        --tw-prose-captions: var(--color-text-chrome);
+        --tw-prose-kbd: var(--color-text-heading);
+        --tw-prose-kbd-shadows: color-mix(in srgb, var(--color-text-heading) 12%, transparent);
+        --tw-prose-code: var(--color-seal);
+        /* Align bare <pre> with highlight/code surfaces (not terminal black). */
+        --tw-prose-pre-code: var(--color-text-body);
+        --tw-prose-pre-bg: var(--color-code-bg);
+        --tw-prose-th-borders: var(--color-border-strong);
+        --tw-prose-td-borders: var(--color-border-decorative);
+
+        & a:hover {
+            @apply text-seal;
+        }
+
+        & code {
+            padding-inline: 0.25em;
+            overflow-wrap: break-word;
+            word-break: break-word;
+
+            &::before,
+            &::after {
+                content: "";
+            }
+        }
+
+        /* Markdown tables are direct prose children; keep wide data inside the reading column. */
+        & > table {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            overscroll-behavior-inline: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* MathJax CHTML: inherit prose ink/body (no separate math palette). */
+        & mjx-container {
+            color: inherit;
+        }
+
+        :where(body[data-shiro-lightgallery="true"]) & :where(img, a[data-lg-item], a[data-lg-item] img) {
+            cursor: zoom-in;
+        }
+
+        :where(body[data-shiro-lightgallery="true"]) & :where(img[role="presentation"], img.emoji) {
+            cursor: default;
+        }
+
+        :where(body[data-shiro-lightgallery="true"]) & :where(button, input, select, textarea, summary, label, [role="button"], [role="link"], [contenteditable]:not([contenteditable="false"])) img {
+            cursor: inherit;
+        }
+    }
+
+    /* Skip link: visually hidden until keyboard focus */
+    .shiro-skip-link {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+
+    .shiro-skip-link:focus {
+        position: fixed;
+        left: 1rem;
+        top: 1rem;
+        z-index: 70;
+        width: auto;
+        height: auto;
+        margin: 0;
+        clip: auto;
+        overflow: visible;
+        white-space: normal;
+        border-radius: 0.375rem;
+        background: var(--color-paper);
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        color: var(--color-text-heading);
+        outline: 2px solid var(--color-focus-ring);
+        outline-offset: 2px;
+        box-shadow: var(--shadow-ink);
+    }
+}
+
+@layer utilities {
+    .focus-elegant:focus-visible {
+        @apply border-border-strong;
+        outline: 2px solid var(--color-focus-ring);
+        outline-offset: 2px;
+    }
+}
+
+@utility text-footnote {
+    font-size: 0.7rem;
+}
+
+@utility tracking-note {
+    letter-spacing: 0.2em;
+}
+
+@utility max-h-menu {
+    max-height: 60vh;
+}
+
+@utility max-w-divider {
+    max-width: 120px;
+}

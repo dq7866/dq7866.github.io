@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>站长管理后台 · 知作坊</title>
+<link rel="stylesheet" href="admin.css?v=1">
+</head>
+<body>
+
+<!-- ============ 登录 ============ -->
+<div id="login" class="hidden">
+  <div class="loginbox">
+    <div class="brand">
+      <div class="ic">🛢️</div>
+      <h1>知作坊 · 站长后台</h1>
+      <p>DQ7866.ONLINE</p>
+    </div>
+    <form class="lgform" id="lg-form" autocomplete="on" novalidate>
+      <label for="lg-user">管理员账号</label>
+      <input id="lg-user" name="username" autocomplete="username" placeholder="请输入用户名">
+      <label for="lg-pass">密码</label>
+      <div class="pw">
+        <input id="lg-pass" name="password" type="password" autocomplete="current-password" placeholder="请输入密码">
+        <button type="button" class="eye" id="lg-eye" title="显示密码" aria-label="显示密码" aria-pressed="false">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 5C7 5 3.1 8.1 1.5 12 3.1 15.9 7 19 12 19s8.9-3.1 10.5-7C20.9 8.1 17 5 12 5zm0 11.5A4.5 4.5 0 1 1 16.5 12 4.5 4.5 0 0 1 12 16.5zm0-7A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5z" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <button type="submit" class="btn primary block" id="lg-btn">登 录</button>
+      <div class="err" id="lg-err"></div>
+      <div class="net" id="lg-net"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ 主界面 ============ -->
+<div id="app" class="hidden">
+  <header class="top">
+    <div class="logo"><b>知作坊 · 站长后台</b><span>DQ7866.ONLINE</span></div>
+    <div class="sp"></div>
+    <div class="meta">
+      <span>统计范围
+        <select id="day-sel" style="padding:5px 8px;background:#10141d;border:1px solid #2e394d;border-radius:7px;color:#e7ebf3;margin-left:5px"></select>
+      </span>
+      <span>👤 <b id="who" style="color:#f2c47a">—</b></span>
+      <button class="btn sm" id="btn-out">退出登录</button>
+    </div>
+  </header>
+  <nav class="tabs" id="tabs"></nav>
+  <div id="content"></div>
+</div>
+
+<div id="toast"></div>
+<div id="modal" class="hidden"></div>
+
+<script src="admin.js?v=1"></script>
+</body>
+</html>

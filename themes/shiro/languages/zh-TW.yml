@@ -1,0 +1,60 @@
+categories:
+  count_hint: "%s · 本層 %s / 分類頁 %s"
+  meta_more: "+%s"
+  more: 查看全部
+  more_count: "+%s 篇"
+
+clipboard:
+  copied: 已複製
+  copy: 複製程式碼
+  failed: 複製失敗
+
+comments:
+  noscript: 請啟用 JavaScript 以查看留言。
+
+common:
+  back_to_top: 回到頂部
+  empty: 這裡還沒有內容。
+  rss: RSS
+  skip_to_content: 跳到正文
+
+gallery:
+  view_image: 查看圖片
+  visit_source: 查看原始連結
+
+index:
+  read_more: 閱讀更多
+
+nav:
+  archives: 歸檔
+  categories: 分類
+  menu: 選單
+  tags: 標籤
+
+page:
+  next: 下一頁
+  number: "第 %s 頁"
+  pagination: 分頁導航
+  prev: 上一頁
+
+post:
+  navigation: 文章導覽
+  next: 上一篇（較舊）
+  prev: 下一篇（較新）
+
+search:
+  placeholder: 搜尋文章…
+  trigger: 搜尋
+
+theme:
+  dark: 深色
+  light: 淺色
+  system: 跟隨系統
+
+toc:
+  title: 目錄
+
+word_count:
+  count: 字數
+  time: 閱讀時長
+  time_minutes: 分鐘

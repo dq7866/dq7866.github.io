@@ -1,0 +1,40 @@
+/* Google Fonts via head.njk (one display=swap bundle from google_font_urls).
+ * Preloader: font <link> load + fonts.ready twice (rAF), connection-aware deadline, longer CSS failsafe. */
+
+/* ── Cascade layers ──
+ *
+ * Uses Tailwind v4's built-in four-layer model only:
+ *   theme → base → components → utilities.
+ *
+ * Entry file: imports core parts under source/css/_core/.
+ * Optional feature styles under source/css/_src/ (code, toc, search,
+ * comments) are minified separately without Tailwind and wrap rules in
+ * `@layer components` so they share this layer order and do not win as
+ * unlayered CSS over utilities. LightGallery and Gist overrides stay unlayered
+ * so they outrank their unlayered vendor CSS. (giscus.min.css is an iframe
+ * theme served to giscus — not part of the site cascade.)
+ * Feature dark overrides use `html[data-theme=dark]` (same contract as the
+ * custom `dark` variant below) because those files are not Tailwind-scanned.
+ *
+ *   base        Reset, scrollbars, html/body, global modal scroll lock,
+ *               and dark-theme root token swap via Tailwind's custom `dark` variant.
+ *   components  Core component classes, light theme + dark overrides,
+ *               theme toggle styles, and optional feature CSS above.
+ *   utilities   Tailwind utility classes + custom `focus-elegant`
+ *               (with its dark variant kept in the same layer).
+ */
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss' source(none);
+
+@custom-variant dark (&:where(html[data-theme=dark], html[data-theme=dark] *));
+
+@plugin "@tailwindcss/typography";
+
+@source "../../layout/**/*.njk";
+
+@import './_core/tokens.css';
+@import './_core/base.css';
+@import './_core/components.css';
+@import './_core/dark.css';
+@import './_core/theme-toggle.css';

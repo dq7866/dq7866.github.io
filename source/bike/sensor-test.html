@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1420">
+<meta name="robots" content="noindex">
+<title>体感诊断 · 风驰骑行 WindRider</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: #0d1420; color: #e8eef7; min-height: 100vh;
+    font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    padding: calc(18px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+    line-height: 1.65;
+  }
+  h1 { font-size: 21px; letter-spacing: 1px; }
+  h2 { font-size: 14px; color: #8fa3bb; margin: 22px 0 8px; letter-spacing: 1px; font-weight: 600; }
+  .sub { font-size: 12.5px; color: #8fa3bb; margin-top: 6px; }
+  a { color: #34d399; }
+  .verdict {
+    margin-top: 14px; padding: 13px 15px; border-radius: 13px; font-size: 14px; font-weight: 700;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); line-height: 1.6;
+  }
+  .verdict.ok { background: rgba(52,211,153,.14); border-color: rgba(52,211,153,.45); color: #6ee7b7; }
+  .verdict.bad { background: rgba(239,68,68,.13); border-color: rgba(239,68,68,.42); color: #fca5a5; }
+  .verdict.warn { background: rgba(245,158,11,.13); border-color: rgba(245,158,11,.42); color: #fcd34d; }
+  .verdict small { display: block; font-weight: 400; font-size: 12.5px; margin-top: 6px; opacity: .92; }
+  button {
+    font-family: inherit; font-weight: 800; font-size: 16px; border: none; border-radius: 13px;
+    padding: 15px 22px; width: 100%; margin-top: 14px; cursor: pointer;
+    background: linear-gradient(135deg, #10b981, #34d399); color: #04231a;
+    box-shadow: 0 6px 20px rgba(16,185,129,.3);
+  }
+  button:active { transform: scale(.98); }
+  button.ghost { background: rgba(255,255,255,.07); color: #e8eef7; border: 1px solid rgba(255,255,255,.14); box-shadow: none; font-size: 14px; padding: 12px 18px; }
+  .grid { display: flex; flex-direction: column; gap: 6px; }
+  .row {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    font-size: 13.5px; padding: 10px 13px; border-radius: 11px; background: rgba(255,255,255,.05);
+  }
+  .row i { font-style: normal; color: #8fa3bb; flex: none; }
+  .row b { font-weight: 700; text-align: right; word-break: break-all; }
+  .row b.ok { color: #6ee7b7; } .row b.no { color: #fca5a5; } .row b.warn { color: #fcd34d; }
+  pre {
+    font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; color: #a5f3fc;
+    background: rgba(0,0,0,.4); border-radius: 12px; padding: 13px 14px; line-height: 1.7;
+    white-space: pre-wrap; word-break: break-all;
+  }
+  .live-big { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+  .lbox { background: rgba(255,255,255,.05); border-radius: 12px; padding: 11px 6px; text-align: center; }
+  .lbox span { display: block; font-size: 11px; color: #8fa3bb; margin-bottom: 4px; }
+  .lbox b { font-size: 21px; font-weight: 800; color: #6ee7b7; font-variant-numeric: tabular-nums; }
+  .bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,.12); overflow: hidden; margin: 10px 0 4px; position: relative; }
+  .bar u { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; background: #34d399; border-radius: 2px; transition: left .08s linear; }
+  .bar::after { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: rgba(255,255,255,.35); }
+  .fix { font-size: 13.5px; color: #cbd5e1; }
+  .fix li { margin: 7px 0 7px 18px; line-height: 1.65; }
+  .fix b { color: #fcd34d; }
+  .tip { font-size: 12px; color: #8fa3bb; margin-top: 8px; }
+  .back { display: inline-block; margin-top: 22px; font-size: 14px; font-weight: 700; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<h1>🛰️ 体感诊断</h1>
+<p class="sub">风驰骑行 WindRider · 重力感应自检工具。点下面的按钮，它会告诉你这台设备到底能不能用体感、卡在哪一步。</p>
+
+<div id="verdict" class="verdict">还没开始检测 —— 点下面按钮。</div>
+
+<button id="go">开始检测（会弹一次授权）</button>
+<button id="cal" class="ghost">把当前姿势校准为中位</button>
+
+<h2>一、运行环境</h2>
+<div class="grid" id="env"></div>
+
+<h2>二、传感器接口</h2>
+<div class="grid" id="sen"></div>
+
+<h2>三、实时读数</h2>
+<div class="live-big">
+  <div class="lbox"><span>左右倾（转向轴）</span><b id="v-sx">—</b></div>
+  <div class="lbox"><span>前后倾（俯仰轴）</span><b id="v-sy">—</b></div>
+  <div class="lbox"><span>每秒事件</span><b id="v-rate">0</b></div>
+</div>
+<div class="bar"><u id="v-bar" style="left:50%"></u></div>
+<p class="tip">测试方法：<b>把手机横过来</b>，机身左低右低地摆动，看上面「左右倾」是否跟着变化、绿线是否左右移动。没有变化 = 体感没通。</p>
+<pre id="live">alpha=—  beta=—  gamma=—</pre>
+
+<h2>四、结论与怎么修</h2>
+<div class="fix" id="fix"><li>等待检测结果…</li></div>
+
+<a class="back" href="./">← 返回风驰骑行</a>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var UA = navigator.userAgent || '';
+  var ENV = {
+    https: location.protocol === 'https:' || /^(localhost|127\.0\.0\.1)$/.test(location.hostname),
+    ctx: !!window.isSecureContext,
+    wx: /MicroMessenger/i.test(UA),
+    ios: /iPad|iPhone|iPod/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1),
+    android: /Android/i.test(UA),
+    iosVer: (UA.match(/OS (\d+)[._](\d+)/) || [])[0] || ''
+  };
+  var hasDO = ('DeviceOrientationEvent' in window);
+  var hasDM = ('DeviceMotionEvent' in window);
+  var needPerm = hasDO && typeof DeviceOrientationEvent.requestPermission === 'function';
+
+  var st = { perm: 'unknown', evts: 0, last: null, ch: 'none', t0: 0, rate: 0, lastRate: 0, lastRateAt: 0 };
+  var base = null;
+
+  function row(k, v, cls) {
+    return '<div class="row"><i>' + k + '</i><b class="' + (cls || '') + '">' + v + '</b></div>';
+  }
+  function yn(b) { return b ? ['是', 'ok'] : ['否', 'no']; }
+  function n2(v) { return (v == null || !isFinite(v)) ? '—' : v.toFixed(1); }
+
+  /* ---------- 环境 ---------- */
+  function renderEnv() {
+    var r, h = '';
+    r = yn(ENV.https);   h += row('HTTPS 安全上下文', r[0] + (ENV.https ? '' : '（必须 https）'), r[1]);
+    r = yn(ENV.ctx);     h += row('isSecureContext', r[0], r[1]);
+    h += row('微信内置浏览器', ENV.wx ? '是（iOS 会屏蔽）' : '否', ENV.wx ? 'warn' : 'ok');
+    h += row('系统', (ENV.ios ? 'iOS / iPadOS ' + ENV.iosVer : ENV.android ? 'Android' : '桌面或其他'), '');
+    h += row('屏幕方向角', screenAngle() + '°', '');
+    h += row('窗口尺寸', window.innerWidth + ' × ' + window.innerHeight, '');
+    $('env').innerHTML = h;
+  }
+
+  /* ---------- 传感器接口 ---------- */
+  function renderSen() {
+    var r, h = '';
+    r = yn(hasDO);   h += row('DeviceOrientationEvent', r[0], r[1]);
+    r = yn(hasDM);   h += row('DeviceMotionEvent', r[0], r[1]);
+    h += row('需要系统授权', needPerm ? '是（iOS 13+）' : '否', needPerm ? 'warn' : '');
+    var PM = { unknown: ['未申请', 'warn'], granted: ['已允许', 'ok'], denied: ['被拒绝', 'no'], unsupported: ['不支持', 'no'], error: ['出错', 'no'] };
+    var pm = PM[st.perm] || ['未知', 'warn'];
+    h += row('授权结果', pm[0], pm[1]);
+    var CH = { none: '还没收到数据', orient: 'deviceorientation ✓', absolute: 'deviceorientationabsolute ✓', motion: 'devicemotion（兼容模式）' };
+    h += row('数据通道', CH[st.ch] || st.ch, st.ch === 'none' ? 'no' : 'ok');
+    h += row('累计收到事件', st.evts + ' 条', st.evts > 0 ? 'ok' : 'no');
+    $('sen').innerHTML = h;
+  }
+
+  function screenAngle() {
+    var a = 0;
+    if (window.screen && screen.orientation && typeof screen.orientation.angle === 'number') a = screen.orientation.angle;
+    else if (typeof window.orientation === 'number') a = window.orientation;
+    return ((a % 360) + 360) % 360;
+  }
+  // 与游戏 controls.js 相同的映射
+  function axes(beta, gamma) {
+    var a = screenAngle(), sx, sy;
+    if (a === 90) { sx = beta; sy = -gamma; }
+    else if (a === 270) { sx = -beta; sy = gamma; }
+    else { sx = gamma; sy = beta; }
+    return { sx: sx, sy: sy };
+  }
+
+  /* ---------- 事件 ---------- */
+  var chLast = { orient: 0, absolute: 0, motion: 0 };
+  function now() { return (window.performance && performance.now) ? performance.now() : Date.now(); }
+
+  function feed(sx, sy, ch, raw) {
+    chLast[ch] = now();
+    var use;
+    if (now() - chLast.orient <= 1200) use = 'orient';
+    else if (now() - chLast.absolute <= 1200) use = 'absolute';
+    else use = 'motion';
+    if (ch !== use) return;
+    if (use !== st.ch) { st.ch = use; base = null; }
+    if (!base) base = { sx: sx, sy: sy };
+    st.rel = { sx: sx - base.sx, sy: sy - base.sy };
+    st.last = raw;
+    st.evts++;
+    // 事件频率（每秒）
+    var t = now();
+    if (!st.lastRateAt) { st.lastRateAt = t; st.rate = 0; }
+    else if (t - st.lastRateAt >= 1000) {
+      var f = (st.evts - st.lastRate) * 1000 / (t - st.lastRateAt);
+      st.rate = Math.round(f);
+      st.lastRate = st.evts;
+      st.lastRateAt = t;
+    }
+  }
+  function onOrient(e) {
+    if (!e || (e.alpha == null && e.beta == null && e.gamma == null)) return;  // 空事件 = 被屏蔽
+    var a = axes(e.beta || 0, e.gamma || 0);
+    feed(a.sx, a.sy, 'orient', { a: e.alpha, b: e.beta, g: e.gamma, sx: a.sx, sy: a.sy });
+  }
+  function onAbs(e) {
+    if (!e || (e.alpha == null && e.beta == null && e.gamma == null)) return;
+    var a = axes(e.beta || 0, e.gamma || 0);
+    feed(a.sx, a.sy, 'absolute', { a: e.alpha, b: e.beta, g: e.gamma, sx: a.sx, sy: a.sy });
+  }
+  function onMotion(e) {
+    var g = e && e.accelerationIncludingGravity;
+    if (!g || g.x == null || g.y == null || g.z == null) return;
+    var a = screenAngle(), z = (Math.abs(g.z) < 2 ? (g.z >= 0 ? 2 : -2) : g.z);
+    var tilt = (a === 90 || a === 270) ? Math.atan2(-g.y, z) * 180 / Math.PI
+                                       : Math.atan2(g.x, z) * 180 / Math.PI;
+    feed(tilt, 0, 'motion', { a: null, b: null, g: null, sx: tilt, sy: 0, gx: g.x, gy: g.y, gz: g.z });
+  }
+  function listen() {
+    window.addEventListener('deviceorientation', onOrient, true);
+    window.addEventListener('deviceorientationabsolute', onAbs, true);
+    if (hasDM) window.addEventListener('devicemotion', onMotion, true);
+  }
+
+  /* ---------- 渲染循环 ---------- */
+  function tick() {
+    renderSen();
+    var l = st.last;
+    if (l) {
+      $('live').textContent =
+        'alpha=' + n2(l.a) + '  beta=' + n2(l.b) + '  gamma=' + n2(l.g) + '\n' +
+        (l.gx != null ? 'acc.x=' + n2(l.gx) + '  acc.y=' + n2(l.gy) + '  acc.z=' + n2(l.gz) + '\n' : '') +
+        '转向轴 sx=' + n2(l.sx) + '°   俯仰轴 sy=' + n2(l.sy) + '°';
+    }
+    var rel = st.rel || { sx: 0, sy: 0 };
+    $('v-sx').textContent = n2(rel.sx) + '°';
+    $('v-sy').textContent = n2(rel.sy) + '°';
+    $('v-rate').textContent = st.rate;
+    $('v-bar').style.left = Math.max(0, Math.min(100, 50 + rel.sx * 0.8)).toFixed(1) + '%';
+  }
+
+  /* ---------- 结论 ---------- */
+  function verdict() {
+    var v = $('verdict'), f = $('fix');
+    var cls, txt, how;
+    if (!ENV.https) {
+      cls = 'bad'; txt = '❌ 不是 https 打开，浏览器会直接屏蔽重力感应。';
+      how = '<li>请用 <b>https://</b> 开头的网址重新打开本页。</li>';
+    } else if (ENV.wx) {
+      cls = 'warn'; txt = '⚠️ 你正在微信内置浏览器里打开。';
+      how = '<li>iOS 微信<b>会静默屏蔽重力感应</b>：即使授权成功，也一条数据都收不到。</li>' +
+            '<li>点右上角 <b>···</b> → <b>在浏览器打开</b>（Safari / Chrome），再开体感。</li>' +
+            '<li>Android 微信一般可用，若本页「累计收到事件」一直是 0，也请换系统浏览器。</li>';
+    } else if (!hasDO && !hasDM) {
+      cls = 'bad'; txt = '❌ 这个浏览器没有重力感应接口。';
+      how = '<li>换系统自带浏览器（iOS 用 <b>Safari</b>、Android 用 <b>Chrome</b>）打开。</li>';
+    } else if (st.perm === 'denied') {
+      cls = 'bad'; txt = '❌ 权限被拒绝了。';
+      how = '<li>iPhone：<b>设置 → Safari → 动作与方向访问</b> 打开，然后回到本页重新点「开始检测」。</li>' +
+            '<li>Android：地址栏左侧图标 → 权限 → 允许「动作与方向」。</li>';
+    } else if (st.perm === 'granted' && st.evts === 0) {
+      cls = 'bad'; txt = '❌ 已授权，但一条数据都没收到。';
+      how = '<li>这是浏览器层面的限制，不是你操作的问题。常见于<b>微信内置浏览器</b>和部分国产内核。</li>' +
+            '<li>换成系统浏览器打开即可。</li>';
+    } else if (st.ch === 'motion') {
+      cls = 'warn'; txt = '⚠️ 走的是兼容通道（用重力加速度反算倾角）。';
+      how = '<li>可以玩，但<b>只支持左右转向</b>，翘头/翘尾请用屏幕按钮。</li>' +
+            '<li>想用完整功能，换系统浏览器打开。</li>';
+    } else if (st.evts > 0) {
+      cls = 'ok'; txt = '✅ 一切正常！重力感应工作良好（已收到 ' + st.evts + ' 条数据，约 ' + st.rate + ' 条/秒）。';
+      how = '<li>把手机<b>横过来</b>左右摆动，上面「左右倾」应跟着变。</li>' +
+            '<li>摆舒服了，点「校准中位」，游戏里就以这个姿势为零点。</li>' +
+            '<li><a href="./">返回风驰骑行</a>，点菜单里的「🎮 体感转向」或「开始骑行」即可开玩。</li>';
+    } else {
+      cls = 'warn'; txt = '⏳ 还没开始检测。';
+      how = '<li>点上面的按钮，并在系统弹窗里选<b>允许</b>。</li>';
+    }
+    v.className = 'verdict ' + cls;
+    v.innerHTML = txt + '<small>本页会自动把上面几项检测结果显示出来，截图即可。</small>';
+    f.innerHTML = how;
+  }
+
+  /* ---------- 启动 ---------- */
+  function start() {
+    st.perm = needPerm ? 'requesting' : 'granted';
+    st.evts = 0; st.last = null; st.ch = 'none'; base = null;
+    chLast.orient = chLast.absolute = chLast.motion = 0;
+    st.lastRate = 0; st.lastRateAt = 0; st.rate = 0;
+    listen();
+    setTimeout(function () { if (st.evts === 0) st.perm = 'granted'; renderSen(); verdict(); }, 1700);
+  }
+
+  $('go').addEventListener('click', function () {
+    renderEnv();
+    if (needPerm) {
+      try {
+        DeviceOrientationEvent.requestPermission().then(function (r) {
+          if (r === 'granted') { st.perm = 'granted'; start(); }
+          else { st.perm = 'denied'; renderSen(); verdict(); }
+        }).catch(function () { st.perm = 'error'; renderSen(); verdict(); });
+      } catch (e) { st.perm = 'error'; renderSen(); verdict(); }
+    } else {
+      st.perm = 'granted';
+      start();
+    }
+  });
+
+  $('cal').addEventListener('click', function () { base = null; });
+
+  renderEnv(); renderSen(); verdict();
+  setInterval(tick, 150);
+  window.addEventListener('resize', renderEnv);
+})();
+</script>
+</body>
+</html>

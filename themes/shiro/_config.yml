@@ -1,0 +1,222 @@
+# Site
+site:
+  favicon: /favicon.svg
+  # Year the site was created; displayed in footer as "since–current" (omit to show current year only)
+  # since: 2020
+  # Whether to display the seal (stamp) in the header
+  seal: true
+  # Text displayed inside the seal stamp and favicon (single character recommended)
+  seal_text: "白"
+  rss:
+    enabled: false
+    path: /atom.xml
+
+# Navigation menu
+menu:
+  - name: 首页
+    url: /
+  - name: 游戏盒
+    url: /games/
+  - name: 教育专栏
+    url: /edu/
+  - name: 森林学堂
+    url: /forest/
+  - name: 符号通行证
+    url: /symbolpass/
+  - name: 工具箱
+    url: /toolbox/
+  - name: 骑行游戏
+    url: /bike/
+  - name: 守门人
+    url: /guardian/
+  - name: 留言板
+    url: /board/
+  - name: 离线包
+    url: /offline/
+  - name: 归档
+    url: /archives
+  - name: 分类
+    url: /categories
+  - name: 标签
+    url: /tags
+#  - name: About
+#    url: /about
+#  - name: GitHub
+#    url: https://github.com/Acris/hexo-theme-shiro
+#    # Open in new tab
+#    target: _blank
+
+# Categories index page (/categories): tree + exclusive-post previews.
+# Index count/preview = posts owned at that node (not deeper children).
+# Category detail pages still list all Hexo-assigned posts (may be a superset).
+category_index:
+  # Max posts shown under a node before “view all” (0 = show all exclusive posts).
+  preview_limit: 5
+
+# Excerpt settings
+excerpt:
+  # If post has <!-- more -->, use it.
+  # For better readability, prefer adding <!-- more --> manually in posts.
+  # Otherwise fallback to auto-truncated excerpt.
+  fallback:
+    enabled: true
+    # Number of characters to truncate (not words)
+    length: 200
+
+# Table of Contents (TOC)
+toc:
+  enabled: true
+  # Max heading depth: 2 = h2, 3 = h2+h3, 4 = h2+h3+h4
+  depth: 3
+  # Minimum number of headings to show TOC
+  min_headings: 3
+
+# Optional security hooks for host CSP / SRI. Empty defaults keep current behavior.
+# csp_nonce is a static build-time value, not a per-request nonce. When set, it
+# is added to theme scripts and runtime-created loaders. Real nonce security
+# requires the host/edge to replace it in markup and the header on every request.
+# CDN integrity: optional Subresource Integrity hashes for pinned MathJax /
+# LightGallery CDN URLs (sha256-/sha384-/sha512-…). Leave empty if unused;
+# when set, crossorigin="anonymous" is emitted automatically.
+security:
+  csp_nonce: ""
+
+# LightGallery image lightbox. The official project name uses a capital G.
+lightGallery:
+  enabled: true
+  css: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css
+  js: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js
+  # Optional SRI for the CDN css/js URLs above (empty = no integrity attribute).
+  css_integrity: ""
+  js_integrity: ""
+
+# MathJax TeX rendering (MathJax only; no KaTeX). Official defaults are
+# \(...\) / $$...$$ / \[...\]; single $...$ stays off unless inline_dollars: true.
+# Usage: set enabled: true, then front-matter mathjax: true and/or every_page: true.
+mathjax:
+  # false = never inject; true = follow every_page / front-matter.
+  enabled: false
+  # false = only pages with mathjax: true in front-matter.
+  # true  = all post/page views except mathjax: false (opt-out).
+  # When true and protect is on, every such page is scanned by the Markdown
+  # shield (including pages with no formulas) — same gate as script load.
+  # Script inject is post/page only (home/archive/tag/category lists stay free of
+  # MathJax; list excerpts may show raw TeX until the full post is opened).
+  every_page: false
+  # MathJax script URL; pin a version for reproducibility (like lightGallery).
+  src: https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js
+  # Optional SRI for mathjax.src (empty = no integrity attribute).
+  integrity: ""
+  # Equation numbering: none, ams, or all.
+  tags: none
+  # Enable $...$ as inline math. Default false matches MathJax v4; demos opt in
+  # with inlineMath: {'[+]': [['$', '$']]}. When true, also shields prose \$.
+  inline_dollars: false
+  # Client: process bare \begin{env}...\end{env} outside delimiters (MathJax default).
+  # Markdown shield always protects \begin…\end from the renderer even when this
+  # is false (so MD does not mangle TeX; the client simply will not typeset them).
+  process_environments: true
+  # Treat \$ as a literal dollar in text (MathJax processEscapes; default true).
+  process_escapes: true
+  # Markdown shield in scripts/mathjax.js. Set false if you use
+  # hexo-renderer-pandoc --mathjax or hexo-filter-mathjax (avoid double work).
+  protect: true
+
+# Dark mode
+# Default theme: system (follow OS), light, or dark
+# When default is "system", the toggle cycles through 3 states: system → light → dark.
+# When default is "light" or "dark", the toggle switches between light ↔ dark only (no system option).
+# When toggle is false, the theme toggle button is hidden and the default theme is always used.
+# If toggle is disabled, it is recommended to set default to "light" to match the theme's design.
+dark_mode:
+  default: light
+  toggle: true
+
+# Reading progress bar (thin vermilion bar at top of page)
+progress_bar:
+  enabled: true
+
+# Word count & reading time (display only)
+# Requires site plugin: npm install hexo-word-counter
+# Configure counting/WPM (and symbols/time toggles) in the site root _config.yml
+# under symbols_count_time. When disabled or the plugin is missing, meta items
+# are omitted with no error.
+word_count:
+  enabled: false
+
+# Back to top button
+back_to_top:
+  enabled: true
+
+# Comment systems
+# Supported providers: disqus, giscus
+# Set enabled to true and choose a provider.
+#
+# Disqus: register at https://disqus.com/admin/create/ and note the
+# unique shortname assigned to your site (e.g., "my-blog-name").
+#
+# giscus: a comment system powered by GitHub Discussions.
+# Go to https://giscus.app/ to generate your configuration values.
+# Make sure your repository is public and has Discussions enabled.
+comments:
+  enabled: false
+  # disqus or giscus
+  provider: giscus
+  disqus:
+    shortname: ""
+  giscus:
+    # giscus script URL (self-hosted or default)
+    src: https://giscus.app/client.js
+    # GitHub repo (e.g., "owner/repo")
+    repo: ""
+    # Repository ID from https://giscus.app
+    repo_id: ""
+    # Discussion category name (e.g., "Announcements")
+    category: ""
+    # Category ID from https://giscus.app
+    category_id: ""
+    # pathname, url, title, og:title, specific, number
+    mapping: pathname
+    # Required when mapping is "specific" or "number"
+    term: ""
+    # 1 to enable strict title matching
+    strict: 0
+    # 1 to enable reactions
+    reactions_enabled: 1
+    # 1 to emit discussion metadata
+    emit_metadata: 0
+    # bottom or top
+    input_position: bottom
+    # Language code (e.g., en, zh-CN, ja)
+    lang: en
+    # CSS URL or built-in name (light, dark, preferred_color_scheme, …)
+    theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.6.1/source/css/giscus.min.css
+    # true to enable lazy loading (adds data-loading="lazy")
+    lazy_loading: false
+
+# Analytics
+# Currently supports Google Analytics 4 (GA4).
+# To get a GA4 Measurement ID, go to https://analytics.google.com/,
+# create a property, then find the ID (format: G-XXXXXXXXXX) under
+# Admin > Data Streams > Web > Measurement ID.
+analytics:
+  google:
+    enabled: false
+    # e.g., "G-XXXXXXXXXX"
+    id: ""
+
+# Site search powered by Pagefind (https://pagefind.app/) Component UI.
+# Index is built after generation and finalized before deployment in `public/pagefind/`.
+# Required when enabled: install Pagefind 1.5.0+ as a site-level devDependency:
+#   npm install pagefind --save-dev
+# Generation fails with an install hint if Pagefind is missing or too old.
+# Component UI CSS/JS are prefetched and injected on idle / first trigger intent.
+search:
+  enabled: false
+  # Pagefind document root selector. Defaults to body to tolerate generated pages
+  # without an outer <html> element; set to html to keep Pagefind's default.
+  root_selector: body
+  # Force language for tokenization and Component UI translations
+  # (auto-detected from <html lang> by default).
+  # Override only if Pagefind fails to detect your site language correctly.
+  # force_language: zh

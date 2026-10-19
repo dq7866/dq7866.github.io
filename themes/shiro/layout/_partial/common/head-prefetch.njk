@@ -1,0 +1,15 @@
+{# Lowest-priority connection warm for optional features (before FOUC theme script). #}
+{% if gates.needsLightgallery %}
+{% if gates.lightgalleryPreconnectUrl %}
+<link rel="preconnect" href="{{ attr_url(gates.lightgalleryPreconnectUrl) }}" />
+{% endif %}
+<link rel="prefetch" as="script" href="{{ attr_url(gates.lightgalleryJsUrl) }}" />
+<link rel="prefetch" as="style" href="{{ attr_url(gates.lightgalleryCssUrl) }}" />
+<link rel="prefetch" as="script" href="{{ attr_url(versioned_url('js/lightgallery.min.js')) }}" />
+{% endif %}
+{% if gates.searchEnabled %}
+<link rel="prefetch" as="style" href="{{ attr_url(versioned_url('css/search.min.css')) }}" />
+{# Root-absolute Pagefind URLs match pagefind-config / pagefindBase (relative_link sites). #}
+<link rel="prefetch" as="style" href="{{ attr_url(url_for('/pagefind/pagefind-component-ui.css', { relative: false })) }}" />
+<link rel="prefetch" as="script" href="{{ attr_url(url_for('/pagefind/pagefind-component-ui.js', { relative: false })) }}" />
+{% endif %}

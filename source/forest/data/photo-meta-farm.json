@@ -1,0 +1,128 @@
+{
+ "dog": {
+  "cn": "家犬",
+  "file": "assets/photos/dog.jpg",
+  "ready": true,
+  "provider": "iNaturalist",
+  "license": "CC-BY",
+  "credit": "(c) Afsar Nayakkan, some rights reserved (CC BY)",
+  "source": "https://www.inaturalist.org/observations/126460638"
+ },
+ "cat": {
+  "cn": "家猫",
+  "file": "assets/photos/cat.jpg",
+  "ready": true,
+  "provider": "iNaturalist",
+  "license": "CC-BY",
+  "credit": "(c) luluchouette, some rights reserved (CC BY)",
+  "source": "https://www.inaturalist.org/observations/179547341"
+ },
+ "cattle": {
+  "cn": "黄牛",
+  "file": "assets/photos/cattle.jpg",
+  "ready": true,
+  "provider": "iNaturalist",
+  "license": "CC-BY",
+  "credit": "(c) Karim Haddad, some rights reserved (CC BY), uploaded by Karim Haddad",
+  "source": "https://www.inaturalist.org/photos/156967259"
+ },
+ "sheep": {
+  "cn": "绵羊",
+  "file": "assets/photos/sheep.jpg",
+  "ready": true,
+  "provider": "iNaturalist",
+  "license": "CC-BY",
+  "credit": "(c) Barney M, some rights reserved (CC BY)",
+  "source": "https://www.inaturalist.org/observations/197151674"
+ },
+ "goat": {
+  "cn": "家山羊",
+  "file": "assets/photos/goat.jpg",
+  "ready": true,
+  "provider": "iNaturalist",
+  "license": "CC0",
+  "credit": "no rights reserved",
+  "source": "https://www.inaturalist.org/observations/409388498"
+ },
+ "horse": {
+  "cn": "马",
+  "file": "assets/photos/horse.jpg",
+  "ready": true,
+  "provider": "iNaturalist",
+  "license": "CC-BY",
+  "credit": "(c) Coralie, some rights reserved (CC BY)",
+  "source": "https://www.inaturalist.org/observations/408493714"
+ },
+ "pig": {
+  "cn": "家猪",
+  "file": "assets/photos/pig.jpg",
+  "ready": true,
+  "provider": "iNaturalist",
+  "license": "CC-BY",
+  "credit": "(c) Rictor Norton  & David Allen, some rights reserved (CC BY)",
+  "source": "https://www.inaturalist.org/photos/267632608"
+ },
+ "rooster": {
+  "cn": "公鸡",
+  "file": "assets/photos/rooster.jpg",
+  "ready": true,
+  "provider": "iNaturalist",
+  "license": "CC-BY",
+  "credit": "(c) xanderferret, some rights reserved (CC BY)",
+  "source": "https://www.inaturalist.org/observations/409267489"
+ },
+ "duck": {
+  "cn": "家鸭",
+  "file": "assets/photos/duck.jpg",
+  "ready": true,
+  "provider": "iNaturalist",
+  "license": "CC-BY",
+  "credit": "(c) Millie Basden, some rights reserved (CC BY)",
+  "source": "https://www.inaturalist.org/observations/409271223"
+ },
+ "goose": {
+  "cn": "家鹅",
+  "file": "assets/photos/goose.jpg",
+  "ready": true,
+  "provider": "iNaturalist",
+  "license": "CC-BY",
+  "credit": "(c) bitsnbirds, some rights reserved (CC BY), uploaded by bitsnbirds",
+  "source": "https://www.inaturalist.org/photos/206341456"
+ },
+ "donkey": {
+  "cn": "驴",
+  "file": "assets/photos/donkey.jpg",
+  "ready": true,
+  "provider": "iNaturalist",
+  "license": "CC-BY",
+  "credit": "(c) Pablo Silva, some rights reserved (CC BY)",
+  "source": "https://www.inaturalist.org/observations/409049432"
+ },
+ "rabbit": {
+  "cn": "家兔",
+  "file": "assets/photos/rabbit.jpg",
+  "ready": true,
+  "provider": "iNaturalist",
+  "license": "PD",
+  "credit": "Lucile Petit, no known copyright restrictions (public domain)",
+  "source": "https://www.inaturalist.org/photos/262116519"
+ },
+ "pigeon": {
+  "cn": "家鸽",
+  "file": "assets/photos/pigeon.jpg",
+  "ready": true,
+  "provider": "iNaturalist",
+  "license": "CC-BY",
+  "credit": "(c) Nathan Odgers, some rights reserved (CC BY)",
+  "source": "https://www.inaturalist.org/observations/409392030"
+ },
+ "turkey": {
+  "cn": "火鸡",
+  "file": "assets/photos/turkey.jpg",
+  "ready": true,
+  "provider": "iNaturalist",
+  "license": "CC-BY",
+  "credit": "(c) Bruno - Yolande Zanette, some rights reserved (CC BY)",
+  "source": "https://www.inaturalist.org/observations/408086982"
+ }
+}

@@ -1,0 +1,21 @@
+# materials
+newmtl mat_0
+Kd 0.8 0.8 0.8
+map_Kd tex_2.jpg
+
+newmtl mat_1
+Kd 0.8 0.8 0.8
+map_Kd tex_5.jpg
+
+newmtl mat_2
+Kd 0.8 0.8 0.8
+map_Kd tex_8.jpg
+
+newmtl mat_3
+Kd 0.8 0.8 0.8
+map_Kd tex_11.jpg
+
+newmtl mat_4
+Kd 0.8 0.8 0.8
+map_Kd tex_14.jpg
+

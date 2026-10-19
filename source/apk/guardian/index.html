@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#141018">
+<meta name="format-detection" content="telephone=no">
+<title>冰火守门人 · 安卓版下载</title>
+<meta name="description" content="冰火守门人安卓版 APK 下载：伪 3D 双生守门塔防，元素相克 + 只有一扇门的抉择 + 贪心宝石尾巴。纯离线单机、零权限、仅 0.7MB。">
+<style>
+  :root { color-scheme: dark; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    background: radial-gradient(1200px 600px at 50% -10%, #221a2e, #141018 60%);
+    color: #e2d6c4; min-height: 100vh; padding: 28px 16px 48px;
+  }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  .head { text-align: center; margin-bottom: 26px; }
+  .head img.icon { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+  .head h1 { font-size: 30px; letter-spacing: 4px; margin-top: 14px; font-weight: 800; }
+  .head h1 .f { color: #ff7a3c; } .head h1 .w { color: #54c8ff; }
+  .head .sub { font-size: 12.5px; color: #8f8574; letter-spacing: 3px; margin-top: 6px; }
+  .card {
+    background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.1);
+    border-radius: 16px; padding: 20px 22px; margin-bottom: 16px;
+  }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 18px; }
+  .meta span {
+    font-size: 12px; color: #bdb098; background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: 5px 12px;
+  }
+  .meta b { color: #ffd24a; font-weight: 600; }
+  .dl { display: block; text-align: center; text-decoration: none; cursor: pointer;
+    border: none; border-radius: 14px; padding: 16px 20px; width: 100%;
+    font-size: 18px; font-weight: 700; color: #fff; letter-spacing: 3px;
+    background: linear-gradient(180deg, #ff8a4c, #f0511a);
+    box-shadow: 0 5px 0 #a33208, 0 12px 26px rgba(240,81,26,.35);
+  }
+  .dl:active { transform: translateY(3px); box-shadow: 0 2px 0 #a33208; }
+  .dl small { display: block; font-size: 11.5px; font-weight: 400; letter-spacing: 1px; opacity: .85; margin-top: 4px; }
+  .qrbox { display: flex; gap: 18px; align-items: center; }
+  .qrbox img { width: 128px; height: 128px; border-radius: 10px; background: #fff; padding: 6px; flex: none; }
+  .qrbox p { font-size: 13px; line-height: 1.9; color: #cbbfae; }
+  .qrbox p b { color: #e2d6c4; }
+  h2 { font-size: 15px; letter-spacing: 1px; color: #e2d6c4; margin-bottom: 10px; font-weight: 600; }
+  ol { padding-left: 20px; font-size: 13px; line-height: 2.05; color: #cbbfae; }
+  ol b { color: #ffd9a8; }
+  .feat { font-size: 13px; line-height: 2.05; color: #cbbfae; }
+  .feat b { color: #ffd9a8; }
+  .links { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+  .links a {
+    font-size: 13px; color: #d8cdb8; text-decoration: none; padding: 10px 18px;
+    border: 1px solid rgba(255,255,255,.2); border-radius: 11px; background: rgba(255,255,255,.05);
+  }
+  .links a:hover { background: rgba(255,255,255,.11); }
+  .foot { text-align: center; font-size: 11.5px; color: #8f8574; margin-top: 22px; line-height: 1.9; }
+  @media (max-width: 560px) {
+    .qrbox { flex-direction: column; text-align: center; }
+    .head h1 { font-size: 25px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <img class="icon" src="icon-192.png" alt="冰火守门人图标">
+    <h1><span class="f">冰火</span><span class="w">守门人</span></h1>
+    <div class="sub">ELEMENT GATEKEEPER · 安卓版</div>
+  </div>
+
+  <div class="meta">
+    <span>版本 <b id="ver">1.1.0</b></span>
+    <span>大小 <b>0.66 MB</b></span>
+    <span>安卓 <b>5.0+</b></span>
+    <span><b>零权限</b> · 纯离线</span>
+    <span>无需注册</span>
+  </div>
+
+  <a class="dl" id="btn-dl" href="guardian-v1.1.0.apk" download="冰火守门人-v1.1.0.apk">
+    ⬇ 下载安卓版 APK<small>guardian-v1.1.0.apk · 0.67 MB · 直接安装</small>
+  </a>
+
+  <div class="card" style="margin-top:16px">
+    <div class="qrbox">
+      <img id="qr-img" src="qr.png" alt="扫码下载二维码">
+      <p><b>手机扫码直接下载</b><br>用系统相机或微信扫一扫，打开本页后点上方按钮。<br>也可以在电脑上点按钮把安装包传到手机。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>安装步骤（首次安装）</h2>
+    <ol>
+      <li>点上方按钮下载 APK（浏览器可能提示「此类文件可能有害」，这是所有非商店安装包的通用提示，选<b>仍要下载</b>）。</li>
+      <li>下载完成点开安装包，系统询问「是否允许安装未知应用」时选<b>允许</b>。</li>
+      <li>装完打开即玩，进度自动保存在本机。</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>这个版本有什么</h2>
+    <p class="feat">
+      伪 3D 透视塔防：<b>火娃融冰魔、水娃蚀岩魔</b>，双生守门人随时切换，元素相克；<br>
+      每波只有<b>一扇门</b>亮灯，走错门宝石全吐；击杀掉落的宝石缀成贪心尾巴；<br>
+      <b>5 张战场</b>（霜原 / 熔岩 / 林地 / 荒漠 / 幽都）× <b>4 档难度</b>，等级成长解锁；<br>
+      每日挑战（全球同条件）、每日任务、勋章成就、月度赛季；<br>
+      <b>手机横屏左右一摆就能走</b>——像打方向盘，摆得越狠走得越快、拿平就停；<br>
+      自带倾斜仪表、灵敏度三档、方向校准、躺着玩自动对准中位；<br>
+      也支持触屏摇杆、轻点移动、电脑键盘鼠标等多种操控。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>为什么值得放心装</h2>
+    <p class="feat">
+      本安装包<b>不申请任何权限</b>：不要网络、不要存储、不要身份信息；<br>
+      游戏数据全部离线保存在手机里，没有账号、没有内购、没有广告。
+    </p>
+  </div>
+
+  <div class="links">
+    <a href="https://dq7866.online/guardian/">🌐 网页版在线玩</a>
+    <a href="https://dq7866.online/">知作坊首页</a>
+  </div>
+
+  <p class="foot">安装包由本站直接分发 · 版本 1.1.0 (2) · 有问题请通过留言板反馈<br>
+  冰火守门人 © 2026 知作坊</p>
+</div>
+<!-- 下载页不进门卫（对所有访客开放）：只挂统计与站内板块卡片 -->
+<script src="/site-cards.js" defer></script>
+<script src="/stats.js" defer></script>
+</body>
+</html>

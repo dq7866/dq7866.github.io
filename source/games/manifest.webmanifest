@@ -1,0 +1,14 @@
+{
+  "name": "欢乐游戏盒 · 23款免费休闲小游戏",
+  "short_name": "欢乐游戏盒",
+  "description": "永久免费、无广告、无内购的休闲小游戏合集，纯网页实现，打开即玩。",
+  "start_url": "/games/",
+  "display": "standalone",
+  "background_color": "#764ba2",
+  "theme_color": "#667eea",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,28 @@
+{% extends "_layout.njk" %}
+{% from "_macro/ui.njk" import divider with context %}
+
+{% block content %}
+    {# 首页（第一页）顶部：全站板块图文导览。数据在 /site-cards.js，改一处全站同步 #}
+    {% if not page.current or page.current === 1 %}
+    <section class="zhz-site-guide" aria-label="站内板块导览" style="margin-bottom:2.2rem">
+        <div data-zhz-sc="grid" data-zhz-sc-theme="light" data-zhz-sc-all="1"></div>
+    </section>
+    <script src="/site-cards.js" defer></script>
+    {% endif %}
+
+    {% if page.posts and page.posts.length > 0 %}
+    {% for card in post_card_view_models(page.posts) %}
+        {% set post = card.post %}
+        {% set excerpt = card.excerpt %}
+        {% include "_partial/components/post-card.njk" %}
+
+        {% if not loop.last %}
+            {{ divider("my-8") }}
+        {% endif %}
+    {% endfor %}
+    {% else %}
+        {% include "_partial/common/empty.njk" %}
+    {% endif %}
+
+    {% include "_partial/common/pagination.njk" %}
+{% endblock %}

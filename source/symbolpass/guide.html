@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>符号通行证 · 手机端使用与语音排查</title>
+<style>
+  :root{--navy:#1d3a5f;--blue:#1f6fd6;--blue-l:#e8f1fc;--ink:#1c2430;--ink2:#4a5568;--ink3:#8a94a3;
+        --line:#dde3ea;--line2:#e9edf2;--amber-b:#f0d9a8;--amber-bg:#fffaf0;--amber-ink:#7a5400;
+        --green:#1a7f4f;--red:#c0392b}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:#f4f6f9;color:var(--ink);
+       font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+       font-size:15px;line-height:1.75;-webkit-text-size-adjust:100%}
+  .wrap{max-width:680px;margin:0 auto;padding:0 16px 60px}
+  header{background:var(--navy);color:#fff;padding:18px 16px 16px}
+  header .in{max-width:680px;margin:0 auto}
+  header h1{margin:0;font-size:19px;font-weight:800;letter-spacing:.5px}
+  header p{margin:6px 0 0;font-size:12.5px;opacity:.85}
+  h2{font-size:16.5px;margin:30px 0 4px;padding-left:10px;border-left:4px solid var(--blue);line-height:1.4}
+  h2 .no{color:var(--blue);font-weight:800;margin-right:6px}
+  .lead{font-size:13px;color:var(--ink3);margin:0 0 10px}
+  .card{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px 15px;margin:10px 0}
+  .card b{color:var(--ink)}
+  .card.ok{border-color:#bfe3cf;background:#f4fbf7}
+  .card.warn{border-color:var(--amber-b);background:var(--amber-bg);color:var(--amber-ink)}
+  .card.warn b{color:#664100}
+  ol,ul{margin:8px 0;padding-left:22px}
+  li{margin-bottom:6px}
+  .step{display:flex;gap:10px;margin:10px 0;align-items:flex-start}
+  .step .n{flex:0 0 24px;width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;
+           font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .step .t{flex:1}
+  .step .t b{display:block;font-size:14.5px}
+  .step .t span{font-size:13px;color:var(--ink2)}
+  .path{background:#eef2f7;border-radius:8px;padding:2px 8px;font-size:13.5px;display:inline-block;margin:2px 0}
+  .kv{font-size:13px;color:var(--ink2)}
+  .big{font-size:16px;font-weight:800;color:var(--navy)}
+  .foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--line2);font-size:12px;color:var(--ink3);line-height:1.7}
+  .chk{list-style:none;padding-left:0}
+  .chk li{padding-left:28px;position:relative;margin-bottom:9px}
+  .chk li:before{content:"";position:absolute;left:0;top:4px;width:17px;height:17px;border:2px solid #b9c3cf;border-radius:5px}
+  a{color:var(--blue)}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <h1>手机端使用与语音排查</h1>
+  <p>SymbolPass · 200 个符号 · 439 条例句 · 本页可离线阅读</p>
+</div></header>
+<div class="wrap">
+
+  <h2><span class="no">0</span>先分清：你遇到的是哪一个？</h2>
+  <p class="lead">手机上「语音」相关的失败几乎都是这两个原因之一，对号入座即可。</p>
+  <div class="card warn"><b>症状 A · 语音识别失败 / 点话筒没反应</b><br>
+    原因：网页语音识别必须「联网 + 允许麦克风 + 安全的打开方式（https）」。手机上以文件方式打开时，浏览器一律禁止麦克风——这不是 App 坏了。</div>
+  <div class="card warn"><b>症状 B · 英文朗读不出声 / 读出来是中文腔听不懂</b><br>
+    原因：手机系统里没装<b>英文语音包</b>。朗读用的是系统自带引擎，系统没有英文声音，它就读不出来或读不准。</div>
+
+  <h2><span class="no">1</span>语音输入：首选「键盘听写」，立刻可用</h2>
+  <p class="lead">这是手机上最可靠的语音输入方式：不依赖网页麦克风权限、不受打开方式限制、离线也能用。识别结果会直接打进输入框，之后的转换、符号、朗读照常工作。</p>
+  <div class="card ok">
+    <div class="step"><div class="n">1</div><div class="t"><b>点一下输入框，调出键盘</b><span>随便点在「用中文说你要表达的意思」那个框里</span></div></div>
+    <div class="step"><div class="n">2</div><div class="t"><b>按键盘上的话筒键</b><span>iPhone：在键盘右下角、地球键旁边；安卓（Gboard / 搜狗 / 百度输入法）：在键盘顶部工具条或空格键旁。第一次会请求权限，允许即可</span></div></div>
+    <div class="step"><div class="n">3</div><div class="t"><b>说中文，说完点一下键盘</b><span>文字自动填进输入框 → 点「转换」</span></div></div>
+  </div>
+  <div class="card">
+    <b>如果坚持要用页面上的话筒按钮</b>，必须同时满足三条：用 <b>Chrome（安卓）或 Safari（iPhone）</b>打开、页面在 <b>https</b> 地址上、并且允许了麦克风权限。
+    以文件方式打开的本地页面三条都满足不了，所以必然失败。<span class="kv">想真正做到这一步，可以看本文最后的「进阶：给页面一个 https 网址」。</span>
+  </div>
+  <div class="card warn"><b>如果你在微信 / QQ 里打开</b>：内置浏览器的麦克风经常被宿主限制。点右上角「···」→「在浏览器打开」，换到系统浏览器再试。</div>
+
+  <h2><span class="no">2</span>英文朗读：给手机装一次英文语音（只需一次）</h2>
+  <p class="lead">装好之后，「朗读英文」「慢速朗读」「播放这句英文」就都能用了，完全不需要网络。</p>
+  <div class="card">
+    <b>iPhone / iPad</b>
+    <ol>
+      <li>设置 → <span class="path">辅助功能 → 朗读内容 → 声音 → 英语</span></li>
+      <li>挑一个英文声音下载（例如 Samantha）</li>
+      <li><b>完全关掉本页再重新打开</b>（语音列表要重启页面才会刷新）</li>
+      <li>检查手机左侧的<b>静音拨键</b>——它在静音档时，网页朗读可能一点声音都没有</li>
+    </ol>
+  </div>
+  <div class="card">
+    <b>Android</b>
+    <ol>
+      <li>设置 → <span class="path">系统 → 语言和输入 → 文字转语音输出</span>（各品牌叫法略有差异，搜索「文字转语音」或「TTS」一定能找到）</li>
+      <li>引擎选「Google 语音服务」，点 <span class="path">安装语音数据</span>，下载 <b>English (United States)</b></li>
+      <li><b>完全关掉本页再重新打开</b></li>
+    </ol>
+  </div>
+  <div class="card kv">验证装好了没有：打开系统自带的「文字转语音」示例播放，或让助手（Siri / 小艺）用英语说句话。系统能出英文声，本页就能。</div>
+
+  <h2><span class="no">3</span>万能后备：复制英文，换个地方读</h2>
+  <p class="lead">一时装不了语音、或者设备就是不支持时，这条路永远走得通。</p>
+  <div class="card ok">
+    <ol>
+      <li>在结果卡点 <b>「复制英文」</b>；或直接<b>长按那句英文</b>，选择「复制」</li>
+      <li>粘到任何能出声的地方：<b>微信输入框</b>、<b>备忘录 + 朗读</b>、<b>系统翻译 App</b>、<b>有道 / Google 翻译</b></li>
+      <li>让对方听，或把屏幕直接递过去——文字本身就能沟通</li>
+    </ol>
+  </div>
+
+  <h2><span class="no">4</span>一分钟自检清单</h2>
+  <div class="card">
+    <ul class="chk">
+      <li>键盘的话筒键能听写中文，识别结果进了输入框</li>
+      <li>系统文字转语音里能听到英文示例</li>
+      <li>App 里点「朗读英文」有声音（不行就先完全关掉页面重开一次）</li>
+      <li>「复制英文」后粘贴出来内容正确</li>
+      <li>飞行模式下打开本页：符号、例句、给对方看 全部正常</li>
+    </ul>
+  </div>
+
+  <h2><span class="no">5</span>进阶：给页面一个 https 网址</h2>
+  <p class="lead">只有这一步能解锁「页面上的话筒按钮」这种真正的网页语音识别。日常使用用不到它。</p>
+  <div class="card">
+    <ul>
+      <li><b>放到任何静态网站托管上</b>（GitHub Pages、Cloudflare Pages、对象存储 + CDN 都行），把本页所在目录整个传上去，用手机浏览器打开 https 链接</li>
+      <li><b>本地局域网调试</b>：电脑上起一个 http 服务并用手机访问，可以测朗读，但网页麦克风仍然不可用（http 不算安全上下文）。安卓 Chrome 可用 <span class="path">chrome://flags → unsafely-treat-insecure-origin-as-secure</span> 临时放开，iPhone 无此选项</li>
+      <li>发布时可以顺手加上 <span class="path">&lt;meta name="apple-mobile-web-app-capable"&gt;</span> 等标签做成 PWA，手机上「添加到主屏幕」后就像一个原生 App</li>
+    </ul>
+  </div>
+
+  <h2><span class="no">6</span>离线使用建议</h2>
+  <div class="card ok">
+    本页不依赖任何网络和第三方资源。把它和本排查页一起<b>存在手机本地</b>（文件管理器里点开，或「添加到主屏幕」），出国前关掉流量试一遍——只要第 4 节的清单全过，旅途中任何一条例句都能随时调出来。
+  </div>
+
+  <div class="foot">
+    符号通行证 · 200 个原创符号 · 439 条人工校对例句 · 本页为随书附属文档，可自由打印与分发。<br>
+    App 本体：<b>index.html</b>（本地双击 / 点开即用；线上版本直接访问 index.html）。
+  </div>
+</div>
+</body>
+</html>

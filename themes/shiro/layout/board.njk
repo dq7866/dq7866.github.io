@@ -1,0 +1,106 @@
+{% extends "_layout.njk" %}
+{# 知作坊 · 公告 / 留言板 / 联系我
+   使用方式：source/board/index.md 指定 layout: board
+   公告数据源：source/_data/notices.json（site.data.notices）
+   留言板：/zhz/cloud.js（隐藏 iframe 代理到云端）+ /zhz/board.js #}
+
+{% block content %}
+<link rel="stylesheet" href="/zhz/zhz.css">
+
+<h1 class="zhz-title" style="font-size:1.3rem;margin-bottom:1.6rem">{{ page.title | default("公告 · 留言 · 联系我") }}</h1>
+
+{% set notice_items = (site.data.notices and site.data.notices.items) or [] %}
+
+<section class="zhz-block" id="notices">
+    <h2 class="zhz-title">公告栏 <span class="zhz-title-sub">Notices</span></h2>
+    <div class="zhz-card">
+        {% if notice_items.length %}
+        <div class="zhz-notices">
+            {% for n in notice_items %}
+            <div class="zhz-notice">
+                <span class="zhz-notice-mark" aria-hidden="true"></span>
+                <div class="zhz-notice-main">
+                    <div class="zhz-notice-head">
+                        <span class="zhz-notice-title">{{ n.title }}</span>
+                        {% if n.tag %}<span class="zhz-notice-tag">{{ n.tag }}</span>{% endif %}
+                        <span class="zhz-notice-date">{{ n.date }}</span>
+                    </div>
+                    <div class="zhz-notice-body">{{ n.body }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if site.data.notices.updated %}
+        <p class="zhz-notice-foot">最后更新：{{ site.data.notices.updated }}</p>
+        {% endif %}
+        {% else %}
+        <p class="zhz-empty">暂无公告。</p>
+        {% endif %}
+    </div>
+</section>
+
+<section class="zhz-block" id="guestbook">
+    <h2 class="zhz-title">留言板 <span class="zhz-title-sub">Guestbook</span></h2>
+    <div class="zhz-card">
+        <div class="zhz-form">
+            <div class="zhz-field zhz-field-grow">
+                <label class="zhz-label" for="zhz-nick">昵称（可留空，默认显示「匿名访客」）</label>
+                <input class="zhz-input" id="zhz-nick" type="text" maxlength="20" placeholder="怎么称呼你？" autocomplete="nickname">
+            </div>
+            <div class="zhz-field">
+                <label class="zhz-label" for="zhz-content">留言内容</label>
+                <textarea class="zhz-textarea" id="zhz-content" maxlength="500" placeholder="想说的话、遇到的问题、建议……都可以写在这里。"></textarea>
+            </div>
+            <div class="zhz-form-foot">
+                <span class="zhz-hint" id="zhz-counter">0 / 500</span>
+                <span style="display:flex;align-items:center;gap:.9rem">
+                    <span class="zhz-status" id="zhz-status" role="status" aria-live="polite"></span>
+                    <button class="zhz-btn zhz-btn-primary" id="zhz-submit" type="button">发布留言</button>
+                </span>
+            </div>
+            <p class="zhz-hint">无需注册即可留言，公开可见（每个浏览器 30 秒限一条、每天最多 20 条）。请不要填写手机号、住址等隐私信息。</p>
+        </div>
+
+        <div class="zhz-list-head">
+            <span class="zhz-hint" id="zhz-msg-count">加载中…</span>
+            <button class="zhz-btn zhz-btn-sm" id="zhz-msg-refresh" type="button">刷新</button>
+        </div>
+        <div class="zhz-msg-list" id="zhz-msg-list"></div>
+    </div>
+</section>
+
+<section class="zhz-block" id="contact">
+    <h2 class="zhz-title">联系我 <span class="zhz-title-sub">Contact</span></h2>
+    <div class="zhz-card">
+        <div class="zhz-contact">
+            <div class="zhz-contact-info">
+                <div class="zhz-hint">微信</div>
+                <div class="zhz-wxid">Huangld</div>
+                <div class="zhz-contact-lines">
+                    加好友请简单说明来意：<br>
+                    · 工具箱使用问题、兑换码领取<br>
+                    · 内容纠错、转载与授权<br>
+                    · <span class="zhz-contact-hl">需要把某个栏目（如工具箱完整版）安装到本地使用、含全部授权内容的，请联系我</span><br>
+                    · 其他想聊的，也欢迎
+                </div>
+            </div>
+            <div class="zhz-qr-wrap">
+                <img class="zhz-qr" src="/images/wechat-qr.jpg" alt="微信二维码（微信号 Huangld）" loading="lazy" width="140" height="140">
+                <div class="zhz-qr-cap">微信扫码添加</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="zhz-block" id="more-sites">
+    <h2 class="zhz-title">站内其他板块 <span class="zhz-title-sub">More</span></h2>
+    <div class="zhz-card" style="padding:18px">
+        {# 板块卡片数据统一在 /site-cards.js 里维护，本页自动隐藏「留言板」自己 #}
+        <div data-zhz-sc="bar" data-zhz-sc-theme="light"></div>
+    </div>
+</section>
+
+<script src="/zhz/cloud.js" defer></script>
+<script src="/zhz/board.js" defer></script>
+<script src="/site-cards.js" defer></script>
+{% endblock %}

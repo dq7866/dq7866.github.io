@@ -1,0 +1,32 @@
+# Hexo
+.DS_Store
+Thumbs.db
+db.json
+*.log
+node_modules/
+public/
+.deploy_git/
+.github/
+.idea/
+.vscode/
+*.swp
+
+# 系统与临时
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# 本机备份与工具目录（不进源码仓库）
+.deploy_git_backup_*/
+.playwright-cli/
+_config - 副本.yml
+_config.yml.bak-*
+themes/shiro/git-meta-bak/
+
+# 源目录里的手工副本（不参与构建）
+source/forest - 副本/
+source/bike - 副本/
+source/guardian - 副本/

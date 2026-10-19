@@ -1,0 +1,60 @@
+categories:
+  count_hint: "%s · %s/%s"
+  meta_more: "+%s"
+  more: View all
+  more_count: "+%s"
+
+clipboard:
+  copied: Copied
+  copy: Copy code
+  failed: Copy failed
+
+comments:
+  noscript: Please enable JavaScript to view the comments.
+
+common:
+  back_to_top: Back to Top
+  empty: Nothing here yet.
+  rss: RSS
+  skip_to_content: Skip to content
+
+gallery:
+  view_image: View image
+  visit_source: View Source Link
+
+index:
+  read_more: Read More
+
+nav:
+  archives: Archives
+  categories: Categories
+  menu: Menu
+  tags: Tags
+
+page:
+  next: Next
+  number: "Page %s"
+  pagination: Pagination
+  prev: Previous
+
+post:
+  navigation: Post navigation
+  next: Older post
+  prev: Newer post
+
+search:
+  placeholder: Search posts...
+  trigger: Search
+
+theme:
+  dark: Dark
+  light: Light
+  system: System
+
+toc:
+  title: Contents
+
+word_count:
+  count: Words
+  time: Reading time
+  time_minutes: mins

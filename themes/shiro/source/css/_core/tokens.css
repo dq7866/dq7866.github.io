@@ -1,0 +1,91 @@
+@theme static {
+    --color-paper: #ffffff;
+    --color-ink: #2b3036;
+    --color-seal: #b0171a;
+    --color-seal-fill: #b0171a;
+    /* Page fog / preloader wash (keep in sync with dark.css swaps). */
+    --color-fog: #f5f4f2;
+    --color-fog-mid: #f1f0ee;
+    --color-soft-border: rgba(17, 24, 39, 0.06);
+    --color-focus-ring: #b0171a;
+    --color-scrollbar-track: #f5f6f7;
+    --color-scrollbar-thumb: rgba(43, 48, 54, 0.32);
+    --color-scrollbar-thumb-hover: rgba(43, 48, 54, 0.5);
+    --color-scrollbar-border: rgba(43, 48, 54, 0.16);
+
+    /* Scrollbar gradient endpoints */
+    --color-scrollbar-track-start: #fafafa;
+    --color-scrollbar-track-end: #f1f2f3;
+    --color-scrollbar-thumb-start: rgba(43, 48, 54, 0.38);
+    --color-scrollbar-thumb-hover-start: rgba(43, 48, 54, 0.58);
+    --color-scrollbar-shadow: rgba(15, 23, 42, 0.08);
+    --color-scrollbar-shadow-inset: rgba(43, 48, 54, 0.28);
+    --color-scrollbar-shadow-hover: rgba(15, 23, 42, 0.12);
+
+    /* Semantic text hierarchy */
+    --color-text-heading: #1a1a2e;
+    --color-text-body: #2b3036;
+    --color-text-subtle: #9ca3af;
+    --color-text-faint: #d1d5db;
+    /* Idle / secondary UI chrome (meta, pills, captions) — AA on paper in dark. */
+    --color-text-chrome: #6b7280;
+    --color-on-seal: rgba(255, 255, 255, 0.95);
+
+    /* Semantic UI colors */
+    --color-border-strong: rgba(17, 24, 39, 0.12);
+    --color-border-decorative: rgba(17, 24, 39, 0.08);
+    --color-bg-panel: rgba(255, 255, 255, 0.95);
+    --color-bg-inset: rgba(0, 0, 0, 0.03);
+    --color-bg-overlay: rgba(255, 255, 255, 0.7);
+    --color-code-bg: #f8fafc;
+    --color-code-gutter: #f6f8fa;
+
+    /* Syntax highlighting (Hexo highlight / gist). Dark swaps in dark.css. */
+    --color-code-comment: var(--color-text-chrome);
+    --color-code-string: #5b6e3a;
+    --color-code-number: #a85a1f;
+    --color-code-attr: #8a4a1a;
+    --color-code-meta: var(--color-text-chrome);
+    --color-code-title: var(--color-ink);
+    --color-code-keyword: var(--color-seal);
+    --color-code-addition: #4a6b2a;
+    --color-code-addition-bg: rgba(91, 110, 58, 0.1);
+    --color-code-deletion: var(--color-seal);
+    --color-code-deletion-bg: rgba(175, 58, 82, 0.08);
+
+    --font-code: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', ui-monospace, monospace;
+    --font-eng: 'Cormorant Garamond', serif;
+    --font-serif: 'Cardo', 'Zen Old Mincho', 'Noto Serif JP', 'Noto Serif SC', serif;
+    --font-title: 'Yuji Syuku', 'Zen Old Mincho', 'Noto Serif JP', serif;
+
+    --shadow-paper: 0 1px 1px rgba(16, 24, 40, 0.06), 0 10px 30px rgba(16, 24, 40, 0.08),
+    0 35px 70px rgba(16, 24, 40, 0.06);
+    --shadow-ink: 0 4px 12px rgba(16, 24, 40, 0.14);
+    --shadow-ink-pressed: 0 2px 8px rgba(16, 24, 40, 0.12);
+    --ease-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    /* Narrowest viewport where the fixed sidebar TOC fits beside the paper card
+     * without overlapping it: 56rem card + 2 × (12.5rem panel + 1.25rem gap +
+     * 1rem viewport margin) = 85.5rem. Keep in sync with the .toc-sidebar
+     * geometry in source/css/_src/toc.css. */
+    --breakpoint-toc: 85.5rem;
+}
+
+@utility transition-menu {
+    /* Include translate: Tailwind v4 utilities set the translate property, not transform. */
+    transition-property: max-height, opacity, transform, translate;
+}
+
+@utility transition-interactive {
+    transition-property: color, background-color, border-color, box-shadow, transform;
+}
+
+@utility shadow-ink {
+    --tw-shadow: var(--shadow-ink);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-ink-pressed {
+    --tw-shadow: var(--shadow-ink-pressed);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}

@@ -1,0 +1,60 @@
+categories:
+  count_hint: "%s · %s ici / %s sur la page"
+  meta_more: "+%s"
+  more: Tout voir
+  more_count: "+%s"
+
+clipboard:
+  copied: Copié
+  copy: Copier le code
+  failed: Échec de la copie
+
+comments:
+  noscript: Activez JavaScript pour afficher les commentaires.
+
+common:
+  back_to_top: Retour en haut
+  empty: Rien ici pour le moment.
+  rss: RSS
+  skip_to_content: Aller au contenu
+
+gallery:
+  view_image: Voir l'image
+  visit_source: Voir le lien source
+
+index:
+  read_more: Lire la suite
+
+nav:
+  archives: Archives
+  categories: Catégories
+  menu: Menu
+  tags: Tags
+
+page:
+  next: Suivant
+  number: "Page %s"
+  pagination: Pagination
+  prev: Précédent
+
+post:
+  navigation: Navigation des articles
+  next: Article plus ancien
+  prev: Article plus récent
+
+search:
+  placeholder: Rechercher des articles…
+  trigger: Rechercher
+
+theme:
+  dark: Sombre
+  light: Clair
+  system: Système
+
+toc:
+  title: Sommaire
+
+word_count:
+  count: Mots
+  time: Temps de lecture
+  time_minutes: min

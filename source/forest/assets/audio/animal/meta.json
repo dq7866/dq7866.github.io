@@ -1,0 +1,883 @@
+{
+ "lion": {
+  "cn": "非洲狮",
+  "group": "animal",
+  "title": "LION ROAR",
+  "user": "Podcapocalipsis",
+  "page": "https://freesound.org/people/Podcapocalipsis/sounds/559600/",
+  "tags": [
+   "leon",
+   "lion",
+   "roar",
+   "rugido"
+  ],
+  "dur": 3.06
+ },
+ "tiger": {
+  "cn": "东北虎",
+  "group": "animal",
+  "title": "Tiger Roar",
+  "user": "lauramellis",
+  "page": "https://freesound.org/people/lauramellis/sounds/263115/",
+  "tags": [
+   "animal",
+   "animals",
+   "field-recording",
+   "growl",
+   "growling",
+   "lion",
+   "roar",
+   "roaring",
+   "tiger",
+   "zoo"
+  ],
+  "dur": 3.06
+ },
+ "zebra": {
+  "cn": "斑马",
+  "group": "animal",
+  "title": "Zebras - Grant&#x27;s Zebra Braying",
+  "user": "TheKingOfGeeks360",
+  "page": "https://freesound.org/people/TheKingOfGeeks360/sounds/850661/",
+  "tags": [
+   "africa",
+   "bark",
+   "bray",
+   "exotic",
+   "safari",
+   "wildlife",
+   "zebra",
+   "zoo"
+  ],
+  "dur": 3.0
+ },
+ "deer": {
+  "cn": "梅花鹿",
+  "group": "animal",
+  "title": "Deer_chucker_call_s",
+  "user": "ferventtorpor",
+  "page": "https://freesound.org/people/ferventtorpor/sounds/696777/",
+  "tags": [
+   "deer",
+   "call",
+   "effect",
+   "sound"
+  ],
+  "dur": 3.0
+ },
+ "fox": {
+  "cn": "赤狐",
+  "group": "animal",
+  "title": "Fox Screams",
+  "user": "Soundburst",
+  "page": "https://freesound.org/people/Soundburst/sounds/634005/",
+  "tags": [
+   "call",
+   "fox",
+   "nature",
+   "outside",
+   "scream",
+   "security-camera-audio",
+   "spring",
+   "wild-animals",
+   "yell"
+  ],
+  "dur": 3.06
+ },
+ "camel": {
+  "cn": "骆驼",
+  "group": "animal",
+  "title": "S30-27 Camels grunt and call; birds in bg.wav",
+  "user": "craigsmith",
+  "page": "https://freesound.org/people/craigsmith/sounds/675449/",
+  "tags": [
+   "35mm-mag",
+   "animals",
+   "optical",
+   "vintage",
+   "wild"
+  ],
+  "dur": 3.06
+ },
+ "hippo": {
+  "cn": "河马",
+  "group": "animal",
+  "title": "hippos.mp3",
+  "user": "toadie",
+  "page": "https://freesound.org/people/toadie/sounds/194870/",
+  "tags": [
+   "kafue",
+   "grunting",
+   "hippo"
+  ],
+  "dur": 3.06
+ },
+ "gorilla": {
+  "cn": "大猩猩",
+  "group": "animal",
+  "title": "gorilla audio.aif",
+  "user": "kfledman",
+  "page": "https://freesound.org/people/kfledman/sounds/205891/",
+  "tags": [
+   "audio",
+   "gorilla",
+   "male",
+   "vo"
+  ],
+  "dur": 3.03
+ },
+ "owl": {
+  "cn": "猫头鹰",
+  "group": "animal",
+  "title": "Owl Hooting with far away dog barking",
+  "user": "gfrog",
+  "page": "https://freesound.org/people/gfrog/sounds/159726/",
+  "tags": [
+   "dog",
+   "field-recording",
+   "hoot",
+   "night",
+   "owl",
+   "screech"
+  ],
+  "dur": 3.06
+ },
+ "peacock": {
+  "cn": "蓝孔雀",
+  "group": "animal",
+  "title": "Bird, Peacock Call",
+  "user": "Kinoton",
+  "page": "https://freesound.org/people/Kinoton/sounds/688203/",
+  "tags": [
+   "animal",
+   "bird",
+   "birdcall",
+   "call",
+   "peacock",
+   "peafowl"
+  ],
+  "dur": 3.03
+ },
+ "macaw": {
+  "cn": "金刚鹦鹉",
+  "group": "animal",
+  "title": "Macaw Parrot screaming in a park",
+  "user": "felix.blume",
+  "page": "https://freesound.org/people/felix.blume/sounds/504988/",
+  "tags": [
+   "180304-04",
+   "aclimaccao",
+   "arrara",
+   "mic",
+   "park",
+   "primo",
+   "binaural",
+   "bird",
+   "birds",
+   "blume",
+   "brazil",
+   "city"
+  ],
+  "dur": 3.06
+ },
+ "swan": {
+  "cn": "大天鹅",
+  "group": "animal",
+  "title": "Trumpeter Swans fly land splash loud calls 2pm TTP A 190401.flac",
+  "user": "TRP",
+  "page": "https://freesound.org/people/TRP/sounds/574430/",
+  "tags": [
+   "bird",
+   "swan",
+   "wing"
+  ],
+  "dur": 3.06
+ },
+ "crane": {
+  "cn": "丹顶鹤",
+  "group": "animal",
+  "title": "Crane bird calling.wav",
+  "user": "joakgust",
+  "page": "https://freesound.org/people/joakgust/sounds/548491/",
+  "tags": [
+   "grus",
+   "bird",
+   "birds",
+   "calling",
+   "crane",
+   "field-recording",
+   "nature",
+   "sweden",
+   "trana",
+   "wilderness"
+  ],
+  "dur": 3.06
+ },
+ "eagle": {
+  "cn": "白头海雕",
+  "group": "animal",
+  "title": "Bald Eagle Calls / Chirps",
+  "user": "Kinoton",
+  "page": "https://freesound.org/people/Kinoton/sounds/832476/",
+  "tags": [
+   "bird",
+   "call",
+   "chirp"
+  ],
+  "dur": 3.06
+ },
+ "magpie": {
+  "cn": "喜鹊",
+  "group": "animal",
+  "title": "Magpie - 01.wav",
+  "user": "Metalman101",
+  "page": "https://freesound.org/people/Metalman101/sounds/231302/",
+  "tags": [
+   "bird",
+   "field-recording",
+   "magpie"
+  ],
+  "dur": 3.0
+ },
+ "swallow": {
+  "cn": "家燕",
+  "group": "animal",
+  "title": "swallow in an alley",
+  "user": "Globofonia",
+  "page": "https://freesound.org/people/Globofonia/sounds/563249/",
+  "tags": [
+   "bird",
+   "hall",
+   "swallow"
+  ],
+  "dur": 3.06
+ },
+ "cricket": {
+  "cn": "田野蟋蟀",
+  "group": "animal",
+  "title": "cricket chirp.m4a",
+  "user": "Pannomm",
+  "page": "https://freesound.org/people/Pannomm/sounds/524451/",
+  "tags": [
+   "chirp",
+   "cricket",
+   "insect"
+  ],
+  "dur": 3.06
+ },
+ "cicada": {
+  "cn": "十七年蝉",
+  "group": "animal",
+  "title": "Cicadas W breeze 2",
+  "user": "Colin.LeBlanc.Sound",
+  "page": "https://freesound.org/people/Colin.LeBlanc.Sound/sounds/824925/",
+  "tags": [
+   "bug",
+   "cicada",
+   "day",
+   "natural",
+   "nature",
+   "recording",
+   "summer"
+  ],
+  "dur": 3.06
+ },
+ "wasp": {
+  "cn": "黄脚胡蜂",
+  "group": "animal",
+  "title": "bees or wasps hum buzz in tree by the sea.wav",
+  "user": "martian",
+  "page": "https://freesound.org/people/martian/sounds/201502/",
+  "tags": [
+   "bee",
+   "buzz",
+   "hum",
+   "insect",
+   "wasp"
+  ],
+  "dur": 3.06
+ },
+ "yak": {
+  "cn": "牦牛",
+  "group": "animal",
+  "title": "yak&#x27;musht",
+  "user": "maqsood5@mail2world.com",
+  "page": "https://freesound.org/people/maqsood5@mail2world.com/sounds/411908/",
+  "tags": [
+   "yak",
+   "mini",
+   "musht",
+   "story",
+   "urdu"
+  ],
+  "dur": 3.06
+ },
+ "bee": {
+  "cn": "蜜蜂",
+  "group": "animal",
+  "title": "Bee Buzz 2",
+  "user": "AKkingStudio",
+  "page": "https://freesound.org/people/AKkingStudio/sounds/582684/",
+  "tags": [
+   "bee",
+   "beehive",
+   "bees",
+   "buzz",
+   "buzzing",
+   "field-recording",
+   "fly",
+   "hive",
+   "insect",
+   "insects",
+   "mosquito",
+   "nature"
+  ],
+  "dur": 3.06
+ },
+ "hedgehog": {
+  "cn": "刺猬",
+  "group": "animal",
+  "title": "Hedgehog in the bathtub.wav",
+  "user": "adamwardin",
+  "page": "https://freesound.org/people/adamwardin/sounds/244015/",
+  "tags": [
+   "animal",
+   "funny",
+   "hedgehog",
+   "weird"
+  ],
+  "dur": 3.06
+ },
+ "flamingo": {
+  "cn": "火烈鸟",
+  "group": "animal",
+  "title": "flamingo_glass.mp3",
+  "user": "Mikael_Sk",
+  "page": "https://freesound.org/people/Mikael_Sk/sounds/417305/",
+  "tags": [
+   "flamingo",
+   "friction",
+   "glass",
+   "rubbing",
+   "squeak",
+   "squeaking",
+   "squeaky"
+  ],
+  "dur": 3.06
+ },
+ "mandarin-duck": {
+  "cn": "鸳鸯",
+  "group": "animal",
+  "title": "mallard and mandarin ducks (with take off)",
+  "user": "pillonoise",
+  "page": "https://freesound.org/people/pillonoise/sounds/263104/",
+  "tags": [
+   "animal",
+   "bird",
+   "duck",
+   "ducks",
+   "flap",
+   "fly",
+   "flying",
+   "mallard",
+   "mandarin",
+   "over",
+   "take-off",
+   "wings"
+  ],
+  "dur": 3.06
+ },
+ "rain": {
+  "cn": "雨声",
+  "group": "nature",
+  "title": "20260531 Raining in Bangkok 01",
+  "user": "kijjaz",
+  "page": "https://freesound.org/people/kijjaz/sounds/856405/",
+  "tags": [
+   "field-recording",
+   "lightning",
+   "nature",
+   "rain",
+   "storm",
+   "thunder",
+   "thunderstorm",
+   "weather"
+  ],
+  "dur": 3.06
+ },
+ "thunder": {
+  "cn": "雷声",
+  "group": "nature",
+  "title": "Rain and Thunders",
+  "user": "humanoide9000",
+  "page": "https://freesound.org/people/humanoide9000/sounds/324588/",
+  "tags": [
+   "ambience",
+   "bolt",
+   "electric",
+   "field-recording",
+   "lighning",
+   "lightning",
+   "nature",
+   "rain",
+   "shower",
+   "storm",
+   "summer",
+   "tascam"
+  ],
+  "dur": 3.06
+ },
+ "wind": {
+  "cn": "风声",
+  "group": "nature",
+  "title": "Wind in the reed",
+  "user": "Funkelfang",
+  "page": "https://freesound.org/people/Funkelfang/sounds/844604/",
+  "tags": [
+   "ambiance",
+   "baltic-sea",
+   "beach",
+   "cane",
+   "dry-gras",
+   "hissing",
+   "nature",
+   "reeds",
+   "rushes",
+   "rustle",
+   "shore",
+   "swaying"
+  ],
+  "dur": 3.06
+ },
+ "stream": {
+  "cn": "溪流",
+  "group": "nature",
+  "title": "morning stream 1 - close mono",
+  "user": "s-light",
+  "page": "https://freesound.org/people/s-light/sounds/514683/",
+  "tags": [
+   "flowing",
+   "gurgle",
+   "river",
+   "stream",
+   "water"
+  ],
+  "dur": 3.06
+ },
+ "waves": {
+  "cn": "海浪",
+  "group": "nature",
+  "title": "Ocean_coast_04_092025_0659AM",
+  "user": "YevgVerh",
+  "page": "https://freesound.org/people/YevgVerh/sounds/827530/",
+  "tags": [
+   "beach",
+   "coast",
+   "ocean",
+   "surf",
+   "waves"
+  ],
+  "dur": 3.06
+ },
+ "campfire": {
+  "cn": "篝火",
+  "group": "nature",
+  "title": "Campfire deer camp - adding kindling - med wind - part 4.wav",
+  "user": "Ambient-X",
+  "page": "https://freesound.org/people/Ambient-X/sounds/660298/",
+  "tags": [
+   "burn",
+   "burning",
+   "campfire",
+   "crackle",
+   "crackling",
+   "fire",
+   "flame",
+   "flames",
+   "kindling",
+   "sparks",
+   "weather",
+   "wind"
+  ],
+  "dur": 3.06
+ },
+ "elephant": {
+  "cn": "大象",
+  "group": "animal",
+  "title": "elephant",
+  "user": "gordonez",
+  "page": "https://freesound.org/people/gordonez/sounds/766592/",
+  "tags": [
+   "animals",
+   "elephant",
+   "french"
+  ],
+  "dur": 1.2
+ },
+ "wolf": {
+  "cn": "灰狼",
+  "group": "animal",
+  "title": "Adult and young wolves howling far away",
+  "user": "Sacha.Julien",
+  "page": "https://freesound.org/people/Sacha.Julien/sounds/753896/",
+  "tags": [
+   "ofb",
+   "predation",
+   "biodiversity",
+   "field-recording",
+   "howling",
+   "wolf",
+   "wolves"
+  ],
+  "dur": 2.98
+ },
+ "penguin": {
+  "cn": "帝企鹅",
+  "group": "animal",
+  "title": "Pinguin Colony at Gourdin Island  in the Antarctica Peninsula",
+  "user": "al.barbosa",
+  "page": "https://freesound.org/people/al.barbosa/sounds/150873/",
+  "tags": [
+   "antarctica",
+   "colony",
+   "penguin",
+   "peninsula",
+   "field-recording"
+  ],
+  "dur": 3.06
+ },
+ "dolphin": {
+  "cn": "海豚",
+  "group": "animal",
+  "title": "G12-15-Dolphins Underwater.wav",
+  "user": "craigsmith",
+  "page": "https://freesound.org/people/craigsmith/sounds/437947/",
+  "tags": [
+   "animals",
+   "marine",
+   "optical",
+   "vintage"
+  ],
+  "dur": 3.06
+ },
+ "woodpecker": {
+  "cn": "啄木鸟",
+  "group": "animal",
+  "title": "Great Spotted Woodpecker",
+  "user": "naturenotesuk",
+  "page": "https://freesound.org/people/naturenotesuk/sounds/428146/",
+  "tags": [
+   "birds",
+   "drumming",
+   "great-spotted-woodpecker",
+   "nature",
+   "woodland",
+   "woodpecker"
+  ],
+  "dur": 3.06
+ },
+ "forest-birds": {
+  "cn": "林间鸟鸣",
+  "group": "nature",
+  "title": "forest-bird (1).WAV",
+  "user": "sama66",
+  "page": "https://freesound.org/people/sama66/sounds/462137/",
+  "tags": [
+   "darjeeling",
+   "birds",
+   "forest",
+   "morning",
+   "mountain",
+   "wind"
+  ],
+  "dur": 3.06
+ },
+ "night-insects": {
+  "cn": "夏夜虫鸣",
+  "group": "nature",
+  "title": "130808 Night insects, wind in trees distant traffic, cottage",
+  "user": "TRP",
+  "page": "https://freesound.org/people/TRP/sounds/715678/",
+  "tags": [
+   "crickets",
+   "insects",
+   "night",
+   "summer"
+  ],
+  "dur": 3.06
+ },
+ "kingfisher": {
+  "cn": "翠鸟",
+  "group": "animal",
+  "title": "Kookaburra.wav",
+  "user": "Rimmer",
+  "page": "https://freesound.org/people/Rimmer/sounds/662080/",
+  "tags": [
+   "australian",
+   "birds",
+   "dawn",
+   "dawn-chorus",
+   "field-recording",
+   "kookaburra",
+   "laughing"
+  ],
+  "dur": 3.06
+ },
+ "egret": {
+  "cn": "白鹭",
+  "group": "animal",
+  "title": "garzaia_Pt2",
+  "user": "nicola_ariutti",
+  "page": "https://freesound.org/people/nicola_ariutti/sounds/853184/",
+  "tags": [
+   "ambience",
+   "autumn",
+   "birds",
+   "exterior",
+   "field-recording",
+   "heron",
+   "nature"
+  ],
+  "dur": 3.06
+ },
+ "dog": {
+  "cn": "家犬",
+  "group": "farm",
+  "title": "Dog Barking Distance - 1.wav",
+  "user": "SpaceJoe",
+  "page": "https://freesound.org/people/SpaceJoe/sounds/485962/",
+  "tags": [
+   "attack",
+   "background",
+   "bark",
+   "barking",
+   "distance",
+   "dog",
+   "woof"
+  ],
+  "dur": 1.52
+ },
+ "cat": {
+  "cn": "家猫",
+  "group": "farm",
+  "title": "cat meow",
+  "user": "tuberatanka",
+  "page": "https://freesound.org/people/tuberatanka/sounds/110011/",
+  "tags": [
+   "cat",
+   "meow",
+   "meowing"
+  ],
+  "dur": 1.62
+ },
+ "cattle": {
+  "cn": "黄牛",
+  "group": "farm",
+  "title": "Mooing Cows, Sad, Upset",
+  "user": "Hitrison",
+  "page": "https://freesound.org/people/Hitrison/sounds/184831/",
+  "tags": [
+   "birds",
+   "cow",
+   "moo",
+   "mooing",
+   "outdoors",
+   "ambience",
+   "animal-sound",
+   "nature",
+   "sad"
+  ],
+  "dur": 3.2,
+  "qc": {
+   "flat": 0.122,
+   "dyn": 6.8,
+   "score": 0.778
+  }
+ },
+ "sheep": {
+  "cn": "绵羊",
+  "group": "farm",
+  "title": "Goats and sheep eating and bleating",
+  "user": "Garuda1982",
+  "page": "https://freesound.org/people/Garuda1982/sounds/755876/",
+  "tags": [
+   "goats",
+   "animal",
+   "bleating",
+   "clippy",
+   "eating",
+   "em",
+   "em272",
+   "field-recording",
+   "germany",
+   "leipzig",
+   "m10",
+   "nature"
+  ],
+  "dur": 3.06
+ },
+ "goat": {
+  "cn": "家山羊",
+  "group": "farm",
+  "title": "Baby goat bleating",
+  "user": "jsbarrett",
+  "page": "https://freesound.org/people/jsbarrett/sounds/200333/",
+  "tags": [
+   "baby",
+   "bleat",
+   "goat"
+  ],
+  "dur": 3.06
+ },
+ "horse": {
+  "cn": "马",
+  "group": "farm",
+  "title": "horse",
+  "user": "dontwanttobehere",
+  "page": "https://freesound.org/people/dontwanttobehere/sounds/656661/",
+  "tags": [
+   "barn",
+   "farm",
+   "horse",
+   "neigh",
+   "whinny"
+  ],
+  "dur": 2.98
+ },
+ "pig": {
+  "cn": "家猪",
+  "group": "farm",
+  "title": "Oink Oink.wav",
+  "user": "frenkfurth",
+  "page": "https://freesound.org/people/frenkfurth/sounds/650924/",
+  "tags": [
+   "apple",
+   "banana",
+   "bash",
+   "bite",
+   "chew",
+   "chomp",
+   "crunch",
+   "crush",
+   "eat",
+   "eating",
+   "food",
+   "fruit"
+  ],
+  "dur": 3.0,
+  "qc": {
+   "flat": 0.054,
+   "dyn": 6.3,
+   "score": 0.787
+  }
+ },
+ "rooster": {
+  "cn": "公鸡",
+  "group": "farm",
+  "title": "Rooster Crow 1",
+  "user": "BenjaminNelan",
+  "page": "https://freesound.org/people/BenjaminNelan/sounds/435508/",
+  "tags": [
+   "animal",
+   "chicken",
+   "crowing",
+   "farm",
+   "rooster"
+  ],
+  "dur": 2.12
+ },
+ "duck": {
+  "cn": "家鸭",
+  "group": "farm",
+  "title": "Ducks Quacking To Each Other",
+  "user": "OwennewO",
+  "page": "https://freesound.org/people/OwennewO/sounds/719115/",
+  "tags": [
+   "duck",
+   "ducks",
+   "female",
+   "male",
+   "quack",
+   "quacking"
+  ],
+  "dur": 1.33
+ },
+ "goose": {
+  "cn": "家鹅",
+  "group": "farm",
+  "title": "Waterfowl - Egyptian Goose, Soft Honks",
+  "user": "TheKingOfGeeks360",
+  "page": "https://freesound.org/people/TheKingOfGeeks360/sounds/864291/",
+  "tags": [
+   "africa",
+   "bird",
+   "egypt",
+   "egyptian-goose",
+   "fowl",
+   "goose",
+   "honk",
+   "soft",
+   "waterfowl"
+  ],
+  "dur": 1.38
+ },
+ "donkey": {
+  "cn": "驴",
+  "group": "farm",
+  "title": "Donkeys braying at the market of Assem Souk",
+  "user": "felix.blume",
+  "page": "https://freesound.org/people/felix.blume/sounds/246406/",
+  "tags": [
+   "pas120320t054",
+   "assem",
+   "atlas",
+   "azilal",
+   "blume",
+   "bray",
+   "braying",
+   "donkey",
+   "donkeys",
+   "felix",
+   "market",
+   "morocco"
+  ],
+  "dur": 3.06
+ },
+ "pigeon": {
+  "cn": "家鸽",
+  "group": "farm",
+  "title": "pigeon walking and cooing.wav",
+  "user": "5ro4",
+  "page": "https://freesound.org/people/5ro4/sounds/701282/",
+  "tags": [
+   "bird",
+   "coo",
+   "cooing",
+   "noise",
+   "pigeon",
+   "step"
+  ],
+  "dur": 3.06
+ },
+ "turkey": {
+  "cn": "火鸡",
+  "group": "farm",
+  "title": "TurkeySHOOT.mp3",
+  "user": "DylanPM73",
+  "page": "https://freesound.org/people/DylanPM73/sounds/169564/",
+  "tags": [
+   "hunting",
+   "two",
+   "from",
+   "joined",
+   "site",
+   "sounds"
+  ],
+  "dur": 3.02,
+  "qc": {
+   "flat": 0.128,
+   "dyn": 7.6,
+   "score": 0.778
+  }
+ }
+}

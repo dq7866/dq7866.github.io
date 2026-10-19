@@ -1,0 +1,129 @@
+<!doctype html>
+{% from "_macro/ui.njk" import svg_filters, feature_var, feature_i18n with context %}
+{# Feature gates must be {% set %} in this parent template — Nunjucks include
+   scope does not leak child sets to the parent (v2.4+). Policy lives in
+   page_feature_gates() (scripts/lib/feature-gates.js). Templates read gates.*
+   directly (no long rebind list). #}
+{% set gates = page_feature_gates() %}
+<html lang="{{ escape_attr(gates.pageLang) }}" class="h-full scroll-smooth">
+{% include "_partial/common/head.njk" %}
+
+<body class="h-full fog-bg text-text-body"{% if gates.needsLightgallery %} data-shiro-lightgallery="true"{% endif %}>
+    <!-- Preloader: font CSS load + fonts.ready, or preloader.min.js deadline. -->
+    <div id="shiroPreloader" class="shiro-preloader" aria-hidden="true">
+        <div class="shiro-preloader-ripple" aria-hidden="true">
+            <span class="shiro-preloader-ring"></span>
+            <span class="shiro-preloader-ring"></span>
+        </div>
+    </div>
+    <a href="#main-content" class="shiro-skip-link">{{ escape_html(__('common.skip_to_content')) }}</a>
+    {% if gates.siteSealEnabled %}
+    {{ svg_filters() }}
+    {% endif %}
+
+    {% if gates.needsProgressBar %}
+    <div id="progressBar" class="progress-bar" aria-hidden="true"></div>
+    {% endif %}
+    {% if gates.needsBackToTop %}
+    <div id="backToTopSentinel" class="back-to-top-sentinel" aria-hidden="true"></div>
+    {% endif %}
+
+    <div class="min-h-full px-4 pt-14 pb-6 md:pb-5">
+
+        <!-- Paper Card -->
+        <div
+            class="paper mx-auto w-full max-w-4xl rounded-xl px-5 sm:px-8 md:px-12 lg:px-14 pt-10 pb-6 md:pt-12 md:pb-8">
+
+            {% include "_partial/common/header.njk" %}
+
+            <!-- Main Content -->
+            <main id="main-content" class="section-divider" tabindex="-1">
+                {% block content %}{% endblock %}
+            </main>
+
+            {% include "_partial/common/footer.njk" %}
+        </div>
+
+        <!-- Note Text — decorative aside, not part of main content or footer -->
+        <aside class="mt-4 text-center" aria-hidden="true" role="presentation">
+            <p class="site-note font-title text-xs sm:text-sm text-text-subtle/70 tracking-note select-none" lang="ja">
+                白は、余白の名。
+            </p>
+        </aside>
+    </div>
+
+    {% if gates.needsBackToTop %}
+    <button id="backToTop" type="button" class="back-to-top" data-visible="false" aria-label="{{ escape_attr(__('common.back_to_top')) }}" hidden>
+        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+        </svg>
+    </button>
+    {% endif %}
+    {% if gates.searchEnabled %}
+    {# Default instance; no host id (Pagefind would copy it onto the internal dialog).
+       Expanded so pagefind-input can take search.placeholder. Bootstrap forces the
+       light-DOM dialog id to shiroSearchDialog (aria-controls) and syncs scroll-lock
+       chrome from pagefind-modal.isOpen while open. #}
+    <div class="shiro-search-components" data-pagefind-ignore>
+        <pagefind-config bundle-path="{{ attr_url(url_for('/pagefind/', { relative: false })) }}" base-url="{{ attr_url(url_for('/', { relative: false })) }}"{% if gates.searchConfig.force_language %}{% set force_lang = lang_attr(gates.searchConfig.force_language) %}{% if force_lang %} lang="{{ escape_attr(force_lang) }}"{% endif %}{% endif %}></pagefind-config>
+        <pagefind-modal reset-on-close>
+            <pagefind-modal-header>
+                <pagefind-input placeholder="{{ escape_attr(__('search.placeholder')) }}"></pagefind-input>
+            </pagefind-modal-header>
+            <pagefind-modal-body>
+                <pagefind-summary></pagefind-summary>
+                <pagefind-results></pagefind-results>
+            </pagefind-modal-body>
+            <pagefind-modal-footer>
+                <pagefind-keyboard-hints></pagefind-keyboard-hints>
+            </pagefind-modal-footer>
+        </pagefind-modal>
+    </div>
+    {% endif %}
+
+    <!-- Scripts -->
+    {# cspNonce is set only in head-theme (single source). #}
+    {% if gates.needsFeatureRuntime %}
+    <script{{ csp_nonce_attr(gates.shiroCspNonce) }}>
+        {% if gates.needsLightgallery or gates.needsClipboard %}
+        (window.__shiro = window.__shiro || {}).i18n = window.__shiro.i18n || {};
+        {% endif %}
+        {% if gates.searchEnabled %}
+        {{ feature_var('pagefindBase', url_for('/pagefind/', { relative: false })) }}
+        {{ feature_var('searchCss', versioned_url('css/search.min.css')) }}
+        {% endif %}
+        {% if gates.needsLightgallery %}
+        {{ feature_i18n('gallery', {
+            view_image: __('gallery.view_image'),
+            visit_source: __('gallery.visit_source')
+        }) }}
+        {{ feature_var('lightgallery', {
+            css: gates.lightgalleryCssUrl,
+            js: gates.lightgalleryJsUrl,
+            themeCss: versioned_url('css/lightgallery.min.css'),
+            cssIntegrity: gates.lightgalleryCssIntegrity or '',
+            jsIntegrity: gates.lightgalleryJsIntegrity or '',
+            script: versioned_url('js/lightgallery.min.js')
+        }) }}
+        {% endif %}
+        {% if gates.needsClipboard %}
+        {{ feature_i18n('clipboard', {
+            copied: __('clipboard.copied'),
+            copy: __('clipboard.copy'),
+            failed: __('clipboard.failed')
+        }) }}
+        {{ feature_var('clipboardScript', versioned_url('js/clipboard.min.js')) }}
+        {% endif %}
+    </script>
+    {% endif %}
+    {% for script_path in gates.footScripts %}
+    <script defer{{ csp_nonce_attr(gates.shiroCspNonce) }} src="{{ attr_url(versioned_url(script_path)) }}"></script>
+    {% endfor %}
+    {% if gates.needsComments %}
+    {% include "_partial/comments/foot.njk" %}
+    {% endif %}
+
+    {% include "_partial/analytics/google.njk" %}
+<script src="/stats.js" defer></script>
+</body>
+</html>
