@@ -2,7 +2,7 @@
    设计：核心（HTML/manifest/图标）缓存优先保离线可开；
    assets 大资产（音频/照片/模型，~40MB）按需缓存、命中即离线，超 800 条先进先出。
    file:// 直开时注册脚本有协议守卫，本文件根本不会被执行。 */
-const CACHE = "wisdom-forest-web-v13";
+const CACHE = "wisdom-forest-web-v15";
 const CORE = ["./", "./index.html", "./manifest.webmanifest", "./assets/icon-192.png", "./assets/icon-512.png"];
 
 self.addEventListener("install", e => {

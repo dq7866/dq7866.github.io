@@ -702,6 +702,12 @@ body.fx-off .locked-region::after{animation:none}
 .opt-audio-replay{grid-column:1/-1;cursor:pointer;background:#fff7e0;border:2px dashed #d8b86a;border-radius:12px;
   padding:9px;font-size:14px;font-weight:700;color:#8a6a20;margin-top:2px;font-family:inherit}
 .opt.wrong{background:linear-gradient(180deg,#ef8a76,var(--bad));box-shadow:0 6px 0 #a83b2d;animation:shake .45s}
+.opt.dim{opacity:.3;text-decoration:line-through;pointer-events:none;filter:grayscale(1)}
+.opt-hint{grid-column:1/-1;cursor:pointer;background:#fff3cd;border:2px dashed #e0b84e;border-radius:12px;
+  padding:9px;font-size:14px;font-weight:800;color:#8a6a20;margin-top:6px;font-family:inherit;transition:transform .15s}
+.opt-hint:hover{transform:translateY(-1px)}
+.opt-hint:disabled{opacity:.5;cursor:default;transform:none}
+.sort-chip.hintchip{outline:3px dashed #e0a72e;outline-offset:2px;animation:pulseHint .7s infinite}
 @keyframes popOk{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-5px)}}
 .opt .opt-emoji{display:block;font-size:26px;margin-bottom:2px}
@@ -1443,6 +1449,20 @@ body.stage-focus .stage-dock{opacity:1;transform:translate(-50%,0);pointer-event
   background:rgba(18,30,18,.6);backdrop-filter:blur(8px);color:#fff;font-weight:800;font-size:14px;
   border:1px solid rgba(255,255,255,.14);white-space:nowrap}
 .ar-hud .ar-pill.dim{opacity:.85}
+.ar-hud .ar-combo{background:rgba(255,214,120,.94);color:#7a4a12;font-weight:800}
+.ar-hud .ar-buff{background:rgba(210,235,255,.94);color:#1f5d86;font-weight:800;min-width:0}
+.ar-hud .ar-buff:empty{display:none}
+.ar-pause{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;font-size:15px;
+  background:rgba(255,255,255,.92);color:#3f5233;box-shadow:0 3px 10px rgba(0,0,0,.18)}
+.ar-legend{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0 8px}
+.ar-rank{margin:2px 0 0;text-align:center;font-size:13px;color:#7a5a1e}
+.ar-rank b{font-size:15px;color:#b06a10;letter-spacing:.5px}
+.ar-legend span{font-size:11.5px;color:#5b6a4c;background:#f2f6e6;border-radius:999px;padding:4px 9px}
+.ar-helpcard{text-align:left}
+.ar-helpcard h3{text-align:center}
+.ar-help-list{list-style:none;margin:6px 0 12px;padding:0;display:grid;gap:7px}
+.ar-help-list li{font-size:13.5px;line-height:1.6;color:#40522f;background:#f6f9ec;border-radius:11px;padding:8px 11px}
+.ar-help-list b{color:#2e4a26}
 .ar-panel{position:absolute;inset:0;z-index:4;display:grid;place-items:center;
   background:radial-gradient(120% 100% at 50% 30%,rgba(14,28,16,.45),rgba(8,16,10,.78))}
 .ar-card{max-width:min(92vw,470px);text-align:center;padding:26px 30px 24px;border-radius:24px;
@@ -1536,6 +1556,11 @@ body.stage-focus .stage-dock{opacity:1;transform:translate(-50%,0);pointer-event
   background:linear-gradient(180deg,rgba(255,253,242,.98),rgba(244,248,232,.98));
   box-shadow:0 24px 70px rgba(0,0,0,.5),inset 0 2px 0 #fff;animation:kidPop .32s cubic-bezier(.34,1.56,.64,1)}
 .wp-card.wide{width:min(94vw,540px)}
+.wp-help{text-align:left}
+.wp-help-list{list-style:none;margin:8px 0 4px;padding:0;display:grid;gap:7px}
+.wp-help-list li{font-size:14px;line-height:1.55;color:#3f5233;background:#f7f9ef;border-radius:10px;padding:8px 10px}
+.wp-help-list b{color:#2e4a26}
+.wp-help h3{text-align:center}
 .wp-card h3{margin:0 0 6px;font-size:clamp(17px,2.2vw,21px);color:#2e4a26;font-weight:900}
 .wp-sub{margin:2px 0 8px;font-size:13px;color:#5d6e50;line-height:1.6}
 .wp-q{margin:6px 0 10px;font-size:15.5px;line-height:1.7;color:#33421f;font-weight:800}
@@ -1546,6 +1571,11 @@ body.stage-focus .stage-dock{opacity:1;transform:translate(-50%,0);pointer-event
 .wp-opt:hover{transform:translateY(-2px);border-color:#9ccc65}
 .wp-opt.ok{border-color:#7cb342;background:#e8f5d8;color:#33691e}
 .wp-opt.no{border-color:#e57373;background:#fdeaea;color:#b71c1c;animation:shakeX .3s}
+.wp-opt.hint{border-color:#f2b02c;background:#fff6da;box-shadow:0 0 0 4px rgba(242,176,44,.25);animation:pulseHint .7s infinite}
+.wp-opt.off{opacity:.32;text-decoration:line-through;pointer-events:none}
+@keyframes pulseHint{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.wp-btn.hint{background:#fff3cd;color:#8a6d1a}
+.wp-fb .hint{color:#8a6d1a}
 @keyframes shakeX{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 .wp-fb{min-height:22px;margin:4px 0;font-size:13.5px;font-weight:800}
 .wp-fb .ok{color:#33691e}.wp-fb .no{color:#b71c1c}
@@ -1591,6 +1621,57 @@ body.stage-focus .stage-dock{opacity:1;transform:translate(-50%,0);pointer-event
 .ap-opt span{font-size:15px;font-weight:900;color:#4a5d3a}
 .ap-opt:hover{transform:translateY(-3px);border-color:#9ccc65;box-shadow:0 8px 20px rgba(80,110,40,.25)}
 .ap-opt.on{border-color:#7cb342;background:#f0f7e2}
+/* ---- 学习档案（登录式档案选择 + 重新开始） ---- */
+.home-acc{display:flex;align-items:center;gap:10px;width:min(780px,94vw);margin:10px auto 2px;
+  padding:8px 12px;border-radius:16px;box-sizing:border-box;cursor:pointer;
+  background:linear-gradient(180deg,rgba(255,253,240,.95),rgba(244,236,212,.95));
+  border:2px solid #e2d3aa;box-shadow:0 4px 14px rgba(70,90,40,.12);transition:.16s}
+.home-acc:hover{border-color:#c9a95a;transform:translateY(-1px)}
+.ha-av{font-size:20px;width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,#fff8dd,#efdfae);border:1.5px solid #e8d9ae}
+.ha-txt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.ha-txt b{font-size:14px;color:#3f3320}
+.ha-txt i{font-style:normal;font-size:11.5px;color:#9a8a68}
+.ha-btn{flex:none;border:none;border-radius:12px;padding:8px 14px;font-family:inherit;font-weight:900;
+  font-size:12.5px;cursor:pointer;color:#fff;background:linear-gradient(180deg,#9fd07c,#6fa84e);
+  box-shadow:0 3px 0 #4c7d35}
+.ha-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #4c7d35}
+#acc-ov{position:fixed;inset:0;z-index:2147480300;display:grid;place-items:center;
+  background:rgba(20,32,16,.6);backdrop-filter:blur(4px);opacity:0;transition:opacity .2s;
+  padding:16px;box-sizing:border-box}
+#acc-ov.show{opacity:1}
+.acc-card{width:min(440px,94vw);max-height:88vh;overflow:auto;border-radius:26px;
+  background:linear-gradient(170deg,#fffdf3,#f1e9d2);border:3px solid #dcbb6c;
+  box-shadow:0 24px 64px rgba(0,0,0,.45);padding:22px 20px 16px;font-family:inherit;
+  transform:scale(.94);transition:transform .2s}
+#acc-ov.show .acc-card{transform:scale(1)}
+.acc-card h3{margin:0 0 3px;font-size:20px;font-weight:900;color:#3a2c18;text-align:center}
+.acc-tip{margin:0 0 14px;font-size:12.5px;color:#8c7a5a;text-align:center;line-height:1.6}
+.acc-seat{display:flex;align-items:center;gap:12px;width:100%;padding:11px 13px;margin:8px 0;
+  border:2px solid #e4d7b4;border-radius:17px;background:#fffdf6;cursor:pointer;text-align:left;
+  font-family:inherit;transition:.16s;box-sizing:border-box}
+.acc-seat:hover{border-color:#c8a758;transform:translateY(-1px);box-shadow:0 6px 16px rgba(120,90,30,.14)}
+.acc-seat.on{border-color:#7fb069;background:linear-gradient(180deg,#f4fce9,#e5f4d7)}
+.acc-seat.add{border-style:dashed;color:#9a8a66;justify-content:center;font-weight:900;font-size:14px}
+.acc-av{font-size:25px;width:46px;height:46px;flex:none;display:grid;place-items:center;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,#fff8dd,#efdfae);border:2px solid #e8d9ae}
+.acc-nm{font-weight:900;font-size:15.5px;color:#46361f}
+.acc-sub{font-size:11.5px;color:#94825f;margin-top:3px;line-height:1.4}
+.acc-tag{margin-left:auto;flex:none;font-size:11px;font-weight:900;color:#3f8a34;
+  background:#e8f6dc;border-radius:999px;padding:3px 9px}
+.acc-acts{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.acc-btn{flex:1;min-width:104px;border:none;border-radius:14px;padding:11px 8px;font-family:inherit;
+  font-weight:900;font-size:13.5px;cursor:pointer;background:linear-gradient(180deg,#e9ddbd,#d3c49b);
+  color:#584a2d;box-shadow:0 3px 0 #b2a481;transition:.14s}
+.acc-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #b2a481}
+.acc-btn.warn{background:linear-gradient(180deg,#f3b6a8,#df8874);color:#fff;box-shadow:0 3px 0 #b96450}
+.acc-btn.go{background:linear-gradient(180deg,#a2d47e,#6fa84e);color:#fff;box-shadow:0 3px 0 #4c7d35}
+.acc-inp{width:100%;box-sizing:border-box;border:2px solid #d9cba6;border-radius:14px;
+  padding:12px 14px;font-family:inherit;font-size:16px;background:#fffdf5;color:#4a3a24;margin:6px 0 2px}
+.acc-warnbox{background:#fdf0e6;border:2px solid #edc3a8;border-radius:14px;padding:12px 14px;
+  font-size:13px;color:#8a4b2c;line-height:1.7;margin:8px 0}
+.acc-x{position:absolute;top:10px;right:12px;border:0;background:transparent;font-size:22px;
+  color:#a08f6c;cursor:pointer;line-height:1}
 /* ---- 地图 HUD ---- */
 .wm-hud{position:absolute;top:calc(14px + env(safe-area-inset-top));right:calc(14px + env(safe-area-inset-right));
   display:flex;gap:8px;z-index:3}
@@ -1828,6 +1909,13 @@ body.world-open #overlay-rotate{display:none!important}
       <span class="gb-go" id="gb-go">带我去 →</span>
     </div>
 
+    <!-- 学习档案条：当前是谁在学 + 换孩子 / 改名 / 重新开始 -->
+    <div class="home-acc" id="home-acc" role="button" tabindex="0" title="换孩子、改名字、重新开始">
+      <span class="ha-av" id="ha-av">🐿️</span>
+      <span class="ha-txt"><b id="ha-name">我的档案</b><i>点右侧可换孩子 · 改名 · 重新开始</i></span>
+      <button class="ha-btn" id="ha-open">切换 / 重来</button>
+    </div>
+
     <!-- ① 主线冒险：答题闯关三大区域（学习主线，置顶） -->
     <div class="home-group">
       <div class="hg-title"><span>🗺️ 答题闯关 · 主线冒险</span><i>答对题目点亮知识点，解锁新区域</i></div>
@@ -1933,7 +2021,8 @@ body.world-open #overlay-rotate{display:none!important}
     <!-- 专注模式悬浮坞：收起卡片后才出现，三个大按钮直达最常用的事 -->
     <div class="stage-dock" id="stage-dock" aria-hidden="true">
       <button class="sd-btn sd-run" id="sd-run"><b>🏕️</b><span>森林小游戏</span></button>
-      <button class="sd-btn" id="sd-map"><b>🗺️</b><span>内容地图</span></button>\n      <button class="sd-btn" id="sd-world"><b>🌍</b><span>五域探索</span></button>
+      <button class="sd-btn" id="sd-map"><b>🗺️</b><span>内容地图</span></button>
+      <button class="sd-btn" id="sd-world"><b>🌍</b><span>八域探索</span></button>
       <button class="sd-btn" id="sd-cards"><b>📋</b><span>显示卡片</span></button>
     </div>
     <!-- 小伙伴小杏：站在首页右下角草地上，点她会问好、做鬼脸、说悄悄话 -->
@@ -2314,7 +2403,7 @@ const Store = {
     this.KEY = this.key(this.idx);
   },
   saveMeta() { try { localStorage.setItem("wisdomForestMeta_v1", JSON.stringify(this.meta)); } catch (e) { /* 隐私模式静默 */ } },
-  childName() { return (this.meta.names && this.meta.names[this.idx]) || "森林小研学师"; },
+  childName() { return (this.meta.names && this.meta.names[this.idx]) || "我的档案"; },
   switchChild(i) {
     if (i === this.idx) return;
     this.save();
@@ -17634,6 +17723,15 @@ const Engine = {
     [...wrap.querySelectorAll(".opt:not(.sort-chip)")].forEach((b, i) => { b.classList.remove("in"); b.style.setProperty("--i", i); });
     requestAnimationFrame(() => requestAnimationFrame(() => [...wrap.querySelectorAll(".opt:not(.sort-chip)")].forEach(b => b.classList.add("in"))));
     this.locked = false;
+    /* 💡 提示：每道题一次，划掉一个错误选项（排序题改为提示下一块） */
+    this._hinted = false;
+    if (!q.__review) {
+      const hb = document.createElement("button");
+      hb.className = "opt-hint"; hb.id = "opt-hint";
+      hb.textContent = q.game === "sort" ? "💡 提示：接下来点哪一块？" : "💡 提示：划掉一个不对的";
+      hb.onclick = () => this.hint(hb);
+      wrap.appendChild(hb);
+    }
     /* 题目一出现就把题干读给孩子听（这个年龄还不一定认得字）。
        纯符号的算式不自动朗读，避免念得怪腔怪调；想听点小喇叭即可。
        听音选图则读条目名称（这才是题目本身），题干文字是提示语不读。 */
@@ -17643,6 +17741,33 @@ const Engine = {
     if (typeof Sprite !== "undefined") Sprite.maybe(this);
     /* 小伙伴登场：按题目类型摆姿态 + 随机换个位置（听音题侧耳、图片题指一指） */
     if (typeof Kids !== "undefined") Kids.stage(q);
+  },
+  /* 💡 提示：划掉一个错误选项 / 排序题标出下一块（每题一次，不扣分不打断连击） */
+  hint(btn) {
+    if (this.locked) return;
+    const q = this.cur; if (!q) return;
+    this._hinted = true;
+    if (btn) { btn.disabled = true; btn.textContent = "💡 提示用过了，再想一想"; }
+    if (typeof Audio2 !== "undefined") { try { Audio2.play("tap"); } catch (e) {} }
+    if (q.game === "sort") {
+      const want = q.answer[q.__picked.length];
+      [...document.querySelectorAll("#opt-wrap .sort-chip")].forEach(c => {
+        if (!c.disabled && c.textContent.trim().startsWith(String(want).trim())) {
+          c.classList.add("hintchip");
+          setTimeout(() => c.classList.remove("hintchip"), 1300);
+        }
+      });
+      return;
+    }
+    const opts = [...document.querySelectorAll("#opt-wrap .opt")]
+      .filter(b => !b.classList.contains("correct") && !b.classList.contains("dim") && !b.disabled);
+    /* 渲染时 data-i 始终是原始选项下标，图片题也一样 */
+    const wrongs = opts.filter(b => +b.dataset.i !== q.answer);
+    if (wrongs.length > 1) {
+      const b = wrongs[Math.floor(Math.random() * wrongs.length)];
+      b.classList.add("dim"); b.disabled = true;
+    }
+    if (typeof Sound !== "undefined") Sound.play("划掉一个不对的，剩下的再想一想");
   },
   /* 排序挑战判定：点对了亮绿并锁定，全对走完整奖励链（同答对一道题）；
      点错只抖一下——运行时生成题没有题库 id，不进错题迷雾（儿童红线：不制造失败感） */
@@ -22136,6 +22261,7 @@ const NavTree = {
         { ico: "🌫️", t: "错题迷雾", sub: "复盘错题驱散迷雾", prog: `${Object.keys(d.wrong || {}).length} 题`, act: () => Router.go("screen-wrong") },
         { ico: "📖", t: "林间探险日记", sub: "每片区域闯 2 关解锁一页", act: goCard("diary-entry") },
         { ico: "🗼", t: "智慧灯塔", sub: "集齐收藏点亮终局", act: goCard("lighthouse-entry") },
+        { ico: "👤", t: "学习档案", sub: "换孩子 · 改名 · 重新开始（各有独立进度）", prog: Store.childName(), act: () => Account.open() },
         { ico: "👨‍👩‍👧", t: "家长中心", sub: "档案 · 目标 · 卡片管理", act: () => Router.go("screen-parent") },
       ]},
     ];
@@ -23091,35 +23217,183 @@ const LicenseChip = (function () {
   return { refresh };
 })();
 
-/* 👶 多孩档案顶栏 chip：只有启用 ≥2 个档案才显示（单孩家庭少一个按钮） */
-function renderChildChip() {  const chip = $("child-chip");
-  if (!chip) return;
-  const named = (Store.meta.names || []).filter(n => n && n.trim()).length;
-  chip.style.display = named >= 2 ? "" : "none";
-  $("child-name").textContent = Store.childName();
-}
-$("child-chip").onclick = () => {
-  const named = (Store.meta.names || []).map((n, i) => ({ n: (n || "").trim(), i })).filter(x => x.n);
-  if (named.length < 2) return;
-  const panel = document.createElement("div");
-  panel.style.cssText = "position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(20,14,6,.45)";
-  panel.innerHTML = `<div style="width:min(380px,90vw);background:linear-gradient(165deg,#fffdf5,#f3ecd8);border:3px solid var(--gold);border-radius:20px;padding:22px 24px;box-shadow:0 16px 40px rgba(0,0,0,.35)">
-    <h3 style="font-size:18px;margin-bottom:12px;text-align:center">🧒 谁来玩呀？</h3>
-    <div id="child-list"></div>
-    <div style="text-align:center;margin-top:14px"><button id="child-cancel" style="border:none;cursor:pointer;font-family:inherit;font-weight:800;border-radius:14px;padding:8px 22px;background:linear-gradient(180deg,#b0a284,#8a7a5e);color:#fff;box-shadow:0 4px 0 #6b5d44">还是我自己玩</button></div>
-  </div>`;
-  document.body.appendChild(panel);
-  panel.onclick = e => { if (e.target === panel) panel.remove(); };
-  $("child-cancel").onclick = () => panel.remove();
-  const list = $("child-list");
-  named.forEach(x => {
-    const b = document.createElement("button");
-    b.className = "next-btn"; b.style.cssText = "display:block;width:100%;margin:8px 0;padding:12px 0;font-size:15px" + (x.i === Store.idx ? ";opacity:.55" : "");
-    b.textContent = (x.i === Store.idx ? "✔ " : "") + x.n + (x.i === Store.idx ? "（当前）" : "");
-    b.onclick = () => { if (x.i !== Store.idx) Store.switchChild(x.i); else panel.remove(); };
-    list.appendChild(b);
-  });
+/* 👤 学习档案：登录式档案选择 / 换孩子 / 改名 / 重新开始（纯本地，最多 3 位） */
+const Account = {
+  AV: ["🐿️", "🦊", "🐻"],
+  names() { return (Store.meta && Store.meta.names) || ["", "", ""]; },
+  /* 直接读某个座位的存档摘要（不切换档案） */
+  peek(i) {
+    let raw = null;
+    try { raw = localStorage.getItem(Store.key(i)); } catch (e) { return null; }
+    if (!raw) return null;
+    try {
+      const d = JSON.parse(raw);
+      return {
+        xp: d.xp || 0,
+        cards: Object.keys(d.cards || {}).length,
+        badges: d.world ? Object.keys(d.world).filter(k => d.world[k] && d.world[k].badge).length : 0,
+      };
+    } catch (e) { return null; }
+  },
+  close() { const o = $("acc-ov"); if (o) o.remove(); },
+  open() {
+    this.close();
+    const ov = document.createElement("div");
+    ov.id = "acc-ov";
+    ov.innerHTML = `<div class="acc-card"></div>`;
+    document.body.appendChild(ov);
+    requestAnimationFrame(() => ov && ov.classList.add("show"));
+    ov.onclick = e => { if (e.target === ov) this.close(); };
+    this.list();
+  },
+  card() { return document.querySelector("#acc-ov .acc-card"); },
+  list() {
+    const ns = this.names();
+    const seats = [0, 1, 2].map(i => {
+      const nm = (ns[i] || "").trim();
+      const cur = i === Store.idx;
+      if (!nm) {
+        /* 当前座位还没起名：也要有"正在玩"的样子，别让孩子以为没登录 */
+        if (cur) return `<button class="acc-seat on" data-seat="${i}">
+          <span class="acc-av">${this.AV[i]}</span>
+          <span><span class="acc-nm">我的档案</span><div class="acc-sub">还没起名字，点下面「改名字」给自己起一个</div></span>
+          <span class="acc-tag">正在玩</span></button>`;
+        return `<button class="acc-seat add" data-new="${i}">＋ 新建一个孩子的档案</button>`;
+      }
+      const s = this.peek(i);
+      const sub = s ? `经验 ${s.xp} · 图鉴 ${s.cards} · 徽章 ${s.badges}`
+                    : (cur ? "一切从今天开始 🌱" : "还没开始学习");
+      return `<button class="acc-seat${cur ? " on" : ""}" data-seat="${i}">
+        <span class="acc-av">${this.AV[i]}</span>
+        <span><span class="acc-nm">${nm}</span><div class="acc-sub">${sub}</div></span>
+        ${cur ? '<span class="acc-tag">正在玩</span>' : ""}
+      </button>`;
+    }).join("");
+    this.card().innerHTML = `
+      <button class="acc-x" id="acc-x">✕</button>
+      <h3>👋 欢迎来到智慧森林</h3>
+      <p class="acc-tip">选一位小探险家开始今天的学习，<br>每个人都有自己的经验、图鉴和徽章</p>
+      ${seats}
+      <div class="acc-acts">
+        <button class="acc-btn" id="acc-rename">✏️ 改名字</button>
+        <button class="acc-btn warn" id="acc-reset">🔄 重新开始</button>
+      </div>
+      <p class="acc-tip" style="margin:12px 0 0">档案只存在这台设备的浏览器里，不上传、不联网</p>`;
+    this.bindList();
+  },
+  bindList() {
+    $("acc-x").onclick = () => this.close();
+    document.querySelectorAll("#acc-ov [data-seat]").forEach(b => {
+      b.onclick = () => {
+        const i = +b.dataset.seat;
+        if (i === Store.idx) return;
+        const nm = (this.names()[i] || "").trim();
+        if (confirm(`切换到「${nm}」的档案？当前进度会先存好。`)) Store.switchChild(i);
+      };
+    });
+    document.querySelectorAll("#acc-ov [data-new]").forEach(b => b.onclick = () => this.newSeat(+b.dataset.new));
+    $("acc-rename").onclick = () => this.rename();
+    $("acc-reset").onclick = () => this.resetAsk();
+  },
+  /* 新建档案 */
+  newSeat(slot) {
+    this.card().innerHTML = `
+      <button class="acc-x" id="acc-x">✕</button>
+      <h3>🧒 新朋友，你叫什么名字？</h3>
+      <p class="acc-tip">起个名字，就能有自己的学习进度啦</p>
+      <input class="acc-inp" id="acc-inp" maxlength="12" placeholder="例如：小宇 / 朵朵" autocomplete="off">
+      <div class="acc-acts">
+        <button class="acc-btn go" id="acc-save">开始学习 →</button>
+        <button class="acc-btn" id="acc-back">返回</button>
+      </div>`;
+    $("acc-x").onclick = () => this.close();
+    $("acc-back").onclick = () => this.list();
+    const inp = $("acc-inp");
+    setTimeout(() => inp && inp.focus(), 120);
+    const go = () => {
+      const nm = (inp.value || "").trim();
+      if (!nm) { inp.focus(); inp.style.borderColor = "#e08a76"; return; }
+      const ns = this.names();
+      let i = (typeof slot === "number" && !(ns[slot] || "").trim()) ? slot : ns.findIndex(n => !n || !n.trim());
+      if (i < 0) { toast("最多 3 位小探险家，先把不用的档案改个名吧"); return; }
+      ns[i] = nm;
+      Store.saveMeta();
+      renderChildChip();
+      if (i === Store.idx) location.reload(); else Store.switchChild(i);
+    };
+    $("acc-save").onclick = go;
+    inp.onkeydown = e => { if (e.key === "Enter") go(); };
+  },
+  /* 改名 */
+  rename() {
+    const cur = (this.names()[Store.idx] || "").trim();
+    this.card().innerHTML = `
+      <button class="acc-x" id="acc-x">✕</button>
+      <h3>✏️ 给${cur ? "「" + cur + "」" : "自己"}改个名字</h3>
+      <p class="acc-tip">名字只影响显示，学习进度不会变</p>
+      <input class="acc-inp" id="acc-inp" maxlength="12" value="${cur}" placeholder="输入名字" autocomplete="off">
+      <div class="acc-acts">
+        <button class="acc-btn go" id="acc-save">保存</button>
+        <button class="acc-btn" id="acc-back">返回</button>
+      </div>`;
+    $("acc-x").onclick = () => this.close();
+    $("acc-back").onclick = () => this.list();
+    const inp = $("acc-inp");
+    setTimeout(() => { inp && inp.focus(); inp && inp.select(); }, 120);
+    const go = () => {
+      const nm = (inp.value || "").trim();
+      if (!nm) { inp.focus(); inp.style.borderColor = "#e08a76"; return; }
+      Store.meta.names[Store.idx] = nm;
+      Store.saveMeta();
+      renderChildChip();
+      this.list();
+      toast("名字改好啦：" + nm);
+    };
+    $("acc-save").onclick = go;
+    inp.onkeydown = e => { if (e.key === "Enter") go(); };
+  },
+  /* 重新开始：二次确认 → 清空当前档案 → 重载 */
+  resetAsk() {
+    const cur = (this.names()[Store.idx] || "").trim() || "当前档案";
+    this.card().innerHTML = `
+      <button class="acc-x" id="acc-x">✕</button>
+      <h3>🔄 重新开始？</h3>
+      <div class="acc-warnbox">
+        会清空「<b>${cur}</b>」的全部学习进度：经验、图鉴、徽章、八域探索、错题本、连续天数……<br>
+        名字会保留，<b>清空后不能恢复</b>。
+      </div>
+      <div class="acc-acts">
+        <button class="acc-btn warn" id="acc-do">确定清空，从头开始</button>
+        <button class="acc-btn go" id="acc-back">我再想想</button>
+      </div>
+      <p class="acc-tip" style="margin:12px 0 0">想留着旧进度换新孩子？用上面的「＋ 新建档案」就行</p>`;
+    $("acc-x").onclick = () => this.close();
+    $("acc-back").onclick = () => this.list();
+    $("acc-do").onclick = () => {
+      /* 先清 localStorage，再把内存存档置空：避免重载前的自动保存把旧进度写回去 */
+      try {
+        localStorage.removeItem(Store.key(Store.idx));
+        localStorage.setItem(Store.key(Store.idx), JSON.stringify({ resetAt: Date.now() }));
+      } catch (e) {}
+      try { Store.data = {}; } catch (e) {}
+      location.reload();
+    };
+  },
 };
+/* 顶栏档案 chip：常显，点击打开档案面板 */
+function renderChildChip() {
+  const chip = $("child-chip");
+  if (!chip) return;
+  chip.style.display = "";
+  $("child-name").textContent = (Store.childName() || "我的档案");
+  const av = $("ha-av"), nm = $("ha-name"), bar = $("home-acc");
+  if (nm) nm.textContent = Store.childName();
+  if (av) av.textContent = Account.AV[Store.idx] || "🐿️";
+  if (bar && !bar._bound) { bar._bound = 1; bar.onclick = () => Account.open(); }
+  const hb = $("ha-open");
+  if (hb && !hb._bound) { hb._bound = 1; hb.onclick = e => { e.stopPropagation(); Account.open(); }; }
+}
+$("child-chip").onclick = () => Account.open();
 /* ♿ 无障碍应用：界面整体缩放（Chromium zoom，触屏目标同步变大） */
 function applyA11y() {
   const z = Store.data.fontScale || 1;
@@ -24199,8 +24473,11 @@ const AnimalRun = {
   jumpV: 0, jumpY: 0, grounded: true,
   /* 局面 */
   speed: 0, dist: 0, score: 0, lives: 3, inv: 0, combo: 0,
+  comboMax: 0, comboT: 0,                        // 连击计时：2.6 秒内没捡到就断
+  shield: false, magnet: 0,                      // 护盾（挡一次撞击）/ 磁铁剩余秒数
+  countT: 0, nextMile: 300,                      // 开局倒计时 / 里程里程碑
   objs: [], deco: [], nextZ: 0,
-  best: 0, who: "rabbit",
+  best: 0, who: "rabbit", bestDist: 0,
   WHO: {
     rabbit: { img: "assets/art/pals/rabbit.webp",   name: "小兔蹦蹦" },
     deer:   { img: "assets/art/pals/deer.webp",     name: "小鹿点点" },
@@ -24231,11 +24508,16 @@ const AnimalRun = {
     if (typeof HomeStage !== "undefined" && !HomeStage.on) HomeStage.set(true);
     document.getElementById("animal-run").classList.add("show");
     const d = (typeof Store !== "undefined" && Store.data.animalRun) || {};
-    this.best = d.best || 0; this.who = d.who || "rabbit";
+    this.best = d.best || 0; this.bestDist = d.bestDist || 0; this.who = d.who || "rabbit";
     this.state = "idle";
     this.mountVid();
     this.resize();
     this.showMenu();
+    /* 第一次玩先讲清楚怎么玩 */
+    if (!d.seen) {
+      try { Store.data.animalRun = Object.assign({}, d, { seen: 1 }); Store.save(); } catch (e) {}
+      this.showHelp();
+    }
     this.loop();
   },
   close() {
@@ -24257,13 +24539,17 @@ const AnimalRun = {
         '<span class="ar-pill">⭐ <b id="ar-score">0</b></span>' +
         '<span class="ar-pill">📏 <b id="ar-dist">0</b> 米</span>' +
         '<span class="ar-pill ar-life" id="ar-life">❤️❤️❤️</span>' +
+        '<span class="ar-pill ar-combo" id="ar-combo">🔥 ×0</span>' +
+        '<span class="ar-pill ar-buff" id="ar-buff"></span>' +
         '<span class="ar-pill dim">🏆 <b id="ar-best">0</b></span>' +
+        '<button class="ar-pause" id="ar-pause" title="暂停（Esc）">⏸</button>' +
       '</div>' +
       '<div class="ar-panel" id="ar-panel"></div>';
     document.body.appendChild(wrap);
     this.cv = document.getElementById("ar-cv");
     this.ctx = this.cv.getContext("2d");
     document.getElementById("ar-close").onclick = () => this.close();
+    document.getElementById("ar-pause").onclick = () => this.pauseToggle();
     this.resize();
     window.addEventListener("resize", () => this.on && this.resize(), { passive: true });
     /* 预载伙伴立绘 */
@@ -24306,6 +24592,7 @@ const AnimalRun = {
 
   /* ---------- 菜单 / 结算 ---------- */
   showMenu(msg) {
+    this.state = "idle";
     const el = document.getElementById("ar-panel");
     const whoBtns = Object.keys(this.WHO).map(k =>
       `<button class="ar-who${k === this.who ? " on" : ""}" data-w="${k}" title="${this.WHO[k].name}">
@@ -24313,23 +24600,80 @@ const AnimalRun = {
     el.innerHTML =
       `<div class="ar-card">
          <h3>🏕️ 林间小径跑酷</h3>
-         <p class="ar-sub">${msg || "躲开倒木、石头和树桩，捡浆果、蘑菇和星星！蘑菇 +3 分哦"}<br>
-            <span class="ar-keys">⌨️ ←→/AD 换道 · 空格/↑ 跳跃　📱 拖动换道 · 轻点跳跃</span></p>
+         <p class="ar-sub">${msg || "躲开倒木、石头和树桩，捡浆果、蘑菇和星星！"}</p>
+         <div class="ar-legend">
+           <span>🍓 浆果 +1</span><span>🍄 蘑菇 +3</span><span>⭐ 星星 +5</span>
+           <span>🛡 护盾 挡一次</span><span>🧲 磁铁 吸宝贝</span><span>🔥 连击翻倍</span>
+         </div>
+         <p class="ar-keys">⌨️ ←→/AD 换道 · 空格/↑ 跳跃 · Esc 暂停　📱 拖动换道 · 轻点跳跃</p>
          <div class="ar-whos">${whoBtns}</div>
-         <p class="ar-bestline">🏆 最高分 <b>${this.best}</b></p>
+         <p class="ar-bestline">🏆 最高分 <b>${this.best}</b>${this.bestDist ? ` · 最远 ${this.bestDist} 米` : ""}</p>
          <button class="ar-go" id="ar-go">出发！→</button>
+         <button class="ar-home" id="ar-help">❓ 怎么玩</button>
        </div>`;
     el.style.display = "grid";
     el.querySelectorAll(".ar-who").forEach(b => {
       b.onclick = () => { this.who = b.dataset.w; this.saveBest(); this.showMenu(); };
     });
     document.getElementById("ar-go").onclick = () => this.startRun();
+    document.getElementById("ar-help").onclick = () => this.showHelp();
+  },
+  /* 玩法说明（菜单里的 ❓ 和暂停里的 ❓ 都走这里） */
+  showHelp() {
+    const el = document.getElementById("ar-panel");
+    el.innerHTML =
+      `<div class="ar-card ar-helpcard">
+         <h3>❓ 怎么玩</h3>
+         <ul class="ar-help-list">
+           <li><b>换道</b>：按 ← → / A D，手机上左右拖动</li>
+           <li><b>跳跃</b>：按 空格 / ↑，手机上轻点屏幕（跳过倒木、石头、树桩）</li>
+           <li><b>收集</b>：跑过去就捡到，连续捡不中断会 🔥 连击，每 5 连击分数翻倍，每 10 个补一颗 ❤️</li>
+           <li><b>护盾 🛡</b>：撞一次不扣血；<b>磁铁 🧲</b>：8 秒内自动吸附近宝贝</li>
+           <li><b>暂停</b>：右上 ⏸ 或 Esc；<b>退出</b>：右上 ✕</li>
+           <li><b>目标</b>：跑得越远越快、分数越高，结算会换学习经验</li>
+         </ul>
+         <button class="ar-go" id="ar-help-back">明白了 →</button>
+       </div>`;
+    el.style.display = "grid";
+    document.getElementById("ar-help-back").onclick = () => this.showMenu();
+  },
+  /* 暂停 / 继续 */
+  pauseToggle() {
+    if (this.state === "run") {
+      this.state = "pause";
+      const el = document.getElementById("ar-panel");
+      el.innerHTML =
+        `<div class="ar-card">
+           <h3>⏸ 休息一下</h3>
+           <p class="ar-sub">已跑 ${Math.round(this.dist)} 米 · ⭐ ${this.score} 分 · 🔥 最高 ${this.comboMax} 连击</p>
+           <button class="ar-go" id="ar-resume">继续跑 →</button>
+           <button class="ar-home" id="ar-help2">❓ 怎么玩</button>
+           <button class="ar-home" id="ar-retry">🔄 重新开始</button>
+           <button class="ar-home" id="ar-quit">回到森林</button>
+         </div>`;
+      el.style.display = "grid";
+      document.getElementById("ar-resume").onclick = () => this.pauseToggle();
+      document.getElementById("ar-retry").onclick = () => this.startRun();
+      document.getElementById("ar-quit").onclick = () => this.close();
+      document.getElementById("ar-help2").onclick = () => this.showHelp();
+    } else if (this.state === "pause") {
+      this.state = "run";
+      document.getElementById("ar-panel").style.display = "none";
+    }
   },
   showOver() {
-    if (this.score > this.best) this.best = this.score;
+    const prevBest = this.best || 0, prevDist = this.bestDist || 0;
+    const newBest = this.score > prevBest;
+    if (newBest) this.best = this.score;
+    const dist = Math.round(this.dist);
+    if (dist > prevDist) this.bestDist = dist;
     this.saveBest();
     const gain = Math.min(30, Math.floor(this.score / 2));
-    const rec = this.score > 0 && this.score >= this.best;
+    const rec = this.score > 0 && newBest;
+    /* 跑距评级：给孩子一个具体的“身份”，比单纯分数更有成就感 */
+    const rank = dist >= 900 ? ["⚡", "森林闪电"] : dist >= 500 ? ["🌪️", "林间飞人"]
+               : dist >= 220 ? ["🏃", "矫健小鹿"] : ["🌱", "勇敢小跑者"];
+    const dGap = dist - prevDist;
     if (typeof Store !== "undefined") {
       try {
         Store.addXP(gain); Store.save();
@@ -24338,17 +24682,27 @@ const AnimalRun = {
     const el = document.getElementById("ar-panel");
     el.innerHTML =
       `<div class="ar-card">
-         <h3>${rec ? "🎉 新纪录！" : "跑完啦！"}</h3>
-         <p class="ar-big">⭐ ${this.score} 分 · 📏 ${Math.round(this.dist)} 米</p>
-         <p class="ar-sub">${rec ? "你创下了新的最高分！" : "最高分 " + this.best + "，再来一次一定能超过它！"}</p>
+         <h3>${rec ? "🎉 新纪录！" : "🏁 跑完啦！"}</h3>
+         <p class="ar-rank">${rank[0]} <b>${rank[1]}</b></p>
+         <p class="ar-big">⭐ ${this.score} 分 · 📏 ${dist} 米</p>
+         <div class="ar-legend">
+           <span>🔥 最高连击 ×${this.comboMax}</span><span>🏆 最高分 ${this.best}</span>
+           <span>📏 最远 ${this.bestDist} 米</span>
+         </div>
+         <p class="ar-sub">${rec ? "你创下了新的最高分，真了不起！"
+            : "离最高分还差 <b>" + Math.max(1, prevBest - this.score + 1) + "</b> 分，再来一次就能追上！"}
+            ${dGap > 0 ? `<br>📏 比上次多跑了 <b>${dGap}</b> 米` : ""}</p>
          <p class="ar-sub">🌱 获得 <b>${gain}</b> 点学习经验</p>
          <button class="ar-go" id="ar-again">再来一局 →</button>
+         <button class="ar-home" id="ar-help3">❓ 怎么玩</button>
          <button class="ar-home" id="ar-back">回到森林</button>
        </div>`;
     el.style.display = "grid";
     document.getElementById("ar-again").onclick = () => this.startRun();
     document.getElementById("ar-back").onclick = () => this.close();
+    document.getElementById("ar-help3").onclick = () => this.showHelp();
     document.getElementById("ar-hud").style.display = "none";
+    if (rec && typeof Sound !== "undefined") Sound.say("太厉害了，新纪录！你是" + rank[1]);
     if (typeof toast === "function" && gain > 0) toast(`🏕️ 跑酷结束：⭐${this.score} 分，经验 +${gain}`);
   },
   saveBest() {
@@ -24357,16 +24711,21 @@ const AnimalRun = {
       const d = Store.data;
       d.animalRun = d.animalRun || {};
       d.animalRun.best = this.best;
+      d.animalRun.bestDist = this.bestDist || 0;
       d.animalRun.who = this.who;
       Store.save();
     } catch (e) {}
   },
 
-  /* ---------- 开局 ---------- */
+  /* ---------- 开局：3-2-1 倒计时 ---------- */
   startRun() {
-    this.state = "run";
+    this.state = "count";
+    this.countT = 3.0;
     this.px = 0.5; this.jumpY = 0; this.jumpV = 0; this.grounded = true;
-    this.speed = 26; this.dist = 0; this.score = 0; this.lives = 3; this.inv = 0; this.combo = 0;
+    this.speed = 26; this.dist = 0; this.score = 0; this.lives = 3; this.inv = 0;
+    this.combo = 0; this.comboMax = 0; this.comboT = 0;
+    this.shield = false; this.magnet = 0;
+    this.nextMile = 300;
     this.objs = [];
     this.deco = [];
     for (let i = 0; i < 22; i++) this.deco.push(this.mkDeco(Math.random() * 90));
@@ -24374,19 +24733,32 @@ const AnimalRun = {
     document.getElementById("ar-panel").style.display = "none";
     document.getElementById("ar-hud").style.display = "flex";
     this.syncHud();
+    if (typeof Sound !== "undefined") Sound.say("三，二，一，出发");
+  },
+  tickCount(dt) {
+    this.countT -= dt;
+    if (this.countT <= 0) {
+      this.state = "run";
+      if (typeof Audio2 !== "undefined") { try { Audio2.play("ok"); } catch (e) {} }
+    }
   },
   mkDeco(z) {
-    /* 路两侧的树与灌木装饰：side -1 左 / 1 右，off 离路远近 */
+    /* 跑道两侧的灌木与远处树丛：side -1 左 / 1 右，off 越大离跑道越远 */
     const side = Math.random() < 0.5 ? -1 : 1;
-    return { z, side, off: 0.55 + Math.random() * 0.9, s: 0.7 + Math.random() * 0.8,
-             kind: Math.random() < 0.7 ? "tree" : "bush" };
+    const kind = Math.random() < 0.55 ? "tree" : "bush";
+    return { z, side, off: kind === "tree" ? 0.85 + Math.random() * 0.7 : 0.55 + Math.random() * 0.75,
+             s: 0.7 + Math.random() * 0.8, kind };
   },
 
   /* ---------- 输入 ---------- */
   bind() {
     this._kd = e => {
       if (!this.on) return;
-      if (e.key === "Escape") { this.close(); return; }
+      if (e.key === "Escape") {
+        if (this.state === "run" || this.state === "pause") this.pauseToggle();
+        else this.close();
+        return;
+      }
       if (["ArrowLeft", "a", "A"].includes(e.key)) this._keys.L = true;
       if (["ArrowRight", "d", "D"].includes(e.key)) this._keys.R = true;
       if ((e.key === " " || e.key === "ArrowUp" || e.key === "w" || e.key === "W") && this.state === "run") {
@@ -24435,6 +24807,7 @@ const AnimalRun = {
     this.raf = requestAnimationFrame(() => this.loop());
     const dt = Math.min(0.033, 1 / 60);
     if (this.state === "run") this.update(dt);
+    else if (this.state === "count") this.tickCount(dt);
     this.draw();
   },
   update(dt) {
@@ -24446,6 +24819,19 @@ const AnimalRun = {
       try { this.vid.playbackRate = 0.75 + Math.min(1, this.speed / 64) * 0.5; } catch (e) {}
     }
     if (this.inv > 0) this.inv -= dt;
+    /* 连击计时：2.6 秒内没捡到新的，连击断掉 */
+    if (this.comboT > 0) { this.comboT -= dt; if (this.comboT <= 0 && this.combo > 0) { this.combo = 0; this.syncHud(); } }
+    /* 磁铁剩余时间 */
+    if (this.magnet > 0) { this.magnet -= dt; if (this.magnet <= 0) { this.magnet = 0; this.syncHud(); } }
+    /* HUD 轻量刷新（磁铁倒计时、连击衰减） */
+    this._hudT = (this._hudT || 0) - dt;
+    if (this._hudT <= 0) { this._hudT = 0.3; this.syncHud(); }
+    /* 里程里程碑 */
+    if (this.dist >= this.nextMile) {
+      if (typeof toast === "function") toast(`📏 已跑 ${this.nextMile} 米！分数 ×${1 + Math.min(2, Math.floor(this.combo / 5))} 继续加油`);
+      if (typeof Audio2 !== "undefined") { try { Audio2.play("ok"); } catch (e) {} }
+      this.nextMile += 300;
+    }
     /* 左右 */
     const mv = (this._keys.R ? 1 : 0) - (this._keys.L ? 1 : 0);
     if (mv) this.px = Math.max(0.08, Math.min(0.92, this.px + mv * dt * 1.5));
@@ -24465,36 +24851,77 @@ const AnimalRun = {
       if (this.dust.length > 40) this.dust.shift();
       this._dustT = 0.09;
     }
-    /* 生成物件 */
+    /* 生成物件：间距按当前速度折算成时间（≈0.55~1.15 秒一个），
+       否则跑快了就是“必撞”，孩子只会觉得莫名其妙 */
     if (this.dist + 70 > this.nextZ) {
       const r = Math.random();
-      if (r < 0.34) this.objs.push({ k: "berry", x: 0.15 + Math.random() * 0.7, z: this.nextZ + 70 });
-      else if (r < 0.42) this.objs.push({ k: "mush", x: 0.15 + Math.random() * 0.7, z: this.nextZ + 70 });
-      else if (r < 0.48) this.objs.push({ k: "star", x: 0.15 + Math.random() * 0.7, z: this.nextZ + 70 });
-      else if (r < 0.66) this.objs.push({ k: "log", x: 0.25 + Math.random() * 0.5, z: this.nextZ + 70 });
+      if (r < 0.30) this.objs.push({ k: "berry", x: 0.15 + Math.random() * 0.7, z: this.nextZ + 70 });
+      else if (r < 0.37) this.objs.push({ k: "mush", x: 0.15 + Math.random() * 0.7, z: this.nextZ + 70 });
+      else if (r < 0.42) this.objs.push({ k: "star", x: 0.15 + Math.random() * 0.7, z: this.nextZ + 70 });
+      else if (r < 0.445) this.objs.push({ k: "shield", x: 0.2 + Math.random() * 0.6, z: this.nextZ + 70 });
+      else if (r < 0.47) this.objs.push({ k: "magnet", x: 0.2 + Math.random() * 0.6, z: this.nextZ + 70 });
+      else if (r < 0.65) this.objs.push({ k: "log", x: 0.25 + Math.random() * 0.5, z: this.nextZ + 70 });
       else if (r < 0.83) this.objs.push({ k: "rock", x: 0.2 + Math.random() * 0.6, z: this.nextZ + 70 });
       else this.objs.push({ k: "stump", x: 0.2 + Math.random() * 0.6, z: this.nextZ + 70 });
-      this.nextZ += 9 + Math.random() * 10;
+      /* 跑过 250 米后偶尔来一组“双障碍”，但一定留出一条能过的缝 */
+      if (this.dist > 250 && r >= 0.47 && Math.random() < 0.3) {
+        const first = this.objs[this.objs.length - 1];
+        const free = first.x < 0.5 ? [0.62, 0.72, 0.82][Math.floor(Math.random() * 3)]
+                                   : [0.18, 0.28, 0.38][Math.floor(Math.random() * 3)];
+        const k2 = Math.random() < 0.5 ? "rock" : "stump";
+        this.objs.push({ k: k2, x: free, z: first.z });
+      }
+      const gap = this.speed * (0.55 + Math.random() * 0.6);
+      this.nextZ += Math.max(9, gap);
     }
     /* 物件推进 + 碰撞 */
     const hitWin = 3.2;
     this.objs = this.objs.filter(o => {
       o.z -= this.speed * dt;
       if (o.z < -2) return false;
+      const isPick = o.k === "berry" || o.k === "star" || o.k === "mush" || o.k === "shield" || o.k === "magnet";
+      /* 磁铁：把前方 26 米内的收集物朝自己吸过来 */
+      if (isPick && this.magnet > 0 && o.z < 26 && o.z > -1) {
+        o.x += (this.px - o.x) * Math.min(1, dt * 3.4);
+      }
       if (o.z > -hitWin && o.z < hitWin && Math.abs(o.x - this.px) < 0.14) {
-        if (o.k === "berry" || o.k === "star" || o.k === "mush") {
+        if (isPick) {
           o.taken = true;
-          this.score += o.k === "star" ? 5 : o.k === "mush" ? 3 : 1;
-          this.combo++;
-          if (this.combo > 0 && this.combo % 10 === 0) {
-            this.lives = Math.min(3, this.lives + 1);
-            if (typeof toast === "function") toast(`🏃 连捡 ${this.combo} 个！补回一颗 ❤️`);
+          if (o.k === "shield") {
+            this.shield = true;
+            if (typeof toast === "function") toast("🛡 拿到护盾，可以挡一次撞击！");
+            if (typeof Sound !== "undefined") Sound.say("拿到护盾，可以挡一次撞击");
+          } else if (o.k === "magnet") {
+            this.magnet = 8;
+            if (typeof toast === "function") toast("🧲 磁铁 8 秒，自动吸宝贝！");
+            if (typeof Sound !== "undefined") Sound.say("磁铁，八秒内自动吸宝贝");
+          } else {
+            /* 连击加成：每 5 连击多一倍，最多 3 倍 */
+            this.combo++;
+            this.comboT = 2.6;
+            if (this.combo > this.comboMax) this.comboMax = this.combo;
+            const mult = 1 + Math.min(2, Math.floor(this.combo / 5));
+            const base = o.k === "star" ? 5 : o.k === "mush" ? 3 : 1;
+            this.score += base * mult;
+            if (this.combo % 10 === 0) {
+              this.lives = Math.min(3, this.lives + 1);
+              if (typeof toast === "function") toast(`🏃 连捡 ${this.combo} 个！补回一颗 ❤️`);
+            } else if (this.combo % 5 === 0 && typeof toast === "function") {
+              toast(`🔥 ${this.combo} 连击！分数 ×${mult}`);
+            }
           }
           this.syncHud();
           return false;
         }
         if (this.grounded && this.inv <= 0) {
-          this.lives--; this.inv = 1.2; this.combo = 0;
+          if (this.shield) {
+            this.shield = false; this.inv = 1.0;
+            if (typeof toast === "function") toast("🛡 护盾替你挡下啦，小心前面！");
+            if (typeof Sound !== "undefined") Sound.say("护盾挡下啦");
+            this.syncHud();
+            return true;
+          }
+          this.lives--; this.inv = 1.2; this.combo = 0; this.comboT = 0;
           this.syncHud();
           if (typeof Audio2 !== "undefined") { try { Audio2.play("wrong"); } catch (e) {} }
           if (this.lives <= 0) {
@@ -24514,11 +24941,18 @@ const AnimalRun = {
   },
   syncHud() {
     const s = document.getElementById("ar-score"), dd = document.getElementById("ar-dist"),
-          l = document.getElementById("ar-life"), b = document.getElementById("ar-best");
+          l = document.getElementById("ar-life"), b = document.getElementById("ar-best"),
+          c = document.getElementById("ar-combo"), bf = document.getElementById("ar-buff");
     if (s) s.textContent = this.score;
     if (dd) dd.textContent = Math.round(this.dist);
     if (l) l.textContent = "❤️".repeat(Math.max(0, this.lives)) + "🖤".repeat(Math.max(0, 3 - this.lives));
     if (b) b.textContent = Math.max(this.best, this.score);
+    if (c) {
+      const mult = 1 + Math.min(2, Math.floor(this.combo / 5));
+      c.textContent = "🔥 ×" + this.combo + (this.combo >= 5 ? " · 分数×" + mult : "");
+      c.style.opacity = this.combo > 0 ? "1" : ".45";
+    }
+    if (bf) bf.textContent = (this.shield ? "🛡" : "") + (this.magnet > 0 ? " 🧲" + Math.ceil(this.magnet) + "s" : "");
   },
 
   /* ---------- 绘制 ---------- */
@@ -24555,37 +24989,46 @@ const AnimalRun = {
       sky.addColorStop(0, "#bfe3ff"); sky.addColorStop(0.6, "#eaf3d8"); sky.addColorStop(1, "#fdf3c8");
       ctx.fillStyle = sky; ctx.fillRect(0, 0, W, hz + 40);
     }
-    /* 地面层：顶部大范围半透明，让 AI 图里的草地和小径消失点透出来自然衔接 */
+    /* 地面层：不铺路，直接接成森林地被（草地渐变 + 落叶），与 AI 远景同色系 */
     const gr = ctx.createLinearGradient(0, hz - 10, 0, H);
     gr.addColorStop(0, "rgba(104,150,80,0)");
-    gr.addColorStop(0.28, "rgba(104,150,80,.88)");
-    gr.addColorStop(0.5, "#578f44");
-    gr.addColorStop(1, "#3c7133");
+    gr.addColorStop(0.16, "rgba(104,150,80,.52)");
+    gr.addColorStop(0.42, "rgba(88,134,70,.93)");
+    gr.addColorStop(0.75, "#4b8038");
+    gr.addColorStop(1, "#2d6329");
     ctx.fillStyle = gr; ctx.fillRect(0, hz - 10, W, H - hz + 10);
-    /* 小径（梯形，明暗路肩交替随距离滚动） */
-    for (let band = 0; band < 14; band++) {
-      const z1 = band * 7 - (this.dist % 7) - 7, z2 = z1 + 7;
-      if (z2 < 0.5) continue;
-      const a = this.project(Math.max(0.5, z1), 0.5), b = this.project(Math.max(0.5, z2), 0.5);
-      ctx.fillStyle = band % 2 ? "#cdb489" : "#c2a97e";
+    /* 踩出来的浅浅痕迹：只留一层很淡的土色，没有硬边和明暗条纹，像林间草地上的旧路 */
+    const near0 = this.project(0.6, 0.5), far0 = this.project(88, 0.5);
+    if (near0.y > far0.y) {
+      ctx.save();
+      ctx.globalAlpha = 0.11;
+      const g2 = ctx.createLinearGradient(0, far0.y, 0, near0.y);
+      g2.addColorStop(0, "rgba(160,134,88,0)");
+      g2.addColorStop(0.35, "rgba(154,128,84,.75)");
+      g2.addColorStop(1, "rgba(118,94,58,.9)");
+      ctx.fillStyle = g2;
       ctx.beginPath();
-      ctx.moveTo(a.cx - a.halfW, a.y); ctx.lineTo(a.cx + a.halfW, a.y);
-      ctx.lineTo(b.cx + b.halfW, b.y); ctx.lineTo(b.cx - b.halfW, b.y);
+      ctx.moveTo(near0.cx - near0.halfW * 1.05, near0.y);
+      ctx.lineTo(far0.cx - far0.halfW * 0.55, far0.y);
+      ctx.lineTo(far0.cx + far0.halfW * 0.55, far0.y);
+      ctx.lineTo(near0.cx + near0.halfW * 1.05, near0.y);
       ctx.closePath(); ctx.fill();
+      ctx.restore();
     }
-    /* 路缘土边 */
-    const edge = this.project(0.5, 0.5);
-    ctx.strokeStyle = "rgba(96,70,38,.5)"; ctx.lineWidth = 3;
-    [-1, 1].forEach(s => {
+    /* 落叶与草叶：铺满整片森林地面并随奔跑向后流动，是速度感的主要来源 */
+    for (let i = 0; i < 64; i++) {
+      const z = ((i * 13.7 - this.dist * 1.25) % 86 + 86) % 86 + 4;
+      const xr = ((i * 0.6180339) % 1) * 2.7 - 0.85;      // -0.85~1.85：撒到跑道两侧的林地里
+      const p = this.project(z, xr);
+      if (p.y < hz + 3) continue;
+      const s = Math.max(1.1, p.scale * 11);
+      ctx.globalAlpha = Math.min(0.55, 0.14 + p.scale * 0.36);
+      ctx.fillStyle = i % 5 === 0 ? "#8d6b3a" : i % 7 === 0 ? "#b0904a" : i % 3 === 0 ? "#5f9440" : "#3f7a35";
       ctx.beginPath();
-      let first = true;
-      for (let z = 90; z >= 0.5; z -= 6) {
-        const p = this.project(z, 0.5);
-        const x = p.cx + s * p.halfW;
-        if (first) { ctx.moveTo(x, p.y); first = false; } else ctx.lineTo(x, p.y);
-      }
-      ctx.stroke();
-    });
+      ctx.ellipse(p.x, p.y, s * 1.3, s * 0.5, (i % 9) * 0.42, 0, 6.2832);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
 
     /* 装饰树/灌木（从远到近） */
     this.deco.slice().sort((a, b) => b.z - a.z).forEach(d => {
@@ -24593,16 +25036,18 @@ const AnimalRun = {
       const p = this.project(d.z, 0.5 + d.side * (this.ROADW / 0.30) * (0.5 + d.off * 0.28));
       const s = p.scale * d.s * (W < 700 ? 0.7 : 1);
       if (d.kind === "tree") {
-        ctx.fillStyle = "rgba(70,50,26,.9)";
-        ctx.fillRect(p.x - 4 * s, p.y - 60 * s, 8 * s, 60 * s);
-        ctx.fillStyle = "#2f6b38";
-        ctx.beginPath(); ctx.arc(p.x, p.y - 78 * s, 34 * s, 0, 6.2832); ctx.fill();
-        ctx.fillStyle = "#3d8042";
-        ctx.beginPath(); ctx.arc(p.x - 18 * s, p.y - 64 * s, 22 * s, 0, 6.2832);
-        ctx.arc(p.x + 18 * s, p.y - 66 * s, 24 * s, 0, 6.2832); ctx.fill();
+        /* 远处树丛：三团圆簇，无树干硬线，融进背景林子里 */
+        ctx.fillStyle = "#266031";
+        ctx.beginPath(); ctx.arc(p.x, p.y - 40 * s, 26 * s, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = "#2b6a35";
+        ctx.beginPath(); ctx.arc(p.x - 17 * s, p.y - 28 * s, 20 * s, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = "#316f3a";
+        ctx.beginPath(); ctx.arc(p.x + 16 * s, p.y - 30 * s, 21 * s, 0, 6.2832); ctx.fill();
       } else {
-        ctx.fillStyle = "#35753c";
-        ctx.beginPath(); ctx.ellipse(p.x, p.y - 14 * s, 30 * s, 16 * s, 0, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = "#2b6a33";
+        ctx.beginPath(); ctx.ellipse(p.x, p.y - 13 * s, 30 * s, 15 * s, 0, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = "#317039";
+        ctx.beginPath(); ctx.ellipse(p.x - 9 * s, p.y - 17 * s, 15 * s, 10 * s, 0, 0, 6.2832); ctx.fill();
       }
     });
 
@@ -24623,6 +25068,15 @@ const AnimalRun = {
         const g = ctx.createRadialGradient(p.x, p.y - 20 * s, 2, p.x, p.y - 20 * s, 24 * s);
         g.addColorStop(0, "rgba(255,180,190,.30)"); g.addColorStop(1, "rgba(255,180,190,0)");
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y - 20 * s, 24 * s, 0, 6.2832); ctx.fill();
+      } else if (o.k === "shield" || o.k === "magnet") {
+        const em = o.k === "shield" ? "🛡" : "🧲";
+        const col = o.k === "shield" ? "rgba(120,200,255,.42)" : "rgba(255,170,120,.42)";
+        const g = ctx.createRadialGradient(p.x, p.y - 22 * s, 2, p.x, p.y - 22 * s, 30 * s);
+        g.addColorStop(0, col); g.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y - 22 * s, 30 * s, 0, 6.2832); ctx.fill();
+        ctx.font = `${Math.round(30 * s)}px "Segoe UI Emoji",serif`;
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(em, p.x, p.y - 24 * s);
       } else if (o.k === "log") {
         this.drawProp(ctx, "log", p.x, p.y, 30 * s);
       } else if (o.k === "rock") {
@@ -24643,6 +25097,21 @@ const AnimalRun = {
       return true;
     });
     ctx.globalAlpha = 1;
+
+    /* 前景草浪带：底部两层起伏的深绿色带，把镜头「包」进森林里 */
+    const bandWave = (y0, amp, col, ph) => {
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(0, H + 8);
+      for (let x = 0; x <= W + 24; x += 24) {
+        const y = y0 - Math.abs(Math.sin(x * 0.011 + ph + this.dist * 0.045)) * amp
+                   - Math.sin(x * 0.027 + ph) * amp * 0.4;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(W, H + 8); ctx.closePath(); ctx.fill();
+    };
+    bandWave(H * 0.975, H * 0.05, "#20491f", 0);
+    bandWave(H * 1.005, H * 0.038, "#183c1a", 2.4);
 
     /* 玩家（伙伴立绘 + 跑步起伏 + 跳跃） */
     const pp = this.project(0, this.px);
@@ -24671,6 +25140,43 @@ const AnimalRun = {
     const vg = ctx.createLinearGradient(0, 0, 0, H * 0.2);
     vg.addColorStop(0, "rgba(20,40,24,.25)"); vg.addColorStop(1, "rgba(20,40,24,0)");
     ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H * 0.2);
+
+    /* 护盾光圈 */
+    if (this.shield) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(120,200,255,.85)";
+      ctx.lineWidth = 3 * pp.scale + 1;
+      ctx.beginPath();
+      ctx.ellipse(pp.x, pyy - ph * 0.35, 34 * pp.scale, 44 * pp.scale, 0, 0, 6.2832);
+      ctx.stroke();
+      ctx.restore();
+    }
+    /* 开局 3-2-1 倒计时 */
+    if (this.state === "count" || this.state === "pause") {
+      ctx.save();
+      ctx.fillStyle = "rgba(12,26,16,.34)";
+      ctx.fillRect(0, 0, W, H);
+      if (this.state === "count") {
+        const n = Math.ceil(this.countT);
+        const frac = this.countT - Math.floor(this.countT);
+        const sz = Math.min(W, H) * (0.10 + 0.05 * (1 - frac));
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillStyle = "#fff8d8";
+        ctx.strokeStyle = "rgba(40,70,40,.85)";
+        ctx.lineWidth = sz * 0.06;
+        ctx.font = `900 ${Math.round(sz)}px sans-serif`;
+        ctx.strokeText(n > 0 ? n : "走", W / 2, H * 0.46);
+        ctx.fillText(n > 0 ? n : "走", W / 2, H * 0.46);
+        ctx.font = `700 ${Math.round(sz * 0.26)}px sans-serif`;
+        ctx.fillStyle = "rgba(255,255,255,.9)";
+        ctx.fillText(n > 0 ? "准备好，要跑啦" : "出发！", W / 2, H * 0.46 + sz * 0.78);
+      } else {
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillStyle = "#fff8d8"; ctx.font = "900 30px sans-serif";
+        ctx.fillText("⏸ 已暂停", W / 2, H * 0.42);
+      }
+      ctx.restore();
+    }
   },
   /* 画一个 AI 道具立绘（带接触阴影），返回是否成功 */
   drawProp(ctx, key, x, baseY, h) {
@@ -25255,6 +25761,7 @@ const SceneRun = {
   walkT: 0, stepPh: 0, camDip: 0, moving: false,
   near: null, busy: false,
   kid: null, npcImgs: {}, sheepImgs: [],
+  _ptok: 0,                                   // 面板令牌：关闭/切场景后旧回调全部失效
   L: 0, R: 0,                                  // 按住的左右键
   dust: [], air: [],                           // 脚下尘土 / 氛围粒子
   vid: null, vidFade: 0,                       // 氛围视频 + 淡入
@@ -25309,6 +25816,7 @@ const SceneRun = {
   },
   close() {
     this.on = false;
+    this._ptok++;
     cancelAnimationFrame(this.raf);
     if (this._audio) { try { this._audio.pause(); } catch (e) {} this._audio = null; }
     if (this.vid) { try { this.vid.pause(); } catch (e) {} }
@@ -25357,6 +25865,7 @@ const SceneRun = {
         <span class="wr-pill" id="wr-role"></span>
         <span class="wr-pill" id="wr-quest"></span>
         <button class="wr-x" id="wr-avatar" title="更换小探险家">👤</button>
+        <button class="wr-x" id="wr-help" title="怎么玩">❓</button>
         <button class="wr-x" id="wr-back" title="返回地图（Esc）">🗺️</button>
       </div>
       <div class="wr-tip" id="wr-tip">← → 或 A D 走动 · 点击地面移动 · 靠近闪光处按 空格 探索</div>
@@ -25374,6 +25883,7 @@ const SceneRun = {
     window.addEventListener("resize", () => this.on && this.resize(), { passive: true });
     $("wr-back").onclick = () => { this.close(); WorldMap.open(); Audio2.play("tap"); };
     $("wr-avatar").onclick = () => Avatar.pick();
+    $("wr-help").onclick = () => this.helpPanel();
     this.bind();
     this.bindPad();
   },
@@ -25965,10 +26475,38 @@ const SceneRun = {
 
   closePanel() {
     this.busy = false;
+    this._ptok++;
     if (this._audio) { try { this._audio.pause(); } catch (e) {} this._audio = null; }
     if (typeof Sound !== "undefined") Sound.stop();
     const p = $("wr-panel");
     if (p) { p.style.display = "none"; p.innerHTML = ""; }
+  },
+  /* 打开面板统一入口：保证可见 + 发放令牌（旧 setTimeout 回调失效用） */
+  pOpen() {
+    this.busy = true;
+    const tok = ++this._ptok;
+    const p = $("wr-panel");
+    if (p) p.style.display = "";
+    return { p, tok, alive: () => this.on && tok === this._ptok };
+  },
+  /* 场景帮助：怎么走、怎么探索、目标是什么 */
+  helpPanel() {
+    const { p } = this.pOpen();
+    const reg = this.reg, q = reg.quest || {};
+    const touch = this.isTouch();
+    const npcNames = (reg.npcs || []).map(n => n.name).join("、");
+    p.innerHTML = `<div class="wp-card wp-help">
+      <h3>❓ ${reg.icon} ${reg.name} · 怎么玩</h3>
+      <ul class="wp-help-list">
+        <li><b>走路</b>：${touch ? "按住左下角 ◀ ▶，也可以直接点地面" : "按 ← → 或 A D，也可以直接点地面"}</li>
+        <li><b>探索</b>：靠近会闪光的圆点，${touch ? "点右下角 🔍" : "按空格（或点 🔍）"}打开</li>
+        <li><b>目标</b>：点亮 ${q.need || 4} 处热点，就能拿到「${q.badge || "徽章"}」+${q.reward || 30} 经验</li>
+        ${npcNames ? `<li><b>问路</b>：找 ${npcNames} 说说话，他会告诉你先玩什么</li>` : ""}
+        <li><b>卡住了</b>：每个玩法面板里都有 <b>💡 提示</b>，点一下就有帮手</li>
+        <li><b>换人 / 离开</b>：右上 👤 换小探险家，🗺️ 回地图（Esc）</li>
+      </ul>
+      <div class="wp-acts"><button class="wp-btn go" id="wp-next">知道啦，出发！</button></div></div>`;
+    $("wp-next").onclick = () => this.closePanel();
   },
 
   /* 通用答题面板（题库抽题） */
@@ -25995,26 +26533,45 @@ const SceneRun = {
   },
 
   _quiz(h, qtext, options, answer, okMsg) {
-    this.busy = true;
-    const p = $("wr-panel");
-    p.style.display = "";
-    const al = typeof answer === "number" ? answer : options.indexOf(answer);
+    const { p, tok, alive } = this.pOpen();
+    /* 关键：题库正确答案绝大多数固定在首位，渲染前必须洗牌，否则答案永远是第一个 */
+    const order = shuffle(options.map((_, i) => i));
+    const opts = order.map(i => options[i]);
+    const alRaw = typeof answer === "number" ? answer : options.indexOf(answer);
+    const al = order.indexOf(alRaw);
     p.innerHTML = `<div class="wp-card">
       <h3>${h.icon || "🌟"} ${h.label}</h3>
       <button class="wp-spk" id="wp-spk">🔊 听题</button>
       <p class="wp-q">${String(qtext).replace(/\n/g, "<br>")}</p>
-      <div class="wp-opts">${options.map((o, i) =>
+      <div class="wp-opts">${opts.map((o, i) =>
         `<button class="wp-opt" data-i="${i}">${o}</button>`).join("")}</div>
       <div class="wp-fb" id="wp-fb"></div>
-      <div class="wp-acts"><button class="wp-btn" id="wp-swap">🔄 换一题</button>
+      <div class="wp-acts"><button class="wp-btn hint" id="wp-hint">💡 提示</button>
+      <button class="wp-btn" id="wp-swap">🔄 换一题</button>
       <button class="wp-btn" id="wp-close">收好</button></div></div>`;
     /* 题目念给孩子听 */
     const spoken = String(qtext).replace(/\n/g, "，");
     if (typeof Sound !== "undefined") Sound.play(spoken);
     const spk = $("wp-spk");
     if (spk) spk.onclick = () => Sound.play(spoken);
+    /* 提示：每次排除一个错误选项，最多留两个选项 */
+    let hintsLeft = Math.max(0, opts.length - 2);
+    const hintBtn = $("wp-hint");
+    if (hintBtn) hintBtn.onclick = () => {
+      if (hintsLeft <= 0) { toast("提示用完啦，相信你的第一感觉！"); return; }
+      const pool = [...p.querySelectorAll(".wp-opt")].filter(b => !b.classList.contains("ok") && !b.classList.contains("off") && +b.dataset.i !== al);
+      if (!pool.length) return;
+      hintsLeft--;
+      const drop = pool[Math.floor(Math.random() * pool.length)];
+      drop.classList.add("off"); drop.onclick = null;
+      Audio2.play("tap");
+      const fb = $("wp-fb");
+      if (fb) fb.innerHTML = `<span class="hint">💡 帮你划掉一个不对的，还剩 ${hintsLeft} 次提示</span>`;
+      Sound.play("帮你划掉一个不对的答案");
+    };
     p.querySelectorAll(".wp-opt").forEach(b => {
       b.onclick = () => {
+        if (!alive()) return;
         const i = +b.dataset.i;
         const fb = $("wp-fb");
         if (i === al) {
@@ -26027,7 +26584,7 @@ const SceneRun = {
           p.querySelectorAll(".wp-opt").forEach(x => x.onclick = null);
         } else {
           b.classList.add("no");
-          fb.innerHTML = `<span class="no">再想一想哦，你可以的！</span>`;
+          fb.innerHTML = `<span class="no">再想一想哦，你可以的！（点 💡 提示帮你划掉一个错误答案）</span>`;
           Sound.play("再想一想，你可以的");
         }
       };
@@ -26056,13 +26613,11 @@ const SceneRun = {
 
   /* ---------- 听声辨动物 ---------- */
   soundPanel(h) {
-    this.busy = true;
+    const { p, tok, alive } = this.pOpen();
     const pool = SF.LIST.filter(x => (h.group === "f" ? x[3] === "f" : x[3] === "a"));
     const pick = pool[Math.floor(Math.random() * pool.length)];
     const others = pool.filter(x => x[0] !== pick[0]).sort(() => Math.random() - 0.5).slice(0, 3);
     const opts = [pick, ...others].map(x => x[1]).sort(() => Math.random() - 0.5);
-    const p = $("wr-panel");
-    p.style.display = "";
     p.innerHTML = `<div class="wp-card">
       <h3>${h.icon || "👂"} ${h.label} · 侧耳倾听</h3>
       <p class="wp-sub">竖起耳朵听一听——这是谁的声音？</p>
@@ -26070,7 +26625,8 @@ const SceneRun = {
       <div class="wp-opts" style="margin-top:10px">${opts.map(o =>
         `<button class="wp-opt" data-o="${o}">${o}</button>`).join("")}</div>
       <div class="wp-fb" id="wp-fb"></div>
-      <div class="wp-acts"><button class="wp-btn" id="wp-again">🔄 换个声音</button>
+      <div class="wp-acts"><button class="wp-btn hint" id="wp-hint">💡 提示</button>
+      <button class="wp-btn" id="wp-again">🔄 换个声音</button>
       <button class="wp-btn" id="wp-close">收好</button></div></div>`;
     const playIt = () => {
       if (this._audio) { try { this._audio.pause(); } catch (e) {} }
@@ -26081,8 +26637,18 @@ const SceneRun = {
     };
     playIt();
     $("wp-replay").onclick = playIt;
+    const hb = $("wp-hint");
+    if (hb) hb.onclick = () => {
+      if (!alive()) return;
+      const fb = $("wp-fb");
+      const tip = h.group === "f" ? "它是农场里的伙伴" : "它是森林里的伙伴";
+      if (fb) fb.innerHTML = `<span class="hint">💡　${tip}，名字的第一个字是「${pick[1][0]}」</span>`;
+      Audio2.play("tap");
+      Sound.say(tip + "，名字的第一个字是" + pick[1][0]);
+    };
     p.querySelectorAll(".wp-opt").forEach(b => {
       b.onclick = () => {
+        if (!alive()) return;
         if (b.dataset.o === pick[1]) {
           b.classList.add("ok");
           $("wp-fb").innerHTML = `<span class="ok">🎉 好耳朵！正是「${pick[1]}」 <b>+5 经验</b></span>`;
@@ -26092,21 +26658,22 @@ const SceneRun = {
         } else {
           b.classList.add("no");
           $("wp-fb").innerHTML = `<span class="no">不对哦，再听一遍试试！</span>`;
+          Audio2.play("no");
         }
       };
     });
-    $("wp-again").onclick = () => { this.closePanel(); this.busy = true; this.soundPanel(h); };
+    $("wp-again").onclick = () => { this.closePanel(); this.soundPanel(h); };
     $("wp-close").onclick = () => this.closePanel();
   },
 
   /* ---------- 分类挑战（垃圾分类 / 词语分类） ---------- */
   sortPanel(h) {
-    this.busy = true;
+    const { p, tok, alive } = this.pOpen();
     const set = WORLD.getSort(h.set);
     const items = set.items.slice().sort(() => Math.random() - 0.5).slice(0, 5);
     let idx = 0, okCnt = 0;
-    const p = $("wr-panel");
     const draw = () => {
+      if (!alive()) return;
       const it = items[idx];
       p.innerHTML = `<div class="wp-card">
         <h3>${h.icon || "♻️"} ${set.title}</h3>
@@ -26117,8 +26684,16 @@ const SceneRun = {
           `<button class="wp-opt" data-c="${cname}">${ce} ${cname}</button>`).join("")}</div>
         <div class="wp-fb" id="wp-fb"></div>
         <div class="wp-progress"><i id="wp-bar" style="width:${idx / items.length * 100}%"></i></div>
-        <div class="wp-acts"><button class="wp-btn" id="wp-close">收好</button></div></div>`;
+        <div class="wp-acts"><button class="wp-btn hint" id="wp-hint">💡 提示</button>
+        <button class="wp-btn" id="wp-close">收好</button></div></div>`;
       $("wp-close").onclick = () => this.closePanel();
+      $("wp-hint").onclick = () => {
+        const right = p.querySelector(`.wp-opt[data-c="${it.c}"]`);
+        if (right) { right.classList.add("hint"); Audio2.play("tap"); }
+        const fb = $("wp-fb");
+        if (fb) fb.innerHTML = `<span class="hint">💡 想一想「${it.n}」最后会变成什么，再选桶</span>`;
+        setTimeout(() => right && right.classList.remove("hint"), 1100);
+      };
       if (typeof Sound !== "undefined") Sound.play(it.n + "，应该放进哪个桶？");
       p.querySelectorAll(".wp-opt").forEach(b => {
         b.onclick = () => {
@@ -26130,10 +26705,13 @@ const SceneRun = {
             fb.innerHTML = `<span class="ok">✅ 分对啦！${it.n} 是${it.c}垃圾</span>`;
             p.querySelectorAll(".wp-opt").forEach(x => x.onclick = null);
             setTimeout(() => {
+              if (!alive()) return;
               idx++;
               if (idx >= items.length) {
+                const fb = $("wp-fb");
+                if (!fb) return;
                 const full = okCnt === items.length;
-                $("wp-fb").innerHTML = `<span class="ok">🎉 全部分完！${okCnt}/${items.length} 件正确 <b>+6 经验</b></span>`;
+                fb.innerHTML = `<span class="ok">🎉 全部分完！${okCnt}/${items.length} 件正确 <b>+6 经验</b></span>`;
                 this.pass(h); Audio2.play("win"); Store.addXP(6);
                 Sound.play(full ? "全部分对啦，你真是分类小能手" : "完成啦，分类小能手");
                 if (typeof toast === "function") toast("♻️ 分类完成 " + okCnt + "/" + items.length + "，经验 +6");
@@ -26153,13 +26731,14 @@ const SceneRun = {
 
   /* ---------- 左右配对 ---------- */
   matchPanel(h) {
-    this.busy = true;
+    const { p, tok, alive } = this.pOpen();
     const pairs = WORLD.getMatch(h.set);
-    const left = pairs.map(p => p.a).sort(() => Math.random() - 0.5);
-    const right = pairs.map(p => p.b).sort(() => Math.random() - 0.5);
+    const left = pairs.map(p2 => p2.a).sort(() => Math.random() - 0.5);
+    const right = pairs.map(p2 => p2.b).sort(() => Math.random() - 0.5);
     let sel = null, done = 0, spoken = false;
-    const p = $("wr-panel");
+    const matched = new Set();
     const draw = () => {
+      if (!alive()) return;
       p.innerHTML = `<div class="wp-card">
         <h3>${h.icon || "🧩"} ${h.label} · 连连看</h3>
         <p class="wp-sub">点左边一张，再点它的小伙伴——配对 ${done}/${pairs.length}</p>
@@ -26170,10 +26749,25 @@ const SceneRun = {
             `<button class="wp-opt wp-m${sel && sel.side === "R" && sel.v === b ? " sel" : ""}" data-side="R" data-i="${i}">${b}</button>`).join("")}</div>
         </div>
         <div class="wp-fb" id="wp-fb"></div>
-        <div class="wp-acts"><button class="wp-btn" id="wp-again">🔄 换一组</button>
+        <div class="wp-acts"><button class="wp-btn hint" id="wp-hint">💡 提示</button>
+        <button class="wp-btn" id="wp-again">🔄 换一组</button>
         <button class="wp-btn" id="wp-close">收好</button></div></div>`;
-      $("wp-again").onclick = () => { this.closePanel(); this.busy = true; this.matchPanel(h); };
+      $("wp-again").onclick = () => { this.closePanel(); this.matchPanel(h); };
       $("wp-close").onclick = () => this.closePanel();
+      $("wp-hint").onclick = () => {
+        const pp = pairs.find(q2 => !matched.has(q2.a));
+        if (!pp) return;
+        Audio2.play("tap");
+        p.querySelectorAll(".wp-opt.wp-m").forEach(x => {
+          if (x.textContent === pp.a || x.textContent === pp.b) x.classList.add("hint");
+        });
+        const fb = $("wp-fb");
+        if (fb) fb.innerHTML = `<span class="hint">💡 闪一亮的两张是一对，试试看！</span>`;
+        setTimeout(() => {
+          if (!alive()) return;
+          p.querySelectorAll(".wp-opt.wp-m.hint").forEach(x => x.classList.remove("hint"));
+        }, 1400);
+      };
       if (!spoken && typeof Sound !== "undefined") {
         spoken = true; Sound.play("点左边一张，再点它的小伙伴，把有关系的配成一对");
       }
@@ -26189,11 +26783,13 @@ const SceneRun = {
           const hit = pairs.find(pp => pp.a === a && pp.b === bb);
           if (hit) {
             b.classList.add("ok");
+            matched.add(a);
             p.querySelectorAll(".wp-opt.wp-m").forEach(x => { if (x.textContent === (sel.side === "L" ? sel.v : v)) x.classList.add("ok"); });
             done++;
             Audio2.play("ok");
             sel = null;
             if (done >= pairs.length) {
+              if (!alive()) return;
               $("wp-fb").innerHTML = `<span class="ok">🎉 全部配对成功！ <b>+6 经验</b></span>`;
               this.pass(h); Audio2.play("win"); Store.addXP(6);
               Sound.play("全部配对成功，记性真好");
@@ -26205,7 +26801,7 @@ const SceneRun = {
             $("wp-fb").innerHTML = `<span class="no">这一对不太配哦，再试试</span>`;
             Audio2.play("no");
             sel = null;
-            setTimeout(draw, 450);
+            setTimeout(() => { if (alive()) draw(); }, 450);
           }
         };
       });
@@ -26215,10 +26811,8 @@ const SceneRun = {
 
   /* ---------- 认时钟 ---------- */
   clockPanel(h) {
-    this.busy = true;
+    const { p, tok, alive } = this.pOpen();
     const q = WORLD.makeClockQ();
-    const p = $("wr-panel");
-    p.style.display = "";
     p.innerHTML = `<div class="wp-card">
       <h3>${h.icon || "🕐"} ${h.label} · 钟表小达人</h3>
       <p class="wp-sub">看钟面读时间，选出正确的说法</p>
@@ -26226,9 +26820,18 @@ const SceneRun = {
       <div class="wp-opts">${q.opts.map(o =>
         `<button class="wp-opt" data-o="${o}">${o}</button>`).join("")}</div>
       <div class="wp-fb" id="wp-fb"></div>
-      <div class="wp-acts"><button class="wp-btn" id="wp-again">🔄 换个时间</button>
+      <div class="wp-acts"><button class="wp-btn hint" id="wp-hint">💡 怎么看</button>
+      <button class="wp-btn" id="wp-again">🔄 换个时间</button>
       <button class="wp-btn" id="wp-close">收好</button></div></div>`;
     if (typeof Sound !== "undefined") Sound.play("看钟面读一读，现在是几点？");
+    const hb = $("wp-hint");
+    if (hb) hb.onclick = () => {
+      if (!alive()) return;
+      const fb = $("wp-fb");
+      if (fb) fb.innerHTML = `<span class="hint">💡 短针是<b>时针</b>，长针是<b>分针</b>：分针指 12 是整点，指 6 是半点，指 3 是 15 分</span>`;
+      Audio2.play("tap");
+      Sound.say("短针是时针，长针是分针，分针指十二是整点，指六是半点");
+    };
     /* 画钟面 */
     const cv = $("wp-clock"), c2 = cv.getContext("2d"), R = 92, CX = 100, CY = 100;
     c2.clearRect(0, 0, 200, 200);
@@ -26257,6 +26860,7 @@ const SceneRun = {
     c2.fillStyle = "#c62828"; c2.beginPath(); c2.arc(CX, CY, 5, 0, 7); c2.fill();
     p.querySelectorAll(".wp-opt").forEach(b => {
       b.onclick = () => {
+        if (!alive()) return;
         if (b.dataset.o === q.label) {
           b.classList.add("ok");
           $("wp-fb").innerHTML = `<span class="ok">🎉 没错，正是 <b>${q.label}</b>！ <b>+5 经验</b></span>`;
@@ -26265,21 +26869,19 @@ const SceneRun = {
           p.querySelectorAll(".wp-opt").forEach(x => x.onclick = null);
         } else {
           b.classList.add("no");
-          $("wp-fb").innerHTML = `<span class="no">再看一眼：短针是时，长针是分</span>`;
+          $("wp-fb").innerHTML = `<span class="no">再看一眼：短针是时，长针是分（点 💡 看口诀）</span>`;
           setTimeout(() => b.classList.remove("no"), 500);
         }
       };
     });
-    $("wp-again").onclick = () => { this.closePanel(); this.busy = true; this.clockPanel(h); };
+    $("wp-again").onclick = () => { this.closePanel(); this.clockPanel(h); };
     $("wp-close").onclick = () => this.closePanel();
   },
 
   /* ---------- 数羊小游戏 ---------- */
   sheepPanel(h) {
-    this.busy = true;
+    const { p, tok, alive } = this.pOpen();
     const q = WORLD.makeSheepQ();
-    const p = $("wr-panel");
-    p.style.display = "";
     p.innerHTML = `<div class="wp-card wide">
       <h3>🐑 数一数 · 眼力挑战</h3>
       <p class="wp-sub">羊群马上出现，<b>看仔细有几只</b>，它们很快就会跑掉！</p>
@@ -26302,7 +26904,8 @@ const SceneRun = {
     }
     /* 出现 → 消失 → 提问 */
     Sound.play("羊群来啦，数一数有几只");
-    setTimeout(() => {
+    const reveal = () => {
+      if (!alive()) return;
       meadow.classList.add("gone");
       const wrongs = new Set([q.n]);
       [q.n + 1, q.n - 1, q.n + 2, q.n - 2].forEach(cc => { if (cc > 0 && cc !== q.n && wrongs.size < 4) wrongs.add(cc); });
@@ -26311,32 +26914,50 @@ const SceneRun = {
       $("wp-sheep-q").innerHTML = "刚刚草地上有几只羊？";
       $("wp-sheep-q").style.visibility = "";
       const box = $("wp-sheep-opts");
-      box.innerHTML = wopts.map(o => `<button class="wp-opt" data-o="${o}">${o} 只</button>`).join("");
+      box.innerHTML = wopts.map(o => `<button class="wp-opt" data-o="${o}">${o} 只</button>`).join("") +
+        `<button class="wp-btn hint" id="wp-hint" style="grid-column:1/-1;max-width:none">💡 记不清了？再闪一次羊群</button>`;
       box.querySelectorAll(".wp-opt").forEach(b => {
         b.onclick = () => {
+          if (!alive()) return;
           if (+b.dataset.o === q.n) {
             b.classList.add("ok");
             $("wp-fb").innerHTML = `<span class="ok">🎉 眼力真好，正是 ${q.n} 只！+5 经验</span>`;
             this.pass(h); Audio2.play("win"); Store.addXP(5);
             Sound.play("数对啦，正好" + q.n + "只羊");
+            box.querySelectorAll(".wp-opt").forEach(x => x.onclick = null);
           } else {
             b.classList.add("no");
-            $("wp-fb").innerHTML = `<span class="no">数错啦，再数一群试试！</span>`;
+            $("wp-fb").innerHTML = `<span class="no">数错啦，点 💡 让羊群再闪一次，慢慢数</span>`;
+            Audio2.play("no");
           }
         };
       });
-    }, 1600);
-    $("wp-again").onclick = () => { this.closePanel(); this.busy = true; this.sheepPanel(h); };
-    $("wp-close").onclick = () => this.closePanel();
+      const hb = $("wp-hint");
+      if (hb) hb.onclick = () => {
+        if (!alive()) return;
+        meadow.classList.remove("gone");
+        Audio2.play("tap");
+        Sound.say("快数一数");
+        let left = 900;
+        const step = 60;
+        const t = setInterval(() => {
+          left -= step;
+          if (!alive() || left <= 0) { clearInterval(t); if (alive()) meadow.classList.add("gone"); }
+        }, step);
+      };
+    };
+    const tReveal = setTimeout(reveal, 1600);
+    $("wp-again").onclick = () => { this.closePanel(); this.sheepPanel(h); };
+    $("wp-close").onclick = () => { clearTimeout(tReveal); this.closePanel(); };
   },
 
   /* ---------- 小店算钱 ---------- */
   shopPanel(h) {
-    this.busy = true;
+    const { p, tok, alive } = this.pOpen();
     const q = WORLD.makeShopQ();
-    const p = $("wr-panel");
-    p.style.display = "";
     const order = q.items.map(it => `<span class="wp-item">${it.e} ${it.n} ×${it.c}</span>`).join("");
+    const total = q.items.reduce((s, it) => s + it.p * it.c, 0);
+    const steps = q.items.map(it => `${it.e} ${it.n}：${it.p} 元 × ${it.c} = <b>${it.p * it.c} 元</b>`).join("　·　");
     p.innerHTML = `<div class="wp-card">
       <h3>💰 收银台 · 小店买卖</h3>
       <p class="wp-sub">客人要买：</p>
@@ -26344,25 +26965,36 @@ const SceneRun = {
       <p class="wp-q">${q.ask}</p>
       <div class="wp-opts">${q.opts.map(o => `<button class="wp-opt" data-o="${o}">${o} 元</button>`).join("")}</div>
       <div class="wp-fb" id="wp-fb"></div>
-      <div class="wp-acts"><button class="wp-btn" id="wp-again">🔄 下一位客人</button>
+      <div class="wp-acts"><button class="wp-btn hint" id="wp-hint">💡 提示算式</button>
+      <button class="wp-btn" id="wp-again">🔄 下一位客人</button>
       <button class="wp-btn" id="wp-close">收好</button></div></div>`;
     if (typeof Sound !== "undefined") {
       Sound.play(q.items.map(it => `${it.n} ${it.c} 个`).join("，") + "。" + q.ask);
     }
+    const hb = $("wp-hint");
+    if (hb) hb.onclick = () => {
+      if (!alive()) return;
+      const fb = $("wp-fb");
+      if (fb) fb.innerHTML = `<span class="hint">💡 ${steps}<br>合起来 = <b>${total} 元</b>${/找回/.test(q.ask) ? "，再用付的钱减去总价" : ""}</span>`;
+      Audio2.play("tap");
+    };
     p.querySelectorAll(".wp-opt").forEach(b => {
       b.onclick = () => {
+        if (!alive()) return;
         if (+b.dataset.o === q.ans) {
           b.classList.add("ok");
           $("wp-fb").innerHTML = `<span class="ok">🎉 算得又快又准！客人满意地走了。+5 经验</span>`;
           this.pass(h); Audio2.play("win"); Store.addXP(5);
           Sound.play("算对啦，收你" + q.ans + "元，欢迎下次光临");
+          p.querySelectorAll(".wp-opt").forEach(x => x.onclick = null);
         } else {
           b.classList.add("no");
-          $("wp-fb").innerHTML = `<span class="no">账目对不上哦，再算一遍！</span>`;
+          $("wp-fb").innerHTML = `<span class="no">账目对不上哦，点 💡 提示算式再算一遍！</span>`;
+          Audio2.play("no");
         }
       };
     });
-    $("wp-again").onclick = () => { this.closePanel(); this.busy = true; this.shopPanel(h); };
+    $("wp-again").onclick = () => { this.closePanel(); this.shopPanel(h); };
     $("wp-close").onclick = () => this.closePanel();
   },
 
