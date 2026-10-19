@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "hexo generate",
+    "build": "hexo generate && node scripts/post-build-assets.js",
     "clean": "hexo clean",
     "deploy": "hexo deploy",
-    "publish": "hexo generate && hexo deploy",
+    "publish": "npm run build && hexo deploy",
     "server": "hexo server"
   },
   "hexo": {

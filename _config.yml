@@ -110,6 +110,7 @@ exclude:
   - 'forest - 副本/**'
   - 'bike - 副本/**'
   - 'guardian - 副本/**'
+  - 'forest/assets/audio/**'
 ignore:
 
 # Extensions
