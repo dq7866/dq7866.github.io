@@ -6,7 +6,7 @@
     "build": "hexo generate && node scripts/post-build-assets.js",
     "clean": "hexo clean",
     "deploy": "hexo deploy",
-    "publish": "npm run build && hexo deploy",
+    "publish": "git add -A && git commit -m \"update\" && git push origin HEAD:source",
     "server": "hexo server"
   },
   "hexo": {

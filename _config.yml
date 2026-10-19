@@ -133,10 +133,6 @@ inject:
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
-## 只发布到 Cloudflare Pages（由 scripts/deployer-cloudflare.js 实现）
-deploy:
-  - type: cloudflare
-    project: dq7866
-    branch: main
-    dir: public
+## Cloudflare Pages 已改为监听 GitHub 分支 source 自动构建，无需 hexo deploy。
+## 发布：git add -A && git commit -m "update" && git push origin HEAD:source
 
