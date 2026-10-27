@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<title>⚡ 知识擂台 · 双机对战</title>
+<style>
+:root{--blue:#3b82f6;--orange:#f97316;--yellow:#facc15;--ink:#1f2937;
+  --blue-d:#1d4ed8;--orange-d:#c2410c;--green:#22c55e;--red:#ef4444}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{height:100%}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;
+  background:linear-gradient(160deg,#1e3a8a,#7c3aed);color:var(--ink);overflow:hidden}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px}
+.screen.active{display:flex;animation:in .4s cubic-bezier(.22,1.2,.36,1)}
+@keyframes in{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.logo{font-size:min(10vw,54px);font-weight:900;color:#fff;letter-spacing:3px;text-shadow:0 4px 0 rgba(0,0,0,.25);animation:b 2.4s infinite}
+.logo span{color:var(--yellow)}
+@keyframes b{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.sub{color:rgba(255,255,255,.85);margin:6px 0 24px;font-size:14px}
+.card{background:rgba(255,255,255,.14);backdrop-filter:blur(8px);border-radius:20px;padding:18px 22px;width:min(92vw,420px);color:#fff;margin-bottom:14px}
+.card h3{font-size:14px;opacity:.85;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 16px;border-radius:99px;background:rgba(255,255,255,.2);border:2px solid transparent;font-size:14px;cursor:pointer;transition:.2s}
+.chip.on{background:#fff;color:var(--blue-d);border-color:var(--yellow);transform:scale(1.08);box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.rolebtns{display:flex;gap:12px;width:min(92vw,420px)}
+.rolebtn{flex:1;padding:26px 10px;border:none;border-radius:20px;font-size:19px;font-weight:900;color:#fff;cursor:pointer;
+  box-shadow:0 8px 0 rgba(0,0,0,.28);transition:.15s;letter-spacing:2px}
+.rolebtn:active{transform:translateY(5px);box-shadow:0 3px 0 rgba(0,0,0,.28)}
+.rolebtn.c{background:linear-gradient(135deg,var(--blue),#60a5fa)}
+.rolebtn.p{background:linear-gradient(135deg,var(--orange),#fb923c)}
+.rolebtn small{display:block;font-size:12px;font-weight:400;opacity:.85;margin-top:6px}
+.btn{margin-top:12px;width:min(92vw,420px);padding:16px;border:none;border-radius:99px;font-size:20px;font-weight:900;letter-spacing:4px;color:#fff;
+  background:linear-gradient(90deg,var(--orange),#fbbf24);cursor:pointer;box-shadow:0 7px 0 var(--orange-d)}
+.btn:active{transform:translateY(5px);box-shadow:0 2px 0 var(--orange-d)}
+.btn.blue{background:linear-gradient(90deg,var(--blue),#38bdf8);box-shadow:0 7px 0 var(--blue-d)}
+input.code{width:min(92vw,420px);padding:18px;border:none;border-radius:18px;font-size:34px;font-weight:900;text-align:center;letter-spacing:12px;color:var(--blue-d);outline:none}
+.bigcode{font-size:64px;font-weight:900;color:var(--yellow);letter-spacing:14px;text-shadow:0 4px 10px rgba(0,0,0,.4)}
+.status{color:#fff;font-weight:800;font-size:18px;margin-top:14px;min-height:26px}
+.status .dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:#f87171;margin-right:8px;animation:bl 1s infinite}
+.status.ok .dot{background:#4ade80;animation:none}
+@keyframes bl{50%{opacity:.3}}
+
+/* 对战界面 */
+#game{justify-content:flex-start;justify-content:space-between;padding-bottom:20px}
+.topbar{width:min(96vw,560px);display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.player{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:99px;color:#fff;font-weight:800;font-size:15px}
+.player.child{background:linear-gradient(90deg,var(--blue),#60a5fa)}
+.player.parent{background:linear-gradient(90deg,var(--orange),#fb923c)}
+.player .sc{font-size:19px}
+.player.me{box-shadow:0 0 0 3px #fff,0 4px 16px rgba(0,0,0,.35);transform:scale(1.08)}
+.player.locked{filter:grayscale(.8);opacity:.5}
+.timerwrap{width:min(96vw,560px);height:10px;border-radius:99px;background:rgba(255,255,255,.25);overflow:hidden;margin:10px 0}
+.timerbar{height:100%;width:100%;background:linear-gradient(90deg,var(--green),var(--yellow));transition:width .1s linear}
+.timerbar.danger{background:linear-gradient(90deg,var(--yellow),var(--red));animation:bk .4s infinite}
+@keyframes bk{50%{opacity:.5}}
+.qcard{width:min(96vw,560px);background:#fff;border-radius:24px;padding:22px 18px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.3);animation:cardin .4s cubic-bezier(.22,1.3,.36,1);position:relative}
+@keyframes cardin{from{opacity:0;transform:translateY(24px) rotate(-1deg)}to{opacity:1;transform:none}}
+.banner{position:absolute;top:-16px;left:50%;transform:translateX(-50%);padding:4px 16px;border-radius:99px;font-size:12px;font-weight:800;color:#fff;white-space:nowrap;animation:bin .4s}
+.banner.pk{background:linear-gradient(90deg,var(--orange),#ef4444)}
+.banner.wait{background:#6b7280}
+@keyframes bin{from{opacity:0;transform:translate(-50%,-10px)}}
+.qmeta{font-size:11px;color:#9ca3af;margin-bottom:6px}
+.qtext{font-size:min(5.6vw,22px);font-weight:800;line-height:1.5}
+.wobble{animation:wob .35s}
+@keyframes wob{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.answers{width:min(96vw,560px);display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.ans{border:none;border-radius:18px;padding:20px 12px;font-size:17px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.25);transition:transform .12s}
+.ans:active{transform:translateY(4px)}
+.ans.a{background:linear-gradient(135deg,#ef4444,#f87171)}
+.ans.b{background:linear-gradient(135deg,#3b82f6,#60a5fa)}
+.ans.c{background:linear-gradient(135deg,#f59e0b,#fbbf24)}
+.ans.d{background:linear-gradient(135deg,#22c55e,#4ade80)}
+.ans.correct{animation:cp .6s;box-shadow:0 0 0 4px #fff,0 0 30px var(--green)}
+@keyframes cp{30%{transform:scale(1.1)}}
+.ans.wrong{animation:sh .4s;filter:grayscale(.7) brightness(.8)}
+@keyframes sh{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.ans.dim{opacity:.35;pointer-events:none}
+.hint{color:rgba(255,255,255,.7);font-size:12px}
+.flash{position:fixed;inset:0;pointer-events:none;opacity:0}
+.flash.win{animation:fl .5s;background:radial-gradient(circle,rgba(34,197,94,.4),transparent 70%)}
+.flash.lose{animation:fl .5s;background:radial-gradient(circle,rgba(239,68,68,.35),transparent 70%)}
+@keyframes fl{20%{opacity:1}100%{opacity:0}}
+.toast{position:fixed;top:18%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:10px 22px;border-radius:99px;font-weight:800;font-size:15px;animation:t 1.8s forwards;z-index:9}
+@keyframes t{15%,75%{opacity:1;transform:translateX(-50%)}100%{opacity:0}}
+
+/* 结算 */
+.trophy{font-size:84px;animation:tin .8s cubic-bezier(.22,1.6,.36,1)}
+@keyframes tin{from{transform:scale(0) rotate(-30deg)}}
+.rt{font-size:32px;font-weight:900;color:#fff;margin:8px 0}
+.rs{color:rgba(255,255,255,.85);margin-bottom:16px;text-align:center;font-size:14px}
+.board{display:flex;gap:18px;background:rgba(255,255,255,.15);border-radius:20px;padding:16px 32px;margin-bottom:22px}
+.sb{text-align:center;color:#fff}
+.sb .n{font-size:38px;font-weight:900}
+.sb.c .n{color:#93c5fd}.sb.p .n{color:#fdba74}
+canvas#fx{position:fixed;inset:0;pointer-events:none}
+@media (max-width:420px){.ans{font-size:15px;padding:17px 10px}.player{font-size:13px;padding:6px 10px}}
+</style>
+</head>
+<body>
+
+<!-- 首页：选身份 -->
+<div class="screen active" id="home">
+  <button id="sndBtn" onclick="toggleSnd()" style="position:fixed;top:14px;right:14px;z-index:20;border:none;border-radius:50%;width:42px;height:42px;font-size:19px;background:rgba(255,255,255,.18);color:#fff;cursor:pointer;backdrop-filter:blur(6px)">🔊</button>
+  <div class="logo">⚡ 知识<span>擂台</span></div>
+  <div class="sub">两台设备 · 同一 WiFi · 实时对战</div>
+  <div class="rolebtns">
+    <button class="rolebtn c" onclick="asRole('child')">🧒 我是孩子<small>输入房间码加入</small></button>
+    <button class="rolebtn p" onclick="asRole('parent')">👨 我是家长<small>创建房间，孩子来战</small></button>
+  </div>
+  <div class="rolebtns" style="margin-top:12px">
+    <button class="rolebtn" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa)" onclick="show('soloSetup')">🚀 单人闯关<small>刷 XP 升段位</small></button>
+    <button class="rolebtn" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)" onclick="openProfile()">📊 我的档案<small>等级 · 正确率 · 错题本</small></button>
+  </div>
+  <div class="rolebtns" style="margin-top:10px">
+    <button class="rolebtn" style="background:linear-gradient(135deg,#065f46,#10b981);padding:16px 10px;font-size:16px" onclick="openDashboard()">👨‍👩‍👧 家长看板<small>知识点掌握 · 反复错 · 一键练</small></button>
+  </div>
+  <div class="card" id="homeQuests" style="margin-top:16px;text-align:left"></div>
+</div>
+
+<!-- 家长：创建房间 -->
+<div class="screen" id="host">
+  <div class="logo">👨 家长端</div>
+  <div class="card" id="hostCfg">
+    <h3>📚 选择年级</h3>
+    <div class="chips" id="gChips">
+      <div class="chip on" data-g="1">一年级</div><div class="chip" data-g="2">二年级</div><div class="chip" data-g="3">三年级</div>
+      <div class="chip" data-g="4">四年级</div><div class="chip" data-g="5">五年级</div><div class="chip" data-g="6">六年级</div>
+    </div>
+    <h3 style="margin-top:12px">🎯 选择科目</h3>
+    <div class="chips" id="sChips">
+      <div class="chip on" data-s="mix">大混战</div><div class="chip" data-s="语文">语文</div><div class="chip" data-s="数学">数学</div>
+      <div class="chip" data-s="科学">科学</div><div class="chip" data-s="英语">英语</div><div class="chip" data-s="品德">品德</div><div class="chip" data-s="安全">安全</div>
+    </div>
+  </div>
+  <div class="card" id="advCard" style="display:none">
+    <h3>⚙️ 高级设置</h3>
+    <div style="color:#fff;font-size:13px;margin-bottom:6px">家长延迟解锁：<b id="delayTxt">1.5 秒</b></div>
+    <input type="range" id="delayRange" min="0" max="40" value="15" style="width:100%">
+    <div style="color:#fff;font-size:13px;margin:10px 0 6px">每局题数：<b id="roundsTxt">10 题</b></div>
+    <input type="range" id="roundsRange" min="5" max="20" step="1" value="10" style="width:100%">
+    <div style="color:rgba(255,255,255,.7);font-size:11px;margin-top:6px">💡 延迟越长对孩子越有利；0 秒为完全公平模式</div>
+  </div>
+  <div style="display:flex;gap:8px;width:min(92vw,420px);margin-top:4px">
+    <button class="btn" id="btnCreate" style="flex:1">创建房间</button>
+    <button class="btn blue" id="btnAdv" style="width:56px;padding:16px 0;font-size:18px" title="高级设置">⚙️</button>
+  </div>
+  <div class="status" id="hostStatus"></div>
+</div>
+
+<!-- 家长：等待孩子 -->
+<div class="screen" id="wait">
+  <div class="logo">📡 房间已创建</div>
+  <div class="bigcode" id="codeBig">---- </div>
+  <div class="sub">让孩子在自己设备上输入这个房间码</div>
+  <div class="status" id="waitStatus"><span class="dot"></span>等待孩子加入…</div>
+</div>
+
+<!-- 孩子：加入 -->
+<div class="screen" id="join">
+  <div class="logo">🧒 孩子端</div>
+  <div class="sub" style="margin-bottom:16px">输入家长设备上的 4 位房间码</div>
+  <input class="code" id="inCode" maxlength="4" inputmode="numeric" placeholder="····" autocomplete="off">
+  <button class="btn blue" id="btnJoin">加入对战</button>
+  <div class="status" id="joinStatus"></div>
+</div>
+
+<!-- 对战 -->
+<div class="screen" id="game">
+  <div class="topbar">
+    <div class="player child" id="plC"><span>🧒</span><span>孩子</span><span class="sc" id="scC">0</span></div>
+    <div style="color:#fff;font-weight:800;font-size:14px" id="roundInfo">-/-</div>
+    <div class="player parent" id="plP"><span>👨</span><span>家长</span><span class="sc" id="scP">0</span></div>
+  </div>
+  <div class="timerwrap"><div class="timerbar" id="tbar"></div></div>
+  <div class="qcard" id="qcard">
+    <div class="banner pk" id="banner">⚔️ 抢答！</div>
+    <div class="qmeta" id="qsubj"></div>
+    <div class="qtext" id="qtext"></div>
+  </div>
+  <div class="answers" id="answers"></div>
+  <div class="flash" id="flash"></div>
+</div>
+
+<!-- 结算 -->
+<div class="screen" id="end">
+  <div class="trophy" id="trophy">🏆</div>
+  <div class="rt" id="rTitle"></div>
+  <div class="rs" id="rSub"></div>
+  <div class="board">
+    <div class="sb c"><div class="n" id="fC">0</div><div class="sb" style="font-size:13px;opacity:.85">🧒 孩子</div></div>
+    <div class="sb"><div class="n" style="color:#fff">:</div></div>
+    <div class="sb p"><div class="n" id="fP">0</div><div class="sb" style="font-size:13px;opacity:.85">👨 家长</div></div>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+    <button class="btn" style="width:auto;padding:14px 36px" onclick="requestRematch()">🔄 再来一局</button>
+    <button class="btn blue" style="width:auto;padding:14px 36px" onclick="location.reload()">🏠 返回大厅</button>
+  </div>
+  <button class="btn" style="width:auto;padding:12px 30px;margin-bottom:10px;background:linear-gradient(90deg,#8b5cf6,#a78bfa);box-shadow:0 6px 0 #6d28d9" onclick="shareCard(lastOver)">📤 分享战绩</button>
+  <div class="card" id="wrongCard" style="display:none;max-height:34vh;overflow-y:auto;text-align:left;font-size:14px">
+    <h3>📒 错题本（点击查看正确答案已标绿）</h3>
+    <div id="wrongList"></div>
+  </div>
+</div>
+
+<!-- 单人闯关设置 -->
+<div class="screen" id="soloSetup">
+  <div class="logo">🚀 单人闯关</div>
+  <div class="sub">答对得 XP · 升段位 · 解锁徽章</div>
+  <div class="card">
+    <h3>📚 选择年级</h3>
+    <div class="chips" id="sgChips">
+      <div class="chip on" data-g="1">一年级</div><div class="chip" data-g="2">二年级</div><div class="chip" data-g="3">三年级</div>
+      <div class="chip" data-g="4">四年级</div><div class="chip" data-g="5">五年级</div><div class="chip" data-g="6">六年级</div>
+    </div>
+    <h3 style="margin-top:12px">🎯 选择科目</h3>
+    <div class="chips" id="ssChips">
+      <div class="chip on" data-s="mix">大混战</div><div class="chip" data-s="语文">语文</div><div class="chip" data-s="数学">数学</div>
+      <div class="chip" data-s="科学">科学</div><div class="chip" data-s="英语">英语</div><div class="chip" data-s="品德">品德</div><div class="chip" data-s="安全">安全</div>
+    </div>
+  </div>
+  <button class="btn" onclick="startSolo()">开始闯关</button>
+  <div class="status" id="soloStatus"></div>
+</div>
+
+<!-- 单人闯关战斗 -->
+<div class="screen" id="solo">
+  <div class="topbar">
+    <div class="player" style="background:linear-gradient(90deg,#8b5cf6,#a78bfa)"><span>🧒</span><span id="soloTitle">书童</span><span class="sc" id="soloScore">0</span></div>
+    <div style="color:#fff;font-weight:800;font-size:14px" id="soloRound">1/10</div>
+    <div style="color:#fff;font-weight:800;font-size:14px" id="soloStreak"></div>
+  </div>
+  <div class="timerwrap"><div class="timerbar" id="soloTbar"></div></div>
+  <div class="qcard" id="soloCard">
+    <div class="banner pk" id="soloBanner">🔥 答得越快，XP 越高！</div>
+    <div class="qmeta" id="soloSubj"></div>
+    <div class="qtext" id="soloText"></div>
+  </div>
+  <div class="answers" id="soloAns"></div>
+  <div class="flash" id="soloFlash"></div>
+</div>
+
+<!-- 单人结算 -->
+<div class="screen" id="soloEnd">
+  <div class="trophy" id="soloTrophy">⭐</div>
+  <div class="rt" id="soloRTitle"></div>
+  <div class="rs" id="soloRSub"></div>
+  <div class="board">
+    <div class="sb"><div class="n" id="soloRC" style="color:#4ade80">0</div><div style="font-size:13px;opacity:.85">答对</div></div>
+    <div class="sb"><div class="n" id="soloRX" style="color:#facc15">0</div><div style="font-size:13px;opacity:.85">获得 XP</div></div>
+    <div class="sb"><div class="n" id="soloRS" style="color:#f472b6">★</div><div style="font-size:13px;opacity:.85">评价</div></div>
+  </div>
+  <div class="card" style="text-align:center" id="soloLvlCard">
+    <div id="soloLvlName" style="font-weight:900;font-size:18px;color:#fff"></div>
+    <div style="height:14px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin:10px 0 6px">
+      <div id="soloLvlBar" style="height:100%;width:0%;background:linear-gradient(90deg,#facc15,#f97316);border-radius:99px;transition:width 1.2s cubic-bezier(.22,1.2,.36,1)"></div>
+    </div>
+    <div id="soloLvlTxt" style="font-size:12px;color:rgba(255,255,255,.8)"></div>
+    <div id="soloBadges" style="margin-top:8px;font-size:22px"></div>
+  </div>
+  <div class="card" id="soloWrongCard" style="display:none;text-align:left;font-size:14px;max-height:26vh;overflow-y:auto">
+    <h3>📒 本轮错题</h3><div id="soloWrongList"></div>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+    <button class="btn" style="width:auto;padding:14px 36px" onclick="startSolo()">🔄 再闯一轮</button>
+    <button class="btn blue" style="width:auto;padding:14px 36px" onclick="openProfile()">📊 查看档案</button>
+    <button class="btn" style="width:auto;padding:14px 36px;background:linear-gradient(90deg,#8b5cf6,#a78bfa);box-shadow:0 7px 0 #6d28d9" onclick="shareSolo()">📤 分享战绩</button>
+    <button class="btn" style="width:auto;padding:14px 36px;background:linear-gradient(90deg,#64748b,#94a3b8);box-shadow:0 7px 0 #334155" onclick="location.reload()">🏠 返回</button>
+  </div>
+</div>
+
+<!-- 家长看板 -->
+<div class="screen" id="dashboard">
+  <div class="logo" style="font-size:min(7.5vw,40px)">👨‍👩‍👧 家长看板</div>
+  <div class="sub" id="dbSummary"></div>
+  <div style="width:min(94vw,520px);max-height:66vh;overflow-y:auto;padding-bottom:6px" id="dbBody"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px">
+    <button class="btn" style="width:auto;padding:12px 28px;background:linear-gradient(90deg,#8b5cf6,#a78bfa);box-shadow:0 6px 0 #6d28d9" onclick="weeklyReport()">📤 学习周报</button>
+    <button class="btn blue" style="width:auto;padding:12px 28px" onclick="location.reload()">🏠 返回</button>
+    <button class="btn" style="width:auto;padding:12px 28px" onclick="openProfile()">📊 孩子档案</button>
+  </div>
+</div>
+
+<!-- 学习档案 -->
+<div class="screen" id="profile">
+  <div class="logo" style="font-size:min(8vw,42px)">📊 我的学习档案</div>
+  <div class="sub" id="profSummary"></div>
+  <div class="card" id="profCards" style="width:min(92vw,460px)"></div>
+  <div class="card" id="profWrong" style="width:min(92vw,460px);max-height:30vh;overflow-y:auto;text-align:left;font-size:13px;display:none">
+    <h3>📒 错题本 · 按知识点分组</h3><div id="profWrongList"></div>
+  </div>
+  <div style="display:flex;gap:12px">
+    <button class="btn blue" style="width:auto;padding:14px 36px" onclick="location.reload()">🏠 返回</button>
+    <button class="btn" style="width:auto;padding:14px 36px;background:linear-gradient(90deg,#64748b,#94a3b8);box-shadow:0 7px 0 #334155" onclick="resetProfile()">🗑 清空档案</button>
+  </div>
+</div>
+
+<!-- 学情分析（家长端）：按知识点看掌握度 + 一键专项练 -->
+<div class="screen" id="study">
+  <div class="logo" style="font-size:min(7vw,38px)">📊 学情分析</div>
+  <div class="sub" id="stSummary">正在统计…</div>
+  <div style="width:min(94vw,560px);max-height:68vh;overflow-y:auto;padding-bottom:8px" id="stBody"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px">
+    <button class="btn blue" style="width:auto;padding:12px 28px" onclick="location.reload()">🏠 返回</button>
+    <button class="btn" style="width:auto;padding:12px 26px;background:linear-gradient(90deg,#8b5cf6,#a78bfa);box-shadow:0 6px 0 #6d28d9" onclick="openProfile()">📒 错题本</button>
+    <button class="btn" style="width:auto;padding:12px 26px;background:linear-gradient(90deg,#065f46,#10b981);box-shadow:0 6px 0 #064e3b" onclick="openDashboard()">📈 看板</button>
+  </div>
+</div>
+
+<canvas id="fx"></canvas>
+
+<script>
+/* API 基址：默认走同源 /api。
+ * 作为子路径部署（如 https://站点/games/knowledge/）时，
+ * 在引入本脚本前设置 window.KLT_API_BASE 即可整体改写。 */
+const API_BASE = (typeof window!=='undefined' && window.KLT_API_BASE) || '';
+let role=null,ws=null,myAns=false,ansAck=false,roundT=null;
+let wrongs=[],lastQ=null,iWasWrong=false;
+const $=id=>document.getElementById(id);
+const show=id=>{document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");};
+function sndOn(){return (localStorage.getItem("klt_sound")||"1")==="1";}
+function beep(f,d,t="sine",v=.18){if(!sndOn())return;try{const A=window.AudioContext||webkitAudioContext;window._ac=window._ac||new A();const o=window._ac.createOscillator(),g=window._ac.createGain();o.type=t;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(window._ac.destination);g.gain.exponentialRampToValueAtTime(.001,window._ac.currentTime+d);o.start();o.stop(window._ac.currentTime+d);}catch(e){}}
+const sndOK=()=>{beep(660,.12);setTimeout(()=>beep(880,.18),110)};
+const sndNO=()=>beep(220,.25,"sawtooth",.12);
+const sndGo=()=>{beep(523,.1);setTimeout(()=>beep(784,.2),120)};
+
+/* 首页 */
+function asRole(r){role=r;show(r==="parent"?"host":"join");}
+document.querySelectorAll("#gChips .chip").forEach(c=>c.onclick=()=>{document.querySelectorAll("#gChips .chip").forEach(x=>x.classList.remove("on"));c.classList.add("on")});
+document.querySelectorAll("#sChips .chip").forEach(c=>c.onclick=()=>{document.querySelectorAll("#sChips .chip").forEach(x=>x.classList.remove("on"));c.classList.add("on")});
+const sel=()=>({grade:document.querySelector("#gChips .on").dataset.g,subject:document.querySelector("#sChips .on").dataset.s});
+
+let reconnectInfo=null,retryCount=0;
+function connect(onopen){
+  // WS 地址：默认同源根路径；子路径部署时走 API_BASE + /ws
+  const wsPath=(typeof window!=='undefined' && window.KLT_WS_PATH) || '';
+  const url=(location.protocol==="https:"?"wss://":"ws://")+location.host+wsPath;
+  try{ws=new WebSocket(url);}catch(e){toast("❌ 无法连接服务器，请检查网络");return;}
+  ws.onopen=()=>{retryCount=0;onopen&&onopen();};
+  bindWs();
+  ws.onerror=()=>{};
+  ws.onclose=(ev)=>{
+    if(ev.code===1000&&!room)return;
+    // 对战中断线：提示并可重试
+    if(role&&document.querySelector(".screen.active")?.id==="game"){
+      toast("⚠️ 连接断开");
+      setTimeout(()=>{
+        if(retryCount<3){retryCount++;toast(`正在重连（${retryCount}/3）…`);connect(()=>{
+          if(retryCount>0){toast("✅ 已重连，但本局进度已丢失，建议重开一局");}
+        });}
+        else toast("❌ 重连失败，请返回大厅重新创建房间");
+      },1200);
+    }
+  };
+}
+/* 家长创建 */
+$("btnAdv").onclick=()=>{const c=$("advCard");c.style.display=c.style.display==="none"?"block":"none";};
+$("delayRange").oninput=e=>{const v=e.target.value/10;$("delayTxt").textContent=v===0?"关闭（完全公平）":v.toFixed(1)+" 秒";};
+$("roundsRange").oninput=e=>{$("roundsTxt").textContent=e.target.value+" 题";};
+$("btnCreate").onclick=()=>connect(()=>ws.send(JSON.stringify({
+  type:"create",...sel(),
+  parentDelay:Math.round($("delayRange").value*100),
+  rounds:parseInt($("roundsRange").value)
+})));
+/* 孩子加入 */
+$("btnJoin").onclick=()=>{
+  const c=$("inCode").value.trim();
+  if(c.length!==4){$("joinStatus").textContent="请输入4位房间码";return;}
+  connect(()=>ws.send(JSON.stringify({type:"join",code:c})));
+};
+
+function bindWs(){
+  ws.onmessage=e=>{
+    const m=JSON.parse(e.data);
+    switch(m.type){
+      case "created":$("codeBig").textContent=m.code;show("wait");break;
+      case "joined":show("game");break;
+      case "ready":$("waitStatus").className="status ok";$("waitStatus").innerHTML="✅ 孩子已加入，即将开始！";sndGo();break;
+      case "error":{
+        const el=$(role==="parent"?"hostStatus":"joinStatus");
+        if(el)el.textContent="❌ "+m.msg;
+        toast("❌ "+m.msg);
+        // 房间不存在时友好返回
+        if(m.msg.includes("房间不存在"))setTimeout(()=>{show(role==="parent"?"host":"join");},1500);
+        if(ws&&ws.readyState===1)ws.close();break;
+      }
+      case "round":onRound(m);break;
+      case "unlock":onUnlock();break;
+      case "result":onResult(m);break;
+      case "reveal":onReveal(m);break;
+      case "over":onOver(m);break;
+      case "rematch":wrongs=[];toast("🔄 新一局即将开始！");sndGo();break;
+      case "info":toast(m.msg);break;
+      // 服务端拒绝提交时必须把本地自锁放开，否则延迟一结束家长反而点不动了
+      case "locked":
+        myAns=false;
+        document.querySelectorAll(".ans").forEach(b=>{delete b.dataset.pending;});
+        toast("⏳ 家长稍等，还有延迟…");break;
+    }
+  };
+  /* onclose 由 connect 统一处理 */
+}
+
+/* 收到题目 */
+function onRound(m){
+  show("game");myAns=false;ansAck=false;sndGo();lastQ={subj:m.subj,text:m.text,options:m.options,kp:m.kp||null};iWasWrong=false;
+  $("roundInfo").textContent=`第 ${m.no}/${m.total} 题`;
+  $("qsubj").textContent="科目："+m.subj;
+  $("qtext").textContent=m.text;
+  $("scC").textContent=m.scores.child;$("scP").textContent=m.scores.parent;
+  const card=$("qcard");card.style.animation="none";void card.offsetWidth;card.style.animation="";
+  const box=$("answers");box.innerHTML="";
+  const keys=["A","B","C","D"],cls=["a","b","c","d"];
+  m.options.forEach((o,i)=>{
+    const b=document.createElement("button");b.className="ans "+cls[i];b.textContent=o.t;
+    b.onclick=()=>{ if(myAns)return;
+      if(role==="parent"&&parentLocked){b.classList.add("wobble");setTimeout(()=>b.classList.remove("wobble"),350);return;}
+      if(myAns)return;myAns=true;
+      ws.send(JSON.stringify({type:"answer",text:o.t}));
+      b.dataset.pending="1";
+    };
+    box.appendChild(b);
+  });
+  // 倒计时
+  const t0=Date.now(),total=m.time*1000;
+  $("tbar").style.width="100%";$("tbar").classList.remove("danger");
+  clearInterval(roundT);
+  roundT=setInterval(()=>{
+    const left=total-(Date.now()-t0);
+    if(left<=0){clearInterval(roundT);return;}
+    $("tbar").style.width=(left/total*100)+"%";
+    $("tbar").classList.toggle("danger",left<=4000);
+  },100);
+  // 家长延迟锁：延迟为 0 时是「完全公平模式」，不锁（服务端此时也不会发 unlock）
+  parentLocked=(role==="parent"&&m.parentDelay>0);
+  $("plP").classList.remove("locked");
+  if(parentLocked){
+    $("plP").classList.add("locked");
+    $("banner").className="banner wait";
+    $("banner").textContent="⏳ 家长延迟 "+(m.parentDelay/1000).toFixed(1)+"s 解锁…";
+  }else if(m.parentDelay>0){
+    $("banner").className="banner pk";$("banner").textContent="⚔️ 你先看题，等对方解锁！";
+  }else{
+    $("banner").className="banner pk";$("banner").textContent="⚔️ 公平模式，同时开抢！";
+  }
+}
+let parentLocked=false;
+function onUnlock(){
+  if(role==="parent"){parentLocked=false;$("plP").classList.remove("locked");
+    $("banner").className="banner pk";$("banner").textContent="⚔️ 解锁！抢答！";beep(880,.08,"triangle",.1);}
+}
+function onResult(m){
+  document.querySelectorAll(".ans").forEach(b=>{
+    b.style.pointerEvents="none";
+    if(b.dataset.pending){b.classList.add(m.ok?"correct":"wrong");b.classList.remove("dim");}
+    else b.classList.add("dim");
+  });
+  if(m.who===role){
+    ansAck=true;                                  // 拿到判定回执才算「真的答了」
+    if(lastQ)logAnswer(lastQ.subj,m.ok,0,lastQ.kp);
+    if(m.ok){sndOK();$("flash").className="flash win";}
+    else{sndNO();$("flash").className="flash lose";iWasWrong=true;}
+  }else{
+    if(m.ok){ // 对方答对
+      const el=m.who==="child"?$("plC"):$("plP");
+      el.classList.add("me");setTimeout(()=>el.classList.remove("me"),800);
+    }
+  }
+  if(m.score!==undefined)(m.who==="child"?$("scC"):$("scP")).textContent=m.score;
+}
+function onReveal(m){
+  clearInterval(roundT);
+  // 本题自己没作答（超时 / 家长被锁没点 / 点了但被服务端拒绝）：也要算错，
+  // 否则学情正确率虚高、错题本漏题。判定依据是「有没有收到判定回执」，
+  // 而不是「有没有点过按钮」——点了却被拒的那次没有任何记录。
+  const missed=!ansAck&&!!lastQ;
+  if((iWasWrong||missed)&&lastQ)wrongs.push({subj:lastQ.subj,text:lastQ.text,correct:m.correct,options:lastQ.options,kp:lastQ.kp||null,at:Date.now()});
+  if(missed)logAnswer(lastQ.subj,false,0,lastQ.kp);
+  iWasWrong=false;
+  document.querySelectorAll(".ans").forEach(b=>{b.style.pointerEvents="none";b.classList.add("dim");});
+  $("banner").className="banner wait";
+  $("banner").textContent=m.correct?"✅ 正确答案："+m.correct:"⏰ 时间到！";
+}
+function requestRematch(){ if(ws&&ws.readyState===1)ws.send(JSON.stringify({type:"rematch"})); toast("已请求再来一局…"); }
+let lastOver=null;
+function onOver(m){
+  show("end");confetti();lastOver=m;
+  // ---- 对战计入 XP 与每日任务 ----
+  const my=m.scores[role]||0;
+  const win=m.result===role,draw=m.result==="draw";
+  const gx=my*8+(win?40:draw?20:8);
+  // 总账必须和逐题记录（subj/hist/kpStat）同步：
+  // 双人对战原来只写了分科目/每日明细，漏掉总答题数与总答对数，
+  // 会让「累计 N 题 · 正确率」的分母偏小、明细却已包含对战，两边对不上。
+  const roundTotal=Array.isArray(m.detail)?m.detail.length:0;
+  // 总账 / 每日任务 / XP 一次写入：早先分三次 load→save，
+  // 后写的会用更旧的快照把先写的整份覆盖回去
+  const gxp=mutateProfile(p=>{
+    if(roundTotal){
+      p.totalQ=(p.totalQ||0)+roundTotal;
+      p.totalCorrect=(p.totalCorrect||0)+my;
+    }
+    const d=daily(p);
+    d.correct=(d.correct||0)+my;
+    if(win)d.wins=(d.wins||0)+1;
+    const oldLv=subjLevel(p.xp.mix||0);
+    p.xp.mix=(p.xp.mix||0)+gx;
+    return {oldLv,newLv:subjLevel(p.xp.mix||0)};
+  });
+  renderHomeQuests();
+  $("rSub").dataset.xp=`（本次 +${gx} XP${gxp.newLv>gxp.oldLv?" · 段位晋升！":""}）`;
+  // 错题本
+  if(wrongs.length){
+    $("wrongCard").style.display="block";
+    $("wrongList").innerHTML=wrongs.map(w=>
+      `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.15);color:#fff">
+        <div>【${w.subj}】${w.text}</div>
+        <div style="color:#4ade80;font-size:13px">✅ 正确答案：${w.correct}</div></div>`).join("");
+  } else { $("wrongCard").style.display="none"; }
+  $("fC").textContent=m.scores.child;$("fP").textContent=m.scores.parent;
+  const iWin=m.result==="draw"?"draw":(m.result===role);
+  if(m.result==="draw"){$("trophy").textContent="🤝";$("rTitle").textContent="平局！势均力敌";$("rSub").textContent="再战一局分高下！";}
+  else if(iWin){$("trophy").textContent="🏆";$("rTitle").textContent="你赢了！";
+    $("rSub").textContent=role==="child"?"太棒了，赢了爸爸妈妈！每天来挑战一局！":"姜还是老的辣！但孩子进步飞快！";
+    sndOK();setTimeout(sndOK,300);}
+  else{$("trophy").textContent="💪";$("rTitle").textContent="惜败！";
+    $("rSub").textContent="就差一点点，下次加速抢答反超！";}
+  if($("rSub").dataset.xp)$("rSub").textContent+="  "+$("rSub").dataset.xp;
+}
+function toast(msg){const d=document.createElement("div");d.className="toast";d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),1900);}
+
+/* ================= 单人闯关 + 学习档案 ================= */
+const TITLES=["书童","秀才","举人","进士","探花","榜眼","状元","学神"];
+const XP_LADDER=[0,100,250,500,900,1400,2000,2800];
+const SUBJ_KEYS={"语文":"语","数学":"数","科学":"科","英语":"英","品德":"德","安全":"安"};
+const BADGES=[
+  {id:"first",icon:"🎯",name:"首胜",check:p=>p.totalCorrect>=1},
+  {id:"c50",icon:"💯",name:"答对50题",check:p=>p.totalCorrect>=50},
+  {id:"c200",icon:"🧠",name:"答对200题",check:p=>p.totalCorrect>=200},
+  {id:"g10",icon:"🔥",name:"闯关10轮",check:p=>p.games>=10},
+  {id:"perfect",icon:"🌟",name:"满分一轮",check:p=>p.perfect>=1},
+  {id:"lvl3",icon:"🎓",name:"达到举人",check:p=>(p.xp.mix||0)>=XP_LADDER[2]},
+  {id:"lvl7",icon:"👑",name:"达到状元",check:p=>(p.xp.mix||0)>=XP_LADDER[6]},
+  {id:"streak5",icon:"⚡",name:"连对5题",check:p=>p.bestStreak>=5}
+];
+/* ---------- 多孩子档案 ---------- */
+function activeChild(){
+  let c=localStorage.getItem("klt_active_child");
+  if(!c){
+    // 迁移：旧的单档案数据归入第一个孩子
+    const old=localStorage.getItem("klt_profile");
+    if(old){localStorage.setItem("klt_profile_孩子",old);localStorage.removeItem("klt_profile");}
+    c="孩子";localStorage.setItem("klt_active_child",c);
+  }
+  return c;
+}
+function childList(){
+  return Object.keys(localStorage).filter(k=>k.startsWith("klt_profile_")).map(k=>k.slice(12));
+}
+function setActiveChild(name){
+  localStorage.setItem("klt_active_child",name);
+  renderHomeQuests();
+  toast("已切换到【"+name+"】的档案");
+}
+function addChild(){
+  const name=prompt("给新孩子起个名字（如：小明）：");
+  if(!name||!name.trim())return;
+  const n=name.trim().slice(0,10);
+  if(localStorage.getItem("klt_profile_"+n)){toast("这个名字已存在");return;}
+  localStorage.setItem("klt_profile_"+n,JSON.stringify(defaultProfile()));
+  setActiveChild(n);
+}
+function loadProfile(){
+  try{return JSON.parse(localStorage.getItem("klt_profile_"+activeChild()))||{}}catch(e){return{}}
+}
+function defaultProfile(){return{xp:{},games:0,totalQ:0,totalCorrect:0,perfect:0,bestStreak:0,wrongs:[],badges:[],
+  subj:{},      // {语文:{q:0,c:0}, ...} 各科答题/答对
+  hist:{},      // {"2026-10-26":{q:0,c:0,sec:0}} 每日明细
+  kpStat:{},    // {"数学|周长":{q,c,at}} 知识点级学情（家长看板/练这组用）
+  totalSec:0    // 累计学习秒数
+}}
+function subjLevel(xp){
+  let lv=0;for(let i=XP_LADDER.length-1;i>=0;i--)if(xp>=XP_LADDER[i]){lv=i;break;}
+  return lv;
+}
+let soloPool=null,soloIdx=0,soloScore=0,soloXP=0,soloTimer=null,soloT0=0,soloStreak=0,soloWrongs=[],soloGrade="1",soloSubject="mix";
+
+document.querySelectorAll("#sgChips .chip").forEach(c=>c.onclick=()=>{document.querySelectorAll("#sgChips .chip").forEach(x=>x.classList.remove("on"));c.classList.add("on")});
+document.querySelectorAll("#ssChips .chip").forEach(c=>c.onclick=()=>{document.querySelectorAll("#ssChips .chip").forEach(x=>x.classList.remove("on"));c.classList.add("on")});
+
+async function startSolo(){
+  soloGrade=document.querySelector("#sgChips .on").dataset.g;
+  soloSubject=document.querySelector("#ssChips .on").dataset.s;
+  // 自适应难度：正确率>=85% 升难度，<60% 降难度
+  const p0=Object.assign(defaultProfile(),loadProfile());
+  const acc=p0.totalQ?Math.round(p0.totalCorrect/p0.totalQ*100):null;
+  const lvl=acc===null?2:(acc>=85?3:(acc<60?1:2));
+  $("soloStatus").textContent=lvl===3?"🔥 根据你的档案已升级到挑战难度":lvl===1?"🌱 根据你的档案已调低难度，稳住！":"取题中…";
+  try{
+    const r=await fetch(`${API_BASE}/api/questions?grade=${soloGrade}&subject=${soloSubject}&n=10&level=${lvl}`);
+    soloPool=await r.json();
+  }catch(e){$("soloStatus").textContent="取题失败，请确认服务器已启动";return;}
+  $("soloStatus").textContent="";
+  soloIdx=0;soloScore=0;soloXP=0;soloStreak=0;soloWrongs=[];
+  const p=Object.assign(defaultProfile(),loadProfile()),lv=subjLevel(p.xp.mix||0);
+  $("soloTitle").textContent=TITLES[lv];$("soloScore").textContent=0;$("soloStreak").textContent="";
+  show("solo");nextSolo();
+}
+function nextSolo(){
+  if(soloIdx>=soloPool.length)return soloEnd();
+  const q=soloPool[soloIdx];
+  $("soloRound").textContent=`${soloIdx+1}/${soloPool.length}`;
+  $("soloSubj").textContent="科目："+q.subj;
+  $("soloText").textContent=q.text;
+  $("soloBanner").className="banner pk";$("soloBanner").textContent="🔥 答得越快，XP 越高！";
+  const card=$("soloCard");card.style.animation="none";void card.offsetWidth;card.style.animation="";
+  const order=q.options.map((t,i)=>({t,ok:i===q.correct})).map(o=>({t:o.t,ok:o.ok})).sort(()=>Math.random()-.5);
+  const box=$("soloAns");box.innerHTML="";
+  const cls=["a","b","c","d"];
+  order.forEach((o,i)=>{
+    const b=document.createElement("button");b.className="ans "+cls[i];b.textContent=o.t;
+    if(o.ok)b.dataset.ok="1";
+    b.onclick=()=>soloAnswer(b,o);
+    box.appendChild(b);
+  });
+  soloT0=Date.now();
+  const total=15000;
+  $("soloTbar").style.width="100%";$("soloTbar").classList.remove("danger");
+  clearInterval(soloTimer);
+  soloTimer=setInterval(()=>{
+    const left=total-(Date.now()-soloT0);
+    if(left<=0){clearInterval(soloTimer);soloAnswer(null,{ok:false,timeout:true});return;}
+    $("soloTbar").style.width=(left/total*100)+"%";
+    $("soloTbar").classList.toggle("danger",left<=4000);
+  },100);
+}
+function soloAnswer(btn,o){
+  clearInterval(soloTimer);
+  const q=soloPool[soloIdx];
+  document.querySelectorAll("#soloAns .ans").forEach(b=>{b.style.pointerEvents="none";
+    if(b.dataset.ok){b.classList.add("correct");}else b.classList.add("dim");});
+  const secUsed=(Date.now()-soloT0)/1000;
+  logAnswer(q.subj,!!o.ok,secUsed,q.kp);
+  if(o.ok){
+    const sec=secUsed;
+    const bonus=Math.max(0,Math.round((6-sec)*1)); // 6秒内答完有速度加成
+    soloScore++;soloXP+=12+bonus;soloStreak++;
+    mutateProfile(p=>{if(soloStreak>(p.bestStreak||0))p.bestStreak=soloStreak;});
+    sndOK();$("soloFlash").className="flash win";
+    $("soloScore").textContent=soloScore;
+    $("soloStreak").textContent=soloStreak>=2?("🔥连对"+soloStreak):"";
+    $("soloBanner").textContent=`+${12+bonus} XP${bonus>0?"（含速度加成+"+bonus+"）":""}`;
+  }else{
+    soloStreak=0;
+    soloWrongs.push({subj:q.subj,text:q.text,correct:q.options[q.correct],options:q.options,kp:q.kp||null,at:Date.now()});
+    sndNO();$("soloFlash").className="flash lose";
+    $("soloBanner").className="banner wait";
+    $("soloBanner").textContent=o.timeout?("⏰ 超时！正确答案："+q.options[q.correct]):("❌ 正确答案："+q.options[q.correct]);
+  }
+  soloIdx++;
+  setTimeout(nextSolo,1400);
+}
+function saveProfile(p){localStorage.setItem("klt_profile_"+activeChild(),JSON.stringify(p));}
+
+/* ================= 错题专项练习（支持按单个知识点练） ================= */
+let practiceMode=false,practiceKp=null;
+async function startPractice(kp,subjArg){
+  kp=kp||null;
+  const p=Object.assign(defaultProfile(),loadProfile());
+  const grade=document.querySelector("#sgChips .on").dataset.g;
+  const okOpt=w=>Array.isArray(w.options)&&w.options.length===4;
+
+  // 1) 先取错题本里该知识点的题；同一道题反复错的排前面
+  let fromWrong=(p.wrongs||[]).filter(okOpt);
+  if(kp)fromWrong=fromWrong.filter(w=>w.kp===kp&&(!subjArg||w.subj===subjArg));
+  fromWrong.sort((a,b)=>(b.times||1)-(a.times||1)||(b.at||0)-(a.at||0));
+  const pool=fromWrong.slice(0,8).map(w=>({subj:w.subj,text:w.text,options:w.options,
+    correct:w.options.indexOf(w.correct),kp:w.kp||kp}));
+
+  // 2) 不够 10 题就从题库补同知识点的题（不是随便补，保持专项）
+  const need=10-pool.length;
+  if(need>0){
+    let subj=subjArg||'mix';
+    if(kp&&!subjArg){
+      const hit=Object.values(p.kpStat||{}).find(x=>x.kp===kp);
+      subj=(hit&&hit.subj)||(fromWrong[0]&&fromWrong[0].subj)||'mix';
+    }
+    const url=`${API_BASE}/api/questions?grade=${grade}&subject=${encodeURIComponent(subj)}&n=${need+8}`+
+      (kp?`&kp=${encodeURIComponent(kp)}`:'');
+    try{
+      const r=await fetch(url);
+      let extra=await r.json();
+      const seen=new Set(pool.map(x=>x.text));
+      if(kp)extra=extra.filter(q=>q.kp===kp);
+      extra.filter(q=>!seen.has(q.text)).slice(0,need).forEach(q=>pool.push(q));
+    }catch(e){}
+  }
+  if(!pool.length){toast(kp?`【${kp}】暂时没有可练的题`:"错题本里还没有可复练的题，先去闯关吧～");return;}
+
+  soloPool=pool;soloIdx=0;soloScore=0;soloXP=0;soloStreak=0;soloWrongs=[];
+  practiceMode=true;practiceKp=kp;
+  const pf=Object.assign(defaultProfile(),loadProfile());
+  $("soloTitle").textContent=kp?("📒 "+kp):TITLES[subjLevel(pf.xp.mix||0)];
+  $("soloScore").textContent=0;$("soloStreak").textContent="";
+  toast(kp?`🎯 专项练习：只练【${kp}】`:"📒 专项练习：优先复习你答错过的题");
+  show("solo");nextSolo();
+}
+/* ---------- 每日任务 ---------- */
+const QUESTS=[
+  {id:"solo2",icon:"🚀",name:"完成 2 轮单人闯关",goal:2,xp:30,key:"soloRounds"},
+  {id:"q10",icon:"✅",name:"答对 10 道题",goal:10,xp:30,key:"correct"},
+  {id:"win1",icon:"🏆",name:"赢 1 场亲子对战",goal:1,xp:40,key:"wins"}
+];
+function todayKey(){const d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
+function daily(p){
+  if(!p.daily||p.daily.date!==todayKey())
+    p.daily={date:todayKey(),soloRounds:0,correct:0,wins:0,claims:[]};
+  return p.daily;
+}
+function bumpDaily(key,n){
+  // 与其它档案修改走同一入口：多次 bump 会被合并进同一次写入，不会互相覆盖
+  mutateProfile(p=>{
+    const d=daily(p);
+    d[key]=(d[key]||0)+n;
+  });
+  renderHomeQuests();
+}
+function toggleSnd(){
+  const on=sndOn();
+  localStorage.setItem("klt_sound",on?"0":"1");
+  $("sndBtn").textContent=on?"🔇":"🔊";
+  if(!on){beep(880,.1);}
+  toast(on?"🔇 音效已关闭":"🔊 音效已开启");
+}
+(function(){const b=document.getElementById("sndBtn");if(b)b.textContent=sndOn()?"🔊":"🔇";})();
+
+/* ---------- 战绩分享卡片 ---------- */
+
+/* ================= 学习周报 ================= */
+function weeklyReport(){
+  const p=Object.assign(defaultProfile(),loadProfile());
+  const hist=p.hist||{},subj=p.subj||{};
+  const days=last7Days();
+  const W=600,H=900,cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  const x=cv.getContext('2d');
+  const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,'#0f3460');g.addColorStop(1,'#7c3aed');
+  x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.globalAlpha=.1;x.fillStyle='#fff';
+  [[90,120,110],[520,760,140],[100,720,90]].forEach(([cx,cy,r])=>{x.beginPath();x.arc(cx,cy,r,0,7);x.fill();});
+  x.globalAlpha=1;x.textAlign='center';
+  x.fillStyle='#facc15';x.font='900 40px sans-serif';
+  x.fillText('📚 学习周报',W/2,90);
+  let totQ=0,totC=0,totSec=0,activeD=0;
+  const dayVals=days.map(d=>{const h=hist[d.key]||{q:0,c:0,sec:0};if(h.q){activeD++;totQ+=h.q;totC+=h.c;totSec+=h.sec||0;}return h;});
+  x.fillStyle='#fff';x.font='700 24px sans-serif';
+  x.fillText(activeChild()+' · '+days[0].label+' ~ '+days[6].label,W/2,135);
+  x.fillStyle='rgba(255,255,255,.13)';
+  x.beginPath();x.roundRect(50,170,500,110,20);x.fill();
+  const acc=totQ?Math.round(totC/totQ*100):0;
+  [[String(totQ),'本周答题','#4ade80'],[acc+'%','正确率','#facc15'],[Math.round(totSec/60)+'分','学习时长','#38bdf8']].forEach(([v,l,c],i)=>{
+    const cx=150+i*150;
+    x.fillStyle=c;x.font='900 36px sans-serif';x.fillText(v,cx,225);
+    x.fillStyle='rgba(255,255,255,.85)';x.font='500 15px sans-serif';x.fillText(l,cx,258);
+  });
+  x.fillStyle='#fff';x.font='800 20px sans-serif';x.fillText('📅 每日答题量',W/2,340);
+  const maxQ=Math.max(...dayVals.map(d=>d.q),1);
+  const bw=44,gap=18,bx0=(W-(7*bw+6*gap))/2;
+  dayVals.forEach((d,i)=>{
+    const h=d.q?Math.max(6,d.q/maxQ*140):4;
+    const bx=bx0+i*(bw+gap),by=560-h;
+    x.fillStyle=d.q?('hsl('+Math.min(140,60+d.q/maxQ*80)+',70%,55%)'):'rgba(255,255,255,.25)';
+    x.beginPath();x.roundRect(bx,by,bw,h,8);x.fill();
+    x.fillStyle='#fff';x.font='700 16px sans-serif';
+    if(d.q)x.fillText(String(d.q),bx+bw/2,by-8);
+    x.fillStyle='rgba(255,255,255,.7)';x.font='500 12px sans-serif';
+    x.fillText(days[i].label,bx+bw/2,588);
+  });
+  x.fillStyle='#fff';x.font='800 20px sans-serif';x.fillText('📖 各科掌握',W/2,640);
+  const sk=Object.keys(subj).filter(k=>subj[k].q>0);
+  if(!sk.length){x.fillStyle='rgba(255,255,255,.7)';x.font='500 15px sans-serif';x.fillText('本周暂无分科数据',W/2,672);}
+  else sk.slice(0,4).forEach((k,i)=>{
+    const r=Math.round(subj[k].c/subj[k].q*100),y=676+i*34;
+    x.textAlign='left';
+    x.fillStyle='rgba(255,255,255,.85)';x.font='600 14px sans-serif';x.fillText(k,80,y+14);
+    x.fillStyle='rgba(255,255,255,.18)';x.beginPath();x.roundRect(150,y,340,16,8);x.fill();
+    x.fillStyle=r>=85?'#4ade80':r>=60?'#facc15':'#f87171';
+    x.beginPath();x.roundRect(150,y,Math.max(16,340*r/100),16,8);x.fill();
+    x.fillStyle='#fff';x.font='700 13px sans-serif';x.fillText(r+'%',510,y+14);
+    x.textAlign='center';
+  });
+  let summ;
+  if(!totQ)summ='本周还没开始答题，新的一周一起加油！';
+  else if(acc>=85)summ='表现非常出色！正确率很高，可以挑战更高难度啦～';
+  else if(acc>=70)summ='稳定发挥！再练练薄弱科目就更棒了。';
+  else summ='有进步空间，建议每周多闯 2 轮，重点复习错题本哦。';
+  x.fillStyle='rgba(250,204,21,.16)';
+  x.beginPath();x.roundRect(50,H-150,500,86,16);x.fill();
+  x.fillStyle='#facc15';x.font='800 17px sans-serif';x.fillText('💡 本周点评',W/2,H-122);
+  x.fillStyle='#fff';x.font='500 15px sans-serif';x.fillText(summ,W/2,H-92);
+  x.fillStyle='rgba(255,255,255,.35)';x.font='500 13px sans-serif';
+  x.fillText('知识擂台 · 亲子答题对战 · 家长周报',W/2,H-30);
+  shareModalShow(cv,'知识擂台学习周报.png');
+}
+function shareCard(m){
+  const W=600,H=800,cv=document.createElement("canvas");cv.width=W;cv.height=H;
+  const x=cv.getContext("2d");
+  // 背景渐变
+  const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,"#1e3a8a");g.addColorStop(1,"#7c3aed");
+  x.fillStyle=g;x.fillRect(0,0,W,H);
+  // 装饰圆
+  x.globalAlpha=.12;x.fillStyle="#fff";
+  [[90,110,110],[520,700,150],[480,120,70],[100,690,90]].forEach(([cx,cy,r])=>{x.beginPath();x.arc(cx,cy,r,0,7);x.fill();});
+  x.globalAlpha=1;
+  // 标题
+  x.fillStyle="#facc15";x.font="900 44px sans-serif";x.textAlign="center";
+  x.fillText("⚡ 知识擂台",W/2,110);
+  x.fillStyle="rgba(255,255,255,.85)";x.font="600 20px sans-serif";
+  const sub=m.result==="solo"?`🎯 本轮答对 ${m.scores.child}/${m.scores.parent} 题`
+    :(m.result===role?"🏆 我 赢 了！":(m.result==="draw"?"🤝 平 局":"💪 再接再厉"));
+  x.fillText(sub,W/2,155);
+  // 比分大卡
+  x.fillStyle="rgba(255,255,255,.14)";
+  x.beginPath();x.roundRect(70,200,460,220,24);x.fill();
+  x.fillStyle="#93c5fd";x.font="900 76px sans-serif";x.fillText(String(m.scores.child),200,320);
+  x.fillStyle="#fff";x.font="900 40px sans-serif";x.fillText(":",W/2,312);
+  x.fillStyle="#fdba74";x.font="900 76px sans-serif";x.fillText(String(m.scores.parent),400,320);
+  if(m.result==="solo"){
+    x.fillStyle="#93c5fd";x.font="600 18px sans-serif";x.fillText("答对",200,365);
+    x.fillStyle="#fdba74";x.fillText("总题数",400,365);
+  }else{
+    x.fillStyle="#93c5fd";x.font="600 18px sans-serif";x.fillText("🧒 孩子",200,365);
+    x.fillStyle="#fdba74";x.fillText("👨 家长",400,365);
+  }
+  // 档案数据
+  const p=Object.assign(defaultProfile(),loadProfile());
+  const lv=subjLevel(p.xp.mix||0);
+  x.fillStyle="#fff";x.font="900 26px sans-serif";
+  x.fillText(`当前段位：${TITLES[lv]}`,W/2,480);
+  x.font="600 18px sans-serif";x.fillStyle="rgba(255,255,255,.85)";
+  x.fillText(`累计答对 ${p.totalCorrect} 题 · 正确率 ${p.totalQ?Math.round(p.totalCorrect/p.totalQ*100):0}%`,W/2,515);
+  x.fillText(`闯关 ${p.games} 轮 · 最高连对 ${p.bestStreak||0} 题`,W/2,545);
+  // 徽章
+  const bs=(p.badges||[]).map(id=>{const b=BADGES.find(z=>z.id===id);return b?b.icon:""}).join(" ");
+  if(bs){x.font="30px sans-serif";x.fillText(bs,W/2,600);}
+  // 底部
+  x.fillStyle="rgba(255,255,255,.6)";x.font="500 15px sans-serif";
+  x.fillText("长按保存图片 · 分享给家人朋友",W/2,720);
+  x.fillStyle="rgba(255,255,255,.35)";x.font="500 13px sans-serif";
+  x.fillText("知识擂台 · 亲子答题对战",W/2,755);
+
+  // 展示 modal
+  let mo=document.getElementById("shareModal");
+  if(!mo){
+    mo=document.createElement("div");mo.id="shareModal";
+    mo.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px";
+    mo.innerHTML=`<img id="shareImg" style="max-width:92vw;max-height:74vh;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.5)">
+      <div style="display:flex;gap:12px;margin-top:16px">
+        <a id="shareDl" download="知识擂台战绩.png" style="padding:12px 28px;border-radius:99px;background:linear-gradient(90deg,#f97316,#fbbf24);color:#fff;font-weight:900;text-decoration:none">💾 保存图片</a>
+        <button onclick="document.getElementById('shareModal').remove()" style="padding:12px 28px;border:none;border-radius:99px;background:rgba(255,255,255,.2);color:#fff;font-weight:900;cursor:pointer">关闭</button>
+      </div>`;
+    document.body.appendChild(mo);
+  }
+  const url=cv.toDataURL("image/png");
+  document.getElementById("shareImg").src=url;
+  document.getElementById("shareDl").href=url;
+}
+
+function claimQuest(id){
+  const q=QUESTS.find(x=>x.id===id);
+  if(!q)return;
+  // 校验与发奖放进同一次写入：早先「先校验再改再存」两段式，
+  // 中间若被别的写入穿插，可能重复领取
+  const ok=mutateProfile(p=>{
+    const d=daily(p);
+    if((d.claims||[]).includes(id)||(d[q.key]||0)<q.goal)return false;
+    d.claims.push(id);
+    p.xp.mix=(p.xp.mix||0)+q.xp;
+    return true;
+  });
+  if(!ok)return;
+  toast("✅ 领取成功！+"+q.xp+" XP");
+  confetti();sndOK();
+  renderHomeQuests();
+}
+function renderHomeQuests(){
+  const el=document.getElementById("homeQuests");
+  if(!el)return;
+  const p=Object.assign(defaultProfile(),loadProfile());
+  const d=daily(p);
+  let html=`<h3>📅 每日任务 ${d.date}</h3>`;
+  QUESTS.forEach(q=>{
+    const val=Math.min(d[q.key]||0,q.goal);
+    const claimed=d.claims.includes(q.id);
+    const full=val>=q.goal;
+    html+=`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.12);color:#fff">
+      <span style="font-size:20px">${q.icon}</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700">${q.name} <span style="opacity:.7">+${q.xp}XP</span></div>
+        <div style="height:8px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden;margin-top:3px">
+          <div style="height:100%;width:${val/q.goal*100}%;background:${full?'linear-gradient(90deg,#22c55e,#4ade80)':'linear-gradient(90deg,#facc15,#f97316)'};border-radius:99px"></div>
+        </div>
+      </div>
+      ${claimed?'<span style="font-size:12px;color:#4ade80;font-weight:800">已领 ✔</span>'
+        :full?`<button onclick="claimQuest('${q.id}')" style="border:none;border-radius:99px;padding:5px 14px;font-weight:900;font-size:12px;background:#facc15;color:#7c2d12;cursor:pointer">领取</button>`
+        :`<span style="font-size:12px;opacity:.8">${val}/${q.goal}</span>`}
+    </div>`;
+  });
+  if(QUESTS.every(q=>d.claims.includes(q.id)))
+    html+=`<div style="text-align:center;margin-top:8px;font-weight:900;color:#facc15">🌟 今日任务全部完成，太棒了！明天再来挑战！</div>`;
+  el.innerHTML=html;
+}
+/* ---------- 档案写入：统一入口 ---------- */
+/**
+ * 档案的唯一写入口：读 → 改 → 写 一次完成。
+ *
+ * 为什么必须统一：以前 logAnswer / bumpDaily / awardGameXP 各自 load→save，
+ * 而结算流程手里还攥着一份更早的快照，最后再 saveProfile 一次 ——
+ * 于是后写的小计被旧快照整份覆盖回去。
+ * 典型症状：单人闯关结束后「每日任务」的完成轮数/答对数永远是 0
+ * （同屏对战早就踩过这个坑并单独绕开了，单人这条路径漏了）。
+ * 改成单一入口后，同一档案的多次修改天然合并成一次写入，不会互相覆盖。
+ */
+function mutateProfile(fn){
+  const p=Object.assign(defaultProfile(),loadProfile());
+  const out=fn(p);
+  saveProfile(p);
+  return out===undefined?p:out;
+}
+/* 记录答题明细（供家长看板） */
+function logAnswer(subj,ok,sec,kp){
+  mutateProfile(p=>{
+    const s0=subj||"综合";
+    p.subj=p.subj||{};p.hist=p.hist||{};p.kpStat=p.kpStat||{};
+    p.subj[s0]=p.subj[s0]||{q:0,c:0};
+    p.subj[s0].q++;if(ok)p.subj[s0].c++;
+    // 知识点级学情：家长看板按 kp 判断「已掌握 / 巩固中 / 待突破」
+    if(kp){
+      const key=s0+"|"+kp;
+      p.kpStat[key]=p.kpStat[key]||{subj:s0,kp:kp,q:0,c:0,at:0};
+      p.kpStat[key].q++;if(ok)p.kpStat[key].c++;
+      p.kpStat[key].at=Date.now();
+    }
+    const dk=todayKey();
+    p.hist[dk]=p.hist[dk]||{q:0,c:0,sec:0};
+    p.hist[dk].q++;if(ok)p.hist[dk].c++;
+    p.hist[dk].sec+=Math.round(sec||0);
+    p.totalSec=(p.totalSec||0)+Math.round(sec||0);
+  });
+}
+function awardGameXP(base){
+  return mutateProfile(p=>{
+    const oldLv=subjLevel(p.xp.mix||0);
+    p.xp.mix=(p.xp.mix||0)+base;
+    const newLv=subjLevel(p.xp.mix||0);
+    return {oldLv,newLv,total:p.xp.mix};
+  });
+}
+function soloEnd(){
+  clearInterval(soloTimer);
+  const oldLv=subjLevel((loadProfile().xp||{}).mix||0);
+  // 注意：单人逐题已由 logAnswer 计入 hist/subj；总计数在此统一累加
+  // 整段结算放进同一个写入入口：总账、每日任务、错题、徽章一次落盘，
+  // 不会因为中途调用 bumpDaily/awardGameXP 而互相覆盖
+  const res=mutateProfile(p=>{
+    p.games++;p.totalQ+=soloPool.length;p.totalCorrect+=soloScore;
+    if(soloScore>=soloPool.length)p.perfect++;
+    p.xp.mix=(p.xp.mix||0)+soloXP;
+    const d=daily(p);
+    if(!practiceMode)d.soloRounds=(d.soloRounds||0)+1;
+    d.correct=(d.correct||0)+soloScore;
+    // 错题入档案：同一道题再错不重复堆叠，而是累计错误次数（家长看「反复错」靠这个）
+    p.wrongs=p.wrongs||[];
+    soloWrongs.forEach(w=>{
+      const i=p.wrongs.findIndex(x=>x.text===w.text);
+      if(i>=0){
+        const item=p.wrongs.splice(i,1)[0];
+        item.times=(item.times||1)+1;
+        item.at=w.at||Date.now();
+        item.kp=w.kp||item.kp;
+        item.correct=w.correct;
+        item.options=w.options||item.options;
+        p.wrongs.unshift(item);
+      }else{
+        p.wrongs.unshift(Object.assign({times:1},w));
+      }
+    });
+    p.wrongs=p.wrongs.slice(0,80);
+    // 徽章检测
+    const newBadges=[];
+    BADGES.forEach(b=>{if(!p.badges.includes(b.id)&&b.check(p)){p.badges.push(b.id);newBadges.push(b);}});
+    return {p,newBadges};
+  });
+  const p=res.p, newBadges=res.newBadges;
+  practiceMode=false;
+  renderHomeQuests();
+  const newLv=subjLevel(p.xp.mix||0);
+  // 结算 UI
+  $("soloRC").textContent=soloScore+"/"+soloPool.length;
+  $("soloRX").textContent="+"+soloXP;
+  const stars=soloScore>=9?"★★★":soloScore>=7?"★★☆":soloScore>=5?"★☆☆":"☆☆☆";
+  $("soloRS").textContent=stars;
+  $("soloTrophy").textContent=soloScore>=9?"🏆":soloScore>=7?"🎉":soloScore>=5?"💪":"📚";
+  $("soloRTitle").textContent=newLv>oldLv?"🎉 段位晋升！":(soloScore>=9?"满分通关！":soloScore>=5?"闯关完成！":"继续加油！");
+  $("soloRSub").textContent=newLv>oldLv?`恭喜晋升为【${TITLES[newLv]}】，离学神更近一步！`:
+    (soloScore>=5?"明天再来，冲击更高评价！":"错题记入档案，多练几轮就熟了！");
+  // 升级条动画
+  $("soloLvlName").textContent=`当前段位：${TITLES[newLv]}（总XP ${p.xp.mix}）`;
+  $("soloLvlBar").style.width="0%";
+  setTimeout(()=>{
+    const cur=XP_LADDER[newLv],next=XP_LADDER[Math.min(newLv+1,XP_LADDER.length-1)];
+    const pct=Math.min(100,Math.round((p.xp.mix-cur)/(next-cur)*100));
+    $("soloLvlBar").style.width=(newLv>=TITLES.length-1?100:pct)+"%";
+    $("soloLvlTxt").textContent=newLv>=TITLES.length-1?"已达最高段位【学神】，无人能挡！":`距离【${TITLES[newLv+1]}】还需 ${next-p.xp.mix} XP`;
+  },100);
+  $("soloBadges").innerHTML=newBadges.map(b=>`<span title="${b.name}">${b.icon}</span>`).join(" ")||
+    (p.badges.length?("已获徽章 "+p.badges.length+" 枚"):"");
+  if(newBadges.length){confetti();beep(660,.12);setTimeout(()=>beep(990,.2),120);}
+  else if(soloScore>=7)confetti();
+  // 本轮错题
+  if(soloWrongs.length){
+    $("soloWrongCard").style.display="block";
+    $("soloWrongList").innerHTML=soloWrongs.map(w=>
+      `<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.15);color:#fff">
+        <div>【${w.subj}】${w.text}</div>
+        <div style="color:#4ade80;font-size:12px">✅ ${w.correct}</div></div>`).join("");
+  }else $("soloWrongCard").style.display="none";
+  show("soloEnd");
+}
+function shareSolo(){
+  // 构造伪对战结构用于分享卡（显示本轮得分）
+  shareCard({result:"solo",scores:{child:soloScore,parent:soloPool?soloPool.length:10}});
+}
+/* ================= 家长数据看板 ================= */
+function last7Days(){
+  const arr=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    arr.push({key:d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(),
+              label:(d.getMonth()+1)+"/"+d.getDate()});
+  }
+  return arr;
+}
+function openDashboard(){
+  const p=Object.assign(defaultProfile(),loadProfile());
+  const subj=p.subj||{},hist=p.hist||{};
+  const totalQ=p.totalQ||0,acc=totalQ?Math.round(p.totalCorrect/totalQ*100):0;
+  const mins=Math.round((p.totalSec||0)/60);
+  $("dbSummary").textContent=totalQ?`共答题 ${totalQ} 道 · 正确率 ${acc}% · 累计学习 ${mins} 分钟`:"还没有答题记录，快让孩子去闯几关吧～";
+
+  let html="";
+
+  // ---- 1. 核心指标卡 ----
+  const today=hist[todayKey()]||{q:0,c:0,sec:0};
+  html+=`<div class="card" style="width:100%;margin-bottom:12px">
+    <div style="display:flex;text-align:center">
+      <div style="flex:1"><div style="font-size:26px;font-weight:900;color:#4ade80">${today.q}</div><div style="font-size:12px;color:rgba(255,255,255,.8)">今日答题</div></div>
+      <div style="flex:1"><div style="font-size:26px;font-weight:900;color:#facc15">${today.q?Math.round(today.c/today.q*100):0}%</div><div style="font-size:12px;color:rgba(255,255,255,.8)">今日正确率</div></div>
+      <div style="flex:1"><div style="font-size:26px;font-weight:900;color:#38bdf8">${Math.round((today.sec||0)/60)}</div><div style="font-size:12px;color:rgba(255,255,255,.8)">今日分钟</div></div>
+    </div>
+  </div>`;
+
+  // ---- 2. 7 日趋势折线（纯 SVG 手绘）----
+  const days=last7Days();
+  const vals=days.map(d=>{const h=hist[d.key];return h&&h.q?Math.round(h.c/h.q*100):null;});
+  const hasData=vals.some(v=>v!==null);
+  html+=`<div class="card" style="width:100%;margin-bottom:12px">
+    <h3>📈 近 7 天正确率趋势</h3>`;
+  if(!hasData){
+    html+=`<div style="color:rgba(255,255,255,.7);font-size:13px;text-align:center;padding:18px 0">近 7 天暂无数据</div>`;
+  }else{
+    const W=300,H=110,pad=8;
+    const pts=vals.map((v,i)=>v===null?null:[pad+i*(W-2*pad)/6, H-pad-(v/100)*(H-2*pad)]);
+    let path="",dots="";
+    pts.forEach((pt,i)=>{
+      if(!pt){return;}
+      const prev=pts.slice(0,i).reverse().find(x=>x);
+      path+=(prev?"L":"M")+pt[0].toFixed(1)+","+pt[1].toFixed(1)+" ";
+      dots+=`<circle cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="3.5" fill="#facc15"/>`;
+    });
+    html+=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:110px">
+      <line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
+      <line x1="${pad}" y1="${pad}" x2="${W-pad}" y2="${pad}" stroke="rgba(255,255,255,.1)" stroke-width="1" stroke-dasharray="3,3"/>
+      <path d="${path}" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${dots}
+    </svg>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.65);padding:0 8px">
+      ${days.map(d=>`<span>${d.label}</span>`).join("")}
+    </div>`;
+  }
+  html+=`</div>`;
+
+  // ---- 3. 各科正确率 ----
+  const subjKeys=Object.keys(subj).filter(k=>subj[k].q>0);
+  html+=`<div class="card" style="width:100%;margin-bottom:12px"><h3>📚 各科表现</h3>`;
+  if(!subjKeys.length){
+    html+=`<div style="color:rgba(255,255,255,.7);font-size:13px;text-align:center;padding:14px 0">暂无分科数据</div>`;
+  }else{
+    subjKeys.sort((a,b)=>(subj[a].c/subj[a].q)-(subj[b].c/subj[b].q));
+    subjKeys.forEach(k=>{
+      const r=Math.round(subj[k].c/subj[k].q*100);
+      const color=r>=85?"#4ade80":r>=60?"#facc15":"#f87171";
+      const tag=r>=85?"优秀":r>=60?"良好":"需加强";
+      html+=`<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;color:#fff;font-size:13px;margin-bottom:3px">
+          <b>${k}</b><span>${r}% · ${subj[k].c}/${subj[k].q} <span style="color:${color}">${tag}</span></span>
+        </div>
+        <div style="height:10px;background:rgba(255,255,255,.18);border-radius:99px;overflow:hidden">
+          <div style="height:100%;width:${r}%;background:${color};border-radius:99px"></div>
+        </div>
+      </div>`;
+    });
+  }
+  html+=`</div>`;
+
+  // ---- 4. 薄弱点 + 建议 ----
+  const weak=subjKeys.filter(k=>subj[k].q>=3&&subj[k].c/subj[k].q<0.7)
+    .sort((a,b)=>(subj[a].c/subj[a].q)-(subj[b].c/subj[b].q)).slice(0,2);
+  const wrongBySubj={};
+  (p.wrongs||[]).forEach(w=>{wrongBySubj[w.subj]=(wrongBySubj[w.subj]||0)+1;});
+  html+=`<div class="card" style="width:100%;margin-bottom:12px"><h3>🎯 薄弱点与建议</h3>`;  if(!weak.length&&!Object.keys(wrongBySubj).length){
+    html+=`<div style="color:#4ade80;font-size:14px;padding:8px 0">✨ 目前没有明显薄弱科目，继续保持！</div>`;
+  }else{
+    weak.forEach(k=>{
+      const r=Math.round(subj[k].c/subj[k].q*100);
+      html+=`<div style="background:rgba(248,113,113,.15);border-left:3px solid #f87171;border-radius:8px;padding:9px 12px;margin-bottom:8px;color:#fff;font-size:13px">
+        <b>${k}</b> 正确率仅 ${r}%（${subj[k].q} 题中错 ${subj[k].q-subj[k].c} 题）<br>
+        <span style="color:rgba(255,255,255,.8)">建议：陪孩子一起做 1 轮「${k}」专项闯关，答错的题在错题本里讲解一遍</span>
+      </div>`;
+    });
+    const wk=Object.keys(wrongBySubj).sort((a,b)=>wrongBySubj[b]-wrongBySubj[a]).slice(0,3);
+    if(wk.length){
+      html+=`<div style="color:rgba(255,255,255,.8);font-size:12px;margin-top:6px">
+        错题分布：${wk.map(k=>`${k} ${wrongBySubj[k]} 题`).join(" · ")}</div>`;
+    }
+  }
+  html+=`</div>`;
+
+  // ---- 4.5 知识点学情入口（比"哪科弱"更具体：哪个知识点反复错）----
+  const kpCount=Object.keys(p.kpStat||{}).length;
+  const wrongKp=new Set((p.wrongs||[]).filter(w=>w.kp).map(w=>w.subj+"|"+w.kp)).size;
+  html+=`<div class="card" style="width:100%;margin-bottom:12px;text-align:center">
+    <h3 style="margin-bottom:6px">🔬 知识点学情</h3>
+    <div style="font-size:13px;color:rgba(255,255,255,.85);margin-bottom:10px">
+      ${kpCount?`已记录 <b>${kpCount}</b> 个知识点${wrongKp?`，其中 <b>${wrongKp}</b> 个曾答错`:""}`:"暂无知识点记录"}
+      <br><span style="font-size:12px;color:rgba(255,255,255,.7)">按知识点看正确率，可只练某一组</span>
+    </div>
+    <button onclick="openStudy()" style="border:none;border-radius:99px;padding:9px 24px;font-weight:900;font-size:14px;
+      background:linear-gradient(90deg,#0ea5e9,#22d3ee);color:#043c52;cursor:pointer">📊 打开学情分析</button>
+  </div>`;
+
+  // ---- 5. 学习习惯 ----
+  const activeDays=Object.keys(hist).filter(k=>hist[k].q>0).length;
+  const avgMin=activeDays?Math.round((p.totalSec||0)/60/activeDays):0;
+  html+=`<div class="card" style="width:100%"><h3>⏱ 学习习惯</h3>
+    <div style="color:#fff;font-size:13px;line-height:1.9">
+      · 累计学习天数：<b>${activeDays}</b> 天<br>
+      · 平均每日学习：<b>${avgMin}</b> 分钟 ${avgMin<5?"（建议每次 5-10 分钟，短时高频效果更好）":avgMin>30?"（时间偏长，注意休息眼睛）":"（时长健康 👍）"}<br>
+      · 闯关轮数：<b>${p.games||0}</b> 轮 · 最高连对：<b>${p.bestStreak||0}</b> 题
+    </div>
+  </div>`;
+
+  $("dbBody").innerHTML=childSwitcherHTML()+html;
+  $("dbSummary").textContent=`${activeChild()} · `+$("dbSummary").textContent;
+  show("dashboard");
+}
+function openProfile(){
+  const p=Object.assign(defaultProfile(),loadProfile());
+  const lv=subjLevel(p.xp.mix||0);
+  $("dbSummary").textContent=``; // 占位防残留
+  $("profSummary").textContent=`${activeChild()} · 总答题 ${p.totalQ} 题 · 答对 ${p.totalCorrect} · 闯关 ${p.games} 轮 · 综合段位【${TITLES[lv]}】`;
+  // 各科进度条（mix 计入综合；展示科目分项：从错题与总记录里无法拆分则展示综合+提示）
+  const cur=XP_LADDER[lv],next=XP_LADDER[Math.min(lv+1,XP_LADDER.length-1)];
+  const pct=lv>=TITLES.length-1?100:Math.round((p.xp.mix-cur)/(next-cur)*100);
+  const acc=p.totalQ?Math.round(p.totalCorrect/p.totalQ*100):0;
+  $("profCards").innerHTML=`
+    <div style="color:#fff;text-align:center;padding:6px 0">
+      <div style="font-size:40px">${["📖","📜","🎓","🎖","🏅","🥈","👑","🚀"][lv]}</div>
+      <div style="font-weight:900;font-size:20px;margin:4px 0">${TITLES[lv]}</div>
+      <div style="height:14px;background:rgba(255,255,255,.2);border-radius:99px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#facc15,#f97316);border-radius:99px;transition:width 1s"></div>
+      </div>
+      <div style="font-size:12px;opacity:.8;margin-top:4px">${p.xp.mix||0} XP ${lv<TITLES.length-1?("· 距【"+TITLES[lv+1]+"】还差 "+(next-(p.xp.mix||0))+" XP"):"· 已满级"}</div>
+    </div>
+    <table style="margin-top:10px;font-size:14px;color:#1f2937;background:rgba(255,255,255,.9);border-radius:10px">
+      <tr><th>指标</th><th>数值</th></tr>
+      <tr><td>累计答题</td><td>${p.totalQ} 题</td></tr>
+      <tr><td>累计答对</td><td>${p.totalCorrect} 题</td></tr>
+      <tr><td>正确率</td><td>${acc}% ${acc>=80?"🌟":acc>=60?"👍":"📈"}</td></tr>
+      <tr><td>闯关轮数</td><td>${p.games} 轮</td></tr>
+      <tr><td>最高连对</td><td>${p.bestStreak||0} 题</td></tr>
+      <tr><td>满分轮数</td><td>${p.perfect||0} 轮</td></tr>
+      <tr><td>已获徽章</td><td>${p.badges.map(id=>{const b=BADGES.find(x=>x.id===id);return b?b.icon:""}).join(" ")||"暂无"}</td></tr>
+    </table>`;
+  // 错题本：按知识点分组，每组可单独开练
+  const groups=wrongGroups(p);
+  if(groups.length){
+    $("profWrong").style.display="block";
+    $("profWrongList").innerHTML=groups.map(g=>{
+      const repeat=g.items.some(w=>(w.times||1)>1);
+      const rows=g.items.map(w=>`<div style="padding:7px 0;border-top:1px dashed rgba(255,255,255,.12)">
+        <div>${w.text}${(w.times||1)>1?`<span style="color:#fbbf24;font-size:11px"> · 错过 ${w.times} 次</span>`:""}</div>
+        <div style="color:#4ade80">✅ ${w.correct}</div></div>`).join("");
+      return `<details style="margin-bottom:8px;background:rgba(0,0,0,.18);border-radius:10px;padding:8px 10px">
+        <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px">
+          <span style="flex:1;font-size:13px">📕 <b>${g.subj}·${g.kp}</b>
+            <span style="color:rgba(255,255,255,.7)">错 ${g.items.length} 题${g.times>g.items.length?" · 累计错 "+g.times+" 次":""}</span>
+            ${repeat?'<span style="color:#fbbf24;font-size:11px">反复错</span>':""}</span>
+          <button data-kp="${g.kp}" onclick="event.preventDefault();event.stopPropagation();startPractice(this.dataset.kp)"
+            style="border:none;border-radius:99px;padding:4px 12px;font-size:12px;font-weight:900;cursor:pointer;
+            background:linear-gradient(90deg,#ef4444,#f97316);color:#fff">练这组</button>
+        </summary>
+        <div style="font-size:13px;color:#fff">${rows}</div>
+      </details>`;
+    }).join("");
+  }else $("profWrong").style.display="none";
+  // 底部整册连练按钮
+  const pw=document.getElementById("profWrong");
+  if(pw&&pw.style.display!=="none"){
+    pw.querySelectorAll(".profBtnRow").forEach(x=>x.remove());
+    const btn=document.createElement("div");
+    btn.className="profBtnRow";
+    btn.style.cssText="text-align:center;margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap";
+    btn.innerHTML=`
+      <button onclick="startPractice()" style="border:none;border-radius:99px;padding:9px 22px;font-weight:900;font-size:14px;background:linear-gradient(90deg,#ef4444,#f97316);color:#fff;cursor:pointer">📝 错题全册连练</button>
+      <button onclick="openStudy()" style="border:none;border-radius:99px;padding:9px 22px;font-weight:900;font-size:14px;background:linear-gradient(90deg,#0ea5e9,#22d3ee);color:#043c52;cursor:pointer">📊 学情分析</button>`;
+    pw.appendChild(btn);
+  }
+  show("profile");
+}
+renderHomeQuests();
+function resetProfile(){
+  if(confirm("确定清空【"+activeChild()+"】的全部学习档案吗？此操作不可恢复。")){
+    localStorage.removeItem("klt_profile_"+activeChild());openProfile();
+  }
+}
+/* 档案切换器（插入档案页/看板顶部） */
+function childSwitcherHTML(){
+  const cur=activeChild(),list=childList();
+  return `<div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:10px;flex-wrap:wrap">
+    <span style="color:rgba(255,255,255,.8);font-size:13px">👶 当前：</span>
+    ${list.map(n=>`<button onclick="setActiveChild('${n}')" style="border:none;border-radius:99px;padding:5px 14px;font-size:13px;font-weight:${n===cur?900:500};cursor:pointer;
+      background:${n===cur?'linear-gradient(90deg,#facc15,#f97316)':'rgba(255,255,255,.18)'};color:${n===cur?'#7c2d12':'#fff'}">${n}${n===cur?' ✔':''}</button>`).join("")}
+    <button onclick="addChild()" style="border:none;border-radius:99px;padding:5px 14px;font-size:13px;background:rgba(255,255,255,.18);color:#fff;cursor:pointer">＋ 新增</button>
+  </div>`;
+}
+
+/* 撒花 */
+const cvs=$("fx"),ctx=cvs.getContext("2d");let parts=[];
+function rs(){cvs.width=innerWidth;cvs.height=innerHeight}rs();addEventListener("resize",rs);
+function burst(x,y){const cs=["#fbbf24","#f97316","#3b82f6","#22c55e","#f43f5e","#a78bfa"];
+  for(let i=0;i<46;i++){const a=Math.random()*6.28,v=3+Math.random()*6;
+    parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2,g:.13,life:60+Math.random()*30,c:cs[i%6],r:3+Math.random()*4});}}
+(function loop(){ctx.clearRect(0,0,cvs.width,cvs.height);parts=parts.filter(p=>p.life>0);
+  parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;p.life--;ctx.globalAlpha=Math.min(1,p.life/40);ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill();});
+  ctx.globalAlpha=1;requestAnimationFrame(loop)})();
+function confetti(){let n=0;const iv=setInterval(()=>{burst(innerWidth*Math.random(),innerHeight*.25+Math.random()*innerHeight*.3);if(++n>7)clearInterval(iv)},280);}
+</script>
+<!-- 扩展模块：对局复盘 / 档案同步 / 同屏对战 / 错题挑战 / 极速60秒 -->
+<script>window.KLT_API_BASE="/games/knowledge";window.KLT_WS_PATH="/games/knowledge/ws";</script>
+<script src="extra.js"></script>
+<!-- 学情分析：按知识点聚合掌握度、最该练的知识点、一键专项练 -->
+<script src="study.js"></script>
+</body>
+</html>
