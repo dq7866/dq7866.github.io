@@ -375,6 +375,8 @@ details[open] summary{margin-bottom:10px}
 
 <script>
 /* =============================== 基础 =============================== */
+/* API 基址：默认同源 /api，子路径部署时可由 window.KLT_API_BASE 覆盖 */
+const API_BASE = (typeof window !== 'undefined' && window.KLT_API_BASE) || '';
 const $ = s => document.querySelector(s);
 const el = (tag, cls, html) => { const n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; };
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -397,7 +399,7 @@ function toast(msg, type) {
 }
 
 async function api(path, opts = {}) {
-  const res = await fetch('/api' + path, {
+  const res = await fetch(API_BASE + '/api' + path, {
     ...opts,
     headers: { 'Content-Type': 'application/json', 'X-Admin-Token': TOKEN, ...(opts.headers || {}) },
   });
@@ -413,7 +415,7 @@ async function doLogin() {
   const pw = $('#pw').value.trim();
   if (!pw) { $('#loginMsg').textContent = '请输入密码'; return; }
   try {
-    const r = await fetch('/api/admin/login', {
+    const r = await fetch(API_BASE + '/api/admin/login', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: pw }),
     });
@@ -831,7 +833,7 @@ function download(href, tip) {
   if (tip) toast(tip);
 }
 
-$('#btnExport').onclick = () => download('/api/admin/export.xlsx?' + tk(),
+$('#btnExport').onclick = () => download(API_BASE + '/api/admin/export.xlsx?' + tk(),
   '正在导出 Excel' + (STATS ? '（' + STATS.total + ' 道）' : ''));
 
 $('#btnExportMore').onclick = e => { e.stopPropagation(); $('#exportMenu').classList.toggle('on'); };
@@ -842,9 +844,9 @@ $('#exportMenu').onclick = e => {
   $('#exportMenu').classList.remove('on');
   const act = a.dataset.act;
 
-  if (act === 'xlsx') return download('/api/admin/export.xlsx?' + tk(), '正在导出 Excel');
-  if (act === 'json') return download('/api/admin/export?' + tk(), '正在导出 JSON 备份');
-  if (act === 'tpl') return download('/api/admin/template.xlsx?' + tk(), '模板已下载');
+  if (act === 'xlsx') return download(API_BASE + '/api/admin/export.xlsx?' + tk(), '正在导出 Excel');
+  if (act === 'json') return download(API_BASE + '/api/admin/export?' + tk(), '正在导出 JSON 备份');
+  if (act === 'tpl') return download(API_BASE + '/api/admin/template.xlsx?' + tk(), '模板已下载');
   if (act === 'xlsx-scoped') {
     const p = new URLSearchParams({ token: TOKEN, scoped: '1' });
     if (state.grade) p.set('grade', state.grade);
@@ -852,7 +854,7 @@ $('#exportMenu').onclick = e => {
     if (state.level) p.set('level', state.level);
     if (state.kp && state.kp !== 'all') p.set('kp', state.kp);
     if (state.keyword) p.set('keyword', state.keyword);
-    return download('/api/admin/export.xlsx?' + p.toString(), '正在导出当前筛选结果');
+    return download(API_BASE + '/api/admin/export.xlsx?' + p.toString(), '正在导出当前筛选结果');
   }
 };
 
@@ -871,7 +873,7 @@ $('#btnImport').onclick = () => {
   $('#importMask').classList.add('on');
 };
 $('#importCancel').onclick = () => $('#importMask').classList.remove('on');
-$('#btnTpl2').onclick = () => download('/api/admin/template.xlsx?' + tk(), '模板已下载');
+$('#btnTpl2').onclick = () => download(API_BASE + '/api/admin/template.xlsx?' + tk(), '模板已下载');
 
 async function uploadXlsx(dry) {
   const res = await fetch(`/api/admin/import.xlsx?dry=${dry ? 1 : 0}&mode=${imode()}`, {

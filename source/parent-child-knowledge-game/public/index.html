@@ -311,6 +311,10 @@ canvas#fx{position:fixed;inset:0;pointer-events:none}
 <canvas id="fx"></canvas>
 
 <script>
+/* API 基址：默认走同源 /api。
+ * 作为子路径部署（如 https://站点/games/knowledge/）时，
+ * 在引入本脚本前设置 window.KLT_API_BASE 即可整体改写。 */
+const API_BASE = (typeof window!=='undefined' && window.KLT_API_BASE) || '';
 let role=null,ws=null,myAns=false,ansAck=false,roundT=null;
 let wrongs=[],lastQ=null,iWasWrong=false;
 const $=id=>document.getElementById(id);
@@ -329,7 +333,9 @@ const sel=()=>({grade:document.querySelector("#gChips .on").dataset.g,subject:do
 
 let reconnectInfo=null,retryCount=0;
 function connect(onopen){
-  const url=(location.protocol==="https:"?"wss://":"ws://")+location.host;
+  // WS 地址：默认同源根路径；子路径部署时走 API_BASE + /ws
+  const wsPath=(typeof window!=='undefined' && window.KLT_WS_PATH) || '';
+  const url=(location.protocol==="https:"?"wss://":"ws://")+location.host+wsPath;
   try{ws=new WebSocket(url);}catch(e){toast("❌ 无法连接服务器，请检查网络");return;}
   ws.onopen=()=>{retryCount=0;onopen&&onopen();};
   bindWs();
@@ -592,7 +598,7 @@ async function startSolo(){
   const lvl=acc===null?2:(acc>=85?3:(acc<60?1:2));
   $("soloStatus").textContent=lvl===3?"🔥 根据你的档案已升级到挑战难度":lvl===1?"🌱 根据你的档案已调低难度，稳住！":"取题中…";
   try{
-    const r=await fetch(`/api/questions?grade=${soloGrade}&subject=${soloSubject}&n=10&level=${lvl}`);
+    const r=await fetch(`${API_BASE}/api/questions?grade=${soloGrade}&subject=${soloSubject}&n=10&level=${lvl}`);
     soloPool=await r.json();
   }catch(e){$("soloStatus").textContent="取题失败，请确认服务器已启动";return;}
   $("soloStatus").textContent="";
@@ -680,7 +686,7 @@ async function startPractice(kp,subjArg){
       const hit=Object.values(p.kpStat||{}).find(x=>x.kp===kp);
       subj=(hit&&hit.subj)||(fromWrong[0]&&fromWrong[0].subj)||'mix';
     }
-    const url=`/api/questions?grade=${grade}&subject=${encodeURIComponent(subj)}&n=${need+8}`+
+    const url=`${API_BASE}/api/questions?grade=${grade}&subject=${encodeURIComponent(subj)}&n=${need+8}`+
       (kp?`&kp=${encodeURIComponent(kp)}`:'');
     try{
       const r=await fetch(url);

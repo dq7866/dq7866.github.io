@@ -77,7 +77,7 @@
     // 课程标准：用于显示"还没练过"的知识点（看广度有没有漏）
     let curr = null;
     try {
-      const r = await fetch('/api/curriculum');
+      const r = await fetch(API_BASE+'/api/curriculum');
       if (r.ok) curr = await r.json();
     } catch (e) { /* 离线也能看已练部分 */ }
 

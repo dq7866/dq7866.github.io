@@ -18,7 +18,7 @@
   /* 公共：拉题                                                       */
   /* ---------------------------------------------------------------- */
   async function fetchQuestions(grade, subject, n, level) {
-    const r = await fetch(`/api/questions?grade=${grade}&subject=${encodeURIComponent(subject)}&n=${n}&level=${level}`);
+    const r = await fetch(`${API_BASE}/api/questions?grade=${grade}&subject=${encodeURIComponent(subject)}&n=${n}&level=${level}`);
     if (!r.ok) throw new Error('取题失败');
     return r.json();
   }
@@ -237,7 +237,7 @@
     const updatedAt = localUpdatedAt() || Date.now();
     try {
       syncState = '同步中…'; renderSyncCard();
-      const r = await fetch('/api/profile/' + encodeURIComponent(code), {
+      const r = await fetch(API_BASE+'/api/profile/' + encodeURIComponent(code), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ profile, updatedAt }),
@@ -269,7 +269,7 @@
     const code = getCode();
     if (!code) return;
     try {
-      const r = await fetch('/api/profile/' + encodeURIComponent(code));
+      const r = await fetch(API_BASE+'/api/profile/' + encodeURIComponent(code));
       if (r.status === 404) { syncState = '同步码已就绪，等待首次上传'; renderSyncCard(); return; }
       const data = await r.json();
       const remoteTs = Number(data.updatedAt || 0);
