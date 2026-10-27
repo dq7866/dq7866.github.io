@@ -1,0 +1,1160 @@
+{
+ "subject": "英语",
+ "note": "英语知识点补充：词汇用成对事实（正问/反问），语法用 items4 显式指定干扰项",
+ "sets": [
+  {
+   "grade": [
+    1,
+    2,
+    3
+   ],
+   "kp": "字母与音标",
+   "lv": 1,
+   "items4": [
+    [
+     "英语字母表一共有多少个字母？",
+     "26个",
+     "24个",
+     "28个",
+     "20个"
+    ],
+    [
+     "字母“Bb”后面的字母是？",
+     "Cc",
+     "Aa",
+     "Dd",
+     "Ee"
+    ],
+    [
+     "字母“Gg”前面的字母是？",
+     "Ff",
+     "Hh",
+     "Ee",
+     "Ii"
+    ],
+    [
+     "字母“Zz”是字母表中的第几个？",
+     "第26个",
+     "第25个",
+     "第24个",
+     "第20个"
+    ],
+    [
+     "英语中的5个元音字母是？",
+     "A、E、I、O、U",
+     "A、B、C、D、E",
+     "A、E、I、O、Y",
+     "A、I、U、R、S"
+    ],
+    [
+     "字母“Mm”的小写形式是？",
+     "m",
+     "n",
+     "w",
+     "h"
+    ],
+    [
+     "字母“Qq”的小写形式是？",
+     "q",
+     "p",
+     "g",
+     "d"
+    ],
+    [
+     "单词“book”的第一个字母是？",
+     "b",
+     "d",
+     "p",
+     "k"
+    ],
+    [
+     "单词“apple”的第一个字母的大写是？",
+     "A",
+     "E",
+     "P",
+     "B"
+    ],
+    [
+     "字母“Yy”的读音开头与哪个单词相同？",
+     "yes",
+     "no",
+     "go",
+     "up"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    2,
+    3
+   ],
+   "kp": "词汇·家庭",
+   "lv": 1,
+   "fwd": "英语单词“{x}”的意思是？",
+   "rev": "“{y}”用英语怎么说？",
+   "items": [
+    [
+     "mother",
+     "妈妈"
+    ],
+    [
+     "father",
+     "爸爸"
+    ],
+    [
+     "sister",
+     "姐妹"
+    ],
+    [
+     "brother",
+     "兄弟"
+    ],
+    [
+     "grandmother",
+     "奶奶或外婆"
+    ],
+    [
+     "grandfather",
+     "爷爷或外公"
+    ],
+    [
+     "family",
+     "家庭"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    3
+   ],
+   "kp": "词汇·动物",
+   "lv": 1,
+   "fwd": "英语单词“{x}”的意思是？",
+   "rev": "“{y}”用英语怎么说？",
+   "items": [
+    [
+     "panda",
+     "熊猫"
+    ],
+    [
+     "tiger",
+     "老虎"
+    ],
+    [
+     "monkey",
+     "猴子"
+    ],
+    [
+     "rabbit",
+     "兔子"
+    ],
+    [
+     "elephant",
+     "大象"
+    ],
+    [
+     "lion",
+     "狮子"
+    ],
+    [
+     "bird",
+     "鸟"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    3,
+    4,
+    5
+   ],
+   "kp": "词汇·天气",
+   "lv": 1,
+   "fwd": "英语单词“{x}”的意思是？",
+   "rev": "“{y}”用英语怎么说？",
+   "items": [
+    [
+     "sunny",
+     "晴朗的"
+    ],
+    [
+     "rainy",
+     "下雨的"
+    ],
+    [
+     "windy",
+     "有风的"
+    ],
+    [
+     "cloudy",
+     "多云的"
+    ],
+    [
+     "snowy",
+     "下雪的"
+    ],
+    [
+     "cold",
+     "寒冷的"
+    ],
+    [
+     "hot",
+     "炎热的"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    3,
+    4,
+    5
+   ],
+   "kp": "词汇·时间",
+   "lv": 1,
+   "fwd": "英语单词“{x}”的意思是？",
+   "rev": "“{y}”用英语怎么说？",
+   "items": [
+    [
+     "Monday",
+     "星期一"
+    ],
+    [
+     "Sunday",
+     "星期日"
+    ],
+    [
+     "morning",
+     "早上"
+    ],
+    [
+     "afternoon",
+     "下午"
+    ],
+    [
+     "evening",
+     "晚上"
+    ],
+    [
+     "today",
+     "今天"
+    ],
+    [
+     "tomorrow",
+     "明天"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    2,
+    3
+   ],
+   "kp": "日常问候",
+   "lv": 1,
+   "items4": [
+    [
+     "早上见面应该说？",
+     "Good morning!",
+     "Good night!",
+     "Good bye!",
+     "See you!"
+    ],
+    [
+     "别人说“Thank you.”时应该回答？",
+     "You're welcome.",
+     "Thank you.",
+     "Sorry.",
+     "Excuse me."
+    ],
+    [
+     "“Hello!”的意思是？",
+     "你好！",
+     "再见！",
+     "对不起！",
+     "谢谢！"
+    ],
+    [
+     "晚上睡觉前应该说？",
+     "Good night!",
+     "Good morning!",
+     "Good afternoon!",
+     "Hello!"
+    ],
+    [
+     "别人说“Sorry.”时应该回答？",
+     "That's OK.",
+     "You're welcome.",
+     "Thank you.",
+     "Good morning!"
+    ],
+    [
+     "“Nice to meet you.”的意思是？",
+     "很高兴见到你。",
+     "你叫什么名字？",
+     "你多大了？",
+     "再见。"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    4,
+    5,
+    6
+   ],
+   "kp": "日常交际",
+   "lv": 2,
+   "items4": [
+    [
+     "在商店想买东西，最礼貌的说法是？",
+     "I'd like a book, please.",
+     "Give me a book.",
+     "Where is a book?",
+     "Who is a book?"
+    ],
+    [
+     "“Where is the post office?”是在问什么？",
+     "邮局在哪里",
+     "这是邮局吗",
+     "邮局几点开门",
+     "你要去邮局吗"
+    ],
+    [
+     "打电话时“This is Tom speaking.”的意思是？",
+     "我是汤姆。",
+     "这是汤姆的电话。",
+     "汤姆在说话。",
+     "请找汤姆。"
+    ],
+    [
+     "“How much is it?”是在问什么？",
+     "多少钱",
+     "多重",
+     "多长",
+     "多大"
+    ],
+    [
+     "看病时“I have a headache.”的意思是？",
+     "我头疼",
+     "我牙疼",
+     "我发烧",
+     "我肚子疼"
+    ],
+    [
+     "“Can I help you?”最合适的回答是？",
+     "Yes, I want a pen.",
+     "No, thank you very much.",
+     "You're welcome.",
+     "I'm fine, thanks."
+    ],
+    [
+     "“May I come in?”的意思是？",
+     "我可以进来吗？",
+     "我可以走吗？",
+     "你进来吗？",
+     "请关门。"
+    ],
+    [
+     "想请别人再说一遍，应该说？",
+     "Pardon?",
+     "Hello?",
+     "OK?",
+     "Fine?"
+    ],
+    [
+     "“What's the weather like today?”是在问什么？",
+     "今天的天气怎么样",
+     "今天几号",
+     "今天星期几",
+     "你今天怎么样"
+    ],
+    [
+     "“How do you go to school?”最合适的回答是？",
+     "By bus.",
+     "At seven.",
+     "Very good.",
+     "In the classroom."
+    ],
+    [
+     "“Would you like some juice?”最合适的回答是？",
+     "Yes, please.",
+     "Yes, I would like.",
+     "No, I don't.",
+     "You're welcome."
+    ],
+    [
+     "别人说“Happy birthday!”时应该回答？",
+     "Thank you!",
+     "Happy birthday!",
+     "You're welcome.",
+     "Me too."
+    ]
+   ]
+  },
+  {
+   "grade": [
+    3,
+    4
+   ],
+   "kp": "be动词",
+   "lv": 2,
+   "items4": [
+    [
+     "I ___ a student.",
+     "am",
+     "is",
+     "are",
+     "be"
+    ],
+    [
+     "He ___ my brother.",
+     "is",
+     "am",
+     "are",
+     "be"
+    ],
+    [
+     "They ___ in the classroom.",
+     "are",
+     "is",
+     "am",
+     "be"
+    ],
+    [
+     "You ___ very kind.",
+     "are",
+     "is",
+     "am",
+     "be"
+    ],
+    [
+     "She ___ my English teacher.",
+     "is",
+     "am",
+     "are",
+     "be"
+    ],
+    [
+     "We ___ good friends.",
+     "are",
+     "is",
+     "am",
+     "be"
+    ],
+    [
+     "It ___ a cat.",
+     "is",
+     "am",
+     "are",
+     "be"
+    ],
+    [
+     "My parents ___ doctors.",
+     "are",
+     "is",
+     "am",
+     "be"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    3
+   ],
+   "kp": "名词复数",
+   "lv": 2,
+   "items4": [
+    [
+     "one apple → two ___",
+     "apples",
+     "apple",
+     "applies",
+     "applees"
+    ],
+    [
+     "one box → two ___",
+     "boxes",
+     "boxs",
+     "box",
+     "boxies"
+    ],
+    [
+     "one child → two ___",
+     "children",
+     "childs",
+     "childes",
+     "childrens"
+    ],
+    [
+     "one bus → three ___",
+     "buses",
+     "buss",
+     "bus",
+     "buses's"
+    ],
+    [
+     "one knife → two ___",
+     "knives",
+     "knifes",
+     "knife",
+     "knifves"
+    ],
+    [
+     "one foot → two ___",
+     "feet",
+     "foots",
+     "feets",
+     "foot"
+    ],
+    [
+     "one tomato → two ___",
+     "tomatoes",
+     "tomatos",
+     "tomato",
+     "tomatoies"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    4,
+    5,
+    6
+   ],
+   "kp": "代词",
+   "lv": 3,
+   "items4": [
+    [
+     "___ is my friend.（她）",
+     "She",
+     "He",
+     "Her",
+     "Hers"
+    ],
+    [
+     "This book is ___.（我的）",
+     "mine",
+     "my",
+     "me",
+     "I"
+    ],
+    [
+     "Please give ___ the pen.（他）",
+     "him",
+     "he",
+     "his",
+     "himself"
+    ],
+    [
+     "___ are students.（我们）",
+     "We",
+     "Us",
+     "Our",
+     "Ours"
+    ],
+    [
+     "I like ___ very much.（他们）",
+     "them",
+     "they",
+     "their",
+     "theirs"
+    ],
+    [
+     "___ name is Tom.（他的）",
+     "His",
+     "He",
+     "Him",
+     "Himself"
+    ],
+    [
+     "The bag is ___.（她的）",
+     "hers",
+     "her",
+     "she",
+     "herself"
+    ],
+    [
+     "Can you help ___?（我）",
+     "me",
+     "I",
+     "my",
+     "mine"
+    ],
+    [
+     "___ is a nice day.（它）",
+     "It",
+     "Its",
+     "It's",
+     "Itself"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    4,
+    5
+   ],
+   "kp": "冠词",
+   "lv": 2,
+   "items4": [
+    [
+     "I have ___ apple.",
+     "an",
+     "a",
+     "the",
+     "不填"
+    ],
+    [
+     "She is ___ teacher.",
+     "a",
+     "an",
+     "the",
+     "不填"
+    ],
+    [
+     "___ sun rises in the east.",
+     "The",
+     "A",
+     "An",
+     "不填"
+    ],
+    [
+     "This is ___ orange.",
+     "an",
+     "a",
+     "the",
+     "不填"
+    ],
+    [
+     "He plays ___ piano every day.",
+     "the",
+     "a",
+     "an",
+     "不填"
+    ],
+    [
+     "We have ___ English class today.",
+     "an",
+     "a",
+     "the",
+     "不填"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    4,
+    5
+   ],
+   "kp": "一般现在时",
+   "lv": 3,
+   "items4": [
+    [
+     "He ___ to school every day.",
+     "goes",
+     "go",
+     "going",
+     "went"
+    ],
+    [
+     "They ___ football on Sundays.",
+     "play",
+     "plays",
+     "playing",
+     "played"
+    ],
+    [
+     "My mother ___ breakfast for us.",
+     "cooks",
+     "cook",
+     "cooking",
+     "cooked"
+    ],
+    [
+     "I ___ TV every evening.",
+     "watch",
+     "watches",
+     "watching",
+     "watched"
+    ],
+    [
+     "She ___ English very well.",
+     "speaks",
+     "speak",
+     "speaking",
+     "spoke"
+    ],
+    [
+     "The sun ___ in the east.",
+     "rises",
+     "rise",
+     "rising",
+     "rose"
+    ],
+    [
+     "Tom ___ his homework after dinner.",
+     "does",
+     "do",
+     "doing",
+     "did"
+    ],
+    [
+     "We ___ to school by bus.",
+     "go",
+     "goes",
+     "going",
+     "went"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    5,
+    6
+   ],
+   "kp": "现在进行时",
+   "lv": 3,
+   "items4": [
+    [
+     "Look! The boys ___ football.",
+     "are playing",
+     "play",
+     "played",
+     "plays"
+    ],
+    [
+     "I ___ a book now.",
+     "am reading",
+     "read",
+     "reads",
+     "reading"
+    ],
+    [
+     "She ___ TV at the moment.",
+     "is watching",
+     "watches",
+     "watch",
+     "watched"
+    ],
+    [
+     "Listen! Someone ___ in the room.",
+     "is singing",
+     "sings",
+     "sang",
+     "sing"
+    ],
+    [
+     "They ___ their homework now.",
+     "are doing",
+     "do",
+     "did",
+     "does"
+    ],
+    [
+     "It ___ outside now.",
+     "is raining",
+     "rains",
+     "rained",
+     "rain"
+    ],
+    [
+     "We ___ for the bus now.",
+     "are waiting",
+     "wait",
+     "waited",
+     "waits"
+    ],
+    [
+     "He ___ his bike now.",
+     "is riding",
+     "rides",
+     "rode",
+     "ride"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    5,
+    6
+   ],
+   "kp": "一般过去时",
+   "lv": 3,
+   "items4": [
+    [
+     "I ___ to the park yesterday.",
+     "went",
+     "go",
+     "goes",
+     "going"
+    ],
+    [
+     "She ___ a book last night.",
+     "read",
+     "reads",
+     "reading",
+     "reader"
+    ],
+    [
+     "They ___ football last Sunday.",
+     "played",
+     "play",
+     "plays",
+     "playing"
+    ],
+    [
+     "He ___ his homework two hours ago.",
+     "did",
+     "does",
+     "do",
+     "doing"
+    ],
+    [
+     "We ___ at home last weekend.",
+     "were",
+     "are",
+     "is",
+     "be"
+    ],
+    [
+     "I ___ very happy yesterday.",
+     "was",
+     "were",
+     "am",
+     "is"
+    ],
+    [
+     "She ___ a cake for me last week.",
+     "made",
+     "makes",
+     "make",
+     "making"
+    ],
+    [
+     "The film ___ at eight last night.",
+     "began",
+     "begins",
+     "begin",
+     "beginning"
+    ],
+    [
+     "He ___ his keys this morning.",
+     "lost",
+     "loses",
+     "lose",
+     "losing"
+    ],
+    [
+     "They ___ to Beijing last year.",
+     "went",
+     "go",
+     "goes",
+     "going"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    5,
+    6
+   ],
+   "kp": "一般将来时",
+   "lv": 3,
+   "items4": [
+    [
+     "I ___ visit my grandma tomorrow.",
+     "will",
+     "am",
+     "was",
+     "did"
+    ],
+    [
+     "We ___ going to have a party.",
+     "are",
+     "is",
+     "am",
+     "be"
+    ],
+    [
+     "She ___ come back next week.",
+     "will",
+     "was",
+     "did",
+     "does"
+    ],
+    [
+     "They are going to ___ a film tonight.",
+     "see",
+     "saw",
+     "sees",
+     "seeing"
+    ],
+    [
+     "It ___ rain tomorrow.",
+     "will",
+     "was",
+     "were",
+     "did"
+    ],
+    [
+     "He ___ going to buy a new bike.",
+     "is",
+     "are",
+     "am",
+     "be"
+    ],
+    [
+     "I am going to ___ my homework.",
+     "do",
+     "did",
+     "does",
+     "doing"
+    ],
+    [
+     "___ you go to the zoo tomorrow?",
+     "Will",
+     "Are",
+     "Do",
+     "Did"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    5,
+    6
+   ],
+   "kp": "情态动词",
+   "lv": 3,
+   "items4": [
+    [
+     "You ___ finish your homework first.",
+     "must",
+     "must to",
+     "are must",
+     "musting"
+    ],
+    [
+     "___ you swim? Yes, I can.",
+     "Can",
+     "Are",
+     "Do",
+     "Is"
+    ],
+    [
+     "We ___ keep quiet in the library.",
+     "should",
+     "should to",
+     "are should",
+     "shoulding"
+    ],
+    [
+     "___ I use your pen?",
+     "May",
+     "Am",
+     "Do",
+     "Is"
+    ],
+    [
+     "He can ___ English well.",
+     "speak",
+     "speaks",
+     "speaking",
+     "spoke"
+    ],
+    [
+     "You ___ play with fire. It's dangerous.",
+     "mustn't",
+     "must",
+     "can",
+     "should"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    4,
+    5
+   ],
+   "kp": "There be 句型",
+   "lv": 2,
+   "items4": [
+    [
+     "There ___ a book on the desk.",
+     "is",
+     "are",
+     "am",
+     "be"
+    ],
+    [
+     "There ___ two cats under the tree.",
+     "are",
+     "is",
+     "am",
+     "be"
+    ],
+    [
+     "___ there any milk in the glass?",
+     "Is",
+     "Are",
+     "Am",
+     "Be"
+    ],
+    [
+     "There ___ some apples in the basket.",
+     "are",
+     "is",
+     "am",
+     "be"
+    ],
+    [
+     "There ___ a pen and two books on the desk.",
+     "is",
+     "are",
+     "be",
+     "been"
+    ],
+    [
+     "There aren't ___ students in the classroom.",
+     "any",
+     "some",
+     "a",
+     "much"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    4,
+    5
+   ],
+   "kp": "祈使句",
+   "lv": 2,
+   "items4": [
+    [
+     "___ the door, please.",
+     "Open",
+     "Opens",
+     "Opening",
+     "Opened"
+    ],
+    [
+     "___ talk in class.",
+     "Don't",
+     "Doesn't",
+     "Not",
+     "No"
+    ],
+    [
+     "Please ___ quiet.",
+     "be",
+     "are",
+     "is",
+     "being"
+    ],
+    [
+     "___ up! It's time for class.",
+     "Stand",
+     "Stands",
+     "Standing",
+     "Stood"
+    ],
+    [
+     "Let's ___ to the park.",
+     "go",
+     "goes",
+     "going",
+     "went"
+    ],
+    [
+     "___ careful! The road is busy.",
+     "Be",
+     "Are",
+     "Is",
+     "Being"
+    ]
+   ]
+  },
+  {
+   "grade": [
+    4,
+    5,
+    6
+   ],
+   "kp": "形容词与副词",
+   "lv": 2,
+   "items4": [
+    [
+     "“big”的反义词是？",
+     "small",
+     "tall",
+     "long",
+     "new"
+    ],
+    [
+     "“fast”的反义词是？",
+     "slow",
+     "quick",
+     "early",
+     "high"
+    ],
+    [
+     "“happy”的反义词是？",
+     "sad",
+     "glad",
+     "kind",
+     "nice"
+    ],
+    [
+     "“cold”的反义词是？",
+     "hot",
+     "warm",
+     "cool",
+     "dry"
+    ],
+    [
+     "“tall”的反义词是？",
+     "short",
+     "long",
+     "thin",
+     "small"
+    ],
+    [
+     "“clean”的反义词是？",
+     "dirty",
+     "tidy",
+     "bright",
+     "empty"
+    ],
+    [
+     "“usually”的意思是？",
+     "通常",
+     "从不",
+     "有时",
+     "偶尔"
+    ],
+    [
+     "“never”的意思是？",
+     "从不",
+     "总是",
+     "经常",
+     "有时"
+    ],
+    [
+     "“always”的意思是？",
+     "总是",
+     "从不",
+     "很少",
+     "曾经"
+    ],
+    [
+     "“sometimes”的意思是？",
+     "有时",
+     "总是",
+     "从不",
+     "经常"
+    ]
+   ]
+  }
+ ]
+}

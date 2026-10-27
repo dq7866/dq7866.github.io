@@ -1,0 +1,20 @@
+# 依赖
+node_modules/
+
+# 运行时数据（含管理员口令与孩子的学习档案，绝不入库）
+data/admin/auth.json
+data/admin/audit.jsonl
+data/admin/overlay.json
+data/profiles.json
+
+# 构建产物（可由 npm run build:bank 重新生成）
+data/questions.json
+data/raw/
+data/bank/gen-*.json
+
+# 截图与临时文件
+_capture/
+shot-*.png
+*.log
+.DS_Store
+Thumbs.db

@@ -111,6 +111,11 @@ exclude:
   - 'bike - 副本/**'
   - 'guardian - 副本/**'
   - 'forest/assets/audio/**'
+  # 亲子知识擂台是本地 Node 服务端工程，不是站点静态资源。
+  # 整目录排除：里面有 data/admin/auth.json（管理员口令）、
+  # data/profiles.json（孩子的学习档案）、node_modules、题库等，
+  # 一旦被 hexo generate 复制进 public/ 就会随 GitHub Pages 公开到网上。
+  - 'parent-child-knowledge-game/**'
 ignore:
 
 # Extensions

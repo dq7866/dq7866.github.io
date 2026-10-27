@@ -1,0 +1,38 @@
+{
+  "name": "parent-child-knowledge-game",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "⚡ 知识擂台 · 双机对战 —— 亲子互动知识游戏（本地开发版）",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "e2e": "node scripts/e2e-ui.mjs",
+    "e2e:challenge": "node scripts/e2e-challenge.mjs",
+    "e2e:grades": "node scripts/e2e-grades.mjs",
+    "gen:math": "node scripts/generate-math.mjs",
+    "gen:bank": "node scripts/generate-bank.mjs",
+    "build:bank": "npm run gen:math && npm run gen:bank && node scripts/build-bank.mjs",
+    "test:admin": "node scripts/test-admin.mjs",
+    "e2e:admin": "node scripts/e2e-admin.mjs",
+    "test:xlsx": "node scripts/test-xlsx.mjs",
+    "e2e:xlsx": "node scripts/e2e-xlsx.mjs",
+    "e2e:study": "node scripts/e2e-study.mjs",
+    "e2e:battle": "node scripts/e2e-battle-consistency.mjs",
+    "e2e:lock": "node scripts/e2e-battle-lock.mjs",
+    "e2e:profile": "node scripts/e2e-profile-consistency.mjs",
+    "verify:answers": "node scripts/verify-answers.mjs",
+    "audit:bank": "node scripts/audit-bank.mjs",
+    "audit:length": "node scripts/audit-length.mjs",
+    "check:coverage": "node scripts/check-coverage.mjs",
+    "test:security": "node scripts/test-security.mjs",
+    "test": "node scripts/test-battle.mjs"
+  },
+  "dependencies": {
+    "ws": "^8.18.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "playwright": "^1.64.1"
+  }
+}

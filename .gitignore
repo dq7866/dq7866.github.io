@@ -4,7 +4,8 @@ Thumbs.db
 db.json
 *.log
 node_modules/
-public/
+# 只忽略根目录的 Hexo 构建产物（原来是 public/，会匹配任意层级的 public 目录）
+/public/
 .deploy_git/
 .github/
 .idea/
@@ -30,3 +31,8 @@ themes/shiro/git-meta-bak/
 source/forest - 副本/
 source/bike - 副本/
 source/guardian - 副本/
+
+# 例外：亲子知识擂台工程的 public/ 是前端源码（不是 Hexo 构建产物）
+# 根目录的 public/ 规则会一并忽略它，导致这 3000+ 行前端代码进不了版本库
+!source/parent-child-knowledge-game/public/
+!source/parent-child-knowledge-game/public/**
