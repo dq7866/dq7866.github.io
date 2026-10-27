@@ -36,3 +36,7 @@ source/guardian - 副本/
 # 根目录的 public/ 规则会一并忽略它，导致这 3000+ 行前端代码进不了版本库
 !source/parent-child-knowledge-game/public/
 !source/parent-child-knowledge-game/public/**
+
+# wrangler 本地缓存与构建产物（Cloudflare 部署用）
+.wrangler/
+cloudflare/room-worker/tmp/

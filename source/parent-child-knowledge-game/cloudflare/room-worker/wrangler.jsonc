@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "knowledge-game-room",
+  "main": "src/index.js",
+
+  // 本地 workerd 最高支持 2026-10-19
+  "compatibility_date": "2026-10-19",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Durable Object：承载对战房间，一个实例装下所有房间
+  "durable_objects": {
+    "bindings": [
+      { "name": "ROOM", "class_name": "BattleRoom" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["BattleRoom"] }
+  ],
+
+  "observability": { "enabled": true }
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // Pages 项目配置（Git 集成部署）
+  // ⚠️ Pages 一旦读到根目录的 wrangler.jsonc，就以它作为配置来源，
+  //    Dashboard 上对应的字段会变成只读。改动前先确认字段一致。
+  "name": "dq7866-git",
+  "pages_build_output_dir": "public",
+
+  // 与 Dashboard 现有设置保持一致（本地 workerd 最高支持该日期）
+  "compatibility_date": "2026-10-19",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Durable Object 绑定：Pages 项目不能创建 DO，必须指向独立部署的 Worker。
+  // script_name 指向 cloudflare/room-worker（Worker 名 knowledge-game-room）。
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "ROOM",
+        "class_name": "BattleRoom",
+        "script_name": "knowledge-game-room"
+      }
+    ]
+  },
+
+  // ⚠️ non-inheritable key：一旦在 env 里覆盖，就必须把全部 non-inheritable key
+  //    都在该 env 里重新声明，否则校验失败。preview 与 production 都要写全。
+  "env": {
+    "production": {
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "ROOM",
+            "class_name": "BattleRoom",
+            "script_name": "knowledge-game-room"
+          }
+        ]
+      }
+    },
+    "preview": {
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "ROOM",
+            "class_name": "BattleRoom",
+            "script_name": "knowledge-game-room"
+          }
+        ]
+      }
+    }
+  }
+}
