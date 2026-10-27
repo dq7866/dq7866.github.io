@@ -615,12 +615,13 @@ function nextSolo(){
   $("soloText").textContent=q.text;
   $("soloBanner").className="banner pk";$("soloBanner").textContent="🔥 答得越快，XP 越高！";
   const card=$("soloCard");card.style.animation="none";void card.offsetWidth;card.style.animation="";
-  const order=q.options.map((t,i)=>({t,ok:i===q.correct})).map(o=>({t:o.t,ok:o.ok})).sort(()=>Math.random()-.5);
+  // 选项顺序打乱。正确项不在前端标记（云端判分模式下服务端才不下发 correct），
+  // 答完由服务端返回对错与正确答案再着色。
+  const order=q.options.map(t=>({t})).sort(()=>Math.random()-.5);
   const box=$("soloAns");box.innerHTML="";
   const cls=["a","b","c","d"];
   order.forEach((o,i)=>{
     const b=document.createElement("button");b.className="ans "+cls[i];b.textContent=o.t;
-    if(o.ok)b.dataset.ok="1";
     b.onclick=()=>soloAnswer(b,o);
     box.appendChild(b);
   });
@@ -635,14 +636,45 @@ function nextSolo(){
     $("soloTbar").classList.toggle("danger",left<=4000);
   },100);
 }
-function soloAnswer(btn,o){
+
+/**
+ * 单人作答：优先用服务端判分（云端模式），
+ * 本地版（题目自带 correct）直接判。
+ *
+ * 云端模式的判分是异步的，所以这里改成 async：
+ * 先锁住按钮等结果，回来再着色与计分。
+ */
+async function soloAnswer(btn,o){
   clearInterval(soloTimer);
   const q=soloPool[soloIdx];
-  document.querySelectorAll("#soloAns .ans").forEach(b=>{b.style.pointerEvents="none";
-    if(b.dataset.ok){b.classList.add("correct");}else b.classList.add("dim");});
+  document.querySelectorAll("#soloAns .ans").forEach(b=>{b.style.pointerEvents="none";});
+
+  // 云端判分：提交选项文本，服务端比对
+  let ok=!!o.ok, rightText=null;
+  if(!o.timeout&&typeof q.qid!=="undefined"&&q.qid>=0&&!Number.isInteger(q.correct)){
+    try{
+      const r=await fetch(API_BASE+"/api/grade",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({qid:q.qid,picked:o.t})
+      });
+      const g=await r.json();
+      ok=!!g.ok;
+      rightText=g.correct||null;
+    }catch(e){}
+  }
+  // 本地模式：correct 由题库带出
+  if(rightText===null&&Number.isInteger(q.correct))rightText=q.options[q.correct];
+
+  // 着色：正确答案高亮，其它淡化
+  const btns=[...document.querySelectorAll("#soloAns .ans")];
+  btns.forEach(b=>{
+    if(rightText!==null&&b.textContent===rightText)b.classList.add("correct");
+    else b.classList.add("dim");
+  });
+
   const secUsed=(Date.now()-soloT0)/1000;
-  logAnswer(q.subj,!!o.ok,secUsed,q.kp);
-  if(o.ok){
+  logAnswer(q.subj,!!ok,secUsed,q.kp);
+  if(ok){
     const sec=secUsed;
     const bonus=Math.max(0,Math.round((6-sec)*1)); // 6秒内答完有速度加成
     soloScore++;soloXP+=12+bonus;soloStreak++;
@@ -653,10 +685,10 @@ function soloAnswer(btn,o){
     $("soloBanner").textContent=`+${12+bonus} XP${bonus>0?"（含速度加成+"+bonus+"）":""}`;
   }else{
     soloStreak=0;
-    soloWrongs.push({subj:q.subj,text:q.text,correct:q.options[q.correct],options:q.options,kp:q.kp||null,at:Date.now()});
+    soloWrongs.push({subj:q.subj,text:q.text,correct:rightText||"",options:q.options,kp:q.kp||null,at:Date.now()});
     sndNO();$("soloFlash").className="flash lose";
     $("soloBanner").className="banner wait";
-    $("soloBanner").textContent=o.timeout?("⏰ 超时！正确答案："+q.options[q.correct]):("❌ 正确答案："+q.options[q.correct]);
+    $("soloBanner").textContent=o.timeout?("⏰ 超时！正确答案："+(rightText||"")):("❌ 正确答案："+(rightText||""));
   }
   soloIdx++;
   setTimeout(nextSolo,1400);
