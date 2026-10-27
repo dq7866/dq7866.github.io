@@ -310,6 +310,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none}
 
 <canvas id="fx"></canvas>
 
+<script>window.KLT_API_BASE="/games/knowledge";window.KLT_WS_PATH="/games/knowledge/ws";</script>
 <script>
 /* API 基址：默认走同源 /api。
  * 作为子路径部署（如 https://站点/games/knowledge/）时，
@@ -1257,7 +1258,6 @@ function burst(x,y){const cs=["#fbbf24","#f97316","#3b82f6","#22c55e","#f43f5e",
 function confetti(){let n=0;const iv=setInterval(()=>{burst(innerWidth*Math.random(),innerHeight*.25+Math.random()*innerHeight*.3);if(++n>7)clearInterval(iv)},280);}
 </script>
 <!-- 扩展模块：对局复盘 / 档案同步 / 同屏对战 / 错题挑战 / 极速60秒 -->
-<script>window.KLT_API_BASE="/games/knowledge";window.KLT_WS_PATH="/games/knowledge/ws";</script>
 <script src="extra.js"></script>
 <!-- 学情分析：按知识点聚合掌握度、最该练的知识点、一键专项练 -->
 <script src="study.js"></script>
