@@ -126,6 +126,54 @@ _capture/index.html        线上页面原始留档，用于 diff 比对
 - 拿到的导出文件直接改完再导回去，配合「按题目ID 覆盖更新」就是原地修订，不会产生重复题；
 - 导入先**预检**：逐行校验，坏行带 Excel 行号回报，好行照常入库，不会一行出错整批失败。
 
+## 部署
+
+### 主站 Pages（当前线上方案）
+
+游戏挂在主站 `https://dq7866.online/games/knowledge/`，由主仓库的构建脚本处理：
+
+```
+node scripts/post-build-game.js      同步前端 + 注入子路径配置（必须在 hexo 之前）
+→ hexo generate                     处理已注入的文件 → public/
+→ node scripts/post-build-assets.js  复制 forest 音频
+→ node scripts/post-build-worker.js  生成 public/_worker.js（题库内联）
+```
+
+关键点：
+
+- **Pages 的高级模式**：输出目录里有 `_worker.js` 才启用 Functions，
+  `functions/` 目录只在 `wrangler pages dev` 本地预览时用
+- **题库不能作为独立文件放进 `public/`**——它含每道题的 `correct` 字段，
+  任何人下载即可看全部答案。构建脚本把题库内联进 `_worker.js`
+- **wrangler 必须在 `dependencies`**（不是 devDependencies）——
+  Git 集成的构建命令是 `npm ci --omit=dev`
+- **注入位置很关键**：`window.KLT_API_BASE` 必须早于 index.html 的主脚本，
+  否则 `const API_BASE` 求值时拿到空字符串，请求会打到站点根路径（404）
+
+路由：
+
+| 路径 | 说明 |
+| --- | --- |
+| `GET /games/knowledge/api/questions` | 取题（**不下发 correct**） |
+| `POST /games/knowledge/api/grade` | 判分 `{ qid, picked }` → `{ ok, correct }` |
+| `GET /games/knowledge/api/health` | 健康检查 |
+| `GET /games/knowledge/ws` | 对战房间（转发 Durable Object） |
+
+题目 id 用题库稳定序号 `qid`，服务端据此反查答案，浏览器拿不到答案。
+
+### 独立 Workers 项目（备用方案）
+
+`workers/` 目录下是独立部署方案，适合不挂主站、单独走 Workers 的场景：
+
+```bash
+cd workers
+wrangler deploy          # 部署主 Worker
+cd room-worker && wrangler deploy   # 部署承载 Durable Object 的 Worker
+```
+
+⚠️ `workers.dev` 域名在境内被 DNS 劫持（连 8.8.8.8 都解析到无关 IP 段），
+必须挂自定义域名才能访问。
+
 ## 测试
 
 ```bash
