@@ -226,8 +226,14 @@ copy:
   enable: false
 
 # 访客统计用自建 /stats.js，不用不蒜子
+# ⚠️ 只写 enable: false 不够：additional-js.pug 判断的是
+#    theme.busuanzi.site_uv || site_pv || page_pv，这三项会继承主题默认值(true)，
+#    导致仍从 busuanzi.ibruce.info 拉脚本。必须逐个显式关掉。
 busuanzi:
   enable: false
+  site_uv: false
+  site_pv: false
+  page_pv: false
 
 # 站点信息顶部留白（顶图已关，无需此值）
 index_site_info_top:
@@ -242,11 +248,16 @@ inject:
     - <script src="/site-search.js" defer></script>
 
 # ---------------- CDN ----------------
-# 全部走本地，国内访问稳定；第三方库由 hexo-butterfly-extjs 提供
+# 主题自身资源走本地；第三方库也强制本地化 —— jsdelivr 在境内不稳定，
+# 实测从 jsdelivr 取 pjax 要 1.7 秒（跨境），而文件只有 24KB。
+# 两个库已下载到 source/zhz/vendor/，用 CDN.option 覆盖 URL。
 CDN:
   internal_provider: local
-  third_party_provider: jsdelivr
+  third_party_provider: local
   version: true
+  option:
+    pjax: /zhz/vendor/pjax.min.js
+    instantpage: /zhz/vendor/instantpage.min.js
 
 # ---------------- 字体 ----------------
 # 留空使用系统字体栈，不加载 Google Fonts（境内慢）
