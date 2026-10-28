@@ -272,7 +272,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div class="app">
   <aside class="side" aria-label="模块导航">
-    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v5.6</span></div>
+    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v5.9</span></div>
     <a class="backlink" id="backlink" href="index.html" style="display:none">← 返回工具箱</a>
     <input id="q" class="search" placeholder="搜模块：亩 / 鞋码 / 扳手 / 汇率…       也能直接算：10 km to mi / 12*8">
     <div id="qc" class="qc" role="status" aria-live="polite"></div>
@@ -2857,6 +2857,237 @@ const CATS = [
   note:'补贴是政府给的，不该由商家定价。看到"补贴后 3999"而原价被悄悄改高，直接换一家——同一型号在别处往往还是原价。'}
 ]},
 
+{id:'petfood',en:'Pet Diet',g:'吃穿住行',icon:'🍖',name:'宠物饮食与体重',type:'tables',sub:'中毒和肥胖是家里喂出来的两大问题。前者一次就够，后者每天都在发生。',sections:[
+ {title:'绝对禁食清单',head:['食物','对象','后果'],
+  rows:[['巧克力','犬猫','可可碱中毒，抽搐、心律失常'],['葡萄、葡萄干','犬','急性肾衰竭，几颗就可能致命'],['洋葱、大蒜、韭菜','犬猫','溶血性贫血，熟食同样有毒'],['木糖醇（口香糖、牙膏）','犬','低血糖、肝衰竭，极少量即危险'],['澳洲坚果','犬','后肢无力、震颤'],['酒精','犬猫','昏迷、呼吸抑制'],['生面团','犬','胃内发酵膨胀，胃扭转'],['咖啡、浓茶','犬猫','心率骤升、亢奋']],
+  note:'中毒症状常延迟 6–12 小时出现。怀疑误食，别等出现症状，立刻联系医院并带上包装——催吐有时间窗。'},
+ {title:'需要限量的食物',head:['食物','问题'],
+  rows:[['牛奶','多数犬猫乳糖不耐，腹泻'],['生鸡蛋','沙门氏菌，且抗生物素蛋白影响吸收'],['熟骨头','易碎成尖片，刺穿肠道'],['动物肝脏','维 A 过量，一周不超过一次'],['高盐食物','钠中毒，尤其小型犬'],['牛油果','果核、叶、皮含 persin'],['夏威夷果、核桃','高脂，诱发胰腺炎'],['人类零食','油盐糖都超标，且养成讨食习惯']],
+  note:'"能不能吃"的通用判断：含咖啡因、酒精、木糖醇、葱属、葡萄的，一律不行；其余人吃的食物，偶尔一小口可以，但不能超过每日热量的 10%。'},
+ {title:'猫特有的营养需求',head:['营养素','为什么关键'],
+  rows:[['牛磺酸','必需氨基酸，缺则视网膜退化、扩张型心肌病'],['花生四烯酸','猫不能自身合成，需动物性来源'],['维生素 A','必须来自动物肝脏，不能转化 β-胡萝卜素'],['蛋白质','需求约为犬的两倍，且要动物蛋白'],['水分','天生渴感弱，湿粮或流动水能显著增加饮水'],['素食','猫是专性肉食动物，素食喂养会致死']],
+  note:'"猫可以吃素"是危险的错误认知。牛磺酸缺乏造成的心肌病和失明是不可逆的，且自制猫饭最容易漏的就是牛磺酸。'},
+ {title:'体况评分怎么看',head:['检查部位','理想状态','超重信号'],
+  rows:[['摸肋骨','轻按能摸到，像手背','要用力按才摸到，像手心'],['俯视腰线','肋骨后有明显收腰','腰线消失，呈圆桶'],['侧面看腹部','腹部收紧上提','腹部下垂或与胸齐平'],['尾根','摸得到骨骼轮廓','有脂肪垫'],['BCS 评分','5 分制 3 分，9 分制 4–5 分','超过 6 分（9 分制）即超重'],['称重频率','每月一次','每周一次']],
+  note:'体重数字本身没意义，体况才是标准。同样 5 kg，一只猫偏瘦、一只狗偏胖，都可能是问题。'},
+ {title:'每天喂多少',head:['对象','静息能量 RER','每日需求'],
+  rows:[['计算公式','70 × 体重(kg)^0.75','—'],['绝育成犬','—','RER × 1.6'],['未绝育成犬','—','RER × 1.8'],['室内成猫','—','RER × 1.2'],['幼犬（4 月龄前）','—','RER × 3.0'],['幼犬（4–12 月）','—','RER × 2.0'],['减重期','按目标体重算','RER × 1.0'],['举例','5 kg 猫 RER ≈ 200 kcal','每日约 240 kcal']],
+  note:'算出来的是"每日总热量"，要把零食、罐头、洁齿骨全部算进去。多数家庭超标的原因是零食没计入，而不是主粮喂多了。'},
+ {title:'减肥怎么减才安全',head:['做法','说明'],
+  rows:[['每周减 1–2% 体重','减太快会掉肌肉、伤肝'],['用厨房秤称粮','量杯误差可达 30%'],['零食不超 10% 热量','可换成主粮颗粒当奖励'],['猫减重尤其慢','一周超 1.5% 有脂肪肝风险'],['增加活动','猫用逗猫棒，犬延长散步'],['三个月复查','体重平台期要调整热量'],['全家统一口径','偷偷喂一口，减重就白做']],
+  note:'猫减肥最危险的是"饿太快"：猫不进食超过 12 小时就可能启动脂肪肝。宁可慢，不要猛。'}
+]},
+
+{id:'salecal',en:'Sale Calendar',g:'钱与账',icon:'🛒',name:'大促日历与比价',type:'tables',sub:'大促不是"最便宜"，是"最贵的时段里折扣最大"。真正的省钱靠比价，不靠等日子。',sections:[
+ {title:'一年大促节点',head:['时间','活动','力度'],
+  rows:[['1 月','年货节','食品、家电、礼品，中'],['3 月','38 焕新节','美妆、服饰，中'],['6 月','618','上半年最大，家电数码'],['8 月','88 会员节','平台会员向，中'],['9 月','99 划算节','日用、囤货，中'],['11 月','双 11','全年最大，全品类'],['12 月','双 12','清仓尾货，弱于双 11'],['每月','品类日 / 超级品牌日','单品类深度折扣']],
+  note:'大促已经"日常化"，几乎每月都有名目。真正值得等的只有 618 和双 11，其余时间按需买更省心。'},
+ {title:'哪些品类真便宜',head:['品类','典型折扣','说明'],
+  rows:[['大家电','15–30%','叠加补贴时最低'],['美妆个护','30–50%','多为赠品形式，非降价'],['服饰鞋包','40–60%','但常是专供款'],['数码 3C','5–15%','旗舰机几乎不降'],['母婴用品','20–35%','囤纸尿裤最划算'],['图书','30–50%','满减叠券'],['生鲜','不适合囤','运费与损耗吃掉优惠']],
+  note:'"专供型号"是大促最常见的坑：同一个系列，给大促单独做一个低配型号，价格好看但参数缩水。买之前对比型号后缀。'},
+ {title:'比价三件套',head:['工具','怎么用'],
+  rows:[['历史价插件','看 30 天与 90 天价格曲线'],['跨平台比价','同型号搜三个平台，注意含运费'],['到手价计算','商品价 − 券 − 红包 + 运费'],['凑单计算','满 300 减 50 时，凑到刚好 300 最划算'],['会员价对比','会员折扣与券常互斥，取更低者'],['单位价格','纸巾按"元/100 抽"，洗衣液按"元/kg"']],
+  note:'唯一可靠的判断是"到手价的历史曲线"，不是"折扣百分比"。标价先涨 30% 再打 7 折，是最常见的把戏。'},
+ {title:'优惠叠加顺序',head:['顺序','规则'],
+  rows:[['1','平台跨店满减（如每 300 减 50）'],['2','店铺券 / 品类券'],['3','平台红包'],['4','会员折扣（常与券互斥）'],['5','支付立减（银行卡、白条）'],['6','返现 / 积分（事后）'],['注意','定金计入尾款，但不计入满减门槛（多数平台）']],
+  note:'券不是越多越省。多张券常有"互斥"标注，先看清能否叠加，再决定用哪张——最贵的那张通常不能叠。'},
+ {title:'预售值不值',head:['情形','建议'],
+  rows:[['定金可退吗','"定金"不退，"订金"可退'],['预售价比当天还高','很常见，务必截图对比'],['限量赠品','预售真正的价值常在赠品'],['尾款时间','错过尾款定金作废，设提醒'],['价保','预售商品多数支持价保，下单后第 6 天查一次'],['不确定要不要','别付定金，等当天']],
+  note:'预售的本质是"用确定性换赠品"。你确定要买、且赠品是你真正需要的，才划算；否则等当天更自由。'},
+ {title:'别在大促买的东西',head:['品类','原因'],
+  rows:[['生鲜冷链','物流爆仓，化冻风险高'],['大件家具','配送安装排期长达两三周'],['需安装的家电','师傅排不过来，旧机拆不走'],['急用品','大促物流普遍延迟 3–7 天'],['只降 5% 的数码','等的成本高于省的'],['为凑单买的','凑单件八成用不上']],
+  note:'凑单是大促最大的隐性支出。为了减 50 多买 80 的东西，账面上省了，实际多花了 30。'}
+]},
+
+{id:'smallapp',en:'Kitchen Gadgets',g:'居家装修',icon:'🍳',name:'厨房小家电选购',type:'tables',sub:'小家电吃灰的原因只有三个：洗起来麻烦、用起来慢、台面没地方。买之前先想这三条。',sections:[
+ {title:'先问三个问题',head:['问题','判断标准'],
+  rows:[['一周会用几次','低于 2 次，基本会吃灰'],['清洗要几分钟','超过 5 分钟，用两次就懒得用'],['台面放得下吗','常住台面 ≤3 件，其余收柜'],['有没有替代方案','锅、微波炉、烤箱能否替代'],['耗材贵不贵','滤芯、菌粉、咖啡胶囊的长期成本'],['噪音能接受吗','破壁机 85 dB 相当于马路']],
+  note:'厨房小家电的真实成本是"台面面积 + 清洗时间"，不是售价。这两样都比钱贵。'},
+ {title:'常用清单与价位',head:['品类','必要性','价位'],
+  rows:[['电饭煲','必需','200–1500 元'],['电水壶','必需','80–300 元'],['微波炉','高频','300–800 元'],['空气炸锅','高频','200–600 元'],['破壁机','中等','300–1500 元'],['电压力锅','中等','300–800 元'],['咖啡机','看习惯','300–3000 元'],['厨师机','低频','800–3000 元'],['面包机 / 酸奶机','易吃灰','200–600 元']],
+  note:'先买前三样，用三个月再决定要不要第四样。一次性配齐的结果，通常是三件常用、五件吃灰。'},
+ {title:'空气炸锅怎么选',head:['参数','建议','说明'],
+  rows:[['容量','2–3 L 单人，4–5 L 两三人','家庭选 4.5 L 以上'],['功率','1400–1800 W','功率小预热慢、上色差'],['加热方式','上下发热管 + 热风','单管易一面焦'],['内胆涂层','不粘或陶瓷','陶瓷更耐磨'],['结构','抽屉式','比翻盖式好洗太多'],['可视窗','建议有','不用反复拉出来看'],['噪音','55–65 dB','低于吹风机']],
+  note:'空气炸锅的容量标称有水份：4 L 常指锅体外积，实际能放的食物约 2.5 L。看"炸篮容积"这一项。'},
+ {title:'破壁机 / 豆浆机',head:['参数','参考','说明'],
+  rows:[['搅拌功率','800–1500 W','低于 800 W 打不细'],['加热功率','800–1200 W','加热慢会糊底'],['转速','30000–45000 rpm','过高噪音大'],['刀头','钝刀（钝口）','钝刀靠冲击破碎，更耐用'],['杯体','玻璃或 TRITAN','玻璃重、耐刮'],['噪音','75–90 dB','带隔音罩的贵但真安静'],['自清洗','效果有限','还是要拆开冲']],
+  note:'破壁机最容易被忽略的是噪音：早上打豆浆，85 dB 能把整栋楼叫醒。住楼房优先选带隔音罩的型号。'},
+ {title:'电饭煲看什么',head:['参数','建议'],
+  rows:[['加热方式','IH 优于底盘加热'],['内胆厚度','3 mm 以上','薄胆受热不均'],['内胆涂层','备长炭 / 陶瓷','掉漆就要换胆'],['容量','3 L 两三人，4 L 四五人'],['压力 IH','口感更好，价格翻倍'],['内盖可拆','必须可拆洗'],['预约功能','看是否支持 24 小时']],
+  note:'米饭好不好吃，米占七成、水占两成、锅占一成。预算有限时，先买好米，再升级锅。'},
+ {title:'最容易吃灰的五件',head:['品类','为什么'],
+  rows:[['酸奶机','要买菌粉、等 8 小时、还要消毒'],['面包机','一次三小时，成品还不如买的'],['煮蛋器','一口锅就能煮'],['榨汁机','洗的时间比喝的长'],['三明治机','只能做一种东西']],
+  note:'判断会不会吃灰，看"准备时间 + 清洗时间"是否超过 10 分钟。超过的，通常用不过五次。'}
+]},
+
+{id:'kidsclass',en:'Kids Classes',g:'关系与文化',icon:'🎨',name:'兴趣班怎么选',type:'tables',sub:'兴趣班真正贵的是"接送 + 陪练 + 时间"，不是学费。报三个班的家庭，往往三个都学不深。',sections:[
+ {title:'按年龄看能学什么',head:['年龄','适合','说明'],
+  rows:[['3–4 岁','涂鸦、律动、亲子游泳','以玩为主，不要求技能'],['5–6 岁','乐器启蒙、球类、跆拳道','注意力约 15 分钟，课时要短'],['7–8 岁','硬笔书法、游泳技术、图形化编程','手部小肌肉发育到位'],['9–10 岁','团队球类、乐器正式学习','能理解规则与配合'],['11 岁以上','专项训练、竞赛方向','开始需要"选一个"'],['不建议','6 岁前上学科类','超前学习收益低、易厌学']],
+  note:'所有"越早越好"的说法都要打问号。除了语言和游泳，绝大多数技能提前两年学的差距，十二岁后半年就追平了。'},
+ {title:'四类班各买什么',head:['类型','真正给孩子的','代价'],
+  rows:[['体育类','体能、抗挫、规则意识','最值得优先投入'],['艺术类','审美、表达、专注','见效慢，别用考级衡量'],['学科类','短期分数','挤占运动与睡眠时间'],['思维 / 编程','逻辑、拆解问题','低龄段多为游戏化包装'],['语言类','语感、开口意愿','需要长期高频，每周一次无效'],['竞赛类','目标感、抗压','容易变成家长的战场']],
+  note:'如果只能选一个，选体育。体能和抗挫是底座，其他才艺都建在这上面。'},
+ {title:'试听课看什么',head:['观察点','好的信号','坏的信号'],
+  rows:[['老师与孩子互动','叫得出每个孩子名字','全程对着家长讲'],['课堂节奏','有动静交替','40 分钟一直坐着'],['孩子反应','下课还想留','下课就说不想再来'],['同班人数','6–10 人','20 人以上'],['老学员比例','续报率高','全是新面孔'],['场地安全','地胶、护具、通风','器材老旧、无消防通道']],
+  note:'试听课是机构最好的一面。真正要看的是"放学时门口家长的表情"——那比任何销售话术都真实。'},
+ {title:'费用与课时参考',head:['类型','单课时','年花费'],
+  rows:[['体育类（大班）','80–150 元','5000–10000 元'],['体育类（一对一）','200–400 元','2 万以上'],['乐器（一对一）','150–400 元','1–2 万元'],['美术（大班）','80–150 元','5000–8000 元'],['编程（大班）','100–200 元','8000–15000 元'],['学科类','100–300 元','1–3 万元'],['隐性成本','接送、陪练、器材','常达学费的 30–50%']],
+  note:'报班前算一笔"总时间账"：每周上课 + 往返 + 练习 = 多少小时。超过孩子自由玩耍时间的一半，就要减。'},
+ {title:'什么时候该停',head:['信号','判断'],
+  rows:[['连续三次抗拒上课','先停两周，再问原因'],['每次都要谈条件才去','动机已经外化'],['学了一年毫无进展','可能是教法不匹配'],['影响睡眠或作业','优先级错了'],['只剩家长在坚持','孩子在替你完成心愿'],['换了老师明显好转','原来是师生不匹配']],
+  note:'放弃不是失败。试错本身就是兴趣班的功能之一——用最低成本找到"真的喜欢"，比坚持一个不喜欢的更有价值。'},
+ {title:'家长最容易犯的错',head:['错误','后果'],
+  rows:[['一次报三个班','每个都浅尝辄止'],['用考级当目标','考完就再也不碰'],['课堂上替孩子回答','孩子不再举手'],['拿别人家孩子比较','把兴趣变成压力'],['从不看孩子上课','不知道教得好不好'],['把课时当托管','孩子感受到被"寄存"'],['退费时才看合同','违约金高得离谱']],
+  note:'签合同前只问一句："中途不学了，剩的课时怎么退？"这一条的答案，基本能看出这家机构的底色。'}
+]},
+
+{id:'packlist',en:'Travel Packing',g:'吃穿住行',icon:'🧳',name:'旅行行李清单',type:'tables',sub:'行李带多了累，带少了更累。真正该精算的是药、证件和充电器，不是衣服。',sections:[
+ {title:'按天数带多少件',head:['天数','上衣','下装'],
+  rows:[['1–2 天','2 件','1 条'],['3–4 天','3 件','2 条'],['5–7 天','4 件','2–3 条'],['8 天以上','5 件 + 洗衣','3 条'],['公式','天数 ÷ 2 + 1（可洗衣）','—'],['内衣袜子','按天数 +1','—'],['外套','1 件百搭','—'],['鞋','穿一双带一双','—']],
+  note:'衣物的正确策略是"少带、勤洗"，不是"多带、不洗"。一周以上的行程，住有洗衣机的民宿比多带五件衣服轻松得多。'},
+ {title:'证件与文件',head:['物品','注意'],
+  rows:[['身份证 / 护照','随身，不托运'],['电子备份','身份证、护照、保单拍照存云端'],['机票车票','截图 + 离线保存'],['酒店确认单','存离线，别只依赖网络'],['驾照 / 国际驾照','租车必备'],['保险单号','记在手机备忘录'],['现金','分散放，小额为主']],
+ note:'最容易被忽略的是"证件照电子版"和"紧急联系人纸质卡"。手机没电时，纸质的那张能救命。'},
+ {title:'药品清单',head:['类别','带什么'],
+  rows:[['退烧止痛','对乙酰氨基酚 / 布洛芬'],['肠胃','蒙脱石散、口服补液盐'],['抗过敏','氯雷他定'],['外伤','创可贴、碘伏棉签'],['晕车','茶苯海明（提前 30 分钟）'],['外用','驱蚊液、防晒霜'],['个人常用药','按天数 ×1.5 备量']],
+  note:'处方药要带原包装和处方复印件，跨境可能被查。液体单瓶不超 100 ml 才能随身。'},
+ {title:'带娃额外清单',head:['物品','数量'],
+  rows:[['纸尿裤','每天 6–8 片 × 天数'],['湿巾','每天 1 包'],['换洗衣物','每天 2 套'],['常用药','退烧、止泻、体温计'],['安抚物','照旧带，别换新的'],['零食与水','防延误'],['折叠推车','能上飞机的伞车']],
+  note:'带小孩出门，行李的冗余要留足一倍。孩子吐一次、尿一次，就是两套衣服。'},
+ {title:'装箱顺序',head:['层次','放什么'],
+  rows:[['箱底','鞋（套袋）、重物、牛仔裤'],['中层','卷起的衣物，缝隙塞袜子'],['上层','洗漱包、充电器、易取物'],['最上','外套、雨伞'],['随身包','证件、药、充电宝、笔'],['技巧','衣物卷起比折叠省 30% 空间']],
+ note:'充电宝必须随身，不能托运。100 Wh 以内可带上飞机，超过需要航司批准。'},
+ {title:'安检与托运限制',head:['物品','规则'],
+  rows:[['液体','单瓶 ≤100 ml，总量 ≤1 L，装透明袋'],['充电宝','随身，≤100 Wh，标识清晰'],['打火机','禁止随身与托运'],['锂电池','随身，不可托运'],['刀具','必须托运'],['酒','托运，酒精 ≤70%，≤5 L'],['药品','处方药带证明，液体同上']],
+  note:'"标识不清"的充电宝会被直接没收，哪怕容量合规。出门前用记号笔把 Wh 写在壳上。'}
+]},
+
+{id:'shipping',en:'Parcel Shipping',g:'生活日常',icon:'📮',name:'寄件与运费省钱',type:'tables',sub:'运费贵不贵，一半看重量，一半看体积。把箱子换小一号，往往比谈折扣更有效。',sections:[
+ {title:'运费怎么算',head:['项目','规则'],
+  rows:[['首重','1 kg，省内 8–12 元，跨省 12–22 元'],['续重','省内 2–6 元/kg，跨省 6–10 元/kg'],['体积重','长×宽×高(cm) ÷ 6000'],['计费重量','实重与体积重取大者'],['抛货','被子、玩偶、纸箱大而轻，按体积计'],['偏远地区','加收 5–20 元'],['上楼费','无电梯大件另收 20–50 元']],
+  note:'寄轻飘大件时，体积重往往是实重的三倍。把空气挤出去——真空袋压缩被子，是最直接的省钱方式。'},
+ {title:'各家适合寄什么',head:['类型','适合','注意'],
+  rows:[['经济快递','日用、衣物、小件','慢 1–2 天，价格最低'],['标准快递','大部分场景','时效价格均衡'],['次日达','急件、文件','价格翻倍'],['大件物流','家具、家电','按体积计费，需自提或送上楼'],['同城跑腿','3 公里内','按距离与重量计价'],['邮政小包','偏远地区','覆盖最广，速度慢']],
+  note:'同一个包裹在不同渠道的价差能到 40%。寄之前用比价平台查一遍，比直接在驿站下单省得多。'},
+ {title:'大件怎么寄最便宜',head:['方式','适用','成本'],
+  rows:[['物流专线','家具、家电','按立方计，跨省 300–800 元'],['快递大件','20–60 kg','比专线贵，但上门取'],['货运 + 自提','不着急的大件','最便宜，需自己去提'],['拼车 / 顺路','同城搬家','按趟谈价'],['拆装后寄','板式家具','省体积，但可能损伤'],['卖废品','旧家具','反向省钱']],
+  note:'寄大件前先问一句"按实重还是按体积"，得到答案再决定要不要拆箱。这一句话能省一半。'},
+ {title:'打包要点',head:['物品','怎么包'],
+  rows:[['易碎品','气泡膜三层 + 悬空固定，四周留 3 cm'],['液体','瓶口缠胶带，套两层袋'],['电子产品','原盒 + 外层填充，别贴"易碎"标签'],['衣物','真空袋或卷起'],['文件','硬纸板夹 + 防水袋'],['箱体','底部十字胶带，接缝全封']],
+  note:'外箱写"易碎"不会让它更安全，反而可能引来好奇。真正有效的是内部悬空固定——摔不坏靠的是缓冲，不是标签。'},
+ {title:'保价与理赔',head:['情形','规则'],
+  rows:[['默认赔偿','按运费倍数，通常 3–7 倍'],['保价费','声明价值的 0.5–3%'],['保价上限','各家公司不同，多为 2 万元'],['理赔材料','运单、发票、价值证明、破损照片'],['签收前验货','外包装破损必须当场开箱'],['签收后报损','举证难度大增'],['时效','一般 7–30 天内提出']],
+  note:'寄贵重物品，保价 + 开箱视频 + 销售凭证三样齐全才有得赔。少一样，往往只能拿到运费的几倍。'},
+ {title:'禁寄与限寄',head:['类别','说明'],
+  rows:[['易燃易爆','酒精、打火机油、喷雾罐'],['电池','锂电池需陆运，部分渠道拒收'],['液体','化妆品可寄，需密封'],['活体','多数快递禁寄，需专线'],['现金与贵重品','禁止寄递'],['管制刀具','禁止'],['药品','处方药需资质，个人限少量']],
+  note:'被安检拦下的包裹会退回或销毁，运费不退。不确定就先问客服要"禁寄清单"，别自己猜。'}
+]},
+
+{id:'eldertech',en:'Tech for Elders',g:'数字与编码',icon:'📲',name:'爸妈用手机与智能设备',type:'tables',sub:'老人不用智能设备，八成不是学不会，是字太小、步骤太多、怕点错扣钱。先把这三件事解决。',sections:[
+ {title:'手机六步设置',head:['步骤','怎么设'],
+  rows:[['字体放大','设置 → 显示 → 字体与显示大小，最大档'],['桌面精简','只留 6–8 个常用 App，其余收进文件夹'],['关闭推送','非必要 App 全部关通知，减少误触'],['支付限额','绑定小额卡，单笔限额 500'],['紧急联系人','锁屏可拨，医疗急救卡填好'],['快捷拨号','桌面放"家人"大图标']],
+  note:'字体放大后，很多按钮会被挤出屏幕。放大的同时要把"显示大小"调回中等，否则界面会错位。'},
+ {title:'该装哪几个 App',head:['用途','建议'],
+  rows:[['通讯','微信（关掉朋友圈入口，只留聊天）'],['视频','抖音/快手（设置青少年模式防沉迷）'],['支付','支付宝"关怀版"或微信'],['医疗','本地挂号平台'],['出行','地图 + 打车（绑定亲情号）'],['购物','可不装，让子女代买'],['不要装','理财、借贷、陌生清理类']],
+  note:'App 越少越安全。每多装一个，就多一个弹窗广告和误点付费的入口。'},
+ {title:'防诈骗必做的设置',head:['设置','作用'],
+  rows:[['国家反诈中心 App','来电预警'],['运营商防骚扰','拦截标记号码'],['微信关闭"允许陌生人看十条"','减少信息泄露'],['支付宝延时到账','2 小时可撤回'],['银行动账提醒','每笔短信通知'],['卸载陌生"客服"链接','一律不点'],['约定家庭暗号','防 AI 换脸冒充']],
+  note:'最有效的一条不是技术，是约定："任何要钱的电话，先挂掉，打给我。"把这句话设成手机壁纸都行。'},
+ {title:'健康监测设备',head:['设备','适合','注意'],
+  rows:[['智能手环','步数、心率、睡眠','老人更看重续航与字大'],['手环跌倒检测','独居老人','需配合一键呼叫'],['血压计','高血压','上臂式，别用腕式'],['血糖仪','糖尿病','试纸成本要算'],['智能药盒','多药同服','提醒 + 缺药提示'],['定位手表','认知障碍','需定期充电']],
+  note:'所有需要"每天记得充电"的设备，三个月后一定会被忘在抽屉里。要么续航一周以上，要么别买。'},
+ {title:'远程协助怎么做',head:['方式','说明'],
+  rows:[['微信视频通话','最通用，教一遍就会'],['手机自带"远程协助"','部分品牌支持，需同品牌'],['第三方远控 App','需老人每次授权'],['录屏教学','把操作录成 30 秒视频发过去'],['纸质步骤卡','贴在手机背面最有效'],['上门一次','比远程说十遍管用']],
+  note:'教老人用手机，一次只教一个动作，并且让他自己操作三遍。你在旁边代点，等于没教。'},
+ {title:'别给爸妈买的东西',head:['品类','原因'],
+  rows:[['功能机换智能机（但不设置）','字小、广告多，反而更难用'],['智能音箱（不教会）','沦为摆设'],['扫地机器人（地上杂物多）','天天卡住'],['智能门锁（不设机械钥匙备份）','没电就被锁在门外'],['大屏平板（不装支架）','拿不动，看不了'],['各类"养生"仪器','多数无医疗器械注册证']],
+  note:'买设备之前先问一句"这个东西坏了，谁会来修"。没人修的智能设备，对老人来说是负担而不是帮助。'}
+]},
+
+{id:'homedocs',en:'Home Records',g:'生活日常',icon:'🗂️',name:'家庭证件与文件管理',type:'tables',sub:'家里真正会"急用找不到"的，永远是那五六张纸。花一个下午整理，能省掉未来无数次翻箱倒柜。',sections:[
+ {title:'必须留原件的',head:['文件','说明'],
+  rows:[['身份证、户口本','办事几乎都要'],['房产证 / 不动产证','买卖、抵押、继承'],['结婚证','过户、继承、贷款'],['出生医学证明','入学、出国、落户'],['学历学位证书','入职、职称、签证'],['护照、港澳台通行证','出行'],['职业资格证','执业注册要用原件'],['保险合同','理赔时必须出示']],
+  note:'原件集中放在一个防水防火的文件袋里，位置全家人都要知道。分散在三个抽屉，等于没有。'},
+ {title:'该电子化的清单',head:['文件','扫描要求'],
+  rows:[['身份证正反面','彩色，300 dpi，四角完整'],['户口本首页 + 本人页','彩色'],['房产证每一页','含附图页'],['合同类','全部页面，含签字页'],['保单','首页 + 保障责任页'],['发票与保修卡','按购买年份归档'],['体检报告','按年份归档，便于对比'],['家庭照片','年度备份，异地存一份']],
+  note:'扫描件要存在"两个地方"：一个云端、一个移动硬盘。只存手机相册，换机时就丢了。'},
+ {title:'家庭档案怎么分类',head:['类别','放什么'],
+  rows:[['身份类','身份证、户口、护照、结婚证'],['财产类','房产、车辆、股权、存单'],['契约类','购房合同、租赁合同、装修合同'],['保障类','社保、商保、公积金'],['医疗类','病历、体检、疫苗记录'],['教育类','学历、培训、子女学籍'],['票据类','大额发票、保修卡']],
+  note:'分类不用复杂，七个文件夹就够。真正决定能不能找到的，是"命名规则"——建议"年份_类别_内容"。'},
+ {title:'密码与账号',head:['做法','说明'],
+  rows:[['分级','支付类 / 社交类 / 一般网站，三级不同密码'],['不重复','一个站泄露不牵连全部'],['双因素','支付与邮箱必开'],['记录方式','密码管理器，或纸质本锁抽屉'],['不要','写在手机备忘录、微信收藏'],['紧急清单','一份"账号清单"封存给家人']],
+  note:'"账号清单"是很多家庭缺失的一环。人不在了、或突然住院，家人不知道有哪些账户、哪些保单，损失往往比想象中大。'},
+ {title:'每年盘点一次',head:['项目','检查什么'],
+  rows:[['证件有效期','身份证、护照、驾照、居住证'],['保单','受益人、保额、缴费卡是否有效'],['房产车辆','有无抵押、年检、保险到期'],['账户','不用的卡与账号注销'],['纸质文件','受潮、褪色、虫蛀'],['电子备份','能否打开，硬盘是否还能读'],['紧急联系人','电话是否还有效']],
+  note:'把它设成每年生日那周的任务。这一天做，永远不会忘。'},
+ {title:'突发时要用的材料',head:['场景','需要的材料'],
+  rows:[['住院','身份证、医保卡、既往病历、押金'],['手术签字','身份证、亲属关系证明'],['理赔','保单、病历、发票、诊断证明'],['身故办理','死亡证明、身份证、户口本、结婚证'],['继承过户','死亡证明、亲属关系证明、房产证'],['异地就医','备案凭证、转诊单']],
+  note:'把"住院要带什么"打印一张 A4 贴在文件袋里。真到那天，人是慌的，清单比记忆可靠。'}
+]},
+
+{id:'waterfilter',en:'Water Treatment',g:'居家装修',icon:'💧',name:'净水与饮水',type:'tables',sub:'净水器不是越贵越好，是"滤芯对不对、换得起不起"。买之前先查一件小事：你家自来水硬度多少。',sections:[
+ {title:'自来水里有什么',head:['物质','来源','怎么处理'],
+  rows:[['余氯','消毒残留','活性炭吸附，烧开也能去'],['泥沙铁锈','老旧管道','PP 棉前置过滤'],['水垢（钙镁）','硬度高','软化或 RO 反渗透'],['重金属','管道、水源','RO 膜有效'],['细菌病毒','二次供水','超滤 + 烧开，RO 更彻底'],['有机物','管道腐蚀','活性炭'],['硝酸盐','农业污染','RO 膜']],
+  note:'判断自家水质最省事的办法：烧水壶一个月结多少垢。结厚垢说明硬度高，优先考虑 RO。'},
+ {title:'净水器类型对比',head:['类型','过滤精度','适合'],
+  rows:[['前置过滤器','40–100 μm','全屋第一道，保护涉水电器'],['超滤（UF）','0.01 μm','去泥沙细菌，保留矿物质，不除垢'],['纳滤（NF）','0.001 μm','部分除垢，保留部分矿物质'],['反渗透（RO）','0.0001 μm','几乎全除，需通电、产生废水'],['活性炭','吸附','去氯去味，不除重金属'],['软水机','离子交换','只除硬度，不能直饮']],
+  note:'RO 出水几乎不含矿物质，长期单一饮用建议饮食补充。但"RO 水没营养所以有害"是谣言——水本来就不是营养主要来源。'},
+ {title:'滤芯更换周期',head:['滤芯','周期','超期后果'],
+  rows:[['PP 棉','3–6 个月','堵塞、出水量骤降'],['前置过滤器','冲洗每月，滤网 1–2 年','压损增大'],['活性炭','6–12 个月','吸附饱和后反而释放'],['超滤膜','1–2 年','断丝、过滤失效'],['RO 膜','2–3 年','产水量下降、脱盐率降低'],['后置活性炭','6–12 个月','口感变差']],
+  note:'滤芯是净水器真正的成本。买之前先查"一套滤芯多少钱、多久换一次"，年成本常常超过机器价格的三分之一。'},
+ {title:'通量怎么选',head:['人数','通量','接一杯水'],
+  rows:[['1–2 人','400 G','约 10 秒'],['3–4 人','600–800 G','约 6 秒'],['5 人以上','1000 G 以上','约 4 秒'],['有婴儿冲奶','800 G 以上','避免等待'],['老小区水压不稳','带增压泵','否则产水量腰斩'],['注意','G 是加仑/天','不是每分钟']],
+  note:'通量标称是在理想水温下测的。冬天水温低，实际产水量会掉三到四成，选型时往上加一档。'},
+ {title:'饮水安全常识',head:['场景','做法'],
+  rows:[['烧开水','沸腾后再煮 1–3 分钟，别反复烧'],['隔夜水','盖好可以喝，别敞口放'],['桶装水','开封 7 天内喝完，饮水机 3 个月清洗'],['早起第一杯','放掉半分钟再喝'],['长期不用','先放水冲洗管路'],['婴儿冲奶','70 ℃ 以上水冲泡，再降温']],
+  note:'"千滚水致癌"是谣言，但反复烧开确实会让亚硝酸盐略升。更实际的理由是口感变差、费电。'},
+ {title:'常见误区',head:['说法','真相'],
+  rows:[['"弱碱性水更健康"','胃酸会瞬间中和，无意义'],['"小分子团水"','无可靠证据，属营销概念'],['"净水器能治病"','涉水产品不得宣称疗效'],['"滤芯不用换，反冲洗就行"','反冲洗只能延缓，不能再生'],['"RO 浪费水"','现在废水比多在 2:1 以内'],['"水垢多就有害"','硬度与健康无明确因果，主要影响口感与器具']],
+  note:'看到宣称"治病、养生、活化"的净水产品，一律按虚假宣传处理。净水器只有一种功能：把水变干净。'}
+]},
+
+{id:'airconuse',en:'Air-con Use',g:'生活日常',icon:'❄️',name:'空调使用与省电',type:'tables',sub:'空调费电与否，八成取决于"设定温度、房间密封、滤网脏不脏"，跟品牌关系不大。',sections:[
+ {title:'温度怎么设',head:['场景','建议温度'],
+  rows:[['制冷（成人）','26–27 ℃'],['制冷（老人小孩）','27–28 ℃'],['睡眠','27 ℃ + 睡眠模式'],['制热','20–22 ℃'],['刚回家快速降温','先 24 ℃ 半小时，再回到 27 ℃'],['无人时','关掉，或 29 ℃ 维持'],['每调低 1 ℃','耗电增加约 6–10%']],
+  note:'26 ℃ 不是玄学，是"人体舒适"与"耗电"的平衡点。开到 22 ℃ 并不会更快凉，只会更费电。'},
+ {title:'耗电对比',head:['方式','相对耗电'],
+  rows:[['变频 26 ℃ 持续运行','基准 1.0'],['定频 26 ℃ 频繁启停','1.2–1.4'],['变频 22 ℃','1.6–1.8'],['除湿模式长时间开','1.0–1.2，但会降温'],['睡眠模式','0.5–0.7'],['只开风扇 + 空调 28 ℃','0.4–0.5'],['出门 1 小时内关 vs 不关','不关更省（变频）']],
+  note:'变频空调短时间出门别关。反复启停的启动电流，比维持低频运行更耗电。'},
+ {title:'清洗与维护',head:['部位','周期'],
+  rows:[['滤网','每 2 周，用水冲净晾干'],['蒸发器翅片','每年一次，专用清洗剂'],['接水盘与排水管','每年，防霉防堵'],['外机翅片','每年，水冲或软刷'],['深度拆洗','2–3 年一次，找专业'],['长期不用','清洗后开送风 2 小时吹干']],
+  note:'滤网堵一半，耗电增加 15–25%，制冷量下降三成。这是最便宜、最容易被忽略的省电手段。'},
+ {title:'选购参数',head:['参数','参考'],
+  rows:[['匹数','1 匹 ≈ 10–12 ㎡，1.5 匹 ≈ 15–18 ㎡'],['能效等级','优先 1 级（APF 值越高越省）'],['变频 / 定频','卧室必选变频'],['噪音','室内机 ≤22 dB 才够安静'],['循环风量','越大降温越快'],['自清洁','有用，但不能替代人工清洗'],['新风功能','需要换气才值得加钱']],
+  note:'匹数要按"房间面积 + 朝向 + 顶层 + 大玻璃"上浮。西晒或顶楼，按标准加 0.5 匹。'},
+ {title:'安装位置',head:['要点','原因'],
+  rows:[['室内机不直吹床/沙发','直吹易头痛、面瘫'],['离天花板留 15 cm','否则回风不畅'],['外机不封闭阳台','散热不良，耗电翻倍'],['铜管尽量短','每多 1 米损失约 2% 效率'],['排水要有坡度','否则倒流滴水'],['避免对着电视','冷凝水与震动']],
+  note:'同一台空调，装得好与装得差，耗电能差 20%。安装工的抽真空时间，尤其不能省。'},
+ {title:'省电误区',head:['说法','真相'],
+  rows:[['"开一会儿关一会儿更省"','变频机反而更费'],['"温度调低凉得快"','只是更费电，降温速度相近'],['"风扇对着空调吹"','会扰乱回风，效果更差'],['"滤网不用常洗"','堵了直接多耗 20%'],['"外机不用管"','翅片积灰是效率杀手'],['"除湿比制冷省"','长时间开并不省，且过冷']],
+  note:'最有效的省电组合是：温度 26–27 ℃、滤网干净、门窗关严、加一台循环扇。四件事加起来能省三成。'}
+]},
+
+{id:'emergency',en:'Emergency Prep',g:'生活日常',icon:'🧯',name:'家庭应急储备',type:'tables',sub:'应急储备不是囤货，是"断水断电断网三天，家里还能正常过"。按这个标准配，一次就够。',sections:[
+ {title:'基础物资清单',head:['类别','数量','说明'],
+  rows:[['饮用水','每人每天 3 L × 3 天','含烹饪用水'],['不用加热的食物','3 天量','饼干、罐头、能量棒'],['常用药','7 天量','含慢性病药'],['手电筒','每间房 1 个','别只靠手机'],['电池','各型号各 4 节','与手电匹配'],['充电宝','20000 mAh 以上','每月检查电量'],['现金','500–2000 元小额','断网时刷卡失效'],['收音机','1 台','获取信息']],
+  note:'储备的关键是"每半年检查一次"。过期的药、没电的充电宝、漏水的瓶装水，等于没准备。'},
+ {title:'停电怎么办',head:['场景','应对'],
+  rows:[['突然停电','先看邻居是否也停，再查是否跳闸'],['冰箱','不要反复开门，满箱可保温 24 小时'],['手机','开省电模式，只留通讯'],['电梯困人','按警铃，不要强行扒门'],['取暖 / 降温','集中到一个房间，减少活动范围'],['恢复供电','先拔掉大功率电器，再逐一插回']],
+  note:'停电时最危险的不是黑暗，是蜡烛。家庭照明优先用手电和应急灯，明火在无人看管时极易引燃。'},
+ {title:'停水怎么办',head:['场景','应对'],
+  rows:[['提前通知','用浴缸、水桶储水'],['突然停水','关掉所有水龙头，防来水时淹'],['饮用','瓶装水优先'],['清洁','湿巾替代'],['冲厕','一桶水缓倒，别一次猛冲'],['恢复供水','先放水 1–2 分钟再使用']],
+  note:'停水后恢复供水的前几分钟，管道里是浑水。放掉再用，别直接接来做饭。'},
+ {title:'火灾与逃生',head:['器材 / 要点','说明'],
+  rows:[['灭火器','干粉 2 kg，放厨房门口'],['灭火毯','厨房必备，油锅起火盖住'],['逃生绳 / 缓降器','三层以上可考虑'],['烟感报警器','每个卧室外走道一个'],['强光手电','带爆闪功能'],['逃生路线','至少两条，全家演练一次']],
+  note:'油锅起火绝不能用水。关火、盖锅盖、或倒灭火毯，三步之内解决；泼水会让火瞬间爆燃。'},
+ {title:'地震与台风',head:['场景','做法'],
+  rows:[['地震（室内）','伏地、遮挡、抓牢，躲在承重墙角'],['地震（高层）','不要坐电梯，不要跳窗'],['震后','关燃气、关电闸，穿鞋防碎玻璃'],['台风前','收阳台杂物，贴米字胶带（防飞溅）'],['台风中','远离窗户，备好照明与饮水'],['积水','不涉水行走，远离电箱与井盖']],
+  note:'地震时"躲在桌下"要看桌子够不够结实。真正可靠的是承重墙内侧、卫生间等小开间。'},
+ {title:'应急包放什么',head:['物品','理由'],
+  rows:[['证件复印件','原件可能拿不到'],['少量现金','断网断 POS'],['水与高热量食物','72 小时窗口'],['急救包','止血、消毒、常用药'],['口哨','比喊叫省力，传得远'],['多功能刀','破窗、割绳'],['口罩与手套','粉尘与污水'],['家庭联络卡','写清血型、用药、联系人']],
+  note:'应急包放在"出门顺手能拿到"的位置，玄关柜最合适。塞在床底深处，真出事时拿不到。'}
+]},
+
 /* ---------- 专业计量 ---------- */
 {id:'hardness',en:'Hardness',g:'石油与工程',g2:'居家装修',icon:'🔨',name:'材料硬度',type:'custom',panel:'hardnessPanel',bind:'bindHardness'},
 {id:'threads',en:'Thread Specs',g:'石油与工程',g2:'居家装修',icon:'🔩',name:'螺纹规格',type:'tables',sub:'公制、UNC/UNF、G/BSP、NPT 四种螺纹的牙数与外径对照。',sections:[
@@ -5246,7 +5477,7 @@ function aboutPanel(){
   return '<div class="panel"><h2>ℹ️ About & Changelog</h2><p class="sub">Version, stack, licences — and what we refuse to build.</p>' +
   card('About', '<div class="kv">' +
     '<dt>Name</dt><dd>Life Converter · All-in-One Handbook</dd>' +
-    '<dt>Version</dt><dd>V5.6 (2026-10-28)</dd>' +
+    '<dt>Version</dt><dd>V5.9 (2026-10-28)</dd>' +
     '<dt>Form</dt><dd>Single-page app + PWA, installable</dd>' +
     '<dt>Modules</dt><dd>142 across 10 groups, 75 reference cards</dd>' +
     '<dt>Data</dt><dd>All calculations on-device, no upload</dd>' +
@@ -5273,6 +5504,9 @@ function aboutPanel(){
     ['V4.5','Waterproofing, cabinetry, network and gas cards; every calculator can export its result as a card; recently used modules surface at the top of the sidebar; swap buttons on the Combo Board'],
     ['V4.6','Appliance buying, storage planning, contract & payment, and checkup numbers cards; value boxes accept sums like 12*8; every reference card exports to Excel or copies as a table; history exports to Excel; Alt+↑/↓ jumps between modules'],
     ['V4.7','Gift money, exercise burn, laundry care and underfloor heating cards; the Combo Board takes formula rows (x*0.13); filter box on every reference card; copy all units at once'],
+    ['V5.9','Home records and documents, water treatment, air-con use and power saving, and household emergency stock cards'],
+    ['V5.8','Kids activity classes, travel packing, parcel shipping costs, and smart devices for parents cards'],
+    ['V5.7','Pet diet and weight, sale calendar and price comparison, and kitchen gadget buying cards'],
     ['V5.6','Cabinet dimensions and circulation, second-hand trading scams, thank-you banquet and gifts, and appliance trade-in subsidy cards'],
     ['V5.5','Renovation materials and haggling, waste sorting and recycling, online returns and price protection, and pet health cards'],
     ['V5.4','Home solar and storage, balcony growing, buying a car, and phone specs cards'],
@@ -5341,9 +5575,9 @@ function aboutPanelZH(){
   return '<div class="panel"><h2>ℹ️ 关于与更新日志</h2><p class="sub">版本、技术、许可，以及我们坚决不做的事。</p>' +
   card('关于', '<div class="kv">' +
     '<dt>名称</dt><dd>生活换算 · 全能手册</dd>' +
-    '<dt>版本</dt><dd>V5.6（2026-10-28）</dd>' +
+    '<dt>版本</dt><dd>V5.9（2026-10-28）</dd>' +
     '<dt>形态</dt><dd>单页应用 + PWA，可安装到桌面</dd>' +
-    '<dt>模块</dt><dd>166 个，10 个分组，99 张速查表</dd>' +
+    '<dt>模块</dt><dd>177 个，10 个分组，110 张速查表</dd>' +
     '<dt>数据</dt><dd>全部本地计算，不上传</dd>' +
   '</div>') +
   card('更新日志', tbl(['版本','主要变化'],[
@@ -5361,6 +5595,9 @@ function aboutPanelZH(){
     ['V3.2','中英界面、无障碍与键盘操作、安装引导、意见反馈'],
     ['V3.3','全部模块标题与说明英译、单位模块注释英译'],
     ['V3.4','表格模块（扳手/管钳/螺栓/钻头/床品/螺纹）表头与注释英译'],
+    ['V5.9','新增家庭证件与文件管理、净水与饮水、空调使用与省电、家庭应急储备 4 张速查表'],
+    ['V5.8','新增兴趣班怎么选、旅行行李清单、寄件与运费省钱、爸妈用手机与智能设备 4 张速查表'],
+    ['V5.7','新增宠物饮食与体重、大促日历与比价、厨房小家电选购 3 张速查表'],
     ['V5.6','新增柜体尺寸与动线、二手交易防骗、答谢宴与回礼、家电以旧换新 4 张速查表'],
     ['V5.5','新增装修材料防坑与砍价、垃圾分类与回收、网购退货与避坑、宠物就医与疫苗 4 张速查表'],
     ['V5.4','新增家用光伏与储能、阳台种菜与园艺、买车与选车、手机选购与参数 4 张速查表'],
@@ -7818,7 +8055,7 @@ function updateStatic(){
   const brandrow = document.querySelector('.brandrow');
   if(brandrow && brandrow.childNodes[0]) brandrow.childNodes[0].textContent = t('生活换算','Life Conversion');
   const brand = document.querySelector('.brand > span');
-  if(brand) brand.textContent = t('全能手册 · 本地离线版 v5.6', 'All-in-One Handbook · v5.6');
+  if(brand) brand.textContent = t('全能手册 · 本地离线版 v5.9', 'All-in-One Handbook · v5.9');
   const bl = document.getElementById('backlink');
   if(bl) bl.textContent = t('← 返回工具箱','← Back to toolbox');
   const side = document.querySelector('.side');
@@ -7952,7 +8189,18 @@ const SUB_EN_MORE = {
  "storagedim": "Too little storage is rarely too few cabinets. It is cabinets that are too deep, too many shelves, and in the wrong place. Fix the dimensions before buying any boxes.",
  "secondhand": "Almost every second-hand dispute traces back to three things: no video, no platform, and no mention of the flaw.",
  "wedding2": "The main banquet is staged for the elders; the thank-you dinner is cooked for your friends. Different purpose means a different run sheet and a different budget.",
- "tradein": "The subsidy is real, and so is the price rise before it. One test decides it: is the price after subsidy below the lowest price of the last 30 days?"
+ "tradein": "The subsidy is real, and so is the price rise before it. One test decides it: is the price after subsidy below the lowest price of the last 30 days?",
+ "petfood": "Poisoning and obesity are both fed at home. The first happens once; the second happens every single day.",
+ "salecal": "A sale is not “the cheapest moment”, it is “the biggest discount inside an inflated price”. Saving money comes from comparison, not from waiting for a date.",
+ "smallapp": "Small appliances get shelved for exactly three reasons: annoying to wash, slow to use, no worktop space. Answer those three before buying.",
+ "kidsclass": "The real cost of a children's class is the driving, the practice and the time — not the fee. Families with three classes usually learn none of them well.",
+ "packlist": "Overpacking is tiring; underpacking is worse. The things worth calculating are medicine, documents and chargers, not clothes.",
+ "shipping": "Freight cost is half weight and half volume. Swapping to one box size smaller usually beats negotiating a discount.",
+ "eldertech": "Older people do not avoid smart devices because they cannot learn. The text is too small, there are too many steps, and they are afraid of tapping something that charges them.",
+ "homedocs": "The documents you will desperately need are always the same five or six sheets. One afternoon of filing saves years of rummaging.",
+ "waterfilter": "A water purifier is not better because it costs more; it is better if the filter is right and you can afford to keep replacing it. Check your water hardness first.",
+ "airconuse": "How much an air conditioner costs to run is decided by set temperature, room sealing and a dirty filter — not by the brand.",
+ "emergency": "Emergency stock is not hoarding. It is being able to live normally for three days with no water, power or network. Stock to that standard once, and you are done."
 };
 Object.assign(SUB_EN, SUB_EN_MORE);
 const NOTE_EN = {"length": "Chinese: 1 chi = 1/3 m, 1 li = 500 m, 1 zhang = 10 chi. Imperial: 1 inch = 25.4 mm by definition.", "area": "1 mu ≈ 666.67 m² = 60 square zhang; 1 mu = 10 fen = 100 li. 1 hectare = 15 mu.", "volume": "1 oil barrel (bbl) = 42 US gallons ≈ 158.99 L. Chinese: 1 shi = 10 dou = 100 L.", "mass": "Mainland 1 jin = 500 g; Taiwan 1 jin = 600 g; HK 1 jin ≈ 604.79 g. 1 liang = 10 qian = 50 g.", "speed": "1 knot = 1 nautical mile per hour ≈ 1.852 km/h. Mach is approximate at sea level (340.3 m/s).", "pressure": "Tyre pressure: 2.5 bar = 250 kPa ≈ 36.3 psi. Pipeline: 1 MPa ≈ 10 bar ≈ 145 psi.", "power": "Two horsepower standards: metric PS = 735.5 W (CN/EU), imperial hp = 745.7 W (US). Car specs usually mean PS.", "energy": "Food labels: 1 kcal = 4.184 kJ. Chinese nutrition tables use kJ — divide by 4.184. 1 kWh = 1 unit of electricity.", "data": "Windows and RAM use 1024; drive makers use 1000. That is why a 1TB drive shows about 931GB — nobody cheated you.", "flow": "1 barrel per day ≈ 0.00662 m³/h ≈ 158.99 L/day. 1 m³/h ≈ 151 bpd.", "angle": "One turn = 360° = 2π rad = 400 grad = 6400 mils (military).", "duration": "Month is averaged at 30.44 days, year at 365.25. For exact months use the date difference tool.", "force": "1 kgf = 9.80665 N. Ratings on slings and anchors are often in kgf or kN.", "density": "Crude oil API gravity: API = 141.5/SG − 131.5. Higher API means lighter oil; 32°API ≈ 0.865 g/cm³."};
@@ -8354,6 +8602,94 @@ const TABLE_EN_MORE = {
  {"title": "Five steps", "head": ["Step", "What to do"], "rows": [["1 Choose", "Check the efficiency label, note the model and the normal price"], ["2 Claim", "Get the subsidy voucher in store or in the app; watch the quota"], ["3 Order", "Select trade-in and enter the old unit's details"], ["4 Delivery", "New unit delivered and inspected while the old one is collected"], ["5 Settle", "Discount applied, or submit the paperwork for a refund"]], "note": "Inspect the new unit before handing over the old one. Once it leaves it goes straight into dismantling, and if the new unit needs replacing, the old one is gone."},
  {"title": "Is it worth it", "head": ["Situation", "Advice"], "rows": [["Old unit still works", "Try selling it first; private sale usually beats scrap"], ["Old unit is dead", "Trade-in is the least hassle"], ["Bulky item needing removal (air-con)", "Clearly worth it when removal is included"], ["Subsidy stacks with platform coupons", "Best moment to buy"], ["Replacing only for the subsidy", "No — do not spend 5000 to save 500"], ["Old unit is a high-end model", "Its resale value may far exceed scrap"]], "note": "One test: take the price after subsidy, minus scrap value, minus coupons, and compare it with the price you saw three months ago. If it is not lower, it is not a deal."},
  {"title": "Six traps", "head": ["Trap", "Counter"], "rows": [["Raise the price, then subsidise", "Check 30-day price history, not the “after subsidy” figure"], ["Quota already used up", "Only order once the voucher is in hand"], ["Lowballed scrap value", "Confirm the figure before pickup and keep a record"], ["Removal charged separately", "Confirm “removal included” when ordering"], ["No return once collected", "Inspect the new unit before releasing the old one"], ["No invoice issued", "Insist on one; it affects the warranty"]], "note": "The subsidy comes from the government, not the retailer's margin. If the “after subsidy” price appears while the list price quietly rose, walk away — the same model is usually still at the old price elsewhere."}
+],
+"petfood": [
+ {"title": "Never feed these", "head": ["Food", "Who", "Consequence"], "rows": [["Chocolate", "Dogs and cats", "Theobromine poisoning, seizures, arrhythmia"], ["Grapes, raisins", "Dogs", "Acute kidney failure; a few can be fatal"], ["Onion, garlic, chives", "Dogs and cats", "Haemolytic anaemia; cooking does not help"], ["Xylitol (gum, toothpaste)", "Dogs", "Hypoglycaemia and liver failure from a tiny dose"], ["Macadamia nuts", "Dogs", "Hind-leg weakness, tremors"], ["Alcohol", "Dogs and cats", "Coma, respiratory depression"], ["Raw dough", "Dogs", "Ferments and expands in the stomach, causes bloat"], ["Coffee, strong tea", "Dogs and cats", "Racing heart, extreme agitation"]], "note": "Poisoning signs often appear 6–12 hours later. If you suspect ingestion, do not wait for symptoms — call the clinic and bring the packaging. Induction has a time window."},
+ {"title": "Feed only in small amounts", "head": ["Food", "Problem"], "rows": [["Cow's milk", "Most dogs and cats are lactose intolerant; diarrhoea"], ["Raw eggs", "Salmonella, plus avidin blocks biotin"], ["Cooked bones", "Splinter into sharp shards, can perforate the gut"], ["Liver", "Vitamin A toxicity; no more than once a week"], ["Salty food", "Sodium poisoning, especially in small dogs"], ["Avocado", "Pit, leaf and skin contain persin"], ["Macadamias, walnuts", "High fat, triggers pancreatitis"], ["Human snacks", "Too much oil, salt and sugar, and teaches begging"]], "note": "A general rule: anything containing caffeine, alcohol, xylitol, alliums or grapes is out. Everything else may be a small occasional bite, but never more than 10% of daily calories."},
+ {"title": "What cats specifically need", "head": ["Nutrient", "Why it matters"], "rows": [["Taurine", "Essential amino acid; deficiency causes retinal degeneration and dilated cardiomyopathy"], ["Arachidonic acid", "Cats cannot synthesise it; needs animal source"], ["Vitamin A", "Must come from animal liver; cannot convert beta-carotene"], ["Protein", "Roughly twice a dog's requirement, and animal-based"], ["Water", "Naturally low thirst; wet food or a fountain raises intake markedly"], ["Vegetarian diet", "Cats are obligate carnivores; a vegan diet will kill them"]], "note": "“Cats can be vegetarian” is a dangerous myth. Taurine deficiency causes irreversible heart disease and blindness, and home-made cat food most often misses exactly that."},
+ {"title": "Body condition scoring", "head": ["Check point", "Ideal", "Overweight sign"], "rows": [["Ribs", "Feel easily, like the back of your hand", "Need pressure, like the palm"], ["Waist from above", "Clear tuck behind the ribs", "No waist, barrel shape"], ["Belly from the side", "Tucked up", "Level or sagging"], ["Base of tail", "Bony outline felt", "Fat pad present"], ["BCS score", "3/5 or 4–5/9", "Above 6/9 is overweight"], ["Weighing", "Monthly", "Weekly"]], "note": "The number on the scale means nothing on its own; condition is the standard. A 5 kg cat that is thin and a 5 kg dog that is fat are both problems."},
+ {"title": "How much to feed", "head": ["Subject", "Resting energy RER", "Daily need"], "rows": [["Formula", "70 × weight(kg)^0.75", "—"], ["Neutered adult dog", "—", "RER × 1.6"], ["Intact adult dog", "—", "RER × 1.8"], ["Indoor adult cat", "—", "RER × 1.2"], ["Puppy under 4 months", "—", "RER × 3.0"], ["Puppy 4–12 months", "—", "RER × 2.0"], ["Weight loss", "Based on target weight", "RER × 1.0"], ["Example", "5 kg cat RER ≈ 200 kcal", "About 240 kcal/day"]], "note": "That figure is total daily calories and must include treats, wet food and dental chews. Most households overfeed through untracked treats, not through the main meal."},
+ {"title": "Losing weight safely", "head": ["Practice", "Why"], "rows": [["Lose 1–2% of body weight per week", "Faster loses muscle and strains the liver"], ["Weigh the food on a kitchen scale", "A measuring cup can be 30% off"], ["Treats under 10% of calories", "Use kibble from the daily ration instead"], ["Cats must lose even slower", "Above 1.5% per week risks fatty liver"], ["Increase activity", "Wand toys for cats, longer walks for dogs"], ["Recheck in three months", "Adjust calories at a plateau"], ["Everyone agrees", "One secret snack undoes the whole plan"]], "note": "The dangerous part of feline weight loss is speed: a cat that stops eating for 12 hours can start hepatic lipidosis. Slow is safe."}
+],
+"salecal": [
+ {"title": "The sale calendar", "head": ["When", "Event", "Strength"], "rows": [["January", "New Year festival", "Food, appliances, gifts; medium"], ["March", "38 refresh", "Beauty and clothing; medium"], ["June", "618", "Biggest of the first half; appliances and electronics"], ["August", "88 members' festival", "Membership oriented; medium"], ["September", "99 value festival", "Household stock-up; medium"], ["November", "Double 11", "Biggest of the year, all categories"], ["December", "Double 12", "Clearance; weaker than Double 11"], ["Monthly", "Category and brand days", "Deep discount on one category"]], "note": "Sales are now everyday events, almost every month has one. Only 618 and Double 11 are worth waiting for; otherwise buy when you need it."},
+ {"title": "Where the discount is real", "head": ["Category", "Typical discount", "Note"], "rows": [["Large appliances", "15–30%", "Lowest when stacked with subsidy"], ["Beauty and personal care", "30–50%", "Often as free gifts, not a lower price"], ["Clothing and bags", "40–60%", "Frequently made-for-sale lines"], ["Electronics", "5–15%", "Flagship phones barely move"], ["Baby goods", "20–35%", "Nappies are the best stock-up"], ["Books", "30–50%", "Threshold discounts plus coupons"], ["Fresh food", "Not worth stocking", "Freight and spoilage eat the saving"]], "note": "“Sale-only models” are the most common trap: the same series gets a stripped variant created for the event. Compare the model suffix before buying."},
+ {"title": "Three comparison tools", "head": ["Tool", "How to use"], "rows": [["Price-history add-on", "Check the 30 and 90-day curve"], ["Cross-platform check", "Same model on three platforms, include shipping"], ["Landed price", "Item − coupon − red packet + shipping"], ["Threshold maths", "With 50 off every 300, land exactly on 300"], ["Member vs coupon", "Often mutually exclusive; take the lower"], ["Unit price", "Tissues per 100 sheets, detergent per kg"]], "note": "The only reliable test is the landed price against its own history, not the discount percentage. A 30% price rise followed by 30% off is the oldest trick there is."},
+ {"title": "Stacking order", "head": ["Order", "Rule"], "rows": [["1", "Platform threshold discount (e.g. 50 off every 300)"], ["2", "Store or category coupon"], ["3", "Platform red packet"], ["4", "Membership discount, often exclusive with coupons"], ["5", "Payment discount (card, wallet)"], ["6", "Cashback or points, after the fact"], ["Note", "Deposits count towards the balance but usually not the threshold"]], "note": "More coupons is not more saving. Many are marked as mutually exclusive, so read that before deciding — the biggest one usually cannot be stacked."},
+ {"title": "Are deposits worth it", "head": ["Case", "Advice"], "rows": [["Is the deposit refundable", "Chinese “定金” is forfeited, “订金” is not"], ["Pre-sale price above event price", "Common; screenshot and compare"], ["Limited gifts", "The real value of pre-sale is usually the gift"], ["Balance deadline", "Miss it and the deposit is gone; set an alarm"], ["Price protection", "Most pre-sale items qualify; check on day six"], ["Unsure whether you want it", "Do not pay a deposit; wait for the day"]], "note": "Pre-sale trades certainty for a gift. It pays only if you are certain to buy and the gift is something you actually need."},
+ {"title": "Do not buy these on sale day", "head": ["Category", "Why"], "rows": [["Chilled and frozen food", "Warehouses overflow; thawing risk"], ["Large furniture", "Delivery and assembly slip two to three weeks"], ["Appliances needing install", "Fitters are booked out; old unit not removed"], ["Urgent items", "Logistics delay 3–7 days across the board"], ["Electronics at 5% off", "Waiting costs more than saving"], ["Anything added to reach a threshold", "80% of threshold fillers are never used"]], "note": "Threshold filling is the biggest hidden spend. Buying 80 yuan of extra stuff to save 50 means you spent 30 more, not less."}
+],
+"smallapp": [
+ {"title": "Ask three questions first", "head": ["Question", "Test"], "rows": [["How often per week", "Under twice and it will sit unused"], ["How long to wash", "Over five minutes and you stop using it"], ["Is there worktop space", "Keep three appliances out, store the rest"], ["Is there an alternative", "A pot, a microwave, an oven"], ["What do consumables cost", "Filters, cultures, capsules add up"], ["Can you stand the noise", "A blender at 85 dB is a busy street"]], "note": "The real cost of a small appliance is worktop area plus washing time. Both are more expensive than the purchase price."},
+ {"title": "What to own, and at what price", "head": ["Appliance", "Necessity", "Price"], "rows": [["Rice cooker", "Essential", "200–1500 CNY"], ["Kettle", "Essential", "80–300 CNY"], ["Microwave", "High use", "300–800 CNY"], ["Air fryer", "High use", "200–600 CNY"], ["High-speed blender", "Medium", "300–1500 CNY"], ["Electric pressure cooker", "Medium", "300–800 CNY"], ["Coffee machine", "Habit dependent", "300–3000 CNY"], ["Stand mixer", "Low", "800–3000 CNY"], ["Bread maker, yogurt maker", "Rarely used", "200–600 CNY"]], "note": "Buy the first three, use them for three months, then decide about the fourth. Buying the full set usually means three in use and five gathering dust."},
+ {"title": "Choosing an air fryer", "head": ["Spec", "Advice", "Why"], "rows": [["Capacity", "2–3 L for one, 4–5 L for two or three", "Families should take 4.5 L or more"], ["Power", "1400–1800 W", "Low power means slow preheat and poor browning"], ["Heating", "Top and bottom elements plus fan", "Single element burns one side"], ["Basket coating", "Non-stick or ceramic", "Ceramic lasts longer"], ["Format", "Drawer type", "Far easier to wash than a clamshell"], ["Window", "Worth having", "You stop pulling the basket out"], ["Noise", "55–65 dB", "Quieter than a hairdryer"]], "note": "Capacity claims are generous: a “4 L” often measures the outer body, holding about 2.5 L of food. Look at the basket volume."},
+ {"title": "Blenders and soy milk makers", "head": ["Spec", "Reference", "Note"], "rows": [["Blending power", "800–1500 W", "Under 800 W leaves grit"], ["Heating power", "800–1200 W", "Slow heating scorches the base"], ["Speed", "30,000–45,000 rpm", "Higher is louder"], ["Blades", "Blunt blades", "They break by impact and last longer"], ["Jar", "Glass or TRITAN", "Glass is heavy but scratch-resistant"], ["Noise", "75–90 dB", "Sound enclosures cost more and really work"], ["Self-clean", "Limited effect", "You still have to rinse it apart"]], "note": "Noise is the specification people forget: a 7 a.m. soy milk run at 85 dB wakes the whole building. In a flat, buy the one with an enclosure."},
+ {"title": "What matters in a rice cooker", "head": ["Spec", "Advice"], "rows": [["Heating", "IH beats a bottom hotplate"], ["Inner pot thickness", "3 mm or more", "Thin pots heat unevenly"], ["Coating", "Charcoal or ceramic", "Once it flakes, replace the pot"], ["Capacity", "3 L for two or three, 4 L for four or five"], ["Pressure IH", "Better texture, double the price"], ["Removable lid", "Must be removable and washable"], ["Timer", "Check it supports 24 hours"]], "note": "Rice is 70% the grain, 20% the water and 10% the cooker. On a budget, buy better rice before a better machine."},
+ {"title": "Five that gather dust", "head": ["Appliance", "Why"], "rows": [["Yogurt maker", "Buy cultures, wait 8 hours, sterilise everything"], ["Bread maker", "Three hours a loaf, worse than the shop"], ["Egg boiler", "A saucepan already does it"], ["Juicer", "Cleaning takes longer than drinking"], ["Sandwich maker", "It makes one thing"]], "note": "The test for dust: preparation plus washing over ten minutes. Anything above that rarely gets used more than five times."}
+],
+"kidsclass": [
+ {"title": "What can be learned when", "head": ["Age", "Suitable", "Note"], "rows": [["3–4", "Scribbling, movement, parent-and-child swimming", "Play first, no skills demanded"], ["5–6", "Instrument taster, ball games, taekwondo", "Attention span is 15 minutes; keep sessions short"], ["7–8", "Handwriting, real swimming, visual coding", "Fine motor control is ready"], ["9–10", "Team sports, formal instrument study", "Can follow rules and cooperate"], ["11+", "Specialisation, competition track", "Time to choose one"], ["Not advised", "Academic classes before six", "Early drilling has poor returns and breeds dislike"]], "note": "Treat every “the earlier the better” claim with suspicion. Apart from language and swimming, most skills taught two years early are caught up within six months after twelve."},
+ {"title": "What each category buys", "head": ["Type", "What the child gets", "Cost"], "rows": [["Sport", "Fitness, resilience, rules", "The best first investment"], ["Art", "Taste, expression, focus", "Slow; do not measure by exams"], ["Academic", "Short-term marks", "Eats sport and sleep time"], ["Coding and thinking", "Logic, problem decomposition", "Much of it is gamified packaging at young ages"], ["Language", "Ear and willingness to speak", "Needs frequency; once a week does nothing"], ["Competition", "Purpose and pressure tolerance", "Easily becomes the parent's battlefield"]], "note": "If you can only pick one, pick sport. Fitness and resilience are the base everything else is built on."},
+ {"title": "What to watch in a trial class", "head": ["Point", "Good sign", "Bad sign"], "rows": [["Teacher interaction", "Knows every child's name", "Talks to the parents instead"], ["Pace", "Alternates activity and rest", "40 minutes seated"], ["Child's reaction", "Wants to stay after class", "Says they do not want to come back"], ["Class size", "6–10", "Over 20"], ["Returning students", "High renewal rate", "All new faces"], ["Venue safety", "Mats, guards, ventilation", "Old equipment, no fire exit"]], "note": "A trial class is the school's best face. Watch the parents' expressions at pick-up instead — that is more honest than any sales pitch."},
+ {"title": "Fees and hours", "head": ["Type", "Per session", "Per year"], "rows": [["Sport, group", "80–150 CNY", "5,000–10,000 CNY"], ["Sport, one-to-one", "200–400 CNY", "Over 20,000 CNY"], ["Instrument, one-to-one", "150–400 CNY", "10,000–20,000 CNY"], ["Art, group", "80–150 CNY", "5,000–8,000 CNY"], ["Coding, group", "100–200 CNY", "8,000–15,000 CNY"], ["Academic", "100–300 CNY", "10,000–30,000 CNY"], ["Hidden costs", "Driving, practice, equipment", "Often 30–50% of the fee"]], "note": "Before enrolling, do the time budget: class plus travel plus practice. If it exceeds half the child's free play time, cut something."},
+ {"title": "When to stop", "head": ["Signal", "Reading"], "rows": [["Refuses three times in a row", "Pause two weeks, then ask why"], ["Only goes after a bargain", "Motivation has become external"], ["A year with no progress", "Probably a teaching mismatch"], ["Sleep or homework suffer", "Wrong priority"], ["Only the parent still insists", "The child is finishing your wish"], ["Improves sharply after a teacher change", "It was a personality mismatch"]], "note": "Quitting is not failure. Trial and error is part of what classes are for: finding what is genuinely loved, at the lowest cost."},
+ {"title": "Parent mistakes", "head": ["Mistake", "Consequence"], "rows": [["Three classes at once", "Each is only skimmed"], ["Chasing certificates", "They stop the day the exam ends"], ["Answering for the child", "The child stops raising a hand"], ["Comparing with other children", "Turns interest into pressure"], ["Never watching a class", "You cannot tell if it is taught well"], ["Using classes as childcare", "The child feels stored"], ["Reading the contract only at refund time", "The penalty is brutal"]], "note": "Before signing, ask one question: “If we stop halfway, how are the remaining sessions refunded?” The answer tells you what kind of school it is."}
+],
+"packlist": [
+ {"title": "How much clothing", "head": ["Days", "Tops", "Bottoms"], "rows": [["1–2", "2", "1"], ["3–4", "3", "2"], ["5–7", "4", "2–3"], ["8+", "5 plus laundry", "3"], ["Formula", "Days ÷ 2 + 1 if you can wash", "—"], ["Underwear and socks", "Days + 1", "—"], ["Outer layer", "1 versatile jacket", "—"], ["Shoes", "Wear one, pack one", "—"]], "note": "The right strategy is fewer clothes and more laundry, not more clothes and no laundry. Past a week, a rental with a washing machine beats five extra outfits."},
+ {"title": "Documents", "head": ["Item", "Note"], "rows": [["ID or passport", "On you, never checked in"], ["Digital backup", "ID, passport and policy photographed to cloud"], ["Tickets", "Screenshot and saved offline"], ["Hotel confirmation", "Offline copy; do not rely on signal"], ["Driving licence", "Essential if renting a car"], ["Insurance number", "In a phone note"], ["Cash", "Split across bags, small notes"]], "note": "The two most forgotten things are a digital passport photo and a paper emergency-contact card. When the phone dies, the paper one matters."},
+ {"title": "Medicine kit", "head": ["Category", "What to bring"], "rows": [["Pain and fever", "Paracetamol or ibuprofen"], ["Stomach", "Montmorillonite, oral rehydration salts"], ["Allergy", "Loratadine"], ["Wounds", "Plasters, iodine swabs"], ["Motion sickness", "Dimenhydrinate, 30 minutes before travel"], ["Topical", "Insect repellent, sunscreen"], ["Personal prescriptions", "1.5× the days you need"]], "note": "Prescription medicine should travel in its original box with a copy of the prescription; customs may ask. Liquids must be under 100 ml per bottle for carry-on."},
+ {"title": "Travelling with children", "head": ["Item", "Quantity"], "rows": [["Nappies", "6–8 per day × days"], ["Wipes", "One pack per day"], ["Change of clothes", "Two sets per day"], ["Medicine", "Fever, diarrhoea, thermometer"], ["Comforter", "The same one, never a new one"], ["Snacks and water", "For delays"], ["Folding stroller", "One that fits the cabin"]], "note": "With children, pack double the redundancy. One spill and one accident means two full outfits gone."},
+ {"title": "Packing order", "head": ["Layer", "What goes there"], "rows": [["Bottom", "Shoes in bags, heavy items, jeans"], ["Middle", "Rolled clothes, socks in the gaps"], ["Top", "Toiletries, chargers, things you need first"], ["Topmost", "Jacket, umbrella"], ["Day bag", "Documents, medicine, power bank, pen"], ["Technique", "Rolling saves about 30% of space"]], "note": "Power banks must travel in the cabin, never checked. Under 100 Wh is allowed on board; above that needs airline approval."},
+ {"title": "Security and baggage rules", "head": ["Item", "Rule"], "rows": [["Liquids", "100 ml per bottle, 1 L total, clear bag"], ["Power bank", "Carry-on only, 100 Wh or less, markings legible"], ["Lighters", "Banned in cabin and checked"], ["Lithium batteries", "Carry-on, never checked"], ["Knives", "Checked baggage only"], ["Alcohol", "Checked, 70% or less, 5 L maximum"], ["Medicine", "Prescription proof; liquids as above"]], "note": "A power bank with illegible markings is confiscated even if the capacity is legal. Write the Wh on the shell before you fly."}
+],
+"shipping": [
+ {"title": "How freight is priced", "head": ["Item", "Rule"], "rows": [["First kilo", "1 kg, 8–12 CNY within province, 12–22 CNY cross-province"], ["Additional kilos", "2–6 CNY/kg within province, 6–10 CNY cross-province"], ["Volumetric weight", "L × W × H (cm) ÷ 6000"], ["Chargeable weight", "The greater of actual and volumetric"], ["Bulky light goods", "Duvets and soft toys are charged by volume"], ["Remote areas", "Surcharge 5–20 CNY"], ["Stairs", "Bulky items without a lift, 20–50 CNY"]], "note": "For light bulky parcels the volumetric weight is often triple the actual. Squeeze the air out — vacuum bags for duvets is the most direct saving there is."},
+ {"title": "Which service for what", "head": ["Type", "Good for", "Watch out"], "rows": [["Economy express", "Everyday goods, clothes, small parcels", "One or two days slower, cheapest"], ["Standard express", "Most situations", "Balanced time and price"], ["Next-day", "Urgent documents", "Double the price"], ["Freight", "Furniture and appliances", "Priced by volume; may need self-collection"], ["Same-city courier", "Within 3 km", "Priced by distance and weight"], ["Postal service", "Remote areas", "Widest coverage, slow"]], "note": "The same parcel can differ by 40% between channels. Compare before ordering at the counter — it is the easiest saving in this table."},
+ {"title": "Cheapest way to send bulky items", "head": ["Method", "Suits", "Cost"], "rows": [["Freight line", "Furniture, appliances", "By cubic metre, 300–800 CNY cross-province"], ["Express bulky", "20–60 kg", "Dearer but collects at the door"], ["Freight plus self-collection", "Bulky, not urgent", "Cheapest; you collect it"], ["Shared van", "Same-city moving", "Negotiated per trip"], ["Disassemble first", "Flat-pack furniture", "Saves volume but risks damage"], ["Sell it instead", "Old furniture", "Saves money in reverse"]], "note": "Before sending anything bulky, ask: “Is this charged by actual or volumetric weight?” One question can halve the bill."},
+ {"title": "Packing rules", "head": ["Item", "How"], "rows": [["Fragile", "Three layers of bubble wrap, suspended, 3 cm clear on all sides"], ["Liquids", "Tape the cap, double-bag"], ["Electronics", "Original box plus outer fill; do not write “fragile”"], ["Clothes", "Vacuum bag or roll"], ["Documents", "Cardboard stiffener plus waterproof bag"], ["Carton", "Cross-tape the base and seal every seam"]], "note": "Writing “fragile” does not make it safer and may attract curiosity. What works is internal suspension — surviving a drop is about cushioning, not labels."},
+ {"title": "Declared value and claims", "head": ["Case", "Rule"], "rows": [["Default compensation", "A multiple of freight, usually 3–7×"], ["Declared value fee", "0.5–3% of the declared amount"], ["Cap", "Varies; often 20,000 CNY"], ["Claim documents", "Waybill, invoice, proof of value, damage photos"], ["Inspect before signing", "Open the box on the spot if the outer is damaged"], ["Reporting after signing", "Much harder to prove"], ["Time limit", "Usually 7–30 days"]], "note": "For valuables you need all three: declared value, unboxing video and purchase receipt. Miss one and you usually get a few times the freight, nothing more."},
+ {"title": "Prohibited and restricted", "head": ["Category", "Note"], "rows": [["Flammable", "Alcohol, lighter fluid, aerosol cans"], ["Batteries", "Lithium by ground only; many channels refuse"], ["Liquids", "Cosmetics allowed if sealed"], ["Live animals", "Most couriers refuse; specialist lines only"], ["Cash and valuables", "Prohibited"], ["Bladed articles", "Prohibited"], ["Medicine", "Prescription needs a licence; individuals limited"]], "note": "Intercepted parcels are returned or destroyed and the freight is not refunded. If unsure, ask support for the prohibited list rather than guessing."}
+],
+"eldertech": [
+ {"title": "Six phone settings to make", "head": ["Step", "How"], "rows": [["Enlarge text", "Settings → Display → Font and display size, maximum"], ["Simplify the home screen", "Six to eight apps; everything else in a folder"], ["Turn off notifications", "Disable pushing for everything unnecessary"], ["Payment limit", "Link a low-limit card, cap single payments at 500"], ["Emergency contact", "Set medical ID and lock-screen dialling"], ["Speed dial", "A large “family” icon on the home screen"]], "note": "After enlarging the text, some buttons get pushed off screen. Keep display size at medium or the layout breaks."},
+ {"title": "Which apps to install", "head": ["Purpose", "Suggestion"], "rows": [["Messaging", "WeChat, with the Moments entry hidden"], ["Video", "Douyin or Kuaishou with teen mode to limit scrolling"], ["Payment", "Alipay “care mode” or WeChat"], ["Health", "The local hospital booking app"], ["Travel", "Maps plus ride-hailing linked to a family account"], ["Shopping", "Optional; let the children order"], ["Do not install", "Investment, lending, or unknown “cleaner” apps"]], "note": "Fewer apps is safer. Every extra app is another pop-up ad and another way to tap into a payment by accident."},
+ {"title": "Anti-fraud settings", "head": ["Setting", "Effect"], "rows": [["National anti-fraud app", "Warns on incoming scam calls"], ["Carrier spam blocking", "Blocks flagged numbers"], ["WeChat: hide ten Moments from strangers", "Reduces information leakage"], ["Alipay delayed settlement", "Two hours to reverse a transfer"], ["Bank transaction alerts", "SMS for every movement"], ["Never tap “customer service” links", "Always a scam"], ["Agree a family code word", "Defeats AI voice cloning"]], "note": "The most effective measure is not technical. Agree one sentence: “any call asking for money, hang up and ring me.” Set it as the lock-screen wallpaper if you have to."},
+ {"title": "Health monitoring devices", "head": ["Device", "Suits", "Note"], "rows": [["Fitness band", "Steps, heart rate, sleep", "Elders care about battery and large text"], ["Fall-detection band", "Living alone", "Needs a one-button call"], ["Blood pressure monitor", "Hypertension", "Upper-arm cuff, never wrist"], ["Glucose meter", "Diabetes", "Factor in the cost of test strips"], ["Smart pill box", "Multiple medications", "Reminders plus refill alerts"], ["GPS watch", "Cognitive decline", "Must be charged regularly"]], "note": "Any device that needs charging every day ends up in a drawer within three months. Either it lasts a week, or do not buy it."},
+ {"title": "Remote support", "head": ["Method", "Note"], "rows": [["WeChat video call", "Universal; teach once and it sticks"], ["Built-in remote assistance", "Only within the same brand"], ["Third-party remote apps", "Elder must approve every session"], ["Screen recording tutorial", "Record 30 seconds and send it"], ["Paper step card", "Stick it to the back of the phone"], ["Visit in person once", "Worth ten remote explanations"]], "note": "Teach one action at a time and have them do it three times themselves. Tapping it for them teaches nothing."},
+ {"title": "Do not buy these for parents", "head": ["Item", "Why"], "rows": [["A smartphone without setup", "Small text and ads make it harder than before"], ["A smart speaker nobody taught them to use", "Becomes an ornament"], ["A robot vacuum with clutter on the floor", "Gets stuck daily"], ["A smart lock with no mechanical backup", "Locked out when the battery dies"], ["A large tablet with no stand", "Too heavy to hold"], ["“Wellness” devices", "Most have no medical device registration"]], "note": "Before buying, ask: “when this breaks, who fixes it?” A smart device with no one to repair it is a burden, not help."}
+],
+"homedocs": [
+ {"title": "Keep the originals", "head": ["Document", "Why"], "rows": [["ID card, household register", "Required for almost everything"], ["Property title", "Sale, mortgage, inheritance"], ["Marriage certificate", "Transfer, inheritance, loans"], ["Birth certificate", "School entry, emigration, registration"], ["Degrees and diplomas", "Employment, promotion, visas"], ["Passport, travel permits", "Travel"], ["Professional licences", "Registration requires the original"], ["Insurance policies", "Claims require them"]], "note": "Keep originals in one waterproof, fireproof wallet, and make sure the whole family knows where it is. Spread across three drawers means lost."},
+ {"title": "What to digitise", "head": ["Document", "Requirement"], "rows": [["ID card, both sides", "Colour, 300 dpi, all four corners"], ["Household register, cover and your page", "Colour"], ["Property title, every page", "Including the floor plan page"], ["Contracts", "Every page, including the signature page"], ["Insurance", "Front page and benefits page"], ["Invoices and warranty cards", "Filed by purchase year"], ["Health check reports", "By year, so you can compare"], ["Family photos", "Annual backup, stored off-site"]], "note": "Scans belong in two places: one cloud account and one external drive. A phone album alone is lost the moment you change phones."},
+ {"title": "Filing structure", "head": ["Category", "What goes in"], "rows": [["Identity", "ID, household register, passport, marriage certificate"], ["Property", "Property, vehicle, equity, deposit certificates"], ["Contracts", "Purchase, tenancy, renovation"], ["Protection", "Social insurance, commercial cover, housing fund"], ["Medical", "Records, check-ups, vaccinations"], ["Education", "Degrees, training, children's school records"], ["Receipts", "Large invoices, warranty cards"]], "note": "Seven folders is enough. What actually decides whether you find things is the naming rule: year_category_content."},
+ {"title": "Passwords and accounts", "head": ["Practice", "Why"], "rows": [["Tier them", "Payment, social, general — three different passwords"], ["Never reuse", "One breach should not expose the rest"], ["Two-factor", "On payments and email, always"], ["Where to record", "A password manager, or a paper book in a drawer"], ["Never", "Phone notes or WeChat favourites"], ["Emergency list", "Seal an account inventory for the family"]], "note": "The account inventory is the piece most families lack. If someone is hospitalised or dies, the family may not know what accounts and policies exist — the loss is larger than expected."},
+ {"title": "The annual review", "head": ["Item", "What to check"], "rows": [["Expiry dates", "ID, passport, licence, residence permit"], ["Policies", "Beneficiaries, cover, payment card still valid"], ["Property and vehicle", "Mortgages, inspections, insurance expiry"], ["Accounts", "Close cards and accounts you no longer use"], ["Paper files", "Damp, fading, insects"], ["Digital backup", "Does it open? Is the drive still readable?"], ["Emergency contacts", "Are the numbers still current?"]], "note": "Put it in the week of your birthday. Done on that date, it is never forgotten."},
+ {"title": "What an emergency needs", "head": ["Situation", "Documents"], "rows": [["Hospital admission", "ID, insurance card, previous records, deposit"], ["Surgery consent", "ID, proof of relationship"], ["Insurance claim", "Policy, records, invoices, diagnosis certificate"], ["Death registration", "Death certificate, ID, household register, marriage certificate"], ["Inheritance transfer", "Death certificate, proof of relationship, property title"], ["Treatment away from home", "Filing receipt, referral note"]], "note": "Print one A4 sheet listing what to take to hospital and tape it inside the document wallet. On the day itself, people panic; a list is more reliable than memory."}
+],
+"waterfilter": [
+ {"title": "What is in tap water", "head": ["Substance", "Source", "Treatment"], "rows": [["Residual chlorine", "Disinfection", "Activated carbon, or boiling"], ["Silt and rust", "Old pipes", "PP sediment pre-filter"], ["Hardness (calcium, magnesium)", "Hard source water", "Softener or reverse osmosis"], ["Heavy metals", "Pipes, source", "RO membrane is effective"], ["Bacteria and viruses", "Secondary supply tanks", "Ultrafiltration plus boiling; RO is more complete"], ["Organics", "Pipe corrosion", "Activated carbon"], ["Nitrates", "Agricultural runoff", "RO membrane"]], "note": "The easiest test is your kettle: how much scale in a month? Heavy scale means hard water, and RO becomes the priority."},
+ {"title": "Filter types compared", "head": ["Type", "Precision", "Suits"], "rows": [["Pre-filter", "40–100 μm", "Whole-house first stage, protects appliances"], ["Ultrafiltration", "0.01 μm", "Removes silt and bacteria, keeps minerals, no descaling"], ["Nanofiltration", "0.001 μm", "Partial descaling, keeps some minerals"], ["Reverse osmosis", "0.0001 μm", "Removes almost everything; needs power and produces waste water"], ["Activated carbon", "Adsorption", "Chlorine and taste; no heavy metals"], ["Water softener", "Ion exchange", "Hardness only; not for drinking"]], "note": "RO water contains almost no minerals, so get them from food. But “RO water is harmful because it has no nutrients” is a myth — water was never a major nutrient source."},
+ {"title": "Filter replacement", "head": ["Filter", "Interval", "If overdue"], "rows": [["PP sediment", "3–6 months", "Clogs, flow collapses"], ["Pre-filter mesh", "Rinse monthly, replace in 1–2 years", "Pressure loss rises"], ["Activated carbon", "6–12 months", "Saturated carbon can release what it held"], ["UF membrane", "1–2 years", "Fibres break, filtration fails"], ["RO membrane", "2–3 years", "Output falls, rejection rate drops"], ["Post carbon", "6–12 months", "Taste deteriorates"]], "note": "Filters are the real cost. Before buying, check the price of a full filter set and how often it changes — it often exceeds a third of the machine price per year."},
+ {"title": "Choosing flow rate", "head": ["People", "Rating", "Time for a glass"], "rows": [["1–2", "400 G", "About 10 seconds"], ["3–4", "600–800 G", "About 6 seconds"], ["5+", "1000 G or more", "About 4 seconds"], ["Baby formula", "800 G or more", "Avoid waiting"], ["Low mains pressure", "Model with a booster pump", "Otherwise output halves"], ["Note", "G means gallons per day", "Not per minute"]], "note": "Ratings are measured at ideal water temperature. In winter, output drops 30–40%, so size up one step."},
+ {"title": "Drinking water basics", "head": ["Situation", "Practice"], "rows": [["Boiling", "Rolling boil for 1–3 minutes; do not reboil repeatedly"], ["Overnight water", "Covered is fine; do not leave it open"], ["Bottled water", "Finish within 7 days of opening; clean the dispenser every 3 months"], ["First glass in the morning", "Run the tap for 30 seconds first"], ["After a long absence", "Flush the pipes before drinking"], ["Baby formula", "Mix at 70 °C or above, then cool"]], "note": "“Repeatedly boiled water causes cancer” is false, though nitrite does rise slightly. The practical reasons to avoid it are taste and wasted electricity."},
+ {"title": "Common myths", "head": ["Claim", "Reality"], "rows": [["“Alkaline water is healthier”", "Stomach acid neutralises it instantly"], ["“Small-cluster water”", "No credible evidence; a marketing concept"], ["“A purifier can treat disease”", "Water products may not claim medical effects"], ["“Backwashing replaces filters”", "It delays clogging; it does not regenerate media"], ["“RO wastes water”", "Modern units run near 2:1 waste to product"], ["“Scale is harmful”", "Hardness has no clear health effect; it affects taste and appliances"]], "note": "Any water product claiming to treat, heal or “activate” is making a false claim. A purifier has one job: make water clean."}
+],
+"airconuse": [
+ {"title": "What temperature to set", "head": ["Situation", "Setting"], "rows": [["Cooling, adults", "26–27 °C"], ["Cooling, elderly or children", "27–28 °C"], ["Sleeping", "27 °C with sleep mode"], ["Heating", "20–22 °C"], ["Just home, rapid cooling", "24 °C for half an hour, then back to 27"], ["Nobody home", "Off, or 29 °C to hold"], ["Each degree lower", "About 6–10% more electricity"]], "note": "26 °C is not superstition; it is the balance point between comfort and consumption. Setting 22 °C does not cool faster, only costs more."},
+ {"title": "Relative consumption", "head": ["Mode", "Relative power"], "rows": [["Inverter at 26 °C, continuous", "1.0 baseline"], ["Fixed-speed at 26 °C, cycling", "1.2–1.4"], ["Inverter at 22 °C", "1.6–1.8"], ["Dehumidify for hours", "1.0–1.2, and it over-cools"], ["Sleep mode", "0.5–0.7"], ["Fan plus air-con at 28 °C", "0.4–0.5"], ["Out for under an hour: off vs on", "Leaving it on wins with an inverter"]], "note": "With an inverter unit, do not switch off for a short errand. The startup current of repeated cycling costs more than idling at low frequency."},
+ {"title": "Cleaning and maintenance", "head": ["Part", "Interval"], "rows": [["Filters", "Every 2 weeks, rinse and air-dry"], ["Evaporator fins", "Once a year with coil cleaner"], ["Drain pan and pipe", "Once a year, prevents mould and blockage"], ["Outdoor coil", "Once a year, hose or soft brush"], ["Deep clean", "Every 2–3 years, by a technician"], ["Before long storage", "Clean, then run fan-only for 2 hours to dry"]], "note": "A half-clogged filter raises consumption 15–25% and cuts cooling by a third. It is the cheapest saving available and the most often skipped."},
+ {"title": "Specifications", "head": ["Spec", "Reference"], "rows": [["Capacity", "1 HP for 10–12 m², 1.5 HP for 15–18 m²"], ["Efficiency", "Prefer grade 1; higher APF is better"], ["Inverter vs fixed", "Inverters are mandatory for bedrooms"], ["Noise", "Indoor unit 22 dB or lower to be quiet"], ["Airflow", "Higher cools faster"], ["Self-clean", "Useful, but no substitute for manual cleaning"], ["Fresh air intake", "Worth paying for only if you need ventilation"]], "note": "Size capacity up for west-facing rooms, top floors and large glazing. Add half a horsepower to the standard figure in those cases."},
+ {"title": "Installation", "head": ["Point", "Reason"], "rows": [["Do not blow onto bed or sofa", "Direct airflow causes headaches and facial palsy"], ["15 cm clearance from the ceiling", "Otherwise return air is restricted"], ["Outdoor unit not in an enclosed balcony", "Poor heat rejection doubles consumption"], ["Keep the copper run short", "Each extra metre loses about 2% efficiency"], ["Drain with a fall", "Otherwise it backs up and drips"], ["Not facing the TV", "Condensate and vibration"]], "note": "The same unit installed well or badly differs by 20% in consumption. Never let the installer skip the vacuum time."},
+ {"title": "Saving myths", "head": ["Claim", "Reality"], "rows": [["“Switching on and off saves power”", "Costs more with an inverter"], ["“Lower setting cools faster”", "Only costs more; cooling speed is similar"], ["“Point a fan at the unit”", "Disrupts return air and makes it worse"], ["“Filters do not need washing”", "Clogged filters add 20% consumption"], ["“The outdoor unit needs no attention”", "Dust on the coil is an efficiency killer"], ["“Dehumidify costs less”", "Over hours it does not, and it over-cools"]], "note": "The effective combination is 26–27 °C, clean filters, closed windows and a circulation fan. Together they cut about a third."}
+],
+"emergency": [
+ {"title": "Basic stock", "head": ["Category", "Quantity", "Note"], "rows": [["Drinking water", "3 L per person per day, 3 days", "Includes cooking water"], ["No-cook food", "3 days", "Biscuits, tinned food, energy bars"], ["Regular medicine", "7 days", "Including chronic prescriptions"], ["Torches", "One per room", "Do not rely on phones"], ["Batteries", "Four of each size used", "Match the torches"], ["Power bank", "20,000 mAh or more", "Check the charge monthly"], ["Cash", "500–2,000 CNY in small notes", "Cards fail when the network is down"], ["Radio", "One", "For information"]], "note": "The key is a six-month check. Expired medicine, a flat power bank and leaking bottles mean you have prepared nothing."},
+ {"title": "Power cut", "head": ["Situation", "Response"], "rows": [["Sudden outage", "Check whether neighbours are out, then check your breaker"], ["Fridge", "Do not open repeatedly; a full fridge holds 24 hours"], ["Phone", "Low-power mode, communications only"], ["Lift stuck", "Press the alarm; never force the doors"], ["Heating or cooling", "Gather in one room and reduce activity"], ["Power returns", "Unplug heavy appliances first, then reconnect one by one"]], "note": "In a blackout the danger is not darkness, it is candles. Use torches and emergency lights; unattended flame is how fires start."},
+ {"title": "Water cut", "head": ["Situation", "Response"], "rows": [["Advance notice", "Fill the bath and buckets"], ["Sudden cut", "Close every tap so you are not flooded when it returns"], ["Drinking", "Bottled water first"], ["Cleaning", "Wet wipes"], ["Flushing", "Pour a bucket slowly; do not dump it"], ["Supply restored", "Run the taps for 1–2 minutes first"]], "note": "The first minutes after supply returns run cloudy. Let it run before cooking with it."},
+ {"title": "Fire and escape", "head": ["Equipment / point", "Note"], "rows": [["Extinguisher", "Dry powder, 2 kg, by the kitchen door"], ["Fire blanket", "Essential in the kitchen for pan fires"], ["Escape ladder", "Consider for third floor and above"], ["Smoke alarm", "One outside each bedroom"], ["Torch", "With a strobe function"], ["Escape route", "At least two, drilled once with the family"]], "note": "Never throw water on a pan fire. Turn off the heat, cover with a lid or blanket — water turns it into an explosion of steam and burning oil."},
+ {"title": "Earthquake and typhoon", "head": ["Situation", "Action"], "rows": [["Earthquake indoors", "Drop, cover, hold on; go to a load-bearing inner corner"], ["Earthquake in a high-rise", "No lifts, no jumping from windows"], ["After the shaking", "Turn off gas and power, put shoes on against glass"], ["Before a typhoon", "Clear the balcony, tape windows to limit flying shards"], ["During a typhoon", "Stay away from windows, keep light and water ready"], ["Flood water", "Never wade; stay clear of junction boxes and open manholes"]], "note": "“Get under a table” depends on the table. A flimsy desk is worse than a load-bearing wall or a small room like the bathroom."},
+ {"title": "What goes in the kit", "head": ["Item", "Why"], "rows": [["Copies of documents", "Originals may be unreachable"], ["Some cash", "No network, no card terminal"], ["Water and high-energy food", "The 72-hour window"], ["First-aid kit", "Bleeding, disinfection, regular medicine"], ["Whistle", "Less tiring than shouting, travels further"], ["Multi-tool", "Break glass, cut cord"], ["Masks and gloves", "Dust and contaminated water"], ["Family contact card", "Blood type, medication, next of kin"]], "note": "Keep the kit where you can grab it on the way out — the entryway cupboard. Buried under the bed, you will not reach it."}
 ]
 };
 Object.assign(TABLE_EN, TABLE_EN_MORE);
@@ -8489,7 +8825,7 @@ function initInstall(){
 const FEEDBACK_EMAIL = '';
 function feedbackPanel(){
   const ua = navigator.userAgent || '';
-  const tpl = t('【生活换算反馈】\n版本：V5.6\n页面：','【Life Conversion Feedback】\nVersion: V5.6\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
+  const tpl = t('【生活换算反馈】\n版本：V5.9\n页面：','【Life Conversion Feedback】\nVersion: V5.9\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
     t('\n\n问题描述：\n1. 我在做什么：\n2. 期望结果：\n3. 实际结果：\n4. 是否可复现：\n','\n\nIssue description:\n1. What I was doing:\n2. Expected result:\n3. Actual result:\n4. Reproducible:\n');
   const subj = t('生活换算反馈','Life Conversion Feedback');
   const mail = FEEDBACK_EMAIL
