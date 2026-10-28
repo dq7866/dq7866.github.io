@@ -593,9 +593,44 @@ function step3(){
         } else bad('导航里找不到「使用统计」');
       } else bad('getUsage 未定义');
 
+      /* 页内小节导航（长表模块） */
+      const navBuy = doc.querySelector('.nitem[data-id="appbuy"]');
+      if(navBuy){
+        navBuy.click();
+        const stcs = doc.querySelectorAll('#main .sectoc .stc');
+        const secCards = doc.querySelectorAll('#main .card[id^="sec-"]');
+        if(stcs.length >= 4 && stcs.length === secCards.length) ok(`长表页内小节导航就位（${stcs.length} 个小节，与卡片逐一对应）`);
+        else bad(`小节导航异常：chip ${stcs.length} / 卡片 ${secCards.length}`);
+        if(stcs[2]){
+          stcs[2].click();
+          const onChip = doc.querySelector('#main .sectoc .stc.on');
+          if(onChip && onChip.dataset.sec === stcs[2].dataset.sec) ok('点小节后导航高亮跟随');
+          else bad('点小节后高亮未跟随');
+        }
+        if(secCards[0] && secCards[0].id === 'sec-0' && stcs[0] && stcs[0].dataset.sec === '0') ok('小节序号与卡片 id 对齐');
+        else bad('小节序号与卡片 id 不对齐');
+      } else bad('导航里找不到 appbuy');
+
+      /* 打印整册：封面 + 目录 + 按分组入口 */
+      const pcNav = doc.querySelector('.nitem[data-id="printcenter"]');
+      if(pcNav){
+        pcNav.click();
+        const pbs = doc.querySelectorAll('.pcb');
+        const cov = doc.getElementById('pcCover');
+        if(pbs.length >= 8 && cov) ok(`打印中心新增 ${pbs.length} 个「分组整册」入口与封面开关`);
+        else bad(`打印中心整册入口异常（按钮 ${pbs.length}）`);
+        const bk = window.buildBook(['appbuy','storage'], true);
+        if(/booklet-cover/.test(bk) && /toclist/.test(bk) && /<li>/.test(bk) && (bk.match(/class="panel[\s"]/g) || []).length >= 4)
+          ok('整册生成：封面 + 目录 + 两个模块页');
+        else bad('整册生成内容不完整');
+        const bk2 = window.buildBook(['appbuy'], false);
+        if(!/booklet-cover/.test(bk2) && /class="panel"/.test(bk2)) ok('关闭封面时只输出模块页');
+        else bad('封面开关无效');
+      } else bad('导航里找不到打印中心');
+
       window.__errLog = [{ m:'TEST_ERR: canvas unavailable', at:'units.html:1' }];
       const fb = window.feedbackPanel();
-      if(fb.indexOf('V8.5') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V8.5 与最近错误信息');
+      if(fb.indexOf('V8.6') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V8.6 与最近错误信息');
       else bad('反馈模板版本或错误位缺失');
     }catch(e){ bad('功能抽查抛错: ' + e.message); }
   }
