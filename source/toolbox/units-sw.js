@@ -1,7 +1,7 @@
 /* 生活换算 · 全能手册 —— Service Worker
    作用：把工具页缓存下来，断网也能用；只缓存同源 GET 请求。
    更新策略：网络优先，失败回落缓存；缓存名带版本，新版本自动清旧缓存。 */
-const CACHE = 'lifeconv-v25';
+const CACHE = 'lifeconv-v26';
 const CORE = ['./units.html', './units.webmanifest', './units-icon-192.png', './units-icon-512.png'];
 
 self.addEventListener('install', event => {
