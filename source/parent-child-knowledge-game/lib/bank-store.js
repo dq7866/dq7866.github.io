@@ -82,6 +82,11 @@ export function normalizeQuestion(input, prev = null) {
 
 export function createBankStore(dataDir) {
   const BASE_FILE = path.join(dataDir, 'questions.json');
+  // 题库另有「入库快照」一份，供 Cloudflare 构建用（CI 只跑 hexo generate，
+  // 不跑 build:bank，所以代码库里必须有一份可用的题库）。
+  // 刚克隆仓库时 data/questions.json 还不存在（它是构建产物、被 gitignore），
+  // 此时回退读快照，保证 `npm start` 直接能跑，不必先手动生成。
+  const BASE_FALLBACK = path.join(dataDir, '..', 'cloudflare', 'bank', 'questions.json');
   const ADMIN_DIR = path.join(dataDir, 'admin');
   const OVERLAY_FILE = path.join(ADMIN_DIR, 'overlay.json');
   const AUDIT_FILE = path.join(ADMIN_DIR, 'audit.jsonl');
@@ -180,7 +185,19 @@ export function createBankStore(dataDir) {
   }
 
   function load() {
-    base = JSON.parse(fs.readFileSync(BASE_FILE, 'utf8'));
+    // 优先用本地构建产物；没有就退回入库快照（克隆仓库后的首次启动走这里）
+    let basePath = BASE_FILE;
+    if (!fs.existsSync(basePath)) {
+      if (!fs.existsSync(BASE_FALLBACK)) {
+        throw new Error(
+          '题库文件不存在：' + BASE_FILE + '\n' +
+          '请先运行 `npm run build:bank` 生成题库（约需 1-2 分钟）。'
+        );
+      }
+      basePath = BASE_FALLBACK;
+      console.log('[bank] data/questions.json 不存在，已回退读 cloudflare/bank/questions.json');
+    }
+    base = JSON.parse(fs.readFileSync(basePath, 'utf8'));
     overlay = readOverlay();
     merge();
     rebuildDupIndex();
