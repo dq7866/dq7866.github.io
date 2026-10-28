@@ -272,7 +272,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div class="app">
   <aside class="side" aria-label="模块导航">
-    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v5.4</span></div>
+    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v5.6</span></div>
     <a class="backlink" id="backlink" href="index.html" style="display:none">← 返回工具箱</a>
     <input id="q" class="search" placeholder="搜模块：亩 / 鞋码 / 扳手 / 汇率…       也能直接算：10 km to mi / 12*8">
     <div id="qc" class="qc" role="status" aria-live="polite"></div>
@@ -2689,6 +2689,174 @@ const CATS = [
   note:'手机性能过剩是常态。三五年前的旗舰换个电池，日常使用和今年的中端机差别不大——真正让你想换的通常是电池和存储。'}
 ]},
 
+{id:'material',en:'Renovation Materials',g:'居家装修',icon:'🧱',name:'装修材料防坑与砍价',type:'tables',sub:'装修亏钱很少亏在单价上，几乎都亏在"增项"和"到货不对版"。把型号写进合同，比砍下五十块更值钱。',sections:[
+ {title:'报价单里的常见套路',head:['项目','套路','怎么破'],
+  rows:[['瓷砖','特价砖换产地、换批次','问清产地与色号，同批到货'],['地板','标"E0 级"当卖点','要检测报告编号，E1 才是国标底线'],['乳胶漆','"净味""儿童漆"溢价','只看 VOC 含量 g/L 与执行标准'],['木门','"实木复合"含糊其辞','问门芯：桥洞力学板 / 蜂窝纸 / 密度板'],['橱柜','延米价不含台面五金','把台面、拉篮、铰链单列进报价'],['卫浴','套餐不含角阀软管','确认坑距、角阀、法兰、安装费'],['吊顶','铝扣板按㎡报，龙骨另算','问是否含龙骨、边角、人工']],
+  note:'同一个型号不同批次会有色差，瓷砖和地板尤其明显。合同里写"同一批次到货，不足整批需提前告知"。'},
+ {title:'主材单价参考',head:['材料','规格','正常区间'],
+  rows:[['瓷砖','800×800 优等品','60–120 元/片'],['瓷砖','300×600 墙砖','15–35 元/片'],['强化地板','8–12 mm','80–150 元/㎡'],['实木复合地板','多层实木','180–350 元/㎡'],['乳胶漆','18 L 一底两面','400–800 元/套'],['石英石台面','15 mm','400–900 元/延米'],['铝扣板吊顶','含龙骨人工','90–160 元/㎡'],['开关插座','常规品牌','10–40 元/位'],['木门','实木复合含五金','1200–2500 元/樘']],
+  note:'低于区间下限三成的报价，基本都要在后期的增项或辅料里找回来。单价不是越低越好，是越"完整"越好。'},
+ {title:'砍价的正确顺序',head:['阶段','该做什么','为什么'],
+  rows:[['第一步','先定型号，再谈价格','"同款"是口头承诺，换型号你无法追责'],['第二步','拿三家报价互相压','手里有真实底价，谈的时候才有底气'],['第三步','只谈总价，不逐项砍','逐项砍完，销售会在辅料里补回来'],['第四步','用付款方式换折扣','现结、全款通常还能再让 3–5%'],['第五步','把赠品折成现金','赠品按标价的三折算，不如直接减钱'],['第六步','写进合同','型号、批次、色号、到货期、违约条款']],
+  note:'砍价最有效的一句话不是"再便宜点"，而是"这个价我现在就付，但型号和批次要写进合同"。'},
+ {title:'到货怎么验收',head:['材料','检查方法'],
+  rows:[['瓷砖','每色号抽开三箱，平铺看色差、崩边、翘曲'],['地板','看侧面喷码与防伪标，拼两块看高低差'],['板材','切口闻味，看横截面是否密实、有无空鼓'],['乳胶漆','扫桶身防伪码，核对批次与生产日期'],['五金','铰链称重、试阻尼，滑轨拉合三次'],['石材','翻看背面网格与色差，敲击听空响'],['数量','按箱点，破损当场拍照并让送货人签字']],
+  note:'签收单上写"外包装完好"就等于放弃了破损索赔。先验货再签字，或者注明"未开箱验货"。'},
+ {title:'环保等级别被名词忽悠',head:['名词','真实含义'],
+  rows:[['E1 级','国标底线，可直接用于室内，≤0.124 mg/m³'],['E0 级','企业标准，≤0.05 mg/m³，优于国标'],['ENF 级','2021 新国标最高级，≤0.025 mg/m³'],['"零甲醛"','不存在，木材本身含微量天然甲醛'],['"净味"','只是气味小，与 VOC 释放量无关'],['F★★★★','日本标准，等级高于 E0'],['"欧盟标准"','多为宣传话术，认检测报告编号']],
+  note:'环保等级看的是人造板的甲醛释放量，不是涂料。全屋定制柜体用的板子，才是室内甲醛的大头。'},
+ {title:'最容易多花钱的六处',head:['项目','建议'],
+  rows:[['全屋定制','按投影面积计价，别按展开面积'],['吊顶','无主灯不等于满吊，局部吊顶省一半'],['背景墙','岩板上墙人工比材料贵，可改乳胶漆+挂画'],['智能家居','先布零线和网线，设备以后再补'],['软装家具','控制在总预算 15% 以内'],['增项','合同写明"增项不超过总价 5%"，超出不付']],
+  note:'装修预算超支的典型路径：主材砍下 5000，增项多花 2 万。签合同前把"可能发生的增项"逐条问清楚。'}
+]},
+
+{id:'waste',en:'Waste Sorting',g:'生活日常',icon:'♻️',name:'垃圾分类与回收',type:'tables',sub:'分错最多的不是厨余，是"看着能回收其实不能"的那一类。记住几条硬规则，比背整本分类表管用。',sections:[
+ {title:'四分类速查',head:['类别','包含','投放要求'],
+  rows:[['可回收物（蓝）','纸、塑料瓶、玻璃、金属、织物','清空、冲净、压扁、不散投'],['有害垃圾（红）','电池、灯管、过期药品、油漆、杀虫剂','单独密封，不混投、不破碎'],['厨余垃圾（绿）','剩饭剩菜、果皮菜叶、茶渣、小骨头','沥干水分，去包装袋'],['其他垃圾（灰）','餐巾纸、尿不湿、陶瓷、烟头、猫砂','装袋投放，扎口'],['大件垃圾','家具、床垫、家电','预约回收，不进生活桶'],['装修垃圾','砖块、瓷砖、石膏板','物业报备清运，按车收费']],
+  note:'各地叫法不同：上海的湿垃圾＝厨余，干垃圾＝其他。分类口径以本地城管公布的名录为准。'},
+ {title:'最容易分错的十二样',head:['物品','属于','原因'],
+  rows:[['用过的餐巾纸','其他垃圾','纤维已被污染，无法再造纸'],['一次性筷子','其他垃圾','含水率高、无回收价值'],['外卖塑料盒','洗净可回收，带油归其他','油污会让整批纸浆报废'],['玻璃杯','其他垃圾','器皿玻璃熔点与瓶罐玻璃不同'],['陶瓷碗碟','其他垃圾','不可与玻璃共融'],['大骨头','其他垃圾','质地太硬，难破碎降解'],['鱼刺、小骨头','厨余垃圾','易腐烂'],['猫砂','其他垃圾','膨润土不可降解，也不堆肥'],['宠物粪便','其他垃圾','含病原，不进厨余'],['过期药品','有害垃圾','连包装一起投'],['碱性干电池','其他垃圾','现行无汞，可按其他处理'],['充电电池、纽扣电池','有害垃圾','含重金属']],
+  note:'手机电池、充电宝、纽扣电池一律有害垃圾。碱性 5 号 7 号电池现在可以按其他垃圾扔，这是最常被记反的一条。'},
+ {title:'可回收物的"干净"标准',head:['物品','怎么处理'],
+  rows:[['塑料瓶','倒空、压扁，瓶盖可留可去'],['玻璃瓶罐','冲净，不要打碎（易伤分拣工）'],['纸箱','拆平、撕掉胶带与面单'],['易拉罐','冲一下，压扁'],['旧衣服','洗净晾干，装袋，鞋要成双'],['泡沫箱','部分城市不收，先查本地名录'],['塑料袋','只有干净薄膜可回收，脏的归其他']],
+  note:'判断标准很简单：会不会污染同一桶里的其他可回收物。一个油瓶能让半桶纸箱降级成其他垃圾。'},
+ {title:'有害垃圾清单',head:['物品','注意'],
+  rows:[['荧光灯管、节能灯','含汞，别摔碎，连包装投'],['过期药品','连药盒药板一起投，别冲马桶'],['油漆桶、溶剂','剩漆密封，别倒下水道'],['杀虫剂、发胶罐','压力罐，别扎孔、别压扁'],['水银温度计','破碎后按有害处理，开窗通风'],['充电电池、纽扣电池','电极贴胶带防短路'],['农药瓶','冲洗三次，液体另处理']],
+  note:'一节纽扣电池的汞能污染约 600 吨水。这类东西不要攒着"以后再说"，攒到最后往往是随生活垃圾扔掉了。'},
+ {title:'大件与装修垃圾',head:['物品','处理方式','费用'],
+  rows:[['旧家具','物业预约或平台上门回收','50–200 元/件'],['旧家电','以旧换新或回收站','冰箱 50–150 元/台'],['床垫','大件垃圾预约，部分城市免费','0–100 元'],['装修垃圾','物业报备，指定点堆放清运','500–1500 元/车'],['马桶、浴缸','属装修垃圾，不进生活桶','按车计'],['旧衣服','小区回收箱或上门回收','多为无偿']],
+  note:'装修垃圾混进生活垃圾桶，物业有权拒收并追责。开工前先问清"建筑垃圾堆放点在哪、多少钱一车"。'},
+ {title:'回收变现参考价',head:['品类','参考单价','说明'],
+  rows:[['废纸箱','0.8–1.2 元/kg','受潮、带胶带会压价'],['废塑料瓶','1.5–2.5 元/kg','约 50 个 500 ml 瓶一公斤'],['废铁','1.8–2.5 元/kg','带漆带锈价低'],['废铝','8–12 元/kg','铝合金门窗料最值钱'],['废铜','40–55 元/kg','分清紫铜与黄铜'],['旧手机','10–300 元/台','能开机的智能机才有价'],['旧家电','30–150 元/台','压缩机、铜管决定价']],
+  note:'上门回收的价通常比回收站低三成，因为含人工与运输。攒够一车再卖，或者自己拉到站里。'}
+]},
+
+{id:'returns',en:'Returns & Refunds',g:'钱与账',icon:'📦',name:'网购退货与避坑',type:'tables',sub:'退货的胜负往往在拆快递那一分钟就定了。开箱视频比任何客服话术都有用。',sections:[
+ {title:'七天无理由的边界',head:['情形','能否退','说明'],
+  rows:[['普通商品','可以','签收起 7 天内，不影响二次销售'],['定制、刻字商品','不可以','按你的要求生产，无法再售'],['生鲜、易腐','不可以','但有质量问题仍可退'],['拆封的音像制品、软件','不可以','拆封即视为使用'],['在线下载、充值类','不可以','一经交付即完成'],['内衣、贴身衣物','多为不可以','拆封后影响二次销售'],['已激活的手机、电脑','部分平台不可以','激活即视为使用'],['家具等大件','可以','但退回运费需自担']],
+  note:'"影响二次销售"指的是商品本身贬值，不是"包装被拆开"。拆开快递箱验货是消费者的权利，商家不能以此拒退。'},
+ {title:'退货运费谁承担',head:['退货原因','运费承担'],
+  rows:[['质量问题、功能故障','商家承担（含往返）'],['描述不符、货不对板','商家承担'],['发错货、漏发','商家承担'],['七天无理由','买家承担，有运费险由保险赔付'],['无理由拒收','买家承担'],['运费险赔付','一般 8–15 元，超出部分自付'],['大件家具','按实际重量计，可能上百元']],
+  note:'退货原因一旦选了"七天无理由"，运费就得自己出。如果是商品问题，务必选"质量问题"并上传照片，别听客服劝你改原因。'},
+ {title:'退货前的准备',head:['步骤','要点'],
+  rows:[['拍开箱视频','从快递面单、封口完整拍到取出商品'],['留原包装','包装、吊牌、赠品、说明书齐全'],['截图商品页','主图、详情、承诺，防止页面被改'],['截图聊天记录','商家口头承诺也算证据'],['先沟通再申请','很多商家愿意补钱不退货'],['原因如实选','质量问题要举证，无理由不需要'],['寄回拍视频','装袋、称重、贴单全程录']],
+  note:'平台介入时看的是证据链，不是谁嗓门大。面单、商品、瑕疵，三样出现在同一个画面里，基本就赢了。'},
+ {title:'商家拒退怎么办',head:['商家说法','应对'],
+  rows:[['"拆封了不能退"','拆封验货不影响二次销售，法律允许'],['"活动商品不退不换"','属无效条款，可向平台投诉'],['要求承担来回运费','无理由只承担退回运费，去程不退'],['让你把原因改成"不喜欢"','改了运费自己出，别改'],['一直拖延不处理','等超时自动退款，或直接申请平台介入'],['拒绝开发票','可向税务部门举报'],['让你私下转账退款','脱离平台无凭证，一律拒绝']],
+  note:'《消费者权益保护法》第二十五条是七天无理由的依据。金额不大也可以走 12315 小程序，商家通常当天就联系你。'},
+ {title:'促销常见套路',head:['套路','破解'],
+  rows:[['先涨后降','用比价工具看 30 天历史价'],['定金不退','"定金"不退，"订金"可退，看清字'],['赠品算钱','退货时按原价扣赠品款，赠品要留好'],['拆单发货','只收到部分，按实际签收数量退'],['虚假发货','物流长期停在"已揽收"，超时可投诉'],['诱导线下交易','脱离平台即失去保障'],['"限量秒杀"制造紧迫','关掉页面等十分钟再决定']],
+  note:'大促前把想买的东西加进购物车并截图价格，是识破"先涨后降"最土也最有效的办法。'},
+ {title:'价保与差价',head:['情形','规则'],
+  rows:[['平台价保','一般 7–15 天内可申请，需手动操作'],['优惠券导致的降价','多数平台不算价保范围'],['百亿补贴、秒杀','通常不参与价保'],['会员专享价','部分平台支持'],['价保次数','每单一般一次'],['申请入口','订单详情 → 价格保护'],['线下同款','不适用线上价保']],
+  note:'价保是有时效的，很多人是看到降价才想起来，那时候已经过期。大促期间下单后设个提醒，第 6 天去点一次。'}
+]},
+
+{id:'petmed',en:'Pet Health',g:'吃穿住行',icon:'🐾',name:'宠物就医与疫苗',type:'tables',sub:'养宠最贵的一笔从来不是粮，是那一次急诊。疫苗和驱虫是唯一能用几百块挡住几千块的地方。',sections:[
+ {title:'犬猫疫苗时间表',head:['年龄','犬','猫'],
+  rows:[['6–8 周','二联或四联首针','猫三联首针'],['10–12 周','第二针','第二针'],['14–16 周','第三针','第三针'],['16 周后','狂犬疫苗','狂犬疫苗'],['1 岁','联苗 + 狂犬加强','联苗 + 狂犬加强'],['1 岁以后','每年一次联苗 + 狂犬','每年一次联苗 + 狂犬'],['接种前提','健康、已驱虫、前一周不洗澡','同左']],
+  note:'疫苗不是打得越多越好。成年犬猫每年一次联苗即可，过度接种对免疫系统没有额外好处。'},
+ {title:'驱虫计划',head:['类型','频率','说明'],
+  rows:[['体内驱虫（幼）','每月一次，至 6 月龄','按体重选规格'],['体内驱虫（成）','每 3 个月一次','常外出可缩到 2 个月'],['体外驱虫','每月一次','跳蚤蜱虫高发季不可省'],['心丝虫预防','蚊季每月，南方全年','蚊虫传播，猫也会得'],['体内外同驱','按说明，多为每月','注意别与其他药重复'],['驱虫后观察','呕吐腹泻超 24 小时就医','轻微软便属常见反应']],
+  note:'不出门的猫也要驱虫：虫卵可以随鞋底、快递箱带进家。体外驱虫对猫尤其重要，跳蚤一上身就是全家的事。'},
+ {title:'绝育与常见手术',head:['项目','时间','注意'],
+  rows:[['犬绝育','6–12 月龄，大型犬可延后','大型犬过早绝育影响骨骼'],['猫绝育','6–8 月龄，公猫可 5 月龄','发情前做恢复更快'],['术前禁食','8 小时','禁水 2 小时'],['术前检查','血常规 + 生化','7 岁以上必做心脏评估'],['术后护理','伊丽莎白圈 7–14 天','防舔咬，别提前摘'],['费用参考','犬 800–2500 元，猫 500–1500 元','含麻醉与镇痛']],
+  note:'绝育不是"人道与否"的争论，是降低乳腺肿瘤、子宫蓄脓、前列腺疾病风险最直接的手段。母犬母猫在第一次发情前做，乳腺肿瘤风险能降九成。'},
+ {title:'必须立刻就医的信号',head:['症状','可能原因'],
+  rows:[['连续呕吐或腹泻超 24 小时','脱水、胰腺炎、异物'],['猫超过 12 小时不进食','脂肪肝，可致命'],['公猫蹲猫砂盆尿不出','尿道阻塞，6 小时即危险'],['张口呼吸、舌头发紫','心衰、中暑、胸腔积液'],['抽搐、意识丧失','癫痫、中毒、低血糖'],['误食巧克力、葡萄、洋葱、木糖醇','中毒，越早催吐越好'],['体温 >39.5 ℃ 或 <37.5 ℃','感染、休克'],['腹部膨大、干呕无物','胃扭转，大型犬急症']],
+  note:'记不住这么多没关系，只记一条：猫不吃饭、公猫尿不出、狗肚子鼓起来干呕——这三种别观察，直接去医院。'},
+ {title:'宠物医院怎么选',head:['要点','怎么判断'],
+  rows:[['执业资质','墙上公示的执业兽医证，可查编号'],['分科设置','内科、外科、影像、牙科是否分开'],['设备','血常规、生化、X 光、B 超、血气'],['报价透明','治疗前给书面报价单'],['夜诊能力','是否 24 小时，急诊电话能否打通'],['病历记录','是否给主人一份完整病历'],['警惕','只推保健品、不做检查就下结论']],
+  note:'第一次去不用做全套检查，但一定要问"如果不做这项检查，你根据什么判断"。能讲清鉴别思路的医生，比设备新的医院更可靠。'},
+ {title:'一年固定开销',head:['项目','犬','猫'],
+  rows:[['疫苗','200–400 元','200–350 元'],['驱虫','400–800 元','300–600 元'],['主粮','1500–4000 元','1200–3000 元'],['猫砂','—','300–800 元'],['洗澡美容','600–2000 元','0–600 元'],['年度体检','300–800 元','300–800 元'],['意外医疗预留','2000–5000 元','2000–5000 元'],['合计','5000–12000 元','4000–9000 元']],
+  note:'宠物医疗没有医保，一次异物手术三五千是常态。要么平时存一笔"宠物基金"，要么买一份宠物医疗险（注意等待期与既往症除外）。'}
+]},
+
+{id:'storagedim',en:'Cabinet Dimensions',g:'居家装修',icon:'🗄️',name:'柜体尺寸与动线',type:'tables',sub:'收纳不够很少是因为柜子少，多半是因为柜子深、层板多、位置错。先把尺寸定对，再谈收纳技巧。',sections:[
+ {title:'柜体面积基线',head:['空间','参考比例','说明'],
+  rows:[['全屋柜体 / 套内面积','12–15% 够用，20% 充裕','低于 10% 一定会乱'],['玄关鞋柜','人均 8–10 双','按家庭人数×10 双算层板'],['厨房台面','≥厨房面积 15%','台面太少，做饭全程挪东西'],['主卧衣柜','人均挂杆 1.2–1.5 m','按衣服长度分布算'],['卫生间','镜柜 + 悬空浴室柜','台面只留每天用的'],['阳台家政柜','进深 600 mm','吸尘器、拖把、梯子'],['独立储物间','2–4 ㎡','比多打十个柜子都实用']],
+  note:'收纳规划的顺序是"先算量、再定柜、最后买收纳盒"。反过来做，多半是买了一堆盒子，柜子还是不够用。'},
+ {title:'关键尺寸对照',head:['部位','尺寸','说明'],
+  rows:[['衣柜进深','平开 600，推拉 650','低于 550 大衣挂不平'],['挂衣杆高度','短衣 1000，长衣 1400','按最长那件算'],['叠放层高','350–400','超过 450 就是浪费'],['鞋柜进深','350 平放 / 250 斜插','男鞋 42 码约 300 长'],['鞋柜层高','150 平底 / 250 短靴 / 450 长靴','层板做成可调最实用'],['地柜高度','800–850','按身高：身高÷2 + 50'],['吊柜底距台面','600–700','低了碰头，高了够不着'],['书桌高度','750，配 430 椅面','差 300 是舒适坐姿']],
+  note:'所有高度都按"完工地面"算。水电阶段就定好柜体尺寸，等贴完砖再改就来不及了。'},
+ {title:'动线三条原则',head:['原则','具体做法'],
+  rows:[['三步之内','常用物品放在使用点三步（约 1.5 m）以内'],['腰到眼之间','最高频的东西放在不用弯腰、不用踮脚的高度'],['二八原则','20% 常用放明面，80% 收进柜门里'],['同类同处','同一种东西只设一个"家"，不要分三处'],['一通到底','柜子做到顶，顶部不留缝，省下擦灰的活'],['转角不浪费','转角用转角拉篮或抽拉层板，别做成死角'],['留白 20%','每个柜子留两成空位，否则三个月后必然溢出']],
+  note:'判断一个家的收纳是否合理，看台面：台面上东西越少，说明柜子越好用。台面堆满，是柜子位置错了，不是东西太多。'},
+ {title:'玄关要装得下什么',head:['物品','位置与尺寸'],
+  rows:[['常穿鞋 3–5 双','开放格，层高 150'],['次净衣（穿过未洗）','挂杆 + 挂钩，别进衣柜'],['包、钥匙、快递','台面进深 400，高 900'],['雨伞','伞桶或柜内立式收纳'],['换鞋凳','高 400–450，可掀盖储物'],['口罩、湿巾、狗绳','抽屉一层'],['感应灯','柜底或踢脚线，人来即亮']],
+  note:'玄关是唯一"进门三件套"（钥匙、包、鞋）都要落地的位置。这里少一个台面，全屋的乱就从这里开始。'},
+ {title:'厨房分区收纳',head:['区域','放什么','尺寸'],
+  rows:[['水槽与灶之间','备餐区，什么都不放','800–1200 宽'],['灶台两侧','调料、锅铲','各留 400–600'],['吊柜上层','囤货、礼盒','需踩凳，只放低频'],['吊柜下层','碗盘、干货','伸手可及'],['地柜抽屉第一层','餐具分隔','高 150'],['地柜下拉篮','锅具','承重 30 kg 以上'],['台面','只放每天用的三件','其余全部收进柜']],
+  note:'厨房好不好用，看"洗—切—炒"三点之间的距离。三点连成的三角形周长超过 6 m，做一顿饭要多走几百步。'},
+ {title:'最容易后悔的六处',head:['设计','问题','怎么改'],
+  rows:[['开放式格子太多','三天就乱','八面带门，两面开放'],['衣柜全是层板','叠衣服最累','六成挂、四成层板'],['鞋柜无通风','闷出味','背板留透气孔或百叶门'],['浴室柜落地','底部潮湿发霉','悬空 200 mm'],['柜子不到顶','顶部积灰','做到顶，或加封板'],['插座被柜体挡住','装了用不了','水电阶段先定柜体图']],
+  note:'收纳设计的验收标准只有一个：住进去三个月，还能保持。靠意志力维持的收纳，都不是好设计。'}
+]},
+
+{id:'secondhand',en:'Second-hand Trading',g:'钱与账',icon:'🔄',name:'二手交易防骗',type:'tables',sub:'二手交易的每一次纠纷，几乎都能追溯到"没录像""没走平台""没写清瑕疵"这三件事。',sections:[
+ {title:'二手定价参考',head:['品类','使用时长','残值率'],
+  rows:[['手机','1 年','原价 50–60%'],['手机','2 年','35–45%'],['笔记本','1 年','60–70%'],['相机机身','1–2 年','65–80%'],['相机镜头','1–3 年','70–85%（最保值）'],['家具','1–3 年','20–40%'],['大家电','1–3 年','30–50%'],['母婴用品','—','30–50%'],['图书','—','10–30%']],
+  note:'定价看"成交价"，不看"标价"。搜同款按"已售出"排序，取最近 10 条的中位数，再上浮 10% 留砍价空间。'},
+ {title:'卖前必做的六件事',head:['步骤','要点'],
+  rows:[['查同款成交价','平台搜同款，看已售，不看在售'],['白天自然光实拍','六个角度 + 每处瑕疵特写'],['写清瑕疵','隐瞒瑕疵是纠纷的唯一根源'],['拍购买凭证','发票、保修卡，提升可信度'],['恢复出厂设置','手机电脑必做，退出账号'],['定价留空间','标价 = 心理价 × 1.1']],
+  note:'图拍得越"难看"越可信：把划痕、掉漆、磨损都拍进去。用官图或精修图的，买家第一反应就是"这人要骗我"。'},
+ {title:'买家常见套路',head:['套路','怎么破'],
+  rows:[['到手刀','收货后以各种理由压价','发货前全程录像，坚持平台交易'],['调包退货','退回的是另一台','拍下序列号、IMEI 特写'],['假付款截图','PS 转账记录','只认平台订单状态，不认截图'],['要求脱离平台','加微信私聊转账','一律拒绝，脱离即失保障'],['恶意差评威胁','以差评要挟退款','保留聊天记录，申诉即可'],['反复问细节不下单','套图去别处卖','加水印，关键信息打码']],
+  note:'"到手刀"是最常见的一种：签收后说有问题，要求退 200 了事。防的办法很简单——发货视频里把机身序列号和快递单拍在同一帧。'},
+ {title:'卖家常见套路',head:['套路','怎么破'],
+  rows:[['图物不符','用官图、用别人图','要求现拍带纸条（写日期名字）'],['隐瞒维修史','换过屏、进过水不说','查序列号、查保修、当面验机'],['组装机当原装','配件全换过','查配置、查激活日期'],['定金锁货','先付定金再看货','不付定金，见货付款'],['货到付款加价','签收时临时加钱','当场拒收，保留物流单'],['"仅拆封"实为翻新','包装重封','看封条胶痕、看激活时间']],
+  note:'买二手电子产品的第一原则：能当面验机就当面验。第二条：不能当面验，就走平台担保，绝不私下转账。'},
+ {title:'面交安全',head:['要点','做法'],
+  rows:[['地点','白天、人多、有监控的公共场所'],['同行','尽量两人，女性不单独赴约'],['验货再付款','当面开机、试功能、查序列号'],['现金当场点','或走平台担保，不接受"稍后转"'],['不进对方家','大件在家门口或楼下交易'],['留存记录','聊天记录、转账记录保留半年']],
+  note:'金额超过两三千，一律走平台。面交现金看似省事，出事之后既没有凭证，也很难追。'},
+ {title:'平台怎么选',head:['平台类型','适合','注意'],
+  rows:[['综合二手平台','日用、数码、家具','流量大，纠纷也多，务必走担保'],['验机类平台','手机、平板','平台先验后发，收服务费'],['官方回收','旧手机、旧家电','价格低三到五成，但省心'],['图书回收','旧书','按本计价，品相要求高'],['本地群 / 同城','大件家具、家电','只能自提，需自行运输'],['论坛垂直版','相机、乐器、模型','圈子小，信誉靠历史发帖']],
+  note:'平台的价值不在"能挂上去"，而在"出事有人管"。为省 2% 手续费走私下交易，等于自己承担全部风险。'}
+]},
+
+{id:'wedding2',en:'Thank-you Banquet',g:'关系与文化',icon:'🎊',name:'答谢宴与回礼',type:'tables',sub:'主婚宴办给长辈看，答谢宴办给朋友吃。两场的目的不同，流程和预算也不该一样。',sections:[
+ {title:'答谢宴的四种形式',head:['形式','适合','人均成本'],
+  rows:[['正式答谢宴','宾客过百、长辈多','300–600 元/人'],['小型家宴','只请至亲','150–300 元/人'],['下午茶 / 冷餐会','同事、年轻朋友','80–150 元/人'],['异地补请','老家或工作地各一场','按当地行情'],['只发喜糖不办酒','简约派','20–50 元/人'],['旅行结婚 + 答谢','不想办仪式','省下一半预算']],
+  note:'异地办两场，第二场一定精简：只请"必须当面谢"的人。照着第一场的名单复制，预算会直接翻倍。'},
+ {title:'回礼清单',head:['对象','回礼','预算'],
+  rows:[['伴郎伴娘','红包 + 伴手礼','500–2000 元/人'],['司仪、摄影摄像','尾款 + 红包','200–600 元'],['帮忙的亲友','喜糖 + 红包','200–500 元'],['普通宾客','喜糖 + 小礼物','20–50 元/份'],['未到场的随礼人','回礼寄到家','同普通宾客 + 邮费'],['同事','喜糖分装，按部门送','10–20 元/份'],['司机、场地、化妆','红包','100–200 元']],
+  note:'回礼的价值不用攀比，但"有没有准备"差别很大。最容易漏的是司机、场地师傅和跟妆助理——他们不收，但会记。'},
+ {title:'礼金怎么记、怎么还',head:['情形','做法'],
+  rows:[['收礼当场','一人念、一人记，写清姓名与金额'],['电子礼金','截图存档，备注姓名'],['亲戚代随','标注"某某代某某"'],['还礼标准','不低于当年收到的金额'],['隔三年以上','可加 10–20% 抵通胀'],['不熟的人随礼','记下，日后对方有事要回'],['账本保存','至少留五年']],
+  note:'礼金账本不是记钱，是记人情。五年之内对方家里办事，这本账就是你还礼的依据，丢了只能凭印象，很容易失礼。'},
+ {title:'座位怎么排',head:['桌型','安排'],
+  rows:[['主桌','双方父母、祖辈、证婚人'],['父系亲戚','按辈分集中，长辈靠主桌'],['母系亲戚','单独成桌，别与父系混坐'],['同事','同部门一桌，领导与下属分开'],['朋友','按圈子分，别把三个圈子塞一桌'],['带小孩的','集中一桌 + 安排看护'],['单身朋友','与同龄人同坐，别单独插桌']],
+  note:'座位表最大的作用是"避免尴尬"。有过节的、刚分手的、上下级关系紧张的，提前分开——这比任何节目都重要。'},
+ {title:'答谢宴流程',head:['时间','环节'],
+  rows:[['18:00','迎宾签到、发喜糖'],['18:30','开场、新人入场'],['18:40','父母致辞、证婚'],['19:00','上菜、逐桌敬酒'],['19:40','视频或小游戏'],['20:10','送客、发回礼'],['20:30','收尾、结算、清点物品']],
+  note:'答谢宴不要照搬婚礼流程。没有仪式、没有婚纱、没有接亲，重点只有两个：把人招待好，把谢字说到。'},
+ {title:'容易失礼的细节',head:['细节','正确做法'],
+  rows:[['只发电子请柬给长辈','长辈要纸质请柬或电话邀请'],['请柬没写具体时间','写清几点开席，别写"届时恭候"'],['敬酒跳过某桌','提前规划路线，一桌不落'],['回礼漏人','按签到表逐一核对'],['答谢宴穿婚纱','穿礼服或旗袍，别重复主婚宴'],['提前离席不打招呼','逐桌致意后再走'],['当场拆礼金','回家再清点，别当着人拆']],
+  note:'答谢宴的本质是"补一句谢谢"。所有流程设计都该围绕这句话，而不是围绕"再办一场婚礼"。'}
+]},
+
+{id:'tradein',en:'Trade-in Subsidy',g:'生活日常',icon:'🔌',name:'家电以旧换新',type:'tables',sub:'补贴是真的，但"先涨价再补贴"也是真的。判断划不划算，只看一条：补贴后的实付价，是否低于近 30 天最低价。',sections:[
+ {title:'补贴大致怎么算',head:['品类','补贴比例','单件上限'],
+  rows:[['八类家电（冰洗电视空调电脑热水器灶具油烟机）','15%，1 级能效 20%','多为 2000 元'],['手机、平板、智能手表','10–15%','500–1000 元'],['家装厨卫（局部改造）','10–20%','地方政策，差异大'],['汽车报废更新','定额','新能源高于燃油'],['电动自行车','定额','300–600 元'],['结算方式','立减或事后返','立减更省心']],
+  note:'各地补贴比例、上限、名额都不同，且按批次发放。下单前先看本地商务部门的当期公告，别按去年的政策算。'},
+ {title:'哪些能换',head:['条件','说明'],
+  rows:[['新机能效','多数地区要求 1 级或 2 级'],['旧机品牌','不限品牌、不限年限'],['旧机状态','坏机、缺件也可回收'],['数量限制','每人每类通常限 1 件'],['凭证','需回收单据或平台订单'],['适用对象','个人消费者，企业不适用'],['叠加','可与平台券、门店活动叠加（视规则）']],
+  note:'旧机"能开机"和"不能开机"的回收价差不了几十块，但能不能参与补贴差别很大——先确认旧机在回收目录里。'},
+ {title:'旧机大概值多少',head:['品类','回收残值','备注'],
+  rows:[['空调','150–400 元','含拆机更划算'],['冰箱','50–150 元','按升数'],['洗衣机','30–80 元','滚筒略高'],['电视','20–80 元','按尺寸'],['热水器','30–60 元','燃气机需拆管'],['电脑主机','50–200 元','看显卡与内存'],['手机','10–300 元','能开机的智能机才有价']],
+  note:'空调的拆机费通常 150–300 元。如果回收方"免费拆机"，多半已经在残值里扣掉了，问清楚一项就明白。'},
+ {title:'五步走完流程',head:['步骤','做什么'],
+  rows:[['1 选品','认准能效标识，记下型号与日常价'],['2 领资格','平台或门店领补贴券，注意名额'],['3 下单','选"以旧换新"，填旧机信息'],['4 上门','送新机同时收旧机，当场验新机'],['5 结算','立减到账，或按指引提交材料返款']],
+  note:'一定要"先验新机、再交旧机"。旧机一出门就进了拆解流程，新机有问题想退换，旧机是要不回来的。'},
+ {title:'到底划不划算',head:['情形','建议'],
+  rows:[['旧机还能正常用','先挂二手，卖价常高于残值'],['旧机已坏','以旧换新最省事'],['需要拆装的大件（空调）','含拆机时明显划算'],['补贴 + 平台券可叠加','这时下手最优'],['单纯为了补贴换新','不划算，别为了 500 花 5000'],['旧机是高端老机型','二手残值可能远超回收价']],
+  note:'判断标准只有一条：把补贴、旧机残值、平台券全部减掉之后的实付价，和你三个月前看到的日常价相比，是不是真的更低。'},
+ {title:'六个常见坑',head:['坑','应对'],
+  rows:[['先涨价再补贴','查 30 天历史价，别只看"补贴后"'],['补贴名额已用完','领券成功再下单'],['旧机被压价','上门前问清残值并留记录'],['拆机另收费','下单时确认"含拆机"'],['回收后不给退','先验新机再交旧机'],['不开发票','影响保修，必须要']],
+  note:'补贴是政府给的，不该由商家定价。看到"补贴后 3999"而原价被悄悄改高，直接换一家——同一型号在别处往往还是原价。'}
+]},
+
 /* ---------- 专业计量 ---------- */
 {id:'hardness',en:'Hardness',g:'石油与工程',g2:'居家装修',icon:'🔨',name:'材料硬度',type:'custom',panel:'hardnessPanel',bind:'bindHardness'},
 {id:'threads',en:'Thread Specs',g:'石油与工程',g2:'居家装修',icon:'🔩',name:'螺纹规格',type:'tables',sub:'公制、UNC/UNF、G/BSP、NPT 四种螺纹的牙数与外径对照。',sections:[
@@ -5078,7 +5246,7 @@ function aboutPanel(){
   return '<div class="panel"><h2>ℹ️ About & Changelog</h2><p class="sub">Version, stack, licences — and what we refuse to build.</p>' +
   card('About', '<div class="kv">' +
     '<dt>Name</dt><dd>Life Converter · All-in-One Handbook</dd>' +
-    '<dt>Version</dt><dd>V5.4 (2026-10-28)</dd>' +
+    '<dt>Version</dt><dd>V5.6 (2026-10-28)</dd>' +
     '<dt>Form</dt><dd>Single-page app + PWA, installable</dd>' +
     '<dt>Modules</dt><dd>142 across 10 groups, 75 reference cards</dd>' +
     '<dt>Data</dt><dd>All calculations on-device, no upload</dd>' +
@@ -5105,12 +5273,14 @@ function aboutPanel(){
     ['V4.5','Waterproofing, cabinetry, network and gas cards; every calculator can export its result as a card; recently used modules surface at the top of the sidebar; swap buttons on the Combo Board'],
     ['V4.6','Appliance buying, storage planning, contract & payment, and checkup numbers cards; value boxes accept sums like 12*8; every reference card exports to Excel or copies as a table; history exports to Excel; Alt+↑/↓ jumps between modules'],
     ['V4.7','Gift money, exercise burn, laundry care and underfloor heating cards; the Combo Board takes formula rows (x*0.13); filter box on every reference card; copy all units at once'],
-    ['V4.8','Renting & deposits, coffee & tea, car running costs, utility tier cards; formula rows take a second variable y; one click sends any conversion to the Combo Board; the history panel gets a filter box'],
+    ['V5.6','Cabinet dimensions and circulation, second-hand trading scams, thank-you banquet and gifts, and appliance trade-in subsidy cards'],
+    ['V5.5','Renovation materials and haggling, waste sorting and recycling, online returns and price protection, and pet health cards'],
     ['V5.4','Home solar and storage, balcony growing, buying a car, and phone specs cards'],
     ['V5.3','First aid, consumer rights, pests and odours, and ageing-in-place adaptation cards'],
     ['V5.2','Nutrition and portions, baby care, household budget, and insurance basics cards'],
     ['V5.1','Renovation inspection, parking and traffic rules, coins and collectibles, and sleep cards'],
-    ['V5.0','Switch & socket points, home medicine, wedding planning and dinner-party portions cards; formula rows can reference other rows (r1*1.06); the Print Center picks whole groups at once']
+    ['V5.0','Switch & socket points, home medicine, wedding planning and dinner-party portions cards; formula rows can reference other rows (r1*1.06); the Print Center picks whole groups at once'],
+    ['V4.8','Renting & deposits, coffee & tea, car running costs, utility tier cards; formula rows take a second variable y; one click sends any conversion to the Combo Board; the history panel gets a filter box']
   ])) +
   card('Third party', '<ul class="plain">' +
     '<li>Lunar calendar: <b>solarlunar</b> (ISC), inlined, no network.</li>' +
@@ -5171,9 +5341,9 @@ function aboutPanelZH(){
   return '<div class="panel"><h2>ℹ️ 关于与更新日志</h2><p class="sub">版本、技术、许可，以及我们坚决不做的事。</p>' +
   card('关于', '<div class="kv">' +
     '<dt>名称</dt><dd>生活换算 · 全能手册</dd>' +
-    '<dt>版本</dt><dd>V5.4（2026-10-28）</dd>' +
+    '<dt>版本</dt><dd>V5.6（2026-10-28）</dd>' +
     '<dt>形态</dt><dd>单页应用 + PWA，可安装到桌面</dd>' +
-    '<dt>模块</dt><dd>158 个，10 个分组，91 张速查表</dd>' +
+    '<dt>模块</dt><dd>166 个，10 个分组，99 张速查表</dd>' +
     '<dt>数据</dt><dd>全部本地计算，不上传</dd>' +
   '</div>') +
   card('更新日志', tbl(['版本','主要变化'],[
@@ -5191,6 +5361,8 @@ function aboutPanelZH(){
     ['V3.2','中英界面、无障碍与键盘操作、安装引导、意见反馈'],
     ['V3.3','全部模块标题与说明英译、单位模块注释英译'],
     ['V3.4','表格模块（扳手/管钳/螺栓/钻头/床品/螺纹）表头与注释英译'],
+    ['V5.6','新增柜体尺寸与动线、二手交易防骗、答谢宴与回礼、家电以旧换新 4 张速查表'],
+    ['V5.5','新增装修材料防坑与砍价、垃圾分类与回收、网购退货与避坑、宠物就医与疫苗 4 张速查表'],
     ['V5.4','新增家用光伏与储能、阳台种菜与园艺、买车与选车、手机选购与参数 4 张速查表'],
     ['V5.3','新增急救与意外处理、消费维权与投诉、除虫与除味、适老化改造 4 张速查表'],
     ['V5.2','新增营养与配餐、育儿与喂养、家庭预算与记账、保险配置 4 张速查表'],
@@ -7646,7 +7818,7 @@ function updateStatic(){
   const brandrow = document.querySelector('.brandrow');
   if(brandrow && brandrow.childNodes[0]) brandrow.childNodes[0].textContent = t('生活换算','Life Conversion');
   const brand = document.querySelector('.brand > span');
-  if(brand) brand.textContent = t('全能手册 · 本地离线版 v5.4', 'All-in-One Handbook · v5.4');
+  if(brand) brand.textContent = t('全能手册 · 本地离线版 v5.6', 'All-in-One Handbook · v5.6');
   const bl = document.getElementById('backlink');
   if(bl) bl.textContent = t('← 返回工具箱','← Back to toolbox');
   const side = document.querySelector('.side');
@@ -7772,7 +7944,15 @@ const SUB_EN_MORE = {
  "solar": "The number that matters is not kilowatts installed but kilowatt-hours generated and self-consumed. Every unit you use yourself is worth three times one you export.",
  "garden": "Nine balcony gardens fail for lack of light, not lack of skill. Count the sunny hours your balcony actually gets before choosing what to plant.",
  "carbuy": "The sticker price is only the first payment. On-the-road costs 12–15% more, and five years of depreciation is the largest bill of all.",
- "phone": "The least valuable number on a spec sheet is the megapixels; the most valuable is the weight in your hand and the three things you actually use every day."
+ "phone": "The least valuable number on a spec sheet is the megapixels; the most valuable is the weight in your hand and the three things you actually use every day.",
+ "material": "Renovation losses rarely come from the unit price. They come from added items and from goods that arrive different from the sample. Writing the model number into the contract is worth more than haggling fifty yuan.",
+ "waste": "The item people mis-sort most is not kitchen waste — it is the thing that looks recyclable and is not. A few hard rules beat memorising the whole list.",
+ "returns": "A return is usually decided in the minute you open the parcel. An unboxing video is worth more than any scripted argument with support.",
+ "petmed": "The largest pet bill is never food; it is the one emergency visit. Vaccines and parasite control are the only place where a few hundred yuan blocks a few thousand.",
+ "storagedim": "Too little storage is rarely too few cabinets. It is cabinets that are too deep, too many shelves, and in the wrong place. Fix the dimensions before buying any boxes.",
+ "secondhand": "Almost every second-hand dispute traces back to three things: no video, no platform, and no mention of the flaw.",
+ "wedding2": "The main banquet is staged for the elders; the thank-you dinner is cooked for your friends. Different purpose means a different run sheet and a different budget.",
+ "tradein": "The subsidy is real, and so is the price rise before it. One test decides it: is the price after subsidy below the lowest price of the last 30 days?"
 };
 Object.assign(SUB_EN, SUB_EN_MORE);
 const NOTE_EN = {"length": "Chinese: 1 chi = 1/3 m, 1 li = 500 m, 1 zhang = 10 chi. Imperial: 1 inch = 25.4 mm by definition.", "area": "1 mu ≈ 666.67 m² = 60 square zhang; 1 mu = 10 fen = 100 li. 1 hectare = 15 mu.", "volume": "1 oil barrel (bbl) = 42 US gallons ≈ 158.99 L. Chinese: 1 shi = 10 dou = 100 L.", "mass": "Mainland 1 jin = 500 g; Taiwan 1 jin = 600 g; HK 1 jin ≈ 604.79 g. 1 liang = 10 qian = 50 g.", "speed": "1 knot = 1 nautical mile per hour ≈ 1.852 km/h. Mach is approximate at sea level (340.3 m/s).", "pressure": "Tyre pressure: 2.5 bar = 250 kPa ≈ 36.3 psi. Pipeline: 1 MPa ≈ 10 bar ≈ 145 psi.", "power": "Two horsepower standards: metric PS = 735.5 W (CN/EU), imperial hp = 745.7 W (US). Car specs usually mean PS.", "energy": "Food labels: 1 kcal = 4.184 kJ. Chinese nutrition tables use kJ — divide by 4.184. 1 kWh = 1 unit of electricity.", "data": "Windows and RAM use 1024; drive makers use 1000. That is why a 1TB drive shows about 931GB — nobody cheated you.", "flow": "1 barrel per day ≈ 0.00662 m³/h ≈ 158.99 L/day. 1 m³/h ≈ 151 bpd.", "angle": "One turn = 360° = 2π rad = 400 grad = 6400 mils (military).", "duration": "Month is averaged at 30.44 days, year at 365.25. For exact months use the date difference tool.", "force": "1 kgf = 9.80665 N. Ratings on slings and anchors are often in kgf or kN.", "density": "Crude oil API gravity: API = 141.5/SG − 131.5. Higher API means lighter oil; 32°API ≈ 0.865 g/cm³."};
@@ -8110,6 +8290,70 @@ const TABLE_EN_MORE = {
  {"title": "Camera specs", "head": ["Spec", "Meaning", "Trap"], "rows": [["Main sensor size", "1/1.3\" beats 1/1.56\"", "Sensor area matters more than anything"], ["Megapixels", "50 MP is plenty", "200 MP usually outputs 12 MP anyway"], ["Aperture", "f/1.6 lets in more than f/2.4", "Night shots depend on this"], ["Telephoto", "3× or 5× optical", "Digital zoom is not optical"], ["Stabilisation", "OIS is essential", "Especially on the telephoto"], ["Video", "4K 60 fps", "Check how long it records before throttling"]], "note": "The limits of phone photography are sensor size and processing, never megapixels. Within one generation, choose the larger sensor, not the bigger number."},
  {"title": "RAM and storage", "head": ["Usage", "RAM", "Storage"], "rows": [["Light: chat, video, photos", "8 GB", "128 GB"], ["Medium: many apps plus gaming", "12 GB", "256 GB"], ["Heavy: gaming plus 4K video", "16 GB", "512 GB"], ["Photo enthusiast", "12 GB", "512 GB or more"], ["Keeping it 4+ years", "16 GB", "512 GB"], ["On a tight budget", "Upgrade storage first", "RAM cannot be added later"]], "note": "Storage is worth more than RAM: too little RAM only closes background apps, too little storage means deleting photos every week. Neither can be upgraded, so buy the size you will need."},
  {"title": "When to replace it", "head": ["Signal", "Advice"], "rows": [["Battery health below 80%", "Replace the battery, not the phone"], ["No more system updates", "A security risk; consider replacing"], ["Storage permanently above 90%", "Clean up or upgrade"], ["Screen repair above 30% of value", "Replacing is cheaper"], ["Daily lag you cannot clean up", "Then replace"], ["You just want a new one", "Wait a generation"]], "note": "Phones have been overpowered for years. A three-year-old flagship with a fresh battery feels much like this year's mid-range — what actually pushes you to upgrade is storage and battery."}
+],
+"material": [
+ {"title": "Tricks in the quotation", "head": ["Item", "The trick", "How to counter"], "rows": [["Tiles", "“Special price” tiles from another origin or batch", "Ask for origin and colour code, insist on one batch"], ["Flooring", "“E0 grade” as a selling point", "Demand the test report number; E1 is the legal floor"], ["Paint", "“Odour-free” and “kids' paint” premiums", "Compare only VOC content in g/L and the standard code"], ["Doors", "“Solid wood composite” left vague", "Ask what the core is: honeycomb paper, chipboard or blockboard"], ["Kitchen cabinets", "Per-linear-metre price excludes worktop and hardware", "List worktop, baskets and hinges as separate lines"], ["Bathroom sets", "Set excludes valves, hoses and installation", "Confirm trap distance, valves, flange and fitting fee"], ["Ceilings", "Aluminium panels priced per m², frame extra", "Ask whether frame, trim and labour are included"]], "note": "The same model in a different production batch will show a colour shift, especially tiles and flooring. Write “single batch delivery, notify in advance if split” into the contract."},
+ {"title": "Material price reference", "head": ["Material", "Spec", "Normal range"], "rows": [["Tiles", "800×800 first grade", "60–120 CNY per tile"], ["Wall tiles", "300×600", "15–35 CNY per tile"], ["Laminate flooring", "8–12 mm", "80–150 CNY/m²"], ["Engineered wood", "Multi-layer", "180–350 CNY/m²"], ["Emulsion paint", "18 L, primer plus two coats", "400–800 CNY per set"], ["Quartz worktop", "15 mm", "400–900 CNY per linear metre"], ["Aluminium ceiling", "Frame and labour included", "90–160 CNY/m²"], ["Switches and sockets", "Standard brands", "10–40 CNY per gang"], ["Internal door", "Engineered, hardware included", "1200–2500 CNY each"]], "note": "A quote 30% below the bottom of the range will come back through added items or consumables. The unit price should be complete, not cheap."},
+ {"title": "How to negotiate, in order", "head": ["Stage", "What to do", "Why"], "rows": [["First", "Fix the model, then talk price", "“Same model” is verbal; a swap leaves you no recourse"], ["Second", "Take three quotes and play them off", "A real bottom price is the only leverage you have"], ["Third", "Negotiate the total, not each line", "Cut every line and it reappears in consumables"], ["Fourth", "Trade payment terms for discount", "Cash or full payment usually buys another 3–5%"], ["Fifth", "Convert free gifts into cash", "Gifts are worth about 30% of their sticker price"], ["Sixth", "Put it in the contract", "Model, batch, colour code, delivery date, penalty clause"]], "note": "The most effective sentence is not “make it cheaper”. It is “I will pay this now if the model and batch go into the contract”."},
+ {"title": "Checking the delivery", "head": ["Material", "How to check"], "rows": [["Tiles", "Open three boxes per colour code, lay flat, look for shade, chips, warping"], ["Flooring", "Check the side print and anti-counterfeit label, join two boards for height difference"], ["Boards", "Smell the cut edge, check the cross-section for density and voids"], ["Paint", "Scan the anti-counterfeit code, check batch and production date"], ["Hardware", "Weigh the hinge, test the damper, open the runner three times"], ["Stone", "Check the backing mesh and colour variation, tap for hollow sound"], ["Quantity", "Count by box; photograph damage on the spot and get the driver to sign"]], "note": "Signing “packaging intact” gives up any damage claim. Inspect before signing, or write “not yet unpacked or inspected”."},
+ {"title": "Emissions grades decoded", "head": ["Term", "What it actually means"], "rows": [["E1", "The legal baseline, safe indoors, ≤0.124 mg/m³"], ["E0", "Industry standard, ≤0.05 mg/m³, better than the law"], ["ENF", "Highest grade in the 2021 national standard, ≤0.025 mg/m³"], ["“Zero formaldehyde”", "Does not exist; wood itself releases trace amounts"], ["“Odour-free”", "Only means less smell, says nothing about VOC"], ["F★★★★", "Japanese standard, stricter than E0"], ["“EU standard”", "Mostly marketing; ask for the report number"]], "note": "The grade that matters is the formaldehyde release of engineered board, not paint. Fitted wardrobes and cabinets are where indoor formaldehyde actually comes from."},
+ {"title": "Six places money leaks", "head": ["Item", "Advice"], "rows": [["Fitted furniture", "Price by projected area, not by developed area"], ["Ceilings", "No main light does not mean a full ceiling; partial saves half"], ["Feature walls", "Sintered stone costs more in labour than material"], ["Smart home", "Run neutral wires and network cable now, buy devices later"], ["Loose furniture", "Keep within 15% of the total budget"], ["Added items", "Write “variations capped at 5% of contract value, excess not payable”"]], "note": "The classic budget blow-out: save 5,000 on materials, pay 20,000 in variations. Before signing, walk through every variation that could plausibly arise."}
+],
+"waste": [
+ {"title": "The four streams", "head": ["Stream", "Includes", "How to put it out"], "rows": [["Recyclable (blue)", "Paper, plastic bottles, glass, metal, textiles", "Empty, rinse, flatten, keep loose"], ["Hazardous (red)", "Batteries, lamps, expired medicine, paint, pesticides", "Seal separately, never mix, never break"], ["Food waste (green)", "Leftovers, peel, leaves, tea grounds, small bones", "Drain liquid, remove packaging"], ["Residual (grey)", "Tissues, nappies, ceramics, cigarette ends, cat litter", "Bag it and tie"], ["Bulky waste", "Furniture, mattresses, appliances", "Book a collection, not the household bin"], ["Construction waste", "Bricks, tiles, plasterboard", "Register with the property office, charged per load"]], "note": "Names differ by city: Shanghai's “wet” is food waste and “dry” is residual. Follow the local list, not a national one."},
+ {"title": "Twelve most mis-sorted items", "head": ["Item", "Belongs to", "Why"], "rows": [["Used tissue", "Residual", "Fibre is contaminated, cannot be repulped"], ["Disposable chopsticks", "Residual", "Wet and of no recycling value"], ["Takeaway plastic box", "Recyclable if washed, residual if greasy", "Oil ruins a whole batch of pulp"], ["Drinking glass", "Residual", "Melting point differs from container glass"], ["Ceramic bowls", "Residual", "Cannot be melted with glass"], ["Large bones", "Residual", "Too hard to shred or compost"], ["Fish bones, small bones", "Food waste", "Rots readily"], ["Cat litter", "Residual", "Bentonite does not degrade or compost"], ["Pet faeces", "Residual", "Carries pathogens, not for composting"], ["Expired medicine", "Hazardous", "Include the box and blister"], ["Alkaline batteries", "Residual", "Now mercury-free, accepted as residual"], ["Rechargeable, coin cells", "Hazardous", "Heavy metals"]], "note": "Phone batteries, power banks and coin cells are always hazardous. Modern alkaline AA and AAA can go in residual — this is the rule people most often get backwards."},
+ {"title": "What “clean enough” means", "head": ["Item", "How to prepare"], "rows": [["Plastic bottles", "Empty and flatten; cap on or off both fine"], ["Glass jars", "Rinse, do not smash — sorters get cut"], ["Cardboard", "Flatten, remove tape and shipping label"], ["Cans", "Rinse and crush"], ["Old clothes", "Wash and dry, bag them, keep shoes paired"], ["Foam boxes", "Not accepted everywhere; check the local list"], ["Plastic bags", "Only clean film is recyclable; greasy goes to residual"]], "note": "The test is simple: will it contaminate everything else in the same bin? One oily bottle can downgrade half a bin of cardboard."},
+ {"title": "Hazardous items", "head": ["Item", "Caution"], "rows": [["Fluorescent tubes, CFLs", "Contain mercury; do not break, keep in packaging"], ["Expired medicine", "Box and blister together; never flush"], ["Paint tins, solvents", "Seal leftovers; never pour down the drain"], ["Pesticide and hairspray cans", "Pressurised; do not puncture or crush"], ["Mercury thermometer", "If broken, treat as hazardous and ventilate"], ["Rechargeable and coin cells", "Tape the terminals to prevent shorting"], ["Pesticide bottles", "Rinse three times, treat the liquid separately"]], "note": "One coin cell can contaminate roughly 600 tonnes of water. Do not keep a “deal with it later” box — later usually means it goes out with the rubbish."},
+ {"title": "Bulky and construction waste", "head": ["Item", "How to dispose", "Cost"], "rows": [["Old furniture", "Property office booking or app collection", "50–200 CNY per item"], ["Old appliances", "Trade-in or recycling station", "50–150 CNY per fridge"], ["Mattress", "Bulky waste booking, free in some cities", "0–100 CNY"], ["Construction waste", "Register with property office, designated point", "500–1500 CNY per load"], ["Toilet, bathtub", "Construction waste, never the household bin", "Charged per load"], ["Old clothes", "Neighbourhood bank or pickup", "Usually free"]], "note": "Construction waste in the household bin can be refused and fined. Before work starts, ask where the rubble point is and what a load costs."},
+ {"title": "What recycling actually pays", "head": ["Material", "Unit price", "Note"], "rows": [["Cardboard", "0.8–1.2 CNY/kg", "Damp or taped loads get knocked down"], ["Plastic bottles", "1.5–2.5 CNY/kg", "About 50 half-litre bottles per kilo"], ["Scrap iron", "1.8–2.5 CNY/kg", "Paint and rust lower the price"], ["Aluminium", "8–12 CNY/kg", "Window extrusion is the best grade"], ["Copper", "40–55 CNY/kg", "Separate bright copper from brass"], ["Old phones", "10–300 CNY each", "Only working smartphones have value"], ["Old appliances", "30–150 CNY each", "Compressor and copper coil set the price"]], "note": "Door-to-door collectors pay about 30% less than the yard because of labour and transport. Accumulate a load, or take it in yourself."}
+],
+"returns": [
+ {"title": "Where seven-day returns end", "head": ["Case", "Returnable", "Reason"], "rows": [["Ordinary goods", "Yes", "Within 7 days of delivery, resaleable condition"], ["Custom or engraved items", "No", "Made to your order, cannot be resold"], ["Fresh and perishable food", "No", "But quality faults are still refundable"], ["Opened media or software", "No", "Opening counts as use"], ["Downloads and top-ups", "No", "Delivered on purchase"], ["Underwear, intimate apparel", "Usually no", "Hygiene once opened"], ["Activated phone or laptop", "No on some platforms", "Activation counts as use"], ["Large furniture", "Yes", "But return freight is yours"]], "note": "“Affects resale” means the goods have lost value, not that the parcel was opened. Opening to inspect is your right and cannot be grounds for refusal."},
+ {"title": "Who pays the return freight", "head": ["Reason for return", "Who pays"], "rows": [["Quality fault or malfunction", "Seller, both ways"], ["Not as described", "Seller"], ["Wrong item or missing item", "Seller"], ["Seven-day no-reason", "Buyer, or insurer if return cover was bought"], ["Refusing delivery without reason", "Buyer"], ["Return insurance payout", "Typically 8–15 CNY, excess is yours"], ["Large furniture", "By actual weight, can exceed 100 CNY"]], "note": "Once you choose “no reason”, the freight is yours. If the goods are faulty, choose “quality issue” and upload photos — do not let support talk you into changing it."},
+ {"title": "Before you send it back", "head": ["Step", "Key point"], "rows": [["Film the unboxing", "Start on the shipping label and sealed edge, keep filming to the product"], ["Keep the packaging", "Box, tags, gifts, manual"], ["Screenshot the listing", "Main image, details, promises, in case the page is edited"], ["Screenshot the chat", "Verbal promises from the seller count as evidence"], ["Talk before applying", "Many sellers will offer a partial refund instead"], ["Choose the reason honestly", "Quality needs proof; no-reason does not"], ["Film the packing", "Bagging, weighing, labelling in one continuous shot"]], "note": "Platform arbitration runs on evidence, not volume. Label, product and defect in a single frame wins almost every case."},
+ {"title": "When the seller refuses", "head": ["What they say", "What to do"], "rows": [["“It has been opened, no return”", "Opening to inspect does not affect resale; the law allows it"], ["“Sale items are non-returnable”", "An invalid clause; complain to the platform"], ["“You pay freight both ways”", "No-reason returns are return freight only"], ["“Change the reason to ‘changed my mind’”", "Do not; you would then pay the freight"], ["Endless delay", "Let the timer expire for automatic refund, or escalate"], ["Refuses to issue an invoice", "Report to the tax authority"], ["Asks you to settle off-platform", "Refuse; no record means no protection"]], "note": "Article 25 of the Consumer Rights Protection Law is the basis for seven-day returns. For small amounts the 12315 mini-program still works — sellers usually call the same day."},
+ {"title": "Common promotional traps", "head": ["Trap", "Counter"], "rows": [["Raise the price, then discount", "Check 30-day price history with a comparison tool"], ["Non-refundable deposit", "“Deposit” is forfeited, “earnest money” is refundable — read the character"], ["Gifts counted as value", "Return deducts the gift at full price, so keep it"], ["Split shipments", "You can only return what actually arrived"], ["Fake dispatch", "Stuck at “collected” — complain once the timer passes"], ["Pushed off-platform", "You lose all protection the moment you leave"], ["“Limited stock” urgency", "Close the page and wait ten minutes"]], "note": "Screenshot the price of anything you plan to buy before a sale. It is the crudest method and the only reliable one against raise-then-discount."},
+ {"title": "Price protection", "head": ["Case", "Rule"], "rows": [["Platform price protection", "Usually 7–15 days, applied for manually"], ["Discount caused by coupons", "Excluded by most platforms"], ["Flash sale or subsidy", "Normally excluded"], ["Member price", "Supported by some platforms"], ["Number of claims", "Usually once per order"], ["Where to apply", "Order details → price protection"], ["Same item offline", "Not covered by online price protection"]], "note": "Price protection expires. Most people remember only after they see the price drop, by which time the window has closed. Set a reminder for day six."}
+],
+"petmed": [
+ {"title": "Vaccination schedule", "head": ["Age", "Dog", "Cat"], "rows": [["6–8 weeks", "First DHPP", "First FVRCP"], ["10–12 weeks", "Second", "Second"], ["14–16 weeks", "Third", "Third"], ["After 16 weeks", "Rabies", "Rabies"], ["1 year", "Booster plus rabies", "Booster plus rabies"], ["After 1 year", "Annual booster and rabies", "Annual booster and rabies"], ["Prerequisite", "Healthy, dewormed, no bath for a week before", "Same"]], "note": "More vaccines is not better. One annual booster is enough for adult dogs and cats; over-vaccinating adds nothing to immunity."},
+ {"title": "Parasite control", "head": ["Type", "Frequency", "Note"], "rows": [["Internal, puppy or kitten", "Monthly to 6 months", "Dose by body weight"], ["Internal, adult", "Every 3 months", "Every 2 months if outdoors often"], ["External", "Monthly", "Never skip in flea and tick season"], ["Heartworm prevention", "Monthly in mosquito season, year-round in the south", "Spread by mosquitoes; cats get it too"], ["Combined products", "Usually monthly", "Do not double up with another product"], ["After treatment", "See a vet if vomiting or diarrhoea lasts over 24 hours", "Mild soft stool is common"]], "note": "Indoor cats still need deworming: eggs arrive on shoes and parcel boxes. External control matters most for cats — one flea becomes a household problem."},
+ {"title": "Neutering and common surgery", "head": ["Item", "Timing", "Note"], "rows": [["Dog neutering", "6–12 months, later for large breeds", "Early neutering affects bone development in large dogs"], ["Cat neutering", "6–8 months, males from 5 months", "Before the first heat recovers faster"], ["Fasting", "8 hours", "Water withheld 2 hours"], ["Pre-op tests", "Blood count and biochemistry", "Cardiac check mandatory over 7 years"], ["Aftercare", "Cone for 7–14 days", "Do not remove early"], ["Cost", "Dog 800–2500 CNY, cat 500–1500 CNY", "Includes anaesthesia and analgesia"]], "note": "Neutering is not a philosophical argument — it is the most direct way to cut the risk of mammary tumours, pyometra and prostate disease. Spaying before the first heat cuts mammary tumour risk by around 90%."},
+ {"title": "Go to the vet now", "head": ["Sign", "Possible cause"], "rows": [["Vomiting or diarrhoea over 24 hours", "Dehydration, pancreatitis, foreign body"], ["Cat not eating for 12 hours", "Hepatic lipidosis, can be fatal"], ["Male cat straining with no urine", "Urethral obstruction, dangerous within 6 hours"], ["Open-mouth breathing, blue tongue", "Heart failure, heatstroke, effusion"], ["Seizure, loss of consciousness", "Epilepsy, poisoning, low blood sugar"], ["Ate chocolate, grapes, onion, xylitol", "Poisoning; earlier induction is better"], ["Temperature above 39.5 or below 37.5 °C", "Infection, shock"], ["Swollen abdomen, retching with nothing out", "GDV, a large-dog emergency"]], "note": "You do not need to remember all of it. Remember three: a cat that stops eating, a male cat that cannot pee, a dog with a drum-tight belly and dry retching — go now, do not wait."},
+ {"title": "Choosing a clinic", "head": ["Point", "How to judge"], "rows": [["Licence", "Veterinary licence displayed, number verifiable"], ["Departments", "Internal medicine, surgery, imaging, dentistry separated"], ["Equipment", "Blood count, biochemistry, X-ray, ultrasound, blood gas"], ["Transparent pricing", "Written estimate before treatment"], ["Emergency cover", "24-hour, and the number actually answered"], ["Records", "A full copy of the file given to the owner"], ["Red flag", "Selling supplements only, or diagnosing without tests"]], "note": "You do not need every test on the first visit, but do ask: “if we skip this test, what are you basing the diagnosis on?” A vet who can explain the differential is worth more than a newer building."},
+ {"title": "Annual fixed cost", "head": ["Item", "Dog", "Cat"], "rows": [["Vaccines", "200–400 CNY", "200–350 CNY"], ["Parasite control", "400–800 CNY", "300–600 CNY"], ["Food", "1500–4000 CNY", "1200–3000 CNY"], ["Litter", "—", "300–800 CNY"], ["Grooming", "600–2000 CNY", "0–600 CNY"], ["Annual check-up", "300–800 CNY", "300–800 CNY"], ["Emergency reserve", "2000–5000 CNY", "2000–5000 CNY"], ["Total", "5000–12000 CNY", "4000–9000 CNY"]], "note": "Pets have no national insurance scheme, and one foreign-body surgery easily runs 3,000–5,000 CNY. Either keep a pet fund or buy pet medical cover — and read the waiting period and pre-existing exclusions."}
+],
+"storagedim": [
+ {"title": "Cabinet area baseline", "head": ["Space", "Reference ratio", "Note"], "rows": [["Cabinets / internal floor area", "12–15% adequate, 20% generous", "Below 10% and the flat will always look messy"], ["Entry shoe cabinet", "8–10 pairs per person", "Shelves = household size × 10"], ["Kitchen worktop", "At least 15% of kitchen area", "Too little and you move things constantly"], ["Main wardrobe", "1.2–1.5 m of rail per person", "Work it out from garment lengths"], ["Bathroom", "Mirror cabinet plus wall-hung vanity", "Worktop holds only daily items"], ["Balcony utility cabinet", "600 mm deep", "Vacuum, mop, ladder"], ["Separate store room", "2–4 m²", "Worth more than ten extra cabinets"]], "note": "Plan in this order: count the volume, then design the cabinets, then buy the boxes. Reverse it and you end up with a pile of boxes and no room."},
+ {"title": "Dimensions that matter", "head": ["Part", "Size", "Note"], "rows": [["Wardrobe depth", "600 hinged, 650 sliding", "Below 550 a coat will not hang flat"], ["Rail height", "1000 short, 1400 long", "Measure the longest garment"], ["Shelf spacing", "350–400", "Above 450 is wasted space"], ["Shoe cabinet depth", "350 flat, 250 angled", "A size 42 men's shoe is about 300 long"], ["Shoe shelf height", "150 flats, 250 ankle boots, 450 tall boots", "Adjustable shelves are the practical choice"], ["Base unit height", "800–850", "Rule of thumb: height ÷ 2 + 50"], ["Wall unit above worktop", "600–700", "Lower hits your head, higher you cannot reach"], ["Desk height", "750 with a 430 seat", "A 300 gap gives a comfortable posture"]], "note": "Every height is measured from the finished floor. Fix the cabinet dimensions at the services stage — after tiling it is too late."},
+ {"title": "Three rules of circulation", "head": ["Rule", "In practice"], "rows": [["Within three steps", "Keep frequent items within 1.5 m of where they are used"], ["Between waist and eye", "The most-used things should need neither bending nor stretching"], ["The 80/20 rule", "20% on open display, 80% behind a door"], ["One home per category", "Each type of object lives in exactly one place"], ["Full height", "Take cabinets to the ceiling; no dust ledge"], ["No dead corners", "Use corner carousels or pull-out shelves"], ["Leave 20% empty", "Every cabinet needs slack, or it overflows in three months"]], "note": "The test of good storage is the worktop: the emptier it is, the better the cabinets work. A cluttered worktop means wrong placement, not too much stuff."},
+ {"title": "What the entryway must hold", "head": ["Item", "Position and size"], "rows": [["3–5 pairs in daily use", "Open shelf, 150 high"], ["Clothes worn but not dirty", "Rail plus hooks, not the wardrobe"], ["Bag, keys, parcels", "Worktop 400 deep at 900 high"], ["Umbrellas", "Stand or in-cabinet vertical slot"], ["Shoe-changing bench", "400–450 high, lift-up storage"], ["Masks, wipes, dog lead", "One drawer"], ["Motion sensor light", "Under the cabinet or at skirting"]], "note": "The entryway is the only place where keys, bag and shoes all land. One missing surface here and the mess spreads through the whole flat."},
+ {"title": "Kitchen zoning", "head": ["Zone", "What goes there", "Size"], "rows": [["Between sink and hob", "Prep area, kept clear", "800–1200 wide"], ["Either side of the hob", "Seasoning, utensils", "400–600 each"], ["Top of wall units", "Stock, gift boxes", "Needs a stool, low frequency only"], ["Lower wall units", "Plates, dry goods", "Within arm's reach"], ["Top drawer", "Cutlery inserts", "150 high"], ["Pull-out base unit", "Pots and pans", "Rated 30 kg or more"], ["Worktop", "Only the three things used daily", "Everything else behind a door"]], "note": "A kitchen works or fails on the sink–prep–hob triangle. Past 6 m of perimeter, one meal costs you hundreds of steps."},
+ {"title": "Six regrets", "head": ["Design", "Problem", "Fix"], "rows": [["Too many open cubbies", "Messy within three days", "80% with doors, 20% open"], ["Wardrobe full of shelves", "Folding is the worst job", "60% hanging, 40% shelves"], ["Shoe cabinet without ventilation", "Trapped odour", "Vent holes in the back or louvred doors"], ["Floor-standing vanity", "Damp and mould underneath", "Wall-hung, 200 mm clearance"], ["Cabinets short of the ceiling", "Dust ledge", "Take them to the ceiling or add a filler panel"], ["Sockets hidden behind cabinets", "Fitted but unusable", "Finalise cabinet drawings at the wiring stage"]], "note": "There is only one acceptance test for storage: three months in, is it still tidy? Any system that depends on willpower is a bad design."}
+],
+"secondhand": [
+ {"title": "Pricing reference", "head": ["Category", "Age", "Residual value"], "rows": [["Phone", "1 year", "50–60% of new"], ["Phone", "2 years", "35–45%"], ["Laptop", "1 year", "60–70%"], ["Camera body", "1–2 years", "65–80%"], ["Camera lens", "1–3 years", "70–85%, the best hold"], ["Furniture", "1–3 years", "20–40%"], ["Large appliances", "1–3 years", "30–50%"], ["Baby gear", "—", "30–50%"], ["Books", "—", "10–30%"]], "note": "Price from sold listings, not asking prices. Sort by completed sales, take the median of the last ten, then add 10% to leave room for haggling."},
+ {"title": "Six things before listing", "head": ["Step", "Key point"], "rows": [["Check sold prices", "Search the same model, look at completed sales"], ["Shoot in daylight", "Six angles plus a close-up of every flaw"], ["State every flaw", "Concealing a flaw is the root of every dispute"], ["Photograph the receipt", "Invoice and warranty card raise trust"], ["Factory reset", "Mandatory for phones and laptops; sign out of accounts"], ["Leave negotiating room", "Asking price = your floor × 1.1"]], "note": "The uglier the photos, the more credible: show the scratch, the chip, the wear. Official renders and retouched images make buyers assume you are hiding something."},
+ {"title": "Buyer tricks", "head": ["Trick", "Counter"], "rows": [["Post-delivery haggling", "Claims a fault, demands a partial refund", "Film the packing, insist on platform payment"], ["Return swap", "Sends back a different unit", "Photograph the serial number and IMEI"], ["Fake payment screenshot", "Doctored transfer record", "Only trust the platform order status"], ["Moving off-platform", "Asks for WeChat transfer", "Refuse; you lose all protection"], ["Bad-review threat", "Demands a refund or a one-star review", "Keep the chat log and appeal"], ["Endless questions, no purchase", "Collecting photos to resell", "Watermark images and blur key details"]], "note": "Post-delivery haggling is the most common: they sign, claim a problem, and ask for 200 back. The defence is a packing video where the serial number and the shipping label appear in the same frame."},
+ {"title": "Seller tricks", "head": ["Trick", "Counter"], "rows": [["Photos not of the item", "Stock images or someone else's", "Ask for a fresh photo with today's date and your name"], ["Repair history hidden", "Screen replaced, water damage", "Check serial, warranty status, inspect in person"], ["Refurb sold as original", "All parts swapped", "Check the spec sheet and activation date"], ["Deposit to hold", "Pay before seeing it", "Never pay a deposit; pay on inspection"], ["Price increase on delivery", "Cash-on-delivery surcharge", "Refuse on the spot and keep the waybill"], ["“Opened only” that is refurbished", "Resealed packaging", "Look at the seal adhesive and activation date"]], "note": "Two rules for buying used electronics: inspect in person if you possibly can; if you cannot, use platform escrow and never transfer privately."},
+ {"title": "Meeting in person", "head": ["Point", "What to do"], "rows": [["Location", "Daylight, crowded, covered by cameras"], ["Company", "Bring someone, especially for women"], ["Inspect before paying", "Boot it, test the functions, check the serial"], ["Count cash on the spot", "Or use escrow; never “I'll transfer later”"], ["Never enter a home", "Hand over large items at the door or downstairs"], ["Keep records", "Chat and transfer records for six months"]], "note": "Above two or three thousand yuan, always use the platform. Cash in person feels simpler until something goes wrong and you have neither proof nor recourse."},
+ {"title": "Choosing a platform", "head": ["Type", "Good for", "Watch out"], "rows": [["General marketplace", "Everyday goods, electronics, furniture", "High traffic, high dispute rate — always use escrow"], ["Inspection platforms", "Phones, tablets", "They inspect before shipping and charge a fee"], ["Official recycling", "Old phones and appliances", "30–50% below private sale, but no hassle"], ["Book recycling", "Old books", "Priced per copy, strict on condition"], ["Local groups", "Large furniture and appliances", "Collection only; you arrange transport"], ["Hobby forums", "Cameras, instruments, models", "Small circles; reputation comes from post history"]], "note": "A platform's value is not that it lets you list, but that someone steps in when it goes wrong. Saving 2% by going private means carrying all the risk yourself."}
+],
+"wedding2": [
+ {"title": "Four formats", "head": ["Format", "Suits", "Cost per head"], "rows": [["Formal thank-you banquet", "Over a hundred guests, many elders", "300–600 CNY"], ["Small family dinner", "Immediate family only", "150–300 CNY"], ["Afternoon tea or buffet", "Colleagues and younger friends", "80–150 CNY"], ["Second city dinner", "Hometown or workplace", "Local rates"], ["Sweets only, no dinner", "Minimalists", "20–50 CNY"], ["Elopement plus dinner", "No ceremony wanted", "Half the budget"]], "note": "If you hold two, make the second one lean: invite only the people you must thank in person. Copy the first guest list and the budget simply doubles."},
+ {"title": "Thank-you gifts", "head": ["Who", "Gift", "Budget"], "rows": [["Bridesmaids and groomsmen", "Red packet plus a keepsake", "500–2000 CNY each"], ["MC, photographer, videographer", "Final payment plus a red packet", "200–600 CNY"], ["Friends who helped", "Sweets plus a red packet", "200–500 CNY"], ["Ordinary guests", "Sweets plus a small gift", "20–50 CNY per person"], ["People who sent money but did not attend", "Post the gift to them", "As ordinary plus postage"], ["Colleagues", "Sweets packed by department", "10–20 CNY per pack"], ["Driver, venue staff, make-up artist", "Red packet", "100–200 CNY"]], "note": "The value need not be extravagant, but whether you prepared anything matters. The ones most often forgotten are the driver, the venue technicians and the make-up assistant."},
+ {"title": "Cash gifts: record and repay", "head": ["Situation", "Practice"], "rows": [["At the door", "One reads the name, one writes name and amount"], ["Digital transfers", "Screenshot and note the sender"], ["Sent via a relative", "Write “X on behalf of Y”"], ["Repaying", "Never less than what you received"], ["More than three years later", "Add 10–20% for inflation"], ["From an acquaintance", "Record it; you will owe them the same"], ["How long to keep the book", "At least five years"]], "note": "The gift ledger is not about money, it is about obligation. Within five years you will need it, and memory is not a reliable record."},
+ {"title": "Seating", "head": ["Table", "Arrangement"], "rows": [["Head table", "Both sets of parents, grandparents, the officiant"], ["Paternal relatives", "By seniority, elders nearest the head table"], ["Maternal relatives", "A separate table; do not mix the two sides"], ["Colleagues", "By department, managers away from their reports"], ["Friends", "By circle; do not merge three circles into one table"], ["Guests with children", "One table plus a minder"], ["Single friends", "With peers, never dropped into a table of strangers"]], "note": "The real function of a seating plan is avoiding awkwardness. Separate the estranged, the freshly broken-up and the tense manager-report pair before you think about the programme."},
+ {"title": "Run of the evening", "head": ["Time", "Segment"], "rows": [["18:00", "Welcome, sign-in, sweets handed out"], ["18:30", "Opening, couple enters"], ["18:40", "Parents speak, officiant speaks"], ["19:00", "Dinner served, toast table by table"], ["19:40", "Video or a short game"], ["20:10", "Farewell, gifts handed out"], ["20:30", "Settle bills, collect leftovers, check the room"]], "note": "Do not copy the wedding run sheet. No ceremony, no gown, no door games — only two jobs: feed people well and say thank you properly."},
+ {"title": "Etiquette details", "head": ["Detail", "Do this"], "rows": [["Digital invite to elders", "Paper invite or a phone call for the older generation"], ["Invite without a time", "State the hour the meal starts, not “we await you”"], ["Skipping a table at toasts", "Plan the route and miss none"], ["Missing someone with the gift", "Tick names off the sign-in sheet"], ["Wearing the gown again", "Wear a dress or qipao; do not repeat the wedding"], ["Leaving early without a word", "Say goodbye at each table first"], ["Opening envelopes in public", "Count at home, never in front of guests"]], "note": "A thank-you dinner exists to say one sentence of thanks. Every decision should serve that sentence, not a second wedding."}
+],
+"tradein": [
+ {"title": "How the subsidy works", "head": ["Category", "Rate", "Cap per item"], "rows": [["Eight appliance classes (fridge, washer, TV, air-con, computer, water heater, hob, hood)", "15%, 20% for grade 1 efficiency", "Often 2000 CNY"], ["Phones, tablets, smart watches", "10–15%", "500–1000 CNY"], ["Kitchen and bathroom refresh", "10–20%", "Varies by city"], ["Vehicle scrappage", "Fixed amount", "Higher for EVs than petrol"], ["E-bikes", "Fixed amount", "300–600 CNY"], ["How it is paid", "Instant discount or later refund", "Instant is simpler"]], "note": "Rates, caps and quotas differ by city and are released in batches. Check this period's local notice before you order, not last year's policy."},
+ {"title": "What qualifies", "head": ["Condition", "Explanation"], "rows": [["New unit efficiency", "Most regions require grade 1 or 2"], ["Old unit brand", "Any brand, any age"], ["Old unit condition", "Broken or incomplete still accepted"], ["Quantity limit", "Usually one per category per person"], ["Proof required", "Recycling receipt or platform order"], ["Who qualifies", "Individual consumers; businesses excluded"], ["Stacking", "Platform coupons and store promotions may stack, per the rules"]], "note": "A working old unit and a dead one differ by a few dozen yuan in scrap value, but a big margin in eligibility. Check the old unit is on the accepted list first."},
+ {"title": "What the old unit is worth", "head": ["Category", "Scrap value", "Note"], "rows": [["Air conditioner", "150–400 CNY", "Better if removal is included"], ["Fridge", "50–150 CNY", "By volume"], ["Washing machine", "30–80 CNY", "Front loaders slightly more"], ["Television", "20–80 CNY", "By screen size"], ["Water heater", "30–60 CNY", "Gas units need disconnection"], ["Desktop PC", "50–200 CNY", "Depends on GPU and RAM"], ["Phone", "10–300 CNY", "Only working smartphones have value"]], "note": "Air-conditioner removal usually costs 150–300 CNY. If a recycler offers free removal, ask what they deducted from the scrap value — one question explains it."},
+ {"title": "Five steps", "head": ["Step", "What to do"], "rows": [["1 Choose", "Check the efficiency label, note the model and the normal price"], ["2 Claim", "Get the subsidy voucher in store or in the app; watch the quota"], ["3 Order", "Select trade-in and enter the old unit's details"], ["4 Delivery", "New unit delivered and inspected while the old one is collected"], ["5 Settle", "Discount applied, or submit the paperwork for a refund"]], "note": "Inspect the new unit before handing over the old one. Once it leaves it goes straight into dismantling, and if the new unit needs replacing, the old one is gone."},
+ {"title": "Is it worth it", "head": ["Situation", "Advice"], "rows": [["Old unit still works", "Try selling it first; private sale usually beats scrap"], ["Old unit is dead", "Trade-in is the least hassle"], ["Bulky item needing removal (air-con)", "Clearly worth it when removal is included"], ["Subsidy stacks with platform coupons", "Best moment to buy"], ["Replacing only for the subsidy", "No — do not spend 5000 to save 500"], ["Old unit is a high-end model", "Its resale value may far exceed scrap"]], "note": "One test: take the price after subsidy, minus scrap value, minus coupons, and compare it with the price you saw three months ago. If it is not lower, it is not a deal."},
+ {"title": "Six traps", "head": ["Trap", "Counter"], "rows": [["Raise the price, then subsidise", "Check 30-day price history, not the “after subsidy” figure"], ["Quota already used up", "Only order once the voucher is in hand"], ["Lowballed scrap value", "Confirm the figure before pickup and keep a record"], ["Removal charged separately", "Confirm “removal included” when ordering"], ["No return once collected", "Inspect the new unit before releasing the old one"], ["No invoice issued", "Insist on one; it affects the warranty"]], "note": "The subsidy comes from the government, not the retailer's margin. If the “after subsidy” price appears while the list price quietly rose, walk away — the same model is usually still at the old price elsewhere."}
 ]
 };
 Object.assign(TABLE_EN, TABLE_EN_MORE);
@@ -8245,7 +8489,7 @@ function initInstall(){
 const FEEDBACK_EMAIL = '';
 function feedbackPanel(){
   const ua = navigator.userAgent || '';
-  const tpl = t('【生活换算反馈】\n版本：V5.4\n页面：','【Life Conversion Feedback】\nVersion: V5.4\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
+  const tpl = t('【生活换算反馈】\n版本：V5.6\n页面：','【Life Conversion Feedback】\nVersion: V5.6\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
     t('\n\n问题描述：\n1. 我在做什么：\n2. 期望结果：\n3. 实际结果：\n4. 是否可复现：\n','\n\nIssue description:\n1. What I was doing:\n2. Expected result:\n3. Actual result:\n4. Reproducible:\n');
   const subj = t('生活换算反馈','Life Conversion Feedback');
   const mail = FEEDBACK_EMAIL
