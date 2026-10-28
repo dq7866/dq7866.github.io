@@ -74,7 +74,35 @@ body{
 .tipbox kbd{background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:11px;font-family:ui-monospace,Consolas,monospace}
 .tipbox button{margin-top:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:7px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:inherit}
 .tipbox button:hover{color:var(--accent);border-color:var(--accent)}
-@media (max-width:880px){.resizer{display:none}.side{width:auto !important;flex-basis:auto !important}}
+@media (max-width:880px){
+  .resizer{display:none}
+  .side{width:auto !important;flex-basis:auto !important}
+  .navtoggle{display:none}
+}
+/* 移动端：导航抽屉化（默认收起，点按钮展开） */
+.navtoggle{display:none;width:100%;margin:2px 0 8px;padding:9px 12px;border:1px solid var(--line);
+  border-radius:9px;background:var(--bg);color:var(--ink);font-size:13.5px;cursor:pointer;font-family:inherit;text-align:left}
+.navtoggle:hover{border-color:var(--accent);color:var(--accent)}
+@media (max-width:880px){
+  .app .side nav{display:none}
+  .app.navopen .side nav{display:block;max-height:62vh;overflow:auto;border-top:1px dashed var(--line);margin-top:2px;padding-top:6px}
+  .app.navopen .navtoggle{border-color:var(--accent);color:var(--accent)}
+  .navtoggle{display:block}
+  .sidecollapse{display:none}
+  .ngroup{display:flex;font-size:11px;padding:12px 8px 4px}
+  .nitem{padding:8px 11px;font-size:13px}
+  .sidefoot{display:none}
+  main{padding:18px 14px calc(60px + env(safe-area-inset-bottom))}
+  .allgrid{grid-template-columns:1fr}
+  .sidefab,.installbar{bottom:calc(14px + env(safe-area-inset-bottom))}
+}
+/* 窄屏：卡片允许横向滚动，宽表格不被压扁；提升触控目标 */
+@media (max-width:640px){
+  .card{overflow-x:auto}
+  .btn,.pbtn{min-height:38px}
+  .tblfilter{min-height:38px}
+  h2{font-size:19px}
+}
 .palette{position:fixed;inset:0;background:rgba(20,16,12,.45);backdrop-filter:blur(2px);display:none;align-items:flex-start;justify-content:center;padding:10vh 16px 0;z-index:200}
 .palette.on{display:flex}
 .palette-box{width:100%;max-width:620px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.28);overflow:hidden}
@@ -116,7 +144,8 @@ main{flex:1;min-width:0;padding:28px 30px 80px;max-width:1040px}
 h2{margin:0 0 4px;font-size:21px;letter-spacing:.2px}
 h3{margin:0 0 10px;font-size:14px;font-weight:700;color:var(--ink)}
 .sub{color:var(--muted);font-size:12.5px;margin:0 0 18px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin:0 0 14px;
+  content-visibility:auto;contain-intrinsic-size:auto 220px}
 .conv{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;background:var(--card);
   border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:14px}
 .field{flex:1 1 210px;display:flex;flex-direction:column;gap:6px;min-width:0}
@@ -178,12 +207,6 @@ ul.plain li{margin:3px 0}
   .app{display:block}
   .side{width:auto;height:auto;position:static;border-right:0;border-bottom:1px solid var(--line);
     padding:12px 10px 8px;max-height:none}
-  .side nav{display:flex;flex-wrap:wrap;gap:4px}
-  .ngroup{display:none}
-  .nitem{width:auto;border:1px solid var(--line);padding:5px 10px;font-size:12.5px}
-  .sidefoot{display:none}
-  main{padding:18px 14px 60px}
-  .allgrid{grid-template-columns:1fr}
 }
 /* ==================== 打印速查卡 ==================== */
 .ptools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-4px 0 14px}
@@ -282,10 +305,11 @@ table.tbl tbody tr{cursor:copy}
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div class="app">
   <aside class="side" aria-label="模块导航">
-    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v8.0</span></div>
+    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v8.1</span></div>
     <a class="backlink" id="backlink" href="index.html" style="display:none">← 返回工具箱</a>
     <input id="q" class="search" placeholder="搜模块：亩 / 鞋码 / 扳手 / 汇率…       也能直接算：10 km to mi / 12*8">
     <div id="qc" class="qc" role="status" aria-live="polite"></div>
+    <button class="navtoggle" id="navToggle" aria-expanded="false" aria-controls="nav">☰ <span id="navToggleTxt">模块目录</span></button>
     <nav id="nav" aria-label="模块列表"></nav>
     <div id="nores" style="display:none;font-size:12px;color:var(--muted);padding:10px 8px">没找到。<br>试试“扳手”“亩”“鞋码”“房贷”。</div>
     <div class="sidefoot"></div>
@@ -4523,6 +4547,7 @@ function bindNavOnce(){
     const b = e.target.closest('.nitem');
     if(!b) return;
     cur = b.dataset.id;
+    try{ if(window.__closeNavDrawer) window.__closeNavDrawer(); }catch(err){}
     render();
   });
 }
@@ -6601,6 +6626,7 @@ function helpPanel(){
     '<li><b>Card too long to scan:</b> use the “Filter this page” box at the top of any reference card — type “slope” or “deposit” and only the matching rows stay. Esc clears it.</li>' +
     '<li><b>Want one row on its own:</b> click any row in a reference table and the whole row is copied with its column names — paste it straight into a chat or a note.</li>' +
     '<li><b>Printing the same set again:</b> the Print Center remembers what you ticked last time and restores it, so a weekly booklet is two clicks.</li>' +
+    '<li><b>On a phone:</b> the module list collapses behind the “Module contents” button, so the page you opened appears right away; wide tables slide sideways inside their card.</li>' +
     '<li><b>Need your own ratio:</b> pick “🧮 Formula row” in the Combo Board. x is the number on the left, so x*0.13, x/1.13 or x*0.6+80 all work — commission, VAT-inclusive price, shipping. r1 is the result of row 1, so r1*1.06 chains rows together.</li>' +
     '<li><b>Need a whole column of numbers:</b> in any converter press “📋 Copy all units” to get every unit as two columns (name and value), ready to paste into a spreadsheet.</li>' +
   '</ul>') +
@@ -6626,7 +6652,7 @@ function aboutPanel(){
   return '<div class="panel"><h2>ℹ️ About & Changelog</h2><p class="sub">Version, stack, licences — and what we refuse to build.</p>' +
   card('About', '<div class="kv">' +
     '<dt>Name</dt><dd>Life Converter · All-in-One Handbook</dd>' +
-    '<dt>Version</dt><dd>V8.0 (2026-10-28)</dd>' +
+    '<dt>Version</dt><dd>V8.1 (2026-10-28)</dd>' +
     '<dt>Form</dt><dd>Single-page app + PWA, installable</dd>' +
     '<dt>Modules</dt><dd>142 across 10 groups, 75 reference cards</dd>' +
     '<dt>Data</dt><dd>All calculations on-device, no upload</dd>' +
@@ -6653,6 +6679,7 @@ function aboutPanel(){
     ['V4.5','Waterproofing, cabinetry, network and gas cards; every calculator can export its result as a card; recently used modules surface at the top of the sidebar; swap buttons on the Combo Board'],
     ['V4.6','Appliance buying, storage planning, contract & payment, and checkup numbers cards; value boxes accept sums like 12*8; every reference card exports to Excel or copies as a table; history exports to Excel; Alt+↑/↓ jumps between modules'],
     ['V4.7','Gift money, exercise burn, laundry care and underfloor heating cards; the Combo Board takes formula rows (x*0.13); filter box on every reference card; copy all units at once'],
+    ['V8.1','Mobile overhaul: the module wall collapses behind a contents button, wide tables slide sideways in their card, and long pages render faster'],
     ['V8.0','Click any row in a reference table to copy that row; the Print Center remembers your last tick list; printing switches the dark theme to black on white'],
     ['V7.4','Pet training, valuables and safes, the home tool kit, and computer cleanup cards'],
     ['V7.3','Travel safety, parking and spaces, family emergency drills, and kitchen grease cards'],
@@ -6715,6 +6742,7 @@ function helpPanelZH(){
     '<li><b>表格太长找不到：</b>速查卡顶部有「筛选本页」，输入「违约金」「坡度」这类词，只留下命中的行，Esc 清空。</li>' +
     '<li><b>只想拿走一行：</b>点速查表里任意一行，整行会连着列名一起复制，直接粘到微信或备忘录就是一条完整信息。</li>' +
     '<li><b>每周都要打同一套：</b>速查卡合集会记住你上次勾选的模块，下次打开自动恢复，两下就能出册子。</li>' +
+    '<li><b>在手机上：</b>模块列表收进「模块目录」按钮里，打开页面直接看内容；宽表格在卡片内左右滑动就能看全。</li>' +
     '<li><b>要算自己的比例：</b>组合工作台里选「🧮 公式行」，x 就是左边那个数，写成 <code>x*0.13</code>、<code>x/1.13</code>、<code>x*0.6+80</code> 都行——算提成、含税价、运费一口气搞定。r1 是第 1 行的结果，可以接着算，例如 <code>r1*1.06</code>。</li>' +
     '<li><b>要一整列数字：</b>换算页点「📋 复制全部对照」，把当前值的所有单位一次复制成两列（单位 + 数值），粘进 Excel 正好是表格。</li>' +
   '</ul>') +
@@ -6742,7 +6770,7 @@ function aboutPanelZH(){
   return '<div class="panel"><h2>ℹ️ 关于与更新日志</h2><p class="sub">版本、技术、许可，以及我们坚决不做的事。</p>' +
   card('关于', '<div class="kv">' +
     '<dt>名称</dt><dd>生活换算 · 全能手册</dd>' +
-    '<dt>版本</dt><dd>V8.0（2026-10-28）</dd>' +
+    '<dt>版本</dt><dd>V8.1（2026-10-28）</dd>' +
     '<dt>形态</dt><dd>单页应用 + PWA，可安装到桌面</dd>' +
     '<dt>模块</dt><dd>237 个，10 个分组，170 张速查表</dd>' +
     '<dt>数据</dt><dd>全部本地计算，不上传</dd>' +
@@ -6762,6 +6790,7 @@ function aboutPanelZH(){
     ['V3.2','中英界面、无障碍与键盘操作、安装引导、意见反馈'],
     ['V3.3','全部模块标题与说明英译、单位模块注释英译'],
     ['V3.4','表格模块（扳手/管钳/螺栓/钻头/床品/螺纹）表头与注释英译'],
+    ['V8.1','移动端大改版：模块药丸墙收进「模块目录」抽屉，宽表格卡片内横滑，长页面渲染提速'],
     ['V8.0','速查表任意一行点击即复制（带列名）；速查卡合集记住上次勾选；深色模式下打印自动转白底黑字'],
     ['V7.4','新增宠物行为与训练、贵重物品与保管、家用工具与五金、旧电脑与数据清理 4 张速查表'],
     ['V7.3','新增家庭旅行安全、小区停车与车位、家庭应急预案演练、厨房油污与清洁 4 张速查表'],
@@ -9272,7 +9301,7 @@ function updateStatic(){
   const brandrow = document.querySelector('.brandrow');
   if(brandrow && brandrow.childNodes[0]) brandrow.childNodes[0].textContent = t('生活换算','Life Conversion');
   const brand = document.querySelector('.brand > span');
-  if(brand) brand.textContent = t('全能手册 · 本地离线版 v8.0', 'All-in-One Handbook · v8.0');
+  if(brand) brand.textContent = t('全能手册 · 本地离线版 v8.1', 'All-in-One Handbook · v8.1');
   const bl = document.getElementById('backlink');
   if(bl) bl.textContent = t('← 返回工具箱','← Back to toolbox');
   const side = document.querySelector('.side');
@@ -10485,6 +10514,17 @@ function initSidebar(){
   if(fab) fab.addEventListener('click', ()=>{ localStorage.setItem(HKEY, '0'); applyHidden(false); });
   if(toggle) toggle.setAttribute('aria-label', t('收起侧栏','Collapse sidebar'));
   if(fab) fab.setAttribute('aria-label', t('展开侧栏','Expand sidebar'));
+  /* 移动端导航抽屉 */
+  const nt = document.getElementById('navToggle');
+  const ntTxt = document.getElementById('navToggleTxt');
+  const syncNavToggle = ()=>{
+    const open = app.classList.contains('navopen');
+    if(nt) nt.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if(ntTxt) ntTxt.textContent = open ? t('收起目录','Hide contents') : t('模块目录','Module contents');
+  };
+  if(nt) nt.addEventListener('click', ()=>{ app.classList.toggle('navopen'); syncNavToggle(); });
+  syncNavToggle();
+  window.__closeNavDrawer = ()=>{ if(app.classList.contains('navopen')){ app.classList.remove('navopen'); syncNavToggle(); } };
 }
 function initTip(){
   if(localStorage.getItem('lifeconv_tip_v31')) return;
@@ -10550,7 +10590,7 @@ function initInstall(){
 const FEEDBACK_EMAIL = '';
 function feedbackPanel(){
   const ua = navigator.userAgent || '';
-  const tpl = t('【生活换算反馈】\n版本：V8.0\n页面：','【Life Conversion Feedback】\nVersion: V8.0\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
+  const tpl = t('【生活换算反馈】\n版本：V8.1\n页面：','【Life Conversion Feedback】\nVersion: V8.1\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
     t('\n\n问题描述：\n1. 我在做什么：\n2. 期望结果：\n3. 实际结果：\n4. 是否可复现：\n','\n\nIssue description:\n1. What I was doing:\n2. Expected result:\n3. Actual result:\n4. Reproducible:\n');
   const subj = t('生活换算反馈','Life Conversion Feedback');
   const mail = FEEDBACK_EMAIL

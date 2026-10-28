@@ -400,6 +400,29 @@ function step3(){
           ok(`计算器卡片自动补「存为图片」（房贷页 ${auto.length} 个）`);
         } else bad('计算器卡片没有自动补「存为图片」按钮');
       }
+
+      /* 移动端导航抽屉 */
+      const appEl = doc.querySelector('.app');
+      const nt = doc.getElementById('navToggle');
+      if(appEl && nt){
+        if(appEl.classList.contains('navopen')) bad('初始状态导航不应展开');
+        else ok('移动端导航抽屉默认收起');
+        nt.click();
+        if(appEl.classList.contains('navopen') && nt.getAttribute('aria-expanded') === 'true') ok('点「模块目录」展开抽屉');
+        else bad('抽屉未展开或 aria-expanded 未更新');
+        const anyItem = doc.querySelector('.nitem');
+        if(anyItem){ anyItem.click(); }
+        if(!appEl.classList.contains('navopen')) ok('选中模块后抽屉自动收起');
+        else bad('选中模块后抽屉未自动收起');
+      } else bad('navToggle 按钮缺失');
+      /* 窄屏样式与渲染性能优化存在 */
+      const css = doc.querySelector('style').textContent;
+      if(css.indexOf('.app.navopen .side nav') > 0) ok('移动端抽屉 CSS 就位');
+      else bad('抽屉 CSS 缺失');
+      if(css.indexOf('content-visibility:auto') > 0) ok('卡片 content-visibility 渲染优化就位');
+      else bad('content-visibility 优化缺失');
+      if(css.indexOf('.card{overflow-x:auto}') > 0 || /\.card\{[^}]*overflow-x:auto/.test(css)) ok('窄屏卡片横向滚动就位');
+      else bad('窄屏横向滚动缺失');
     }catch(e){ bad('功能抽查抛错: ' + e.message); }
   }
   step4();
