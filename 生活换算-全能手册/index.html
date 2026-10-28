@@ -254,6 +254,29 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 #rowToast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);background:rgba(28,23,18,.93);color:#fff;font-size:13px;line-height:1.2;padding:9px 17px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:9999;max-width:82vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.22)}
 #rowToast.on{opacity:1;transform:translate(-50%,0)}
 table.tbl tbody tr{cursor:copy}
+/* 运行态提示：新版本条、新手技巧卡 */
+.updbar{position:fixed;top:0;left:50%;transform:translate(-50%,-130%);z-index:10000;display:flex;align-items:center;gap:10px;
+  background:#1c1712;color:#fff;font-size:13px;line-height:1.35;padding:8px 10px 8px 16px;border-radius:0 0 12px 12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.26);max-width:calc(100vw - 20px);transition:transform .26s ease}
+.updbar.on{transform:translate(-50%,0)}
+.updbar button{font:inherit;border:0;border-radius:8px;cursor:pointer;padding:5px 12px}
+.updbar .updgo{background:var(--accent);color:var(--on-accent);font-weight:600}
+.updbar .updx{background:transparent;color:#bdb4a9;font-size:17px;line-height:1;padding:2px 7px}
+@media (max-width:520px){.updbar{font-size:12.5px;padding:7px 8px 7px 13px;gap:7px}}
+.tourcard{position:fixed;right:20px;bottom:20px;z-index:9998;width:312px;max-width:calc(100vw - 32px);
+  background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:14px 15px 11px;
+  box-shadow:0 18px 44px rgba(40,24,10,.18);opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .22s,transform .22s}
+.tourcard.on{opacity:1;transform:none;pointer-events:auto}
+.tourcard h4{margin:0 0 9px;font-size:14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tourcard .tx{background:none;border:0;color:var(--muted);font-size:17px;cursor:pointer;padding:0 2px;line-height:1}
+.tourcard ul{margin:0;padding:0;list-style:none;font-size:12.5px;line-height:1.62;color:var(--muted)}
+.tourcard li{margin:0 0 8px}
+.tourcard li b{color:var(--ink);font-weight:600}
+.tourcard kbd{font:inherit;font-size:11px;background:var(--accent-soft);color:var(--accent);border-radius:4px;padding:1px 5px;white-space:nowrap}
+.tourcard .tfoot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;border-top:1px dashed var(--line);padding-top:9px}
+.tourcard .tok{background:var(--accent);color:var(--on-accent);border:0;border-radius:8px;padding:6px 14px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.tourcard .tmore{background:none;border:0;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:2px;padding:0}
+@media (max-width:640px){.tourcard{left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));width:auto}}
 @media print{
   @page{size:A4;margin:12mm 10mm}
   html,html[data-theme="dark"],html[data-theme="light"]{--bg:#fff;--card:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#000;--accent-soft:#f4f4f4;--warn:#000;--warnbg:#f7f7f7;--on-accent:#fff}
@@ -274,7 +297,7 @@ table.tbl tbody tr{cursor:copy}
   .out,.allrow b,.kv dd,.kv dt,code{color:#000!important}
   code{background:#f2f2f2!important}
   tr:nth-child(even) td{background:#fafafa!important}
-  .snapout,#rowToast,.pci{display:none!important}
+  .snapout,#rowToast,.pci,.updbar,.tourcard{display:none!important}
   table.tbl tbody tr{cursor:auto}
   a{color:#000!important;text-decoration:none!important}
   tr,li{break-inside:avoid}
@@ -313,7 +336,7 @@ table.tbl tbody tr{cursor:copy}
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div class="app">
   <aside class="side" aria-label="模块导航">
-    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v8.2</span></div>
+    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v8.3</span></div>
     <a class="backlink" id="backlink" href="index.html" style="display:none">← 返回工具箱</a>
     <input id="q" class="search" placeholder="搜模块：亩 / 鞋码 / 扳手 / 汇率…       也能直接算：10 km to mi / 12*8">
     <div id="qc" class="qc" role="status" aria-live="polite"></div>
@@ -6721,16 +6744,33 @@ function helpPanel(){
   '<p class="note">All module titles, inputs, outputs, tables and notes are translated. Lunar calendar terms, solar terms, zodiac stems/branches and RMB financial numerals stay in Chinese by design.</p></div>';
 }
 
+function aboutStats(){
+  const st = { mods:0, groups:0, tables:0, rows:0 };
+  try{
+    st.mods = CATS.length;
+    const gs = new Set();
+    CATS.forEach(c=>{
+      if(c.g) gs.add(c.g);
+      if(c.type === 'tables' && c.sections && c.sections.length){
+        st.tables++;
+        c.sections.forEach(s=>{ if(s && s.rows) st.rows += s.rows.length; });
+      }
+    });
+    st.groups = gs.size;
+  }catch(e){}
+  return st;
+}
 function aboutPanel(){
   if(!isEN()) return aboutPanelZH();
+  const st = aboutStats();
   return '<div class="panel"><h2>ℹ️ About & Changelog</h2><p class="sub">Version, stack, licences — and what we refuse to build.</p>' +
   card('About', '<div class="kv">' +
     '<dt>Name</dt><dd>Life Converter · All-in-One Handbook</dd>' +
-    '<dt>Version</dt><dd>V8.2 (2026-10-28)</dd>' +
+    '<dt>Version</dt><dd>V8.3 (2026-10-28)</dd>' +
     '<dt>Form</dt><dd>Single-page app + PWA, installable</dd>' +
-    '<dt>Modules</dt><dd>142 across 10 groups, 75 reference cards</dd>' +
+    '<dt>Modules</dt><dd>' + st.mods + ' across ' + st.groups + ' groups — ' + st.tables + ' reference cards, ' + st.rows.toLocaleString('en-US') + ' rows</dd>' +
     '<dt>Data</dt><dd>All calculations on-device, no upload</dd>' +
-  '</div>') +
+  '</div><div class="rowline" style="margin-top:10px"><button class="btn ghost" id="tourAgain">Show the getting-started card again</button></div>') +
   card('Changelog', tbl(['Version','Highlights'],[
     ['V1.0','25 modules: units, time, currency, sizes, kinship, encoding'],
     ['V2.0','Hardware, home, digital, health; scenario-based grouping'],
@@ -6753,6 +6793,7 @@ function aboutPanel(){
     ['V4.5','Waterproofing, cabinetry, network and gas cards; every calculator can export its result as a card; recently used modules surface at the top of the sidebar; swap buttons on the Combo Board'],
     ['V4.6','Appliance buying, storage planning, contract & payment, and checkup numbers cards; value boxes accept sums like 12*8; every reference card exports to Excel or copies as a table; history exports to Excel; Alt+↑/↓ jumps between modules'],
     ['V4.7','Gift money, exercise burn, laundry care and underfloor heating cards; the Combo Board takes formula rows (x*0.13); filter box on every reference card; copy all units at once'],
+    ['V8.3','Runtime polish: a bar when a new version is cached, offline/online notices, a one-time getting-started card (replayable from About), a quiet error fallback that feeds the feedback template, and live module counts on this page'],
     ['V8.2','Search now reads inside every table (a badge marks content hits), matched words are highlighted, and both themes pass WCAG AA'],
     ['V8.1','Mobile overhaul: the module wall collapses behind a contents button, wide tables slide sideways in their card, and long pages render faster'],
     ['V8.0','Click any row in a reference table to copy that row; the Print Center remembers your last tick list; printing switches the dark theme to black on white'],
@@ -6843,14 +6884,15 @@ function helpPanelZH(){
 }
 
 function aboutPanelZH(){
+  const st = aboutStats();
   return '<div class="panel"><h2>ℹ️ 关于与更新日志</h2><p class="sub">版本、技术、许可，以及我们坚决不做的事。</p>' +
   card('关于', '<div class="kv">' +
     '<dt>名称</dt><dd>生活换算 · 全能手册</dd>' +
-    '<dt>版本</dt><dd>V8.2（2026-10-28）</dd>' +
+    '<dt>版本</dt><dd>V8.3（2026-10-28）</dd>' +
     '<dt>形态</dt><dd>单页应用 + PWA，可安装到桌面</dd>' +
-    '<dt>模块</dt><dd>237 个，10 个分组，170 张速查表</dd>' +
+    '<dt>模块</dt><dd>' + st.mods + ' 个，' + st.groups + ' 个分组，' + st.tables + ' 张速查表、' + st.rows.toLocaleString('zh-CN') + ' 条对照</dd>' +
     '<dt>数据</dt><dd>全部本地计算，不上传</dd>' +
-  '</div>') +
+  '</div><div class="rowline" style="margin-top:10px"><button class="btn ghost" id="tourAgain">再看一次新手提示</button></div>') +
   card('更新日志', tbl(['版本','主要变化'],[
     ['V1.0','25 个模块：物理单位、时间、货币、尺码、称谓、编码'],
     ['V2.0','五金、家装、数字生活、健康，分类改为场景化'],
@@ -6866,6 +6908,7 @@ function aboutPanelZH(){
     ['V3.2','中英界面、无障碍与键盘操作、安装引导、意见反馈'],
     ['V3.3','全部模块标题与说明英译、单位模块注释英译'],
     ['V3.4','表格模块（扳手/管钳/螺栓/钻头/床品/螺纹）表头与注释英译'],
+    ['V8.3','运行态收尾：缓存到新版本时顶部提示刷新、断网与恢复自动提示、首次访问给一张三条技巧卡（关于页可重看）、出错时静默兜底并写进反馈模板、关于页模块数量改为实时统计'],
     ['V8.2','搜索升级：能搜进全部速查表正文（命中带「表内」标记）、命中词高亮、明暗两套主题达到 WCAG AA 对比度'],
     ['V8.1','移动端大改版：模块药丸墙收进「模块目录」抽屉，宽表格卡片内横滑，长页面渲染提速'],
     ['V8.0','速查表任意一行点击即复制（带列名）；速查卡合集记住上次勾选；深色模式下打印自动转白底黑字'],
@@ -9378,7 +9421,7 @@ function updateStatic(){
   const brandrow = document.querySelector('.brandrow');
   if(brandrow && brandrow.childNodes[0]) brandrow.childNodes[0].textContent = t('生活换算','Life Conversion');
   const brand = document.querySelector('.brand > span');
-  if(brand) brand.textContent = t('全能手册 · 本地离线版 v8.2', 'All-in-One Handbook · v8.2');
+  if(brand) brand.textContent = t('全能手册 · 本地离线版 v8.3', 'All-in-One Handbook · v8.3');
   const bl = document.getElementById('backlink');
   if(bl) bl.textContent = t('← 返回工具箱','← Back to toolbox');
   const side = document.querySelector('.side');
@@ -10667,7 +10710,10 @@ function initInstall(){
 const FEEDBACK_EMAIL = '';
 function feedbackPanel(){
   const ua = navigator.userAgent || '';
-  const tpl = t('【生活换算反馈】\n版本：V8.2\n页面：','【Life Conversion Feedback】\nVersion: V8.2\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
+  const tpl = t('【生活换算反馈】\n版本：V8.3\n页面：','【Life Conversion Feedback】\nVersion: V8.3\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
+    (window.__errLog && window.__errLog.length
+      ? t('\n最近错误：','\nLast error: ') + window.__errLog[0].m + t('（',' (') + (window.__errLog[0].at || '') + '）'
+      : '') +
     t('\n\n问题描述：\n1. 我在做什么：\n2. 期望结果：\n3. 实际结果：\n4. 是否可复现：\n','\n\nIssue description:\n1. What I was doing:\n2. Expected result:\n3. Actual result:\n4. Reproducible:\n');
   const subj = t('生活换算反馈','Life Conversion Feedback');
   const mail = FEEDBACK_EMAIL
@@ -10796,6 +10842,101 @@ function bindPalette(){
     }
   });
 }
+/* ==================== 运行态：新版本提示 / 联网状态 / 新手技巧 / 错误兜底 ==================== */
+function liveSay(msg){
+  const l = document.getElementById('live');
+  if(l) l.textContent = msg;
+}
+function updBarShow(){
+  let bar = document.getElementById('updBar');
+  if(!bar){
+    bar = document.createElement('div');
+    bar.id = 'updBar'; bar.className = 'updbar'; bar.setAttribute('role','status');
+    bar.innerHTML = '<span>' + t('有新版本可用','A new version is ready') + '</span>' +
+      '<button class="updgo" type="button">' + t('刷新','Reload') + '</button>' +
+      '<button class="updx" type="button" aria-label="' + t('稍后','Later') + '">×</button>';
+    document.body.appendChild(bar);
+    bar.querySelector('.updgo').addEventListener('click', ()=>{ window.__reloading = true; location.reload(); });
+    bar.querySelector('.updx').addEventListener('click', ()=> bar.classList.remove('on'));
+    requestAnimationFrame(()=> bar.classList.add('on'));
+  }
+  liveSay(t('有新版本可用，按刷新更新','A new version is ready; press Reload'));
+}
+const TOUR_KEY = 'lifeconv_tour_v1';
+function tourSeen(){ try{ return localStorage.getItem(TOUR_KEY) === '1'; }catch(e){ return true; } }
+function tourDone(){ try{ localStorage.setItem(TOUR_KEY,'1'); }catch(e){} }
+function tourCard(){
+  let el = document.getElementById('tourCard');
+  if(el) return el;
+  el = document.createElement('div');
+  el.id = 'tourCard'; el.className = 'tourcard';
+  el.setAttribute('role','dialog');
+  el.setAttribute('aria-label', t('新手提示','Getting started'));
+  el.innerHTML = '<h4><span>' + t('三件最省时间的事','Three things that save the most time') + '</span>' +
+      '<button class="tx" type="button" aria-label="' + t('关闭','Close') + '">×</button></h4>' +
+    '<ul>' +
+      '<li><b>' + t('搜索框能直接算','The search box calculates') + '</b><br>' +
+        t('输入 10 km to mi、12*8、85折，回车就出结果。','Type 10 km to mi, 12*8 or 15% off, then press Enter.') + '</li>' +
+      '<li><b>' + t('速查表点一行就复制','Click a table row to copy it') + '</b><br>' +
+        t('复制时自动带上列名，直接粘进聊天或备忘录。','Column names come with it — paste straight into chat or notes.') + '</li>' +
+      '<li><b>' + t('<kbd>/</kbd> 或 <kbd>Ctrl K</kbd> 唤出面板','<kbd>/</kbd> or <kbd>Ctrl K</kbd> opens the palette') + '</b><br>' +
+        t('不离开键盘就能换模块。','Switch modules without leaving the keyboard.') + '</li>' +
+    '</ul>' +
+    '<div class="tfoot"><button class="tmore" type="button">' + t('全部技巧','All tips') + '</button>' +
+      '<button class="tok" type="button">' + t('知道了','Got it') + '</button></div>';
+  document.body.appendChild(el);
+  el.querySelector('.tx').addEventListener('click', hideTour);
+  el.querySelector('.tok').addEventListener('click', hideTour);
+  el.querySelector('.tmore').addEventListener('click', ()=>{ hideTour(); location.hash = '#m=help'; });
+  return el;
+}
+function showTour(force){
+  if(!force && tourSeen()) return;
+  const el = tourCard();
+  if(force) el.classList.add('on');
+  else setTimeout(()=> el.classList.add('on'), 80);
+}
+function hideTour(){
+  const el = document.getElementById('tourCard');
+  if(el) el.classList.remove('on');
+  tourDone();
+}
+function bindNet(){
+  const say = (msg)=>{ liveSay(msg); try{ rowToast(msg); }catch(e){} };
+  window.addEventListener('offline', ()=> say(t('已离线：换算与速查照常可用，汇率暂停刷新','Offline: converters and tables still work; rate refresh paused')));
+  window.addEventListener('online', ()=> say(t('已恢复联网：可以刷新汇率了','Back online: rate refresh is available')));
+}
+function bindGuard(){
+  window.__errLog = window.__errLog || [];
+  const note = ()=>{
+    if(window.__errShown) return;
+    window.__errShown = true;
+    try{ rowToast(t('这一步没走通，其它功能不受影响','That step did not complete; everything else still works')); }catch(e){}
+  };
+  window.addEventListener('error', ev=>{
+    const m = ev && ev.message ? String(ev.message) : '';
+    if(!m || /^Script error/i.test(m)) return;
+    window.__errLog.unshift({ t:new Date().toISOString(), m:m, at:(ev.filename||'')+':'+(ev.lineno||0) });
+    window.__errLog.length = Math.min(window.__errLog.length, 5);
+    note();
+  });
+  window.addEventListener('unhandledrejection', ev=>{
+    const r = ev && ev.reason;
+    const m = r && (r.message || String(r));
+    if(!m) return;
+    window.__errLog.unshift({ t:new Date().toISOString(), m:String(m) });
+    window.__errLog.length = Math.min(window.__errLog.length, 5);
+    note();
+  });
+}
+function initTour(){
+  if(location.hash === '#tour') showTour(true);
+  else setTimeout(()=> showTour(false), 1400);
+  document.addEventListener('click', e=>{
+    if(e.target && e.target.closest && e.target.closest('#tourAgain')){ e.preventDefault(); showTour(true); return; }
+    if(e.target && e.target.id === 'tourCard') hideTour();
+  });
+}
 function initPWA(){
   if(location.protocol === 'file:') return;
   const onPage = /units\.html$/.test(location.pathname);
@@ -10807,7 +10948,29 @@ function initPWA(){
     document.head.appendChild(l);
   }
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('./units-sw.js').catch(()=>{});
+    try{
+      const reg = navigator.serviceWorker.register('./units-sw.js');
+      if(reg && typeof reg.then === 'function'){
+        reg.then(r=>{
+          if(!r) return;
+          if(r.waiting) updBarShow();
+          if(typeof r.addEventListener === 'function'){
+            r.addEventListener('updatefound', ()=>{
+              const nw = r.installing;
+              if(!nw || typeof nw.addEventListener !== 'function') return;
+              nw.addEventListener('statechange', ()=>{
+                if(nw.state === 'installed' && navigator.serviceWorker.controller) updBarShow();
+              });
+            });
+          }
+        }).catch(()=>{});
+      }
+      if(typeof navigator.serviceWorker.addEventListener === 'function'){
+        navigator.serviceWorker.addEventListener('controllerchange', ()=>{
+          if(window.__reloading) location.reload();
+        });
+      }
+    }catch(e){}
   }
 }
 
@@ -10863,10 +11026,13 @@ initSidebar();
 buildNav();
 bindPalette();
 try{ bindRowCopy(); }catch(e){}
+try{ bindNet(); }catch(e){}
+try{ bindGuard(); }catch(e){}
 render();
 applyHash();
 initPWA();
 initInstall();
+initTour();
 setTimeout(initTip, 900);
 </script>
 </body>

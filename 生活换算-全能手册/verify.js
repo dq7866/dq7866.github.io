@@ -448,6 +448,43 @@ function step3(){
         if(stillHid === 0) ok('清空搜索后全部模块恢复显示');
         else bad('清空搜索后仍有 ' + stillHid + ' 个模块隐藏');
       } else bad('搜索框缺失');
+
+      /* V8.3 运行态：新手技巧卡 / 新版本提示条 / 关于页实时统计 / 反馈模板版本 */
+      if(typeof window.showTour === 'function'){
+        window.showTour(true);
+        const tc = doc.getElementById('tourCard');
+        if(tc && tc.classList.contains('on')) ok('新手技巧卡可以弹出（三条技巧 + 知道了）');
+        else bad('新手技巧卡未弹出');
+        const tok = tc && tc.querySelector('.tok');
+        if(tok){
+          tok.click();
+          const closed = !doc.getElementById('tourCard').classList.contains('on');
+          const mem = window.localStorage.getItem('lifeconv_tour_v1');
+          if(closed && mem === '1') ok('点「知道了」后收起并写入访问记忆');
+          else bad('技巧卡未收起或未写入记忆（' + mem + '）');
+        } else bad('技巧卡缺少「知道了」按钮');
+      } else bad('showTour 未定义');
+
+      if(typeof window.updBarShow === 'function'){
+        window.updBarShow();
+        const bar = doc.getElementById('updBar');
+        if(bar && bar.querySelector('.updgo') && /新版本/.test(bar.textContent)) ok('新版本提示条可生成（含刷新按钮）');
+        else bad('新版本提示条生成异常');
+        if(bar){ bar.querySelector('.updx').click(); ok('提示条可手动关闭'); }
+      } else bad('updBarShow 未定义');
+
+      if(typeof window.aboutStats === 'function'){
+        const st = window.aboutStats();
+        const zh = window.aboutPanelZH();
+        if(st.mods > 200 && st.tables >= 170 && st.rows > 5000 && zh.indexOf(st.mods + ' 个') > 0)
+          ok(`关于页实时统计正确：${st.mods} 模块 / ${st.groups} 分组 / ${st.tables} 张表 / ${st.rows} 条对照`);
+        else bad(`关于页统计异常：${st.mods} / ${st.groups} / ${st.tables} / ${st.rows}`);
+      } else bad('aboutStats 未定义');
+
+      window.__errLog = [{ m:'TEST_ERR: canvas unavailable', at:'units.html:1' }];
+      const fb = window.feedbackPanel();
+      if(fb.indexOf('V8.3') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V8.3 与最近错误信息');
+      else bad('反馈模板版本或错误位缺失');
     }catch(e){ bad('功能抽查抛错: ' + e.message); }
   }
   step4();
