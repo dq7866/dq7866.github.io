@@ -28,6 +28,17 @@ const OUT = path.join(ROOT, 'public', '_headers');
 const RULES = `# 由 build-scripts/gen-headers.js 生成，请勿手改
 # Cloudflare Pages _headers 语法：路径模式 + 缩进两条空格的响应头
 
+# ---- 全局安全响应头（对所有路径生效）----
+# HSTS：本域名未做 ICP 备案，走 http:// 有被运营商劫持插广告的实际风险，
+#   劫持注入的内容反过来会让浏览器安全库把整站判定为"风险内容"。
+#   已实测 http 会 301 到 https，这里让浏览器记住，连第一次明文请求都不发。
+#   只给 30 天、不加 includeSubDomains / preload —— 以后换域名或换托管能退得回来。
+/*
+  Strict-Transport-Security: max-age=2592000
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
 # ---- HTML：始终回源，保证发文后立刻可见 ----
 /*.html
   Cache-Control: public, max-age=0, must-revalidate

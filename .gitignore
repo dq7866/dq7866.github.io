@@ -32,6 +32,10 @@ source/forest - 副本/
 source/bike - 副本/
 source/guardian - 副本/
 
+# forest 的本地工作区（工具目录 + 按时间戳的备份快照，加起来上百 MB，绝不入库）
+source/forest/.dumate/
+source/forest/_tmp/
+
 # 例外：亲子知识擂台工程的 public/ 是前端源码（不是 Hexo 构建产物）
 # 根目录的 public/ 规则会一并忽略它，导致这 3000+ 行前端代码进不了版本库
 !source/parent-child-knowledge-game/public/
