@@ -30,6 +30,7 @@
     "hexo-theme-landscape": "^1.0.0",
     "hexo-theme-shiro": "^1.6.1",
     "moment-timezone": "^0.6.5",
+    "pinyin-pro": "^3.29.5",
     "wrangler": "^4.151.1"
   }
 }

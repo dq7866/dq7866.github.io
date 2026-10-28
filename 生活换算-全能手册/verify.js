@@ -143,7 +143,7 @@ function auditData(doc, window){
 }
 
 /* ---------- 3. jsdom 冒烟遍历 ---------- */
-function step3(){
+async function step3(){
   console.log('\n[3/3] jsdom 双语全模块冒烟遍历');
   let JSDOM;
   try { JSDOM = require('jsdom').JSDOM; }
@@ -231,7 +231,7 @@ function step3(){
   else ok('零窗口报错');
 
   /* ---------- 功能抽查：组合工作台 / 存为图片 ---------- */
-  function step4(){
+  async function step4(){
     try{
       const comboNav = doc.querySelector('.nitem[data-id="combo"]');
       if(!comboNav){ bad('找不到「组合工作台」导航项'); return; }
@@ -642,16 +642,59 @@ function step3(){
 
       window.__errLog = [{ m:'TEST_ERR: canvas unavailable', at:'units.html:1' }];
       const fb = window.feedbackPanel();
-      if(fb.indexOf('V8.6') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V8.6 与最近错误信息');
+      if(fb.indexOf('V8.7') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V8.7 与最近错误信息');
       else bad('反馈模板版本或错误位缺失');
+
+      /* 拼音首字母搜索：jd → 家电选购，sn → 收纳，dy → 打印中心 */
+      if(typeof window.pyIndex === 'function'){
+        const qEl = doc.getElementById('q');
+        const vis = id => {
+          const it = doc.querySelector('.nitem[data-id="' + id + '"]');
+          return it && it.style.display !== 'none';
+        };
+        const pyCases = [['jd','appbuy'],['sn','storage'],['dy','printcenter'],['sy','usage']];
+        let pyAllOk = true;
+        pyCases.forEach(([q,id])=>{
+          qEl.value = q;
+          qEl.dispatchEvent(new window.Event('input', {bubbles:true}));
+          if(!vis(id)){ pyAllOk = false; bad(`拼音首字母「${q}」未命中 ${id}`); }
+        });
+        if(pyAllOk) ok('拼音首字母搜索：jd/sn/dy/sy 各命中目标模块');
+        qEl.value = '';
+        qEl.dispatchEvent(new window.Event('input', {bubbles:true}));
+      } else bad('pyIndex 未定义');
+
+      /* 小节深链与分享：secshare 按钮存在，点击胶囊后哈希带 s= */
+      const navTb = doc.querySelector('.nitem[data-id="appbuy"]');
+      if(navTb){
+        navTb.click();
+        const shares = doc.querySelectorAll('#main .secshare');
+        if(shares.length >= 4) ok(`本节链接按钮就位（${shares.length} 个）`);
+        else bad('secshare 按钮缺失');
+        const chip1 = doc.querySelector('.sectoc .stc[data-sec="1"]');
+        if(chip1){
+          chip1.click();
+          if(/#m=appbuy&s=1/.test(window.location.hash)) ok('点击小节胶囊后地址栏带 #m=…&s=1');
+          else bad('胶囊点击未更新哈希（' + window.location.hash + '）');
+        } else bad('appbuy 缺少小节胶囊');
+      } else bad('导航里找不到 appbuy');
+      /* 深链直达：#m=appbuy&s=2 渲染后目标卡应闪烁高亮 */
+      window.location.hash = '#m=appbuy&s=2';
+      window.applyHash();
+      await new Promise(r=>setTimeout(r, 150));
+      const sec2 = doc.getElementById('sec-2');
+      const chip2 = doc.querySelector('.sectoc .stc[data-sec="2"]');
+      if(sec2 && sec2.classList.contains('sectflash') && chip2 && chip2.classList.contains('on')) ok('深链 #m=…&s=2 直达并高亮第 3 节');
+      else bad('深链小节未生效（flash=' + !!(sec2 && sec2.classList.contains('sectflash')) + ', chip=' + !!(chip2 && chip2.classList.contains('on')) + ')');
     }catch(e){ bad('功能抽查抛错: ' + e.message); }
   }
-  step4();
+  await step4();
 
   window.close();
   fs.rmSync(TMP, { recursive: true, force: true });
 }
 
-step1(); step2(); step3();
+(async ()=>{ step1(); step2(); await step3();
 console.log('\n========== ' + (failed ? `❌ ${failed} 项失败，禁止交付` : '✅ 全部通过，可以交付') + ' ==========');
 process.exit(failed ? 1 : 0);
+})();

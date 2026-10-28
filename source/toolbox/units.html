@@ -229,6 +229,8 @@ ul.plain li{margin:3px 0}
 .sectoc .stc:hover{color:var(--ink);border-color:var(--accent)}
 .sectoc .stc.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
 .sectoc .stc i{font-style:normal;opacity:.6;margin-right:4px;font-size:11px}
+.secshare{float:right;margin-left:8px;border:0;background:none;color:var(--muted);font-size:13px;cursor:pointer;opacity:.5;padding:0 2px;line-height:1.5}
+.secshare:hover{opacity:1;color:var(--accent)}
 .card.sectflash{animation:sectflash 1.1s ease-out}
 @keyframes sectflash{0%{box-shadow:0 0 0 2px var(--accent)}100%{box-shadow:0 0 0 2px transparent}}
 /* 打印整册：封面与目录 */
@@ -317,7 +319,7 @@ table.tbl tbody tr{cursor:copy}
   .out,.allrow b,.kv dd,.kv dt,code{color:#000!important}
   code{background:#f2f2f2!important}
   tr:nth-child(even) td{background:#fafafa!important}
-  .snapout,#rowToast,.pci,.updbar,.tourcard,.sectoc{display:none!important}
+  .snapout,#rowToast,.pci,.updbar,.tourcard,.sectoc,.secshare{display:none!important}
   table.tbl tbody tr{cursor:auto}
   a{color:#000!important;text-decoration:none!important}
   tr,li{break-inside:avoid}
@@ -356,7 +358,7 @@ table.tbl tbody tr{cursor:copy}
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div class="app">
   <aside class="side" aria-label="模块导航">
-    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v8.6</span></div>
+    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v8.7</span></div>
     <a class="backlink" id="backlink" href="index.html" style="display:none">← 返回工具箱</a>
     <input id="q" class="search" placeholder="搜模块：亩 / 鞋码 / 扳手 / 汇率…       也能直接算：10 km to mi / 12*8">
     <div id="qc" class="qc" role="status" aria-live="polite"></div>
@@ -4728,6 +4730,38 @@ function qcShow(v){
   el.onclick = ()=>{ try{ r.go(); }catch(e){} };
   return true;
 }
+/* 拼音首字母映射（构建期由 pinyin-pro 生成，覆盖搜索语料 925 字） */
+const PY_GROUPS='a:盎安凹氨胺案;b:磅巴编比泵币百本焙杯辈表八扳边丙壁不报叭爆板步鼻玻闭保搬包冰布版蔽避被辨宝班白标拔暴铂北病备伴爸贝帮;c:藏长常尺寸程存储产承戳辰吃穿厨茶匙车称传查槽缠齿抽沉窗垂插拆磁瓷除材超床宠虫橱参出冲测池充财础成差场筹彩萃菜醇刹餐处促采凑;d:定度地斗吨大电顿倒打动呆对带底垫丁镀挡吊断钉顶端渡灯待刀等道多盗点袋导单登贷得到代递敦东冻答独订短;e:尔二额贰洱儿;f:分方幅服房粉费父封氟防废法飞缝风反翻返阀付覆负复啡份肤芬伏访峰辐;g:工公光港汞功干管关姑规格攻硅固沟滚钢割膏柜钙轨过勾垢隔高杆狗改给鼓根挂购盖供个估告肝贵感锅谷更;h:换活海毫华赫弧货汇化号烘黄耗花簧厚焊回火虎滑合环护盒划荷航红婚后孩会还惠;j:具夹积加斤节焦据角间计几降家居舅襟进棘距胶腈聚紧径机接键基金铰件剂甲级净浇静记交旧结晶警价阱集卷健减肌酒精检箭戒界京禁忌柬介解鉴急救圾就寄捐见较教驾境假洁缴阶;k:克开烤卡扣裤空科口孔扩快槛控坑款块宽康咖抗客砍看困馈;l:量历里厘仑立两率力路流拉利娌连六轮螺料链兰喇锂硫联冷铝璃炉滤留绿萝帘罗榈粮漏零络类理李老龄伦礼郎龙洛旅垃邻离练疗;m:米面亩迈马码密秒美民明梅母目磨钼铆门免眠棉猫苗没模幕名毛满敏买么妈冒每;n:年能内牛农暖粘腻逆纳尿纽脑;o:欧;p:批平配帕匹品盘坡谱抛片皮破膨排铺屏频票啤跑烹普骗陪爬;q:顷钱千强气轻期汽亲戚器钳圈球全切炔钎枪骑桥漆墙醛驱犬起权取签区乔迁情请庆趣清前勤;r:日容热人熔软绕润乳肉弱燃然饪绒入任;s:算史收生市石升司摄氏速时食数岁刷素水省属甥十色设手栓丝砂三四松锁深绳索榫塞塑射释渗声首纱睡双损施上书视缩使示税所叁身酸肾世随事送寿剩晒霜烧宿诉适私商式室舍衰社失伤说;t:土体桶台胎特天糖汤堂套筒头弹条铁凸调铜屉通同涂炭透贴投碳统退探庭童停梯托提;w:温文瓦位外围谓纹五弯味物喂卫屋网尾维务污乌误为;x:箱血小虚肖星息鞋行胸型像修线系学橡烯锌锈销芯旋心下选显稀性吸新纤洗效项陷续薪险写休谢消询蝎鲜酰兴信训限斜;y:义与英油原压硬月元衣腰印姨岳颜乙用圆叶氧氩右液移页艺异音预养运夜钥忆疫岩隐阴影由烟一验壹饮因有雨银羊羽约鱼宴押药营育意阳园医易以应延友阅员婴演牙业优于;z:自质重兆柱字周支账折涨住子纸张装照侄妯制转值锥钻轴珠铸止左胀砖脂直找嘴噪中座植置智指遮褶皱棕载造增酯整组作枕证资准足罩渍真钟章桌租种怎征赠诊注桩责专助志';
+let PY_MAP=null;
+function pyMap(){
+  if(PY_MAP) return PY_MAP;
+  PY_MAP = {};
+  PY_GROUPS.split(';').forEach(g=>{
+    const i = g.indexOf(':');
+    const k = g.slice(0,i);
+    for(const ch of g.slice(i+1)) PY_MAP[ch] = k;
+  });
+  return PY_MAP;
+}
+/* 拼音首字母索引：模块名 + 关键词按词切分，产出首字母串集合（惰性构建） */
+let PY_IDX=null;
+function pyIndex(){
+  if(PY_IDX) return PY_IDX;
+  const map = pyMap();
+  const m = new Map();
+  CATS.forEach(c=>{
+    const words = (c.name + ' ' + (KW[c.id]||'')).split(/[^0-9a-zA-Z一-鿿]+/).filter(w=>/[一-鿿]/.test(w));
+    const inis = new Set();
+    words.forEach(w=>{
+      let s='';
+      for(const ch of w) s += map[ch] || '';
+      if(s) inis.add(s);
+    });
+    m.set(c.id, inis);
+  });
+  PY_IDX = m;
+  return m;
+}
 let searchHits = [];
 /* 表内内容索引：首次搜索时才构建，用于「按内容找模块」 */
 let SECT_IDX = null;
@@ -4769,10 +4803,19 @@ function applySearch(){
   let n = 0, nSect = 0;
   searchHits = [];
   const idx = toks.length ? sectIndex() : null;
+  const pyi = toks.length ? pyIndex() : null;
   document.querySelectorAll('.nitem').forEach(b=>{
     const c = CATS.find(x=>x.id === b.dataset.id);
     const bag = (nm(c) + ' ' + c.name + ' ' + c.g + ' ' + (c.g2||'') + ' ' + (KW[c.id]||'')).toLowerCase();
-    let hit = !toks.length || toks.every(w=>bag.includes(w));
+    let hit = !toks.length || toks.every(w=>{
+      if(bag.includes(w)) return true;
+      /* 纯字母且 ≥2 位的词，尝试拼音首字母前缀匹配（jd → 家电） */
+      if(/^[a-z]{2,}$/.test(w)){
+        const inis = pyi.get(c.id);
+        if(inis){ for(const s of inis){ if(s.startsWith(w)) return true; } }
+      }
+      return false;
+    });
     let inSect = false;
     if(!hit && idx){
       const txt = idx.get(c.id);
@@ -6853,7 +6896,7 @@ function aboutPanel(){
   return '<div class="panel"><h2>ℹ️ About & Changelog</h2><p class="sub">Version, stack, licences — and what we refuse to build.</p>' +
   card('About', '<div class="kv">' +
     '<dt>Name</dt><dd>Life Converter · All-in-One Handbook</dd>' +
-    '<dt>Version</dt><dd>V8.6 (2026-10-28)</dd>' +
+    '<dt>Version</dt><dd>V8.7 (2026-10-29)</dd>' +
     '<dt>Form</dt><dd>Single-page app + PWA, installable</dd>' +
     '<dt>Modules</dt><dd>' + st.mods + ' across ' + st.groups + ' groups — ' + st.tables + ' reference cards, ' + st.rows.toLocaleString('en-US') + ' rows</dd>' +
     '<dt>Data</dt><dd>All calculations on-device, no upload</dd>' +
@@ -6880,6 +6923,7 @@ function aboutPanel(){
     ['V4.5','Waterproofing, cabinetry, network and gas cards; every calculator can export its result as a card; recently used modules surface at the top of the sidebar; swap buttons on the Combo Board'],
     ['V4.6','Appliance buying, storage planning, contract & payment, and checkup numbers cards; value boxes accept sums like 12*8; every reference card exports to Excel or copies as a table; history exports to Excel; Alt+↑/↓ jumps between modules'],
     ['V4.7','Gift money, exercise burn, laundry care and underfloor heating cards; the Combo Board takes formula rows (x*0.13); filter box on every reference card; copy all units at once'],
+    ['V8.7','Pinyin-initial search (type jd to reach the appliance module) and deep-linked sections: #m=id&s=n jumps straight to a section, the chip rail keeps the URL current, and every section card has a copy-link button'],
     ['V8.6','Section navigation for long cards (138 of 170 table modules get a tappable chip rail that follows scrolling) and one-tap group booklets in the Print Center with a cover and a two-column contents page'],
     ['V8.5','Every remaining English table translated: 61 sections / 371 rows across 13 modules (appliance buying, storage, fitted furniture, contracts, waterproofing, checkups, networking, gas, wiring, renovation, plumbing, tiling, bedding), and a zero-fallback rule is now a permanent test'],
     ['V8.4',' six integrity checks (columns, heads, blanks, ZH/EN alignment, ids, groups) joined the test suite — fixing a mis-headed second-hand table, a third-column gap in the checkup and rice-cooker tables, 14 blank cells and a missing gift row; plus a local Usage Stats module with coverage, top 10 and never-opened lists'],
@@ -6978,7 +7022,7 @@ function aboutPanelZH(){
   return '<div class="panel"><h2>ℹ️ 关于与更新日志</h2><p class="sub">版本、技术、许可，以及我们坚决不做的事。</p>' +
   card('关于', '<div class="kv">' +
     '<dt>名称</dt><dd>生活换算 · 全能手册</dd>' +
-    '<dt>版本</dt><dd>V8.6（2026-10-28）</dd>' +
+    '<dt>版本</dt><dd>V8.7（2026-10-29）</dd>' +
     '<dt>形态</dt><dd>单页应用 + PWA，可安装到桌面</dd>' +
     '<dt>模块</dt><dd>' + st.mods + ' 个，' + st.groups + ' 个分组，' + st.tables + ' 张速查表、' + st.rows.toLocaleString('zh-CN') + ' 条对照</dd>' +
     '<dt>数据</dt><dd>全部本地计算，不上传</dd>' +
@@ -6998,6 +7042,7 @@ function aboutPanelZH(){
     ['V3.2','中英界面、无障碍与键盘操作、安装引导、意见反馈'],
     ['V3.3','全部模块标题与说明英译、单位模块注释英译'],
     ['V3.4','表格模块（扳手/管钳/螺栓/钻头/床品/螺纹）表头与注释英译'],
+    ['V8.7','拼音首字母搜索（输 jd 直达家电选购、dy 直达打印中心）＋小节深链：#m=模块&s=序号 直达第几节，点小节胶囊地址栏同步更新，每个小节卡带「🔗 复制本节链接」按钮'],
     ['V8.6','长表页内小节导航：138/170 个表格模块顶部出现可点的小节胶囊，点击直达、滚动跟随高亮，可与页内筛选联动；打印中心新增「按分组一键整册」：带封面和两栏目录，一次装订成册'],
     ['V8.5','英文表格补译收官：13 个模块 61 个小节 / 371 行全部补上英文行（家电选购、收纳、全屋定制、合同、防水、体检、弱电、燃气、电工、旧房、水暖、瓷砖、床品行李），「英文小节零中文回退」成为永久校验'],
     ['V8.4','列数/表头/空格/中英对齐/id/分组六类校验进永久自检；据此修复二手买卖表头错位、体检指标表与电饭煲表补第三列、14 处空单元格、礼盒表缺行；新增「使用统计」：本机记录打开次数，显示覆盖率、最常用前 10 和从未打开过的模块'],
@@ -7083,7 +7128,8 @@ function tablesPanel(c){
   h += '<div class="printhead">' + c.icon + ' ' + nm(c) + ' · ' + t('生活换算｜全能手册','Life Conversion Handbook') + '</div>';
   secs0.forEach((s,i)=>{
     const se = secOf(i);
-    h += '<div class="card" id="sec-'+i+'"><h3>' + ((se && se.title) || s.title) + '</h3>';
+    h += '<div class="card" id="sec-'+i+'"><h3>' + ((se && se.title) || s.title) +
+      '<button type="button" class="secshare" data-sec="'+i+'" title="'+t('复制本节链接（#m=…&s=…）','Copy a link to this section')+'">🔗</button></h3>';
     if(s.html) h += s.html;
     if(s.head) h += tbl((se && se.head) || s.head, (se && se.rows) || s.rows);
     const note = (se && se.note) || s.note;
@@ -7142,6 +7188,31 @@ function bindTables(c){
     }catch(e){ fallback(); }
   });
 
+  /* 复制本节链接：#m=模块&s=小节，粘贴给谁都直达 */
+  document.querySelectorAll('#main .secshare').forEach(sb=>{
+    sb.addEventListener('click', ()=>{
+      const link = location.origin && location.protocol.indexOf('http') === 0
+        ? location.origin + location.pathname + '#m=' + c.id + '&s=' + sb.dataset.sec
+        : '#m=' + c.id + '&s=' + sb.dataset.sec;
+      const done2 = ()=>rowToast(t('本节链接已复制，发给对方直达','Section link copied'));
+      const fb2 = ()=>{
+        try{
+          const ta = document.createElement('textarea');
+          ta.value = link; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+          document.body.appendChild(ta); ta.select();
+          const okc = document.execCommand && document.execCommand('copy');
+          document.body.removeChild(ta);
+          rowToast(okc ? t('本节链接已复制，发给对方直达','Section link copied') : link);
+        }catch(e){ rowToast(link); }
+      };
+      try{
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(link).then(done2, fb2);
+        } else fb2();
+      }catch(e){ fb2(); }
+    });
+  });
+
   /* 本页筛选：输入即过滤表格行，Esc 清空 */
   const flt = document.getElementById('tblFilter');
   if(flt){
@@ -7197,6 +7268,7 @@ function bindTables(c){
     chips.forEach(ch=>ch.addEventListener('click', ()=>{
       const i = Number(ch.dataset.sec);
       markOn(i); jump(i);
+      try{ history.replaceState(null, '', '#m=' + c.id + '&s=' + i); }catch(e){}
     }));
     markOn(0);
     if(typeof IntersectionObserver === 'function'){
@@ -9367,6 +9439,20 @@ function applyHash(){
   if(!p.m || !CATS.some(c=>c.id === p.m)) return;
   cur = p.m;
   render();
+  /* 深链小节：#m=xxx&s=N 直达第 N+1 节（0 基） */
+  if(p.s != null){
+    const si = parseInt(p.s, 10);
+    if(si >= 0) setTimeout(()=>{
+      const el = document.getElementById('sec-' + si);
+      if(!el) return;
+      try{ el.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){ try{ el.scrollIntoView(); }catch(e2){} }
+      el.classList.remove('sectflash');
+      void el.offsetWidth;
+      el.classList.add('sectflash');
+      setTimeout(()=>el.classList.remove('sectflash'), 1300);
+      document.querySelectorAll('.sectoc .stc').forEach(ch=>ch.classList.toggle('on', Number(ch.dataset.sec) === si));
+    }, 60);
+  }
   if(p.v != null && p.f && p.t){
     setTimeout(()=>{
       const scope = document.querySelector('main');
@@ -9630,7 +9716,7 @@ function updateStatic(){
   const brandrow = document.querySelector('.brandrow');
   if(brandrow && brandrow.childNodes[0]) brandrow.childNodes[0].textContent = t('生活换算','Life Conversion');
   const brand = document.querySelector('.brand > span');
-  if(brand) brand.textContent = t('全能手册 · 本地离线版 v8.6', 'All-in-One Handbook · v8.6');
+  if(brand) brand.textContent = t('全能手册 · 本地离线版 v8.7', 'All-in-One Handbook · v8.7');
   const bl = document.getElementById('backlink');
   if(bl) bl.textContent = t('← 返回工具箱','← Back to toolbox');
   const side = document.querySelector('.side');
@@ -10927,7 +11013,7 @@ function initInstall(){
 const FEEDBACK_EMAIL = '';
 function feedbackPanel(){
   const ua = navigator.userAgent || '';
-  const tpl = t('【生活换算反馈】\n版本：V8.6\n页面：','【Life Conversion Feedback】\nVersion: V8.6\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
+  const tpl = t('【生活换算反馈】\n版本：V8.7\n页面：','【Life Conversion Feedback】\nVersion: V8.7\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
     (window.__errLog && window.__errLog.length
       ? t('\n最近错误：','\nLast error: ') + window.__errLog[0].m + t('（',' (') + (window.__errLog[0].at || '') + '）'
       : '') +
