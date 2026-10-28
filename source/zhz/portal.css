@@ -1,0 +1,282 @@
+/* ============================================================
+   知作坊 · 首页产品门户
+   配合 scripts/inject-home.js 注入的 .zhz-portal 结构
+   （Butterfly 主题，实验分支；浅色/暗色双适配）
+   ============================================================ */
+
+/* ---------- 分组 ---------- */
+.zhz-portal {
+  margin: 0 0 1.6rem;
+}
+
+/* 首页隐藏右侧栏：产品门户是首屏主角，侧栏会挤到只剩 2 列宽
+   （:has 不支持的浏览器会保留侧栏，门户退化为两列，不影响可用） */
+body:has(.zhz-portal) #aside-content {
+  display: none;
+}
+
+/* 门户是 #recent-posts 的第一个子元素，补一点上间距与容器内边距 */
+body:has(.zhz-portal) #recent-posts {
+  padding-top: .2rem;
+  /* Butterfly 默认给侧栏预留了约 334px（width: calc(100% - 334px)），
+     aside 隐藏后这段宽度会空着，必须显式占满，否则右侧留一大块白 */
+  width: 100%;
+  max-width: none;
+  flex: 1 1 100%;
+}
+
+.zhz-portal-group + .zhz-portal-group {
+  margin-top: 1.5rem;
+}
+
+.zhz-portal-head {
+  display: flex;
+  align-items: baseline;
+  gap: .55rem;
+  margin-bottom: .75rem;
+  padding-left: .1rem;
+}
+
+.zhz-portal-head h2 {
+  margin: 0;
+  font-size: 1.18rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  color: #1f2328;
+  line-height: 1.2;
+}
+
+.zhz-portal-sub {
+  font-size: .72rem;
+  letter-spacing: .18em;
+  font-weight: 600;
+  color: #b0b6bd;
+  text-transform: uppercase;
+}
+
+/* ---------- 网格 ---------- */
+/* 用 grid 保证所有卡片同宽（flex 拉伸会让第一行 3 个、后面 2 个宽度不一致，
+   反而更乱）。每组末尾可能留 1 格空白，视觉上像未满的网格，可接受。 */
+.zhz-portal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .8rem;
+}
+
+/* ---------- 卡片 ---------- */
+.zhz-pcard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: .95rem .9rem 1rem;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, .07);
+  border-radius: 12px;
+  text-decoration: none !important;
+  color: inherit !important;
+  overflow: hidden;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  min-height: 148px;
+  min-width: 0;
+}
+
+/* 顶部色条：用产品色，hover 时展开 */
+.zhz-pcard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--zhz-c, #6b7280);
+  opacity: .85;
+}
+
+.zhz-pcard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .12);
+  border-color: var(--zhz-c, #6b7280);
+}
+
+.zhz-pcard:focus-visible {
+  outline: 2px solid var(--zhz-c, #6b7280);
+  outline-offset: 2px;
+}
+
+/* 图标 */
+.zhz-pcard-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 19px;
+  line-height: 1;
+  background: color-mix(in srgb, var(--zhz-c, #6b7280) 14%, transparent);
+  flex: 0 0 auto;
+}
+
+/* 正文 */
+.zhz-pcard-body {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.zhz-pcard-t {
+  font-size: .95rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #1f2328;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .35rem;
+}
+
+.zhz-pcard-t em {
+  font-style: normal;
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: #b0b6bd;
+}
+
+.zhz-pcard-d {
+  font-size: .78rem;
+  line-height: 1.55;
+  color: #6b7280;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 标签 */
+.zhz-pcard-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+  margin-top: auto;
+  padding-top: .35rem;
+}
+
+.zhz-pcard-tags span {
+  font-size: .68rem;
+  line-height: 1.6;
+  padding: 0 .42rem;
+  border-radius: 4px;
+  color: var(--zhz-c, #6b7280);
+  background: color-mix(in srgb, var(--zhz-c, #6b7280) 10%, transparent);
+  white-space: nowrap;
+}
+
+/* 数据量标签：右上角 */
+.zhz-pcard-stat {
+  position: absolute;
+  top: .62rem;
+  right: .7rem;
+  font-size: .68rem;
+  font-weight: 600;
+  line-height: 1.5;
+  padding: 0 .35rem;
+  border-radius: 4px;
+  color: #fff;
+  background: var(--zhz-c, #6b7280);
+  opacity: .92;
+  white-space: nowrap;
+}
+
+/* ---------- 暗色模式 ---------- */
+[data-theme="dark"] .zhz-portal-head h2 {
+  color: #e8eaed;
+}
+
+[data-theme="dark"] .zhz-portal-sub {
+  color: #6b7280;
+}
+
+[data-theme="dark"] .zhz-pcard {
+  background: #2b2f38;
+  border-color: rgba(255, 255, 255, .07);
+}
+
+[data-theme="dark"] .zhz-pcard:hover {
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .45);
+}
+
+[data-theme="dark"] .zhz-pcard-t {
+  color: #e8eaed;
+}
+
+[data-theme="dark"] .zhz-pcard-t em {
+  color: #6b7280;
+}
+
+[data-theme="dark"] .zhz-pcard-d {
+  color: #a8b0ba;
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 900px) {
+  /* 2 列 */
+  .zhz-portal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .zhz-portal-grid {
+    grid-template-columns: 1fr;
+    gap: .65rem;
+  }
+
+  .zhz-pcard {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: .7rem;
+    min-height: 0;
+    padding: .85rem .85rem .9rem;
+  }
+
+  .zhz-pcard-ico {
+    width: 40px;
+    height: 40px;
+    font-size: 21px;
+  }
+
+  .zhz-pcard-body {
+    gap: .22rem;
+  }
+
+  .zhz-pcard-d {
+    -webkit-line-clamp: 2;
+  }
+
+  .zhz-pcard-stat {
+    position: static;
+    align-self: flex-start;
+    margin-left: auto;
+    flex: 0 0 auto;
+  }
+
+  .zhz-portal-head h2 {
+    font-size: 1.05rem;
+  }
+}
+
+/* color-mix 不支持时的兜底（老浏览器） */
+@supports not (background: color-mix(in srgb, red 10%, transparent)) {
+  .zhz-pcard-ico {
+    background: rgba(107, 114, 128, .13);
+  }
+
+  .zhz-pcard-tags span {
+    background: rgba(107, 114, 128, .1);
+    color: #4b5563;
+  }
+}

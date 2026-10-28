@@ -1,0 +1,271 @@
+# ============================================================
+# 知作坊 · Butterfly 5.7 主题配置
+# 实验分支 experiment/butterfly
+#
+# 设计原则：
+#   1. 只写需要改的项，未列出的沿用 themes/butterfly/_config.yml 默认值
+#      （默认值大多为 false，不会意外开启花哨特效）
+#   2. 只开对「多产品聚合站」有用的功能，砍掉博客专属的花活
+#   3. 全部资源走本地，不依赖境外 CDN（境内 jsdelivr 时通时不通）
+#
+# 与原 shiro 的差异：
+#   - 导航从 15 项平铺改为 5 个主入口 + 二级菜单
+#   - 顶部大图关闭，首屏直接给产品门户（由 scripts/inject-home.js 注入）
+#   - 保留暗色模式、pjax、instantpage、懒加载等真实提升体验的能力
+# ============================================================
+
+# ---------------- 导航栏 ----------------
+nav:
+  logo:
+  display_title: true
+  display_post_title: true
+  fixed: true
+
+# ---------------- 菜单 ----------------
+# 格式：名称: 路径 || 图标
+# 二级菜单：父项名||图标: 后接缩进子项
+menu:
+  首页: / || fas fa-home
+  玩乐||fas fa-gamepad:
+    游戏盒: /games/ || fas fa-dice
+    亲子知识擂台: /games/knowledge/ || fas fa-brain
+    森林学堂: /forest/ || fas fa-tree
+    风驰骑行: /bike/ || fas fa-bicycle
+    冰火守门人: /guardian/ || fas fa-shield-alt
+  学习||fas fa-book:
+    教育专栏: /edu/ || fas fa-book-open
+    符号通行证: /symbolpass/ || fas fa-language
+  工具||fas fa-toolbox:
+    在线工具箱: /toolbox/ || fas fa-tools
+    离线包下载: /offline/ || fas fa-download
+  更多||fas fa-ellipsis-h:
+    留言板: /board/ || fas fa-comments
+    关于本站: /about/ || fas fa-user
+    归档: /archives/ || fas fa-archive
+
+favicon: /favicon.ico
+
+# ---------------- 首页与顶图 ----------------
+# 关掉顶部大图：首屏直接呈现产品门户，不放装饰性 banner
+disable_top_img: true
+
+# 首页文章列表布局：3 = 封面与信息左右交替
+index_layout: 3
+index_post_content:
+  method: 3
+  length: 200
+
+# 关闭字幕打字机动画（首屏性能 + 不喧宾夺主）
+subtitle:
+  enable: false
+
+# ---------------- 文章页 ----------------
+toc:
+  post: true
+  page: false
+  number: true
+  expand: false
+  style_simple: false
+
+post_copyright:
+  enable: false
+
+reward:
+  enable: false
+
+post_edit:
+  enable: false
+
+related_post:
+  enable: true
+  limit: 3
+  date_type: created
+
+post_pagination: 1
+
+# 文章过期提醒（创作手记更新不频繁，开着有意义）
+noticeOutdate:
+  enable: true
+  style: flat
+  limit_day: 365
+  position: bottom
+
+# ---------------- 阅读与显示 ----------------
+readmode: true
+
+darkmode:
+  enable: true
+  button: true
+  # 1 = 跟随系统设置
+  autoChangeMode: 1
+
+# 右侧工具栏只留必要按钮
+rightside_scroll_percent: true
+
+# ---------------- 搜索 ----------------
+# ⚠️ 坑：local_search 依赖根 _config.yml 的 config.search.path
+#    （由 hexo-generator-searchdb 插件提供）。缺这项会让 head.pug 抛
+#    "Cannot read properties of undefined (reading 'path')"，
+#    而且 hexo generate 仍返回 0 —— 只产出一个 0 字节的 index.html，很难发现。
+# 本站只有 2 篇文章，Butterfly 内置搜索价值不大；覆盖 130+ 独立页面的
+# 全站搜索由 /site-search.js 提供（见底部 inject），故此处留空关闭。
+search:
+  use:
+  placeholder:
+
+# ---------------- 性能与体验 ----------------
+# pjax：无刷新跳转。排除体量极大的子站点，避免首次进入时卡顿
+pjax:
+  enable: true
+  exclude:
+    - /forest/
+    - /guardian/
+    - /bike/
+    - /zanan/
+    - /games/knowledge/
+
+# instantpage：鼠标悬停即预取，点击秒开
+instantpage: true
+
+# 懒加载：用浏览器原生（少加载一个第三方 JS）
+lazyload:
+  enable: true
+  native: true
+  field: site
+  placeholder:
+  blur: false
+
+# 图片灯箱：游戏截图需要（medium_zoom 比 fancybox 轻）
+lightbox: medium_zoom
+
+# 字数统计需要额外装 hexo-wordcount 插件；本站仅 2 篇文章，不值得为它加依赖
+wordcount:
+  enable: false
+  post_wordcount: false
+  min2read: false
+  total_wordcount: false
+
+# 右侧工具栏配置
+aside:
+  enable: true
+  hide: false
+  button: true
+  mobile: true
+  position: right
+  card_author:
+    enable: true
+    button:
+      enable: false
+  card_announcement:
+    enable: false
+  card_recent_post:
+    enable: true
+    limit: 3
+    sort: date
+  card_categories:
+    enable: false
+  card_tags:
+    enable: true
+    limit: 20
+    color: false
+  card_archives:
+    enable: false
+
+# ---------------- 关闭的花哨功能 ----------------
+# 这些能省下大量 JS/CSS，且与站点气质不符
+preloader:
+  enable: false
+
+activate_power_mode:
+  enable: false
+
+canvas_ribbon:
+  enable: false
+
+canvas_fluttering_ribbon:
+  enable: false
+
+canvas_nest:
+  enable: false
+
+fireworks:
+  enable: false
+
+click_heart:
+  enable: false
+
+clickShowText:
+  enable: false
+
+mermaid:
+  enable: false
+
+math:
+  enable: false
+
+chartjs:
+  enable: false
+
+abcjs:
+  enable: false
+
+# 音乐播放器（会在每页加载 aplayer + meting，直接关掉）
+aplayer:
+  enable: false
+
+# 评论系统：本站已有自己的留言板，不重复
+comments:
+  use:
+  text: false
+
+# 分享按钮（留空对象而非 null —— 模板里会解构 theme.share，null 会抛错）
+share: {}
+
+# 复制版权（不需要）
+copy:
+  enable: false
+
+# 访客统计用自建 /stats.js，不用不蒜子
+busuanzi:
+  enable: false
+
+# 站点信息顶部留白（顶图已关，无需此值）
+index_site_info_top:
+
+# ---------------- 注入自定义脚本 ----------------
+# Butterfly 不继承根 _config.yml 的 inject，这里要重写一遍
+inject:
+  head:
+    - <script src="/ads.js" defer></script>
+  bottom:
+    - <script src="/stats.js" defer></script>
+    - <script src="/site-search.js" defer></script>
+
+# ---------------- CDN ----------------
+# 全部走本地，国内访问稳定；第三方库由 hexo-butterfly-extjs 提供
+CDN:
+  internal_provider: local
+  third_party_provider: jsdelivr
+  version: true
+
+# ---------------- 字体 ----------------
+# 留空使用系统字体栈，不加载 Google Fonts（境内慢）
+font:
+  global_font_size: 16px
+  code_font_size: 90%
+  font_family:
+  code_font_family:
+
+# Open Graph / 结构化数据（对 SEO 有帮助，保留）
+Open_Graph_meta:
+  enable: true
+  option:
+    twitter_card: false
+
+structured_data: true
+
+# 404 页（Butterfly 自带美化版）
+error_404:
+  enable: true
+  subtitle: '页面走丢了'
+  background:

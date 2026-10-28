@@ -1,0 +1,123 @@
+{
+  "_说明": "首页产品门户数据源。改这里即可调整首页首屏的产品卡片。构建时由 scripts/inject-home.js 生成静态 HTML 注入首页（服务端渲染，无白屏闪烁）。",
+  "_字段": "k=唯一键 | emoji=图标 | name=名称 | sub=英文/副名 | desc=一句话说明 | stat=数据量标签 | url=链接 | color=主题色",
+  "groups": [
+    {
+      "title": "玩",
+      "sub": "PLAY",
+      "items": [
+        {
+          "k": "knowledge",
+          "emoji": "🧠",
+          "name": "亲子知识擂台",
+          "sub": "Knowledge Arena",
+          "desc": "1–6 年级全科题库，手机双机对战、单人闯关、错题专练，家长陪孩子边玩边学",
+          "stat": "5684 道题",
+          "tags": ["亲子对战", "学习档案"],
+          "url": "/games/knowledge/",
+          "color": "#ff5e62"
+        },
+        {
+          "k": "games",
+          "emoji": "🎮",
+          "name": "欢乐游戏盒",
+          "sub": "Happy Games Box",
+          "desc": "24 款免费小游戏，无广告无内购，多数可离线玩",
+          "stat": "24 款",
+          "tags": ["无广告", "离线可玩"],
+          "url": "/games/",
+          "color": "#6a5ae0"
+        },
+        {
+          "k": "forest",
+          "emoji": "🌳",
+          "name": "智慧林间学堂",
+          "sub": "Forest Academy",
+          "desc": "答题点亮成长树，含 3D 恐龙展厅，给孩子的知识图鉴",
+          "stat": "226 图鉴 · 937 题",
+          "tags": ["儿童益智", "3D 展厅"],
+          "url": "/forest/",
+          "color": "#4a9147"
+        },
+        {
+          "k": "bike",
+          "emoji": "🚴",
+          "name": "风驰骑行",
+          "sub": "WindRider",
+          "desc": "手机横屏体感自行车竞速，6 条赛道、赛季排行榜",
+          "stat": "6 条赛道",
+          "tags": ["体感操作", "排行榜"],
+          "url": "/bike/",
+          "color": "#0ea5e9"
+        },
+        {
+          "k": "guardian",
+          "emoji": "🛡️",
+          "name": "冰火守门人",
+          "sub": "Element Gatekeeper",
+          "desc": "3D 双生守门塔防，每日挑战全服同题、独立日榜",
+          "stat": "3D 塔防",
+          "tags": ["每日挑战", "触屏操作"],
+          "url": "/guardian/",
+          "color": "#7c3aed"
+        }
+      ]
+    },
+    {
+      "title": "学",
+      "sub": "LEARN",
+      "items": [
+        {
+          "k": "edu",
+          "emoji": "📚",
+          "name": "不只是成绩",
+          "sub": "教育专栏",
+          "desc": "6 大系列 31 期图文，给家长一份可落地的教育指南",
+          "stat": "31 期",
+          "tags": ["家长必读"],
+          "url": "/edu/",
+          "color": "#2d7d7b"
+        },
+        {
+          "k": "symbolpass",
+          "emoji": "🔣",
+          "name": "符号通行证",
+          "sub": "SymbolPass",
+          "desc": "200 个原创符号 + 426 条旅行例句，中文直译英文",
+          "stat": "200 符号 · 426 例句",
+          "tags": ["语言学习"],
+          "url": "/symbolpass/",
+          "color": "#1f5fd0"
+        }
+      ]
+    },
+    {
+      "title": "工具",
+      "sub": "TOOLS",
+      "items": [
+        {
+          "k": "toolbox",
+          "emoji": "🧰",
+          "name": "免费工具箱",
+          "sub": "Toolbox",
+          "desc": "30 个在线小工具，浏览器内完成，文件不上传服务器",
+          "stat": "30 个工具",
+          "tags": ["本地处理", "不传文件"],
+          "url": "/toolbox/",
+          "color": "#ff4d00"
+        },
+        {
+          "k": "offline",
+          "emoji": "📦",
+          "name": "离线包下载",
+          "sub": "Offline Packs",
+          "desc": "8 个包，网盘自取、解压即用，断网也能玩",
+          "stat": "8 个包",
+          "tags": ["断网可用", "密码公开"],
+          "url": "/offline/",
+          "color": "#64748b"
+        }
+      ]
+    }
+  ]
+}

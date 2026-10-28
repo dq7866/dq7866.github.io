@@ -42,6 +42,7 @@ skip_render:
   - 'stats.js'
   - 'fs-button.js'
   - 'site-cards.js'
+  - 'site-search.js'
   - '404.html'
   - 'login-test.html'
 # Writing
@@ -121,7 +122,7 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: shiro
+theme: butterfly
 
 # Sitemap
 ## 生成 /sitemap.xml（含文章、归档、分类、标签页）

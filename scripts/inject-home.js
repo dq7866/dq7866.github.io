@@ -10,7 +10,9 @@ var fs = require("fs");
 var path = require("path");
 
 var MARK = "zhz-home";           // 幂等标记
-var CSS = '<link rel="stylesheet" href="/zhz/zhz.css">';
+// zhz.css    —— 公告栏与联系卡片的样式（沿用 shiro 时代）
+// portal.css —— 首页产品门户卡片（Butterfly 版新增）
+var CSS = '<link rel="stylesheet" href="/zhz/zhz.css"><link rel="stylesheet" href="/zhz/portal.css">';
 
 function esc(s) {
   return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
@@ -96,26 +98,81 @@ function contactBlock() {
   );
 }
 
+/* 首页产品门户数据（source/_data/portal.json） */
+function readPortal(baseDir) {
+  var file = path.join(baseDir, "source", "_data", "portal.json");
+  try {
+    return JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch (e) {
+    return null;
+  }
+}
+
+/* 产品门户：首屏第一眼看到的东西。顺序 = portal.json 里的分组顺序 */
+function portalBlock(portal) {
+  if (!portal || !Array.isArray(portal.groups) || !portal.groups.length) return "";
+  var h = '<section class="zhz-portal" aria-label="站内产品入口">';
+  portal.groups.forEach(function (g) {
+    var items = Array.isArray(g.items) ? g.items : [];
+    if (!items.length) return;
+    h += '<div class="zhz-portal-group">';
+    h += '<div class="zhz-portal-head"><h2>' + esc(g.title) + "</h2>" +
+         (g.sub ? '<span class="zhz-portal-sub">' + esc(g.sub) + "</span>" : "") + "</div>";
+    h += '<div class="zhz-portal-grid">';
+    items.forEach(function (it) {
+      var tags = (Array.isArray(it.tags) ? it.tags : [])
+        .filter(Boolean)
+        .map(function (t) { return "<span>" + esc(t) + "</span>"; })
+        .join("");
+      h += '<a class="zhz-pcard" href="' + esc(it.url) + '" style="--zhz-c:' + esc(it.color || "#6b7280") + '">' +
+             '<span class="zhz-pcard-ico" aria-hidden="true">' + esc(it.emoji || "\u2022") + "</span>" +
+             '<span class="zhz-pcard-body">' +
+               '<span class="zhz-pcard-t">' + esc(it.name) +
+                 (it.sub ? "<em>" + esc(it.sub) + "</em>" : "") +
+               "</span>" +
+               '<span class="zhz-pcard-d">' + esc(it.desc || "") + "</span>" +
+               (tags ? '<span class="zhz-pcard-tags">' + tags + "</span>" : "") +
+             "</span>" +
+             (it.stat ? '<span class="zhz-pcard-stat">' + esc(it.stat) + "</span>" : "") +
+           "</a>";
+    });
+    h += "</div></div>";
+  });
+  h += "</section>";
+  return h;
+}
+
 hexo.extend.filter.register("after_render:html", function (html, data) {
   if (!html || typeof html !== "string") return html;
-  if (typeof html !== "string" || html.indexOf(MARK) !== -1) return html;
+  if (html.indexOf(MARK) !== -1) return html;
 
   var p = (data && data.path) || "";
-  if (p !== "index.html") return html;
+  if (p !== "index.html" && p !== "") return html;
 
-  var notices = readNotices(hexo.base_dir || process.cwd());
+  var baseDir = hexo.base_dir || process.cwd();
+  var notices = readNotices(baseDir);
+  var portal = readPortal(baseDir);
   var out = html;
 
-  // 1) 公告栏：正文区顶部
-  var mainTag = out.match(/<main\s+id="main-content"[^>]*>/i);
-  if (mainTag) {
-    out = out.replace(mainTag[0], mainTag[0] + "\n" + noticeBlock(notices));
+  // 1) 门户 + 公告：插到文章列表容器开头
+  //    Butterfly 的 #recent-posts 是 content-inner（flex）里的内容列，
+  //    插在它内部不会破坏左右分栏；插到 content-inner 直接子级反而会被 flex 挤压。
+  //    注意：属性顺序不固定（实际是 class 在前、id 在后），不能用 <div id="recent-posts"
+  var injected = portalBlock(portal) + noticeBlock(notices);
+  var anchor = out.match(/<div\b[^>]*\bid="recent-posts"[^>]*>/i);
+  if (anchor) {
+    // 用函数形式替换，避免注入内容里的 $& 之类被当成替换模式
+    out = out.replace(anchor[0], function (m) { return m + "\n" + injected; });
+  } else {
+    // 兜底：shiro 时代的锚点
+    var mainTag = out.match(/<main\b[^>]*\bid="main-content"[^>]*>/i);
+    if (mainTag) out = out.replace(mainTag[0], function (m) { return m + "\n" + injected; });
   }
 
   // 2) 联系我：页脚上方
   var footerTag = out.match(/<footer\b[^>]*>/i);
   if (footerTag) {
-    out = out.replace(footerTag[0], contactBlock() + footerTag[0]);
+    out = out.replace(footerTag[0], function (m) { return contactBlock() + m; });
   }
 
   return out;
