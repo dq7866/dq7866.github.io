@@ -6593,6 +6593,7 @@ function printPanel(){
        '<p class="mini" style="margin:0 0 6px">'+t('不用一个个勾：点分组名直接生成该组全部速查表的整册，带封面和目录，适合装订成册。','Skip the tick boxes: pick a group and get every card in it as a bound booklet, cover and contents included.')+'</p>' +
        '<div class="pcgrp">' + grps.map(g=>'<button class="btn ghost pcb" data-g="'+g[0]+'">'+t('📘 '+(isEN()?(GROUP_EN[g[0]]||g[0]):g[0])+' 整册', '📘 '+(GROUP_EN[g[0]]||g[0])+' booklet')+'<i>'+g[1]+'</i></button>').join('') + '</div></div>';
   h += '<div class="rowline"><button class="btn" id="pcGo">'+t('生成并打印','Build and print')+'</button>' +
+       '<button class="btn ghost" id="pcXls">'+t('📊 导出 Excel','📊 Export Excel')+'</button>' +
        '<label class="pcopt"><input type="checkbox" id="pcCover" checked><span>'+t('加封面与目录','Add cover and contents')+'</span></label>' +
        '<span class="mini" id="pcMsg">'+(savedSel && savedSel.length ? t('已恢复上次勾选 '+savedSel.length+' 个','Restored '+savedSel.length+' from last time') : t('打印对话框里选「另存为 PDF」，也能存成文件','Choose "Save as PDF" in the dialog to keep a file too'))+'</span></div>';
   h += '<p class="note">'+t('合集只收录表格类速查模块；计算器类模块请用浏览器自带的打印快捷键。','Only table-style cards are included; use your browser print shortcut for calculator modules.')+'</p>';
@@ -6689,6 +6690,24 @@ function bindPrint(){
   };
   const go = document.getElementById('pcGo');
   if(go) go.addEventListener('click', ()=>runBook(boxes().filter(b=>b.checked).map(b=>b.value)));
+  /* 整册导出 Excel：勾选的模块串成一张汇总表 */
+  const xls = document.getElementById('pcXls');
+  if(xls) xls.addEventListener('click', ()=>{
+    const ids = boxes().filter(b=>b.checked).map(b=>b.value);
+    const msg = document.getElementById('pcMsg');
+    if(!ids.length){ if(msg) msg.textContent = t('先勾选至少一个模块','Tick at least one module first'); return; }
+    const rows = [];
+    ids.forEach((id,k)=>{
+      const c = CATS.find(x=>x.id === id);
+      if(!c) return;
+      if(k) rows.push([]);
+      tableSheet(c).forEach(r=>rows.push(r));
+    });
+    try{
+      downloadXlsx(t('速查合集','quick-reference-cards') + '.xlsx', rows, t('速查合集','Cards'));
+      if(msg) msg.textContent = t('已导出 '+ids.length+' 个模块的汇总表','Exported '+ids.length+' modules as one sheet');
+    }catch(e){ if(msg) msg.textContent = t('导出失败，请换浏览器再试','Export failed — try another browser'); }
+  });
   /* 按分组一键整册 */
   Array.from(document.querySelectorAll('.pcb')).forEach(b=>b.addEventListener('click', ()=>{
     const g = b.dataset.g;

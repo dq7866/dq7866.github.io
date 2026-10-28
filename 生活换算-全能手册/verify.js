@@ -158,6 +158,9 @@ function step3(){
       w.matchMedia = w.matchMedia || (q => ({ matches: false, media: q, addEventListener(){}, removeEventListener(){}, addListener(){}, removeListener(){} }));
       w.ResizeObserver = class { observe(){} unobserve(){} disconnect(){} };
       w.scrollTo = () => {};
+      if(!w.TextEncoder) w.TextEncoder = require('util').TextEncoder;
+      if(!w.URL.createObjectURL) w.URL.createObjectURL = () => 'blob:stub';
+      if(!w.URL.revokeObjectURL) w.URL.revokeObjectURL = () => {};
       if(!w.navigator.serviceWorker){
         Object.defineProperty(w.navigator, 'serviceWorker', { value: { register: () => Promise.reject(new Error('sw stub')) }, configurable: true });
       }
@@ -626,6 +629,15 @@ function step3(){
         const bk2 = window.buildBook(['appbuy'], false);
         if(!/booklet-cover/.test(bk2) && /class="panel"/.test(bk2)) ok('关闭封面时只输出模块页');
         else bad('封面开关无效');
+        /* 整册导出 Excel */
+        const xlsBtn = doc.getElementById('pcXls');
+        if(xlsBtn){
+          const box1 = doc.querySelector('.pci input');
+          if(box1){ box1.checked = true; xlsBtn.click(); }
+          const xmsg = (doc.getElementById('pcMsg') || {}).textContent || '';
+          if(/已导出/.test(xmsg)) ok('整册导出 Excel：汇总表生成成功');
+          else bad('整册导出 Excel 失败：' + xmsg.slice(0, 40));
+        } else bad('打印中心缺少导出 Excel 按钮');
       } else bad('导航里找不到打印中心');
 
       window.__errLog = [{ m:'TEST_ERR: canvas unavailable', at:'units.html:1' }];
