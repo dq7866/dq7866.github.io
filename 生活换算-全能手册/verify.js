@@ -423,6 +423,31 @@ function step3(){
       else bad('content-visibility 优化缺失');
       if(css.indexOf('.card{overflow-x:auto}') > 0 || /\.card\{[^}]*overflow-x:auto/.test(css)) ok('窄屏卡片横向滚动就位');
       else bad('窄屏横向滚动缺失');
+
+      /* 搜索：命中高亮 + 表内全文检索 */
+      const q = doc.getElementById('q');
+      if(q){
+        q.value = '胶饵';
+        q.dispatchEvent(new window.Event('input', {bubbles:true}));
+        const vis = [].slice.call(doc.querySelectorAll('.nitem')).filter(b=>b.style.display !== 'none');
+        const badge = vis.filter(b=>b.querySelector('.shint'));
+        if(vis.length && badge.length) ok(`表内文字可搜：命中 ${vis.length} 个模块（含表内标记）`);
+        else bad('表内全文检索未生效（命中 ' + vis.length + '，带标记 ' + badge.length + '）');
+        const hb = doc.getElementById('hitbar');
+        if(hb && hb.classList.contains('on') && /命中/.test(hb.textContent)) ok('命中计数条显示正常');
+        else bad('命中计数条未显示');
+
+        q.value = '长度';
+        q.dispatchEvent(new window.Event('input', {bubbles:true}));
+        const mk = doc.querySelector('.nitem .nlabel mark');
+        if(mk && mk.textContent === '长度') ok('搜索命中词高亮正常');
+        else bad('命中词未高亮');
+        q.value = '';
+        q.dispatchEvent(new window.Event('input', {bubbles:true}));
+        const stillHid = [].slice.call(doc.querySelectorAll('.nitem')).filter(b=>b.style.display === 'none').length;
+        if(stillHid === 0) ok('清空搜索后全部模块恢复显示');
+        else bad('清空搜索后仍有 ' + stillHid + ' 个模块隐藏');
+      } else bad('搜索框缺失');
     }catch(e){ bad('功能抽查抛错: ' + e.message); }
   }
   step4();

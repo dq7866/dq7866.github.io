@@ -8,17 +8,17 @@
 <script>(function(){try{var t=localStorage.getItem('lifeconv-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
 <style>
 :root{
-  --bg:#faf6f0;--card:#fffdf8;--ink:#2b2520;--muted:#8a7d6d;--line:#e8dfd1;
-  --accent:#e04a00;--accent-soft:#fff0e8;--warn:#b45309;--warnbg:#fff7e6;--r:14px;
+  --bg:#faf6f0;--card:#fffdf8;--ink:#2b2520;--muted:#7a6d5d;--line:#e8dfd1;
+  --accent:#c84100;--accent-soft:#fff0e8;--warn:#b45309;--warnbg:#fff7e6;--on-accent:#fff;--r:14px;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){--bg:#1a1612;--card:#2a231c;--ink:#f0e8dc;--muted:#a89a88;--line:#3d3328;
-  --accent:#ff7a3d;--accent-soft:#3a251c;--warn:#f0b45e;--warnbg:#2a2113;}
+  --accent:#ff7a3d;--accent-soft:#3a251c;--warn:#f0b45e;--warnbg:#2a2113;--on-accent:#20180f;}
 }
 html[data-theme="dark"]{--bg:#1a1612;--card:#2a231c;--ink:#f0e8dc;--muted:#a89a88;--line:#3d3328;
-  --accent:#ff7a3d;--accent-soft:#3a251c;--warn:#f0b45e;--warnbg:#2a2113;}
-html[data-theme="light"]{--bg:#faf6f0;--card:#fffdf8;--ink:#2b2520;--muted:#8a7d6d;--line:#e8dfd1;
-  --accent:#e04a00;--accent-soft:#fff0e8;--warn:#b45309;--warnbg:#fff7e6;}
+  --accent:#ff7a3d;--accent-soft:#3a251c;--warn:#f0b45e;--warnbg:#2a2113;--on-accent:#20180f;}
+html[data-theme="light"]{--bg:#faf6f0;--card:#fffdf8;--ink:#2b2520;--muted:#7a6d5d;--line:#e8dfd1;
+  --accent:#c84100;--accent-soft:#fff0e8;--warn:#b45309;--warnbg:#fff7e6;--on-accent:#fff;}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
@@ -38,8 +38,16 @@ body{
 .nitem{display:flex;gap:8px;align-items:center;width:100%;text-align:left;padding:7px 9px;
   border:0;background:none;color:var(--ink);border-radius:8px;cursor:pointer;font-size:13.5px}
 .nitem:hover{background:var(--bg)}
-.nitem.on{background:var(--accent);color:#fff}
+.nitem.on{background:var(--accent);color:var(--on-accent)}
 .nitem.on .ico{filter:none}
+.nitem .nlabel{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nlabel mark{background:rgba(224,74,0,.16);color:inherit;border-radius:3px;padding:0 1px;font-weight:700}
+.nitem.on .nlabel mark{background:rgba(255,255,255,.32);color:var(--on-accent)}
+.hitbar{display:none;font-size:11.5px;color:var(--muted);padding:7px 8px 1px;line-height:1.5}
+.hitbar.on{display:block}
+.hitbar b{color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums}
+.shint{flex:none;font-size:9.5px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:0 5px;line-height:15px;margin-left:2px}
+.nitem.on .shint{color:var(--on-accent);border-color:rgba(255,255,255,.45)}
 .ico{width:18px;text-align:center;font-size:13px}
 .nsec{margin:0}
 .ngroup{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;background:none;cursor:pointer;font-family:inherit;text-align:left}
@@ -58,7 +66,7 @@ body{
 .installbar b{font-size:13px}
 .installbar .row{display:flex;gap:8px;margin-top:8px}
 .installbar button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit}
-.installbar button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.installbar button.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .installbar button:hover{filter:brightness(1.05)}
 .brandrow{display:flex;align-items:center;justify-content:space-between;gap:6px}
 .sidecollapse{border:1px solid var(--line);background:none;border-radius:6px;width:22px;height:22px;line-height:1;color:var(--muted);cursor:pointer;font-size:12px;font-family:inherit}
@@ -132,9 +140,9 @@ body{
 .sug div:hover{background:var(--accent-soft);color:var(--accent)}
 .pin{margin-left:auto;padding:0 2px;font-size:12px;opacity:.35;cursor:pointer}
 .nitem:hover .pin{opacity:.85}
-.nitem.on .pin{color:#fff;opacity:.8}
+.nitem.on .pin{color:var(--on-accent);opacity:.8}
 .nitem .pin.on{opacity:1;color:var(--accent)}
-.nitem.on .pin.on{color:#fff}
+.nitem.on .pin.on{color:var(--on-accent)}
 .backlink{display:block;font-size:12px;color:var(--muted);text-decoration:none;padding:0 8px 10px}
 .backlink:hover{color:var(--accent)}
 .sidefoot{padding:18px 8px;font-size:11px;color:var(--muted);line-height:1.5}
@@ -180,7 +188,7 @@ input,select,button{font-family:inherit;font-size:14px}
 .rowline{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
 .rowline input,.rowline select{flex:1 1 180px;width:auto}
 .btn{padding:9px 16px;border-radius:9px;border:1px solid var(--accent);background:var(--accent);
-  color:#fff;cursor:pointer;font-size:13.5px;white-space:nowrap}
+  color:var(--on-accent);cursor:pointer;font-size:13.5px;white-space:nowrap}
 .btn:hover{filter:brightness(1.08)}
 .btn.ghost{background:transparent;color:var(--accent)}
 .btn.ghost:hover{background:var(--accent-soft)}
@@ -248,7 +256,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 table.tbl tbody tr{cursor:copy}
 @media print{
   @page{size:A4;margin:12mm 10mm}
-  html,html[data-theme="dark"],html[data-theme="light"]{--bg:#fff;--card:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#000;--accent-soft:#f4f4f4;--warn:#000;--warnbg:#f7f7f7}
+  html,html[data-theme="dark"],html[data-theme="light"]{--bg:#fff;--card:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#000;--accent-soft:#f4f4f4;--warn:#000;--warnbg:#f7f7f7;--on-accent:#fff}
   .side,.resizer,.sidefab,.palette,.skip,#live,.ptools,.langnote,.backlink,.actbar{display:none!important}
   .app{display:block!important}
   html,body{background:#fff!important;color:#000!important}
@@ -305,13 +313,14 @@ table.tbl tbody tr{cursor:copy}
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div class="app">
   <aside class="side" aria-label="模块导航">
-    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v8.1</span></div>
+    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v8.2</span></div>
     <a class="backlink" id="backlink" href="index.html" style="display:none">← 返回工具箱</a>
     <input id="q" class="search" placeholder="搜模块：亩 / 鞋码 / 扳手 / 汇率…       也能直接算：10 km to mi / 12*8">
     <div id="qc" class="qc" role="status" aria-live="polite"></div>
     <button class="navtoggle" id="navToggle" aria-expanded="false" aria-controls="nav">☰ <span id="navToggleTxt">模块目录</span></button>
     <nav id="nav" aria-label="模块列表"></nav>
     <div id="nores" style="display:none;font-size:12px;color:var(--muted);padding:10px 8px">没找到。<br>试试“扳手”“亩”“鞋码”“房贷”。</div>
+    <div id="hitbar" class="hitbar" role="status" aria-live="polite"></div>
     <div class="sidefoot"></div>
   </aside>
   <div class="resizer" id="resizer" title="拖动调整宽度，双击复位"></div>
@@ -4480,7 +4489,7 @@ function pushRecent(id){
 function isHidden(id){ return getHidden().indexOf(id) >= 0; }
 function navItem(c){
   const on = getPins().indexOf(c.id) >= 0;
-  return '<button class="nitem" data-id="'+c.id+'"><span class="ico">'+c.icon+'</span>'+nm(c) +
+  return '<button class="nitem" data-id="'+c.id+'"><span class="ico">'+c.icon+'</span><span class="nlabel">'+nm(c)+'</span>' +
     '<span class="pin'+(on?' on':'')+'" data-pin="'+c.id+'" title="'+t('置顶 / 取消置顶','Pin / unpin')+'">'+(on?'★':'☆')+'</span></button>';
 }
 const GROUP_ORDER = ['生活日常','吃穿住行','居家装修','钱与账','石油与工程','数字与编码','健康与饮食','关系与文化','自定义与工具','帮助与关于'];
@@ -4522,6 +4531,7 @@ function buildNav(){
   $('#nav').innerHTML = h;
   const nr = $('#navRestore');
   if(nr) nr.addEventListener('click', ()=>{ saveHidden([]); buildNav(); });
+  try{ const qq = document.getElementById('q'); if(qq && qq.value.trim()) applySearch(); }catch(e){}
 }
 function bindNavOnce(){
   $('#nav').addEventListener('click', e=>{
@@ -4674,17 +4684,71 @@ function qcShow(v){
   return true;
 }
 let searchHits = [];
+/* 表内内容索引：首次搜索时才构建，用于「按内容找模块」 */
+let SECT_IDX = null;
+function sectIndex(){
+  if(SECT_IDX) return SECT_IDX;
+  const m = new Map();
+  CATS.forEach(c=>{
+    if(c.type !== 'tables' || !c.sections) return;
+    let s = '';
+    c.sections.forEach(sec=>{
+      s += (sec.title || '') + ' ';
+      (sec.rows || []).forEach(r=>{ s += r.join(' ') + ' '; });
+    });
+    m.set(c.id, s.toLowerCase());
+  });
+  SECT_IDX = m;
+  return m;
+}
+function escHTML(s){
+  return String(s).replace(/[&<>"]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+}
+function hlText(txt, k){
+  const safe = escHTML(txt);
+  if(!k) return safe;
+  const lk = escHTML(k).toLowerCase();
+  if(!lk) return safe;
+  const low = safe.toLowerCase();
+  let out = '', i = 0, j;
+  while((j = low.indexOf(lk, i)) >= 0){
+    out += safe.slice(i, j) + '<mark>' + safe.slice(j, j + lk.length) + '</mark>';
+    i = j + lk.length;
+  }
+  return out + safe.slice(i);
+}
 function applySearch(){
-  const k = $('#q').value.trim().toLowerCase();
-  let n = 0;
+  const raw = $('#q').value.trim();
+  const k = raw.toLowerCase();
+  const toks = k ? k.split(/\s+/).filter(Boolean) : [];
+  let n = 0, nSect = 0;
   searchHits = [];
+  const idx = toks.length ? sectIndex() : null;
   document.querySelectorAll('.nitem').forEach(b=>{
-    const c = CATS.find(x=>x.id===b.dataset.id);
-    const bag = (c.name + ' ' + c.g + ' ' + (c.g2||'') + ' ' + (KW[c.id]||'')).toLowerCase();
-    const hit = !k || bag.includes(k);
+    const c = CATS.find(x=>x.id === b.dataset.id);
+    const bag = (nm(c) + ' ' + c.name + ' ' + c.g + ' ' + (c.g2||'') + ' ' + (KW[c.id]||'')).toLowerCase();
+    let hit = !toks.length || toks.every(w=>bag.includes(w));
+    let inSect = false;
+    if(!hit && idx){
+      const txt = idx.get(c.id);
+      if(txt && toks.every(w=>txt.includes(w))){ hit = true; inSect = true; }
+    }
     b.style.display = hit ? '' : 'none';
+    const lb = b.querySelector('.nlabel');
+    if(lb) lb.innerHTML = hlText(nm(c), toks.length ? toks[0] : '');
+    let badge = b.querySelector('.shint');
+    if(inSect){
+      if(!badge){
+        badge = document.createElement('span');
+        badge.className = 'shint';
+        const pinEl = b.querySelector('.pin');
+        b.insertBefore(badge, pinEl || null);
+      }
+      badge.textContent = t('表内','in table');
+    } else if(badge) badge.remove();
     if(hit){
       n++;
+      if(inSect) nSect++;
       if(!searchHits.some(x=>x.id === c.id)) searchHits.push(c);
     }
   });
@@ -4695,6 +4759,15 @@ function applySearch(){
   });
   const tip = document.getElementById('nores');
   if(tip) tip.style.display = (k && n === 0) ? 'block' : 'none';
+  const hb = document.getElementById('hitbar');
+  if(hb){
+    if(raw && n){
+      hb.innerHTML = t('命中 <b>'+n+'</b> 个模块','<b>'+n+'</b> module(s)') +
+        (nSect ? t('，其中 <b>'+nSect+'</b> 个来自表内文字',' ('+nSect+' from table text)') : '') +
+        t('　· Esc 清空',' · Esc clears');
+      hb.classList.add('on');
+    } else { hb.innerHTML = ''; hb.classList.remove('on'); }
+  }
   qcShow($('#q').value);
   return n;
 }
@@ -6627,6 +6700,7 @@ function helpPanel(){
     '<li><b>Want one row on its own:</b> click any row in a reference table and the whole row is copied with its column names — paste it straight into a chat or a note.</li>' +
     '<li><b>Printing the same set again:</b> the Print Center remembers what you ticked last time and restores it, so a weekly booklet is two clicks.</li>' +
     '<li><b>On a phone:</b> the module list collapses behind the “Module contents” button, so the page you opened appears right away; wide tables slide sideways inside their card.</li>' +
+    '<li><b>Search reads inside the tables:</b> type any word from a card’s content — “gel bait”, “withholding tax” — and the module shows up with an “in table” badge; matched words are highlighted in the list.</li>' +
     '<li><b>Need your own ratio:</b> pick “🧮 Formula row” in the Combo Board. x is the number on the left, so x*0.13, x/1.13 or x*0.6+80 all work — commission, VAT-inclusive price, shipping. r1 is the result of row 1, so r1*1.06 chains rows together.</li>' +
     '<li><b>Need a whole column of numbers:</b> in any converter press “📋 Copy all units” to get every unit as two columns (name and value), ready to paste into a spreadsheet.</li>' +
   '</ul>') +
@@ -6652,7 +6726,7 @@ function aboutPanel(){
   return '<div class="panel"><h2>ℹ️ About & Changelog</h2><p class="sub">Version, stack, licences — and what we refuse to build.</p>' +
   card('About', '<div class="kv">' +
     '<dt>Name</dt><dd>Life Converter · All-in-One Handbook</dd>' +
-    '<dt>Version</dt><dd>V8.1 (2026-10-28)</dd>' +
+    '<dt>Version</dt><dd>V8.2 (2026-10-28)</dd>' +
     '<dt>Form</dt><dd>Single-page app + PWA, installable</dd>' +
     '<dt>Modules</dt><dd>142 across 10 groups, 75 reference cards</dd>' +
     '<dt>Data</dt><dd>All calculations on-device, no upload</dd>' +
@@ -6679,6 +6753,7 @@ function aboutPanel(){
     ['V4.5','Waterproofing, cabinetry, network and gas cards; every calculator can export its result as a card; recently used modules surface at the top of the sidebar; swap buttons on the Combo Board'],
     ['V4.6','Appliance buying, storage planning, contract & payment, and checkup numbers cards; value boxes accept sums like 12*8; every reference card exports to Excel or copies as a table; history exports to Excel; Alt+↑/↓ jumps between modules'],
     ['V4.7','Gift money, exercise burn, laundry care and underfloor heating cards; the Combo Board takes formula rows (x*0.13); filter box on every reference card; copy all units at once'],
+    ['V8.2','Search now reads inside every table (a badge marks content hits), matched words are highlighted, and both themes pass WCAG AA'],
     ['V8.1','Mobile overhaul: the module wall collapses behind a contents button, wide tables slide sideways in their card, and long pages render faster'],
     ['V8.0','Click any row in a reference table to copy that row; the Print Center remembers your last tick list; printing switches the dark theme to black on white'],
     ['V7.4','Pet training, valuables and safes, the home tool kit, and computer cleanup cards'],
@@ -6743,6 +6818,7 @@ function helpPanelZH(){
     '<li><b>只想拿走一行：</b>点速查表里任意一行，整行会连着列名一起复制，直接粘到微信或备忘录就是一条完整信息。</li>' +
     '<li><b>每周都要打同一套：</b>速查卡合集会记住你上次勾选的模块，下次打开自动恢复，两下就能出册子。</li>' +
     '<li><b>在手机上：</b>模块列表收进「模块目录」按钮里，打开页面直接看内容；宽表格在卡片内左右滑动就能看全。</li>' +
+    '<li><b>搜索能搜进表里：</b>记不清模块名没关系，输表里的词——「胶饵」「五险一金」「押一付三」——命中的模块会带「表内」小标出来，命中词在列表里高亮。</li>' +
     '<li><b>要算自己的比例：</b>组合工作台里选「🧮 公式行」，x 就是左边那个数，写成 <code>x*0.13</code>、<code>x/1.13</code>、<code>x*0.6+80</code> 都行——算提成、含税价、运费一口气搞定。r1 是第 1 行的结果，可以接着算，例如 <code>r1*1.06</code>。</li>' +
     '<li><b>要一整列数字：</b>换算页点「📋 复制全部对照」，把当前值的所有单位一次复制成两列（单位 + 数值），粘进 Excel 正好是表格。</li>' +
   '</ul>') +
@@ -6770,7 +6846,7 @@ function aboutPanelZH(){
   return '<div class="panel"><h2>ℹ️ 关于与更新日志</h2><p class="sub">版本、技术、许可，以及我们坚决不做的事。</p>' +
   card('关于', '<div class="kv">' +
     '<dt>名称</dt><dd>生活换算 · 全能手册</dd>' +
-    '<dt>版本</dt><dd>V8.1（2026-10-28）</dd>' +
+    '<dt>版本</dt><dd>V8.2（2026-10-28）</dd>' +
     '<dt>形态</dt><dd>单页应用 + PWA，可安装到桌面</dd>' +
     '<dt>模块</dt><dd>237 个，10 个分组，170 张速查表</dd>' +
     '<dt>数据</dt><dd>全部本地计算，不上传</dd>' +
@@ -6790,6 +6866,7 @@ function aboutPanelZH(){
     ['V3.2','中英界面、无障碍与键盘操作、安装引导、意见反馈'],
     ['V3.3','全部模块标题与说明英译、单位模块注释英译'],
     ['V3.4','表格模块（扳手/管钳/螺栓/钻头/床品/螺纹）表头与注释英译'],
+    ['V8.2','搜索升级：能搜进全部速查表正文（命中带「表内」标记）、命中词高亮、明暗两套主题达到 WCAG AA 对比度'],
     ['V8.1','移动端大改版：模块药丸墙收进「模块目录」抽屉，宽表格卡片内横滑，长页面渲染提速'],
     ['V8.0','速查表任意一行点击即复制（带列名）；速查卡合集记住上次勾选；深色模式下打印自动转白底黑字'],
     ['V7.4','新增宠物行为与训练、贵重物品与保管、家用工具与五金、旧电脑与数据清理 4 张速查表'],
@@ -9301,7 +9378,7 @@ function updateStatic(){
   const brandrow = document.querySelector('.brandrow');
   if(brandrow && brandrow.childNodes[0]) brandrow.childNodes[0].textContent = t('生活换算','Life Conversion');
   const brand = document.querySelector('.brand > span');
-  if(brand) brand.textContent = t('全能手册 · 本地离线版 v8.1', 'All-in-One Handbook · v8.1');
+  if(brand) brand.textContent = t('全能手册 · 本地离线版 v8.2', 'All-in-One Handbook · v8.2');
   const bl = document.getElementById('backlink');
   if(bl) bl.textContent = t('← 返回工具箱','← Back to toolbox');
   const side = document.querySelector('.side');
@@ -10590,7 +10667,7 @@ function initInstall(){
 const FEEDBACK_EMAIL = '';
 function feedbackPanel(){
   const ua = navigator.userAgent || '';
-  const tpl = t('【生活换算反馈】\n版本：V8.1\n页面：','【Life Conversion Feedback】\nVersion: V8.1\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
+  const tpl = t('【生活换算反馈】\n版本：V8.2\n页面：','【Life Conversion Feedback】\nVersion: V8.2\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
     t('\n\n问题描述：\n1. 我在做什么：\n2. 期望结果：\n3. 实际结果：\n4. 是否可复现：\n','\n\nIssue description:\n1. What I was doing:\n2. Expected result:\n3. Actual result:\n4. Reproducible:\n');
   const subj = t('生活换算反馈','Life Conversion Feedback');
   const mail = FEEDBACK_EMAIL
@@ -10737,6 +10814,8 @@ function initPWA(){
 /* ==================== 渲染 ==================== */
 function render(){
   const c = CATS.find(x=>x.id===cur) || CATS[0];
+  const changed = (window.__lastMid !== c.id);
+  window.__lastMid = c.id;
   const prevRecent = getRecent()[0];
   pushRecent(c.id);
   if(getRecent()[0] !== prevRecent) buildNav();
@@ -10774,7 +10853,7 @@ function render(){
   }
   try{ autoSnapButtons(); }catch(e){}
   try{ appendRelated(c); }catch(e){}
-  window.scrollTo(0,0);
+  if(changed) window.scrollTo(0,0);
 }
 
 if(/units\.html$/.test(location.pathname)){ document.getElementById('backlink').style.display='block'; }
