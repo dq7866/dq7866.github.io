@@ -361,6 +361,35 @@ function step3(){
         }
       }
 
+      /* 速查卡合集记住上次勾选 */
+      {
+        const boxes = doc.querySelectorAll('.pci input');
+        if(boxes.length >= 2){
+          [boxes[0], boxes[1]].forEach(b=>{ b.checked = true; b.dispatchEvent(new window.Event('change', {bubbles:true})); });
+          let n = 0;
+          try{ n = JSON.parse(window.localStorage.getItem('lifeconv_print_v1') || '[]').length; }catch(e){}
+          if(n === 2) ok('打印勾选已写入本地记忆（2 个）');
+          else bad('打印勾选未写入记忆（' + n + ' 个）');
+          const away = doc.querySelector('.nitem[data-id="loan"]');
+          if(away){ away.click(); doc.querySelector('.nitem[data-id="printcenter"]').click(); }
+          const reOn = doc.querySelectorAll('.pci input:checked').length;
+          if(reOn === 2) ok('重新打开速查卡合集自动恢复上次勾选（2 个）');
+          else bad('上次勾选未恢复（' + reOn + ' 个）');
+        }
+      }
+
+      /* 表格行一键复制 */
+      {
+        const rows = doc.querySelectorAll('.nitem[data-id="inspect"]');
+        if(rows.length){ rows[0].click(); }
+        const tr = doc.querySelector('#main table.tbl tbody tr');
+        if(tr && typeof window.rowLineText === 'function'){
+          const s = window.rowLineText(tr);
+          if(s && s.indexOf('：') > 0 && s.indexOf('|') > 0) ok('表格行可拼成复制文本：' + s.slice(0, 24) + '…');
+          else bad('表格行复制文本异常：' + s);
+        } else bad('表格行复制函数未挂载');
+      }
+
       /* 计算器卡片自动存图按钮 */
       const loanNav = doc.querySelector('.nitem[data-id="loan"]');
       if(loanNav){

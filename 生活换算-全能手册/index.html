@@ -220,8 +220,12 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 .pci input{width:15px;height:15px;flex:0 0 auto;accent-color:#2b6cb0;cursor:pointer}
 .pci span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .printarea{display:none}
+#rowToast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);background:rgba(28,23,18,.93);color:#fff;font-size:13px;line-height:1.2;padding:9px 17px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:9999;max-width:82vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.22)}
+#rowToast.on{opacity:1;transform:translate(-50%,0)}
+table.tbl tbody tr{cursor:copy}
 @media print{
   @page{size:A4;margin:12mm 10mm}
+  html,html[data-theme="dark"],html[data-theme="light"]{--bg:#fff;--card:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#000;--accent-soft:#f4f4f4;--warn:#000;--warnbg:#f7f7f7}
   .side,.resizer,.sidefab,.palette,.skip,#live,.ptools,.langnote,.backlink,.actbar{display:none!important}
   .app{display:block!important}
   html,body{background:#fff!important;color:#000!important}
@@ -235,6 +239,12 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
   th{background:#f2f2f2!important;color:#000!important}
   .mini,.note{font-size:8.2pt!important;color:#444!important}
   .printhead{display:block!important;font-size:8.5pt;color:#666;border-bottom:1px solid #bbb;padding-bottom:3pt;margin-bottom:8pt}
+  .panel,.card,.out,.allrow,.kv div,.comrow{background:#fff!important;color:#000!important}
+  .out,.allrow b,.kv dd,.kv dt,code{color:#000!important}
+  code{background:#f2f2f2!important}
+  tr:nth-child(even) td{background:#fafafa!important}
+  .snapout,#rowToast,.pci{display:none!important}
+  table.tbl tbody tr{cursor:auto}
   a{color:#000!important;text-decoration:none!important}
   tr,li{break-inside:avoid}
   body.printing .app{display:none!important}
@@ -272,7 +282,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div class="app">
   <aside class="side" aria-label="模块导航">
-    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v7.1</span></div>
+    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v8.0</span></div>
     <a class="backlink" id="backlink" href="index.html" style="display:none">← 返回工具箱</a>
     <input id="q" class="search" placeholder="搜模块：亩 / 鞋码 / 扳手 / 汇率…       也能直接算：10 km to mi / 12*8">
     <div id="qc" class="qc" role="status" aria-live="polite"></div>
@@ -3995,6 +4005,222 @@ const CATS = [
   note:'任何一步都要留书面记录。微信聊天记录也可以作为证据，前提是没有删。'}
 ]},
 
+{id:'coldmed',en:'Cold & Flu Medicine',g:'健康与饮食',icon:'🤧',name:'感冒用药与误区',type:'tables',sub:'感冒是自限性的，药只让你舒服一点，不缩短病程。真正要记住的是：哪些成分不能重复吃，哪些情况必须去医院。',sections:[
+ {title:'先分清是什么',head:['类型','特点','病程'],
+  rows:[['普通感冒','鼻塞流涕咽痛为主，很少高热','7–10 天自愈'],['流感','突然高热 39 度以上、全身酸痛','1–2 周，需抗病毒药'],['过敏性鼻炎','清水样鼻涕、连续打喷嚏、眼痒','接触过敏原就发作'],['新冠','症状可与感冒重叠，需抗原确认','5–7 天多见'],['细菌性咽炎','咽痛剧烈、扁桃体化脓、无鼻涕','需就医']],
+  note:'只有流感早期（48 小时内）用奥司他韦才有意义。普通感冒吃抗病毒药，等于白吃。'},
+ {title:'复方感冒药成分对照',head:['成分','管什么','注意'],
+  rows:[['对乙酰氨基酚','退热、止痛','每日上限 2 g，肝功能不全慎用'],['布洛芬','退热、止痛、消炎','胃溃疡与肾功能不全慎用'],['伪麻黄碱','缓解鼻塞','高血压、心脏病、甲亢禁用'],['氯苯那敏','止鼻涕、止痒','嗜睡，开车与高空作业禁用'],['右美沙芬','镇干咳','有痰时不宜用，会憋住痰'],['愈创甘油醚','化痰','需配合多喝水才有效']],
+  note:'最常见的过量不是吃多了药，是两种感冒药里含同一个成分。买之前把成分表对一遍。'},
+ {title:'六个常见误区',head:['做法','问题'],
+  rows:[['感冒吃抗生素','感冒多为病毒，抗生素无效还伤肠道'],['两种感冒药一起吃','成分重复，最易对乙酰氨基酚过量'],['儿童按成人量减半','应按体重计算，不是简单减半'],['一发烧就打退烧针','38.5 度以下精神好可不退'],['捂汗退烧','儿童捂汗可致高热惊厥'],['咳嗽就止咳','有痰时止咳会让痰堵在气道']],
+  note:'退烧的目标是让人舒服，不是把体温压到 36.5。精神好、能喝水，38.5 度也可以不吃药。'},
+ {title:'必须去医院的情况',head:['表现','可能'],
+  rows:[['高热超过 3 天不退','细菌感染或肺炎'],['呼吸急促、胸口发紧','肺炎、心肌炎'],['精神差、嗜睡、叫不醒','重症信号'],['持续呕吐、尿量明显减少','脱水'],['剧烈头痛伴颈部僵硬','脑膜炎，急诊'],['皮疹压之不褪色','出血性疾病，急诊']],
+  note:'三个月的婴儿体温超过 38 度，不用观察，直接去医院。'},
+ {title:'家庭护理',head:['做法','说明'],
+  rows:[['多喝水','退热与稀释痰液都需要水分'],['室内湿度 40–60%','太干加重咽痛与鼻塞'],['盐水洗鼻','比吃药更安全有效'],['退烧药间隔','对乙酰氨基酚与布洛芬间隔 4–6 小时'],['清淡饮食','不是只喝粥，蛋白质要够'],['充分休息','睡眠是最好的免疫支持']],
+  note:'感冒药不会缩短病程。所有努力都是为了睡得着、吃得下、喝得进。'}
+]},
+
+{id:'energygrade',en:'Appliance Energy Labels',g:'居家装修',icon:'⚡',name:'家电能效与换新',type:'tables',sub:'能效等级只说明"同样效果下耗电多少"。一级能省电，但省下的电费要几年才追回差价——算过之后再决定。',sections:[
+ {title:'能效标识怎么看',head:['项','含义'],
+  rows:[['能效等级','1 级最省电，3 级为市场准入线'],['年耗电量','按标准工况估算，实际会偏高'],['能效比 APF','空调制冷量与耗电之比，越高越省'],['额定功率','连续运行的耗电速度'],['容量/匹数','决定够不够用，不是越大越好'],['生产者名称','核对是否为同一型号']],
+  note:'同一台机器换个能效等级，差价常在 500–1500 元。年耗电量差 200 度，按 0.6 元算一年只差 120 元。'},
+ {title:'各品类耗电占比',head:['品类','占家庭用电'],
+  rows:[['空调（制冷+制热）','30–45%'],['电热水器','15–20%'],['冰箱','10–15%'],['洗衣机与烘干机','5–8%'],['照明','5–8%'],['待机合计','3–8%']],
+  note:'先换空调和热水器。这两样占了一半以上，比换十个灯泡有用。'},
+ {title:'换新是否划算',head:['情况','判断'],
+  rows:[['使用超过 10 年','效率衰减明显，换新通常划算'],['维修费超过新机 40%','直接换新'],['一级与三级差价 500 元内','选一级'],['差价超过 2000 元','算电费回本年限再定'],['以旧换新有补贴','叠加后常比网购更低'],['旧机还能正常用','不必为省电而换']],
+  note:'算一遍：差价 ÷ （年省电度数 × 电价）= 回本年限。超过 8 年，基本不值得为省电而换。'},
+ {title:'待机与隐藏耗电',head:['设备','处理'],
+  rows:[['机顶盒','待机功耗常高于冰箱，用带开关插排'],['路由器','需要常开，不必断'],['热水器','保温耗电大，用定时或即热式'],['充电器空插','单个很小，但可拔则拔'],['智能音箱','常开可接受'],['电视','关机即断电更省']],
+  note:'待机功耗看起来小，但它 24 小时不停。一个 8 W 的机顶盒一年就是 70 度电。'},
+ {title:'购买时该看什么',head:['参数','怎么用'],
+  rows:[['额定制冷/制热量','按房间面积 × 150–200 W 估算'],['能效比 APF','同价位选高者'],['噪音值','卧室选 35 dB 以下'],['保修年限','压缩机保修常为 6–10 年'],['安装费','高空费、加长管都要提前问'],['售后网点','本地有没有维修点']],
+  note:'空调是"三分产品七分安装"。安装师傅抽真空不足 15 分钟，再好的机器也会费电又不冷。'}
+]},
+
+{id:'schoolenroll',en:'School Enrolment',g:'关系与文化',icon:'🎒',name:'孩子入学与转学',type:'tables',sub:'入学看的是"截止日期前材料是否齐全"，不是孩子多聪明。把时间线和材料清单贴在冰箱上，比到处打听有用。',sections:[
+ {title:'入学关键时间线',head:['时间','要做的事'],
+  rows:[['前一年 9–11 月','确认学区与落户年限要求'],['当年 3–4 月','政策发布，看当年细则变化'],['4–5 月','网上报名与信息采集'],['5–6 月','现场核验材料'],['6–7 月','录取通知与确认'],['8 月','报到、体检、校服']],
+  note:'政策每年会变，但变的是细则不是流程。真正要盯的是"落户满几年"这一条。'},
+ {title:'材料清单',head:['材料','注意'],
+  rows:[['户口簿','首页与本人页都要复印'],['房产证或租赁备案','租赁需备案满规定年限'],['出生医学证明','信息必须与户口一致'],['预防接种证','需完成规定疫苗'],['监护人身份证','双方都要'],['实际居住证明','水电缴费记录可作辅助']],
+  note:'材料最常卡在两处：户口簿信息与出生证不一致、租房未备案。提前半年去核一遍。'},
+ {title:'学区与落户',head:['情况','说明'],
+  rows:[['一套房一个学位','六年一学位，需查是否被占用'],['落户年限','热门校常要求满 2–3 年'],['共有产权','份额与是否唯一住房影响排序'],['祖辈房产','多数要求父母无房'],['租购同权','部分城市实施，需备案与年限'],['民办摇号','报名超额则电脑派位']],
+  note:'买学区房之前，先去对应学校或教育局查这套房六年内有没有用过学位。中介不会主动告诉你。'},
+ {title:'转学流程',head:['步骤','做法'],
+  rows:[['确认接收校','先问有没有空余学位'],['原校同意','提交转学申请，取学籍信息'],['教育局审批','跨区需两边教育局'],['学籍转移','全国学籍系统线上办理'],['材料提交','户口、房产、学籍表'],['入校报到','按接收校时间']],
+  note:'转学最难的不是手续，是"有没有学位"。先落实接收校，再动原校，否则可能两头落空。'},
+ {title:'入学前准备',head:['方面','具体'],
+  rows:[['作息','提前两周调到上学时间'],['自理','会自己上厕所、整理书包'],['表达能力','能说清"我要上厕所""我不舒服"'],['社交','能等待、能轮流'],['专注力','能安静坐 15 分钟'],['心理','讲清上学是怎么回事，不拿老师吓人']],
+  note:'比起提前学拼音，更该练的是"有事敢跟老师说"。这一条决定孩子在学校过得舒不舒服。'}
+]},
+
+{id:'declutter',en:'Decluttering',g:'生活日常',icon:'🧺',name:'旧物断舍离',type:'tables',sub:'断舍离不是扔东西，是停止把"以后可能用得上"当成留下的理由。判断标准只有一条：这一年里，它有没有让生活变好。',sections:[
+ {title:'判断标准',head:['问题','留下条件'],
+  rows:[['过去一年用过吗','用过，或明确有季节性用途'],['坏了会去修吗','会修，且修得起'],['有替代品吗','没有，或替代不方便'],['占的地方值这个钱吗','占地成本低于物品价值'],['留着是因为愧疚吗','不是。愧疚不是理由'],['是"备用的"吗','备用数量不超过一个']],
+  note:'"以后可能用得上"是最贵的六个字。它让每件东西都留下来，最后连找东西的地方都没有。'},
+ {title:'按品类处置顺序',head:['顺序','品类','原因'],
+  rows:[['1','过期药品与化妆品','最容易，无情感负担'],['2','坏掉的小家电','修不如买，直接回收'],['3','不合身的衣物','占空间最多'],['4','重复的厨具','三个锅铲只需要一个'],['5','纸质文件','扫描后销毁'],['6','纪念品','最后处理，需要时间']],
+  note:'从最容易的开始。扔东西是一件会越做越顺的事，先建立手感再碰有情感的物品。'},
+ {title:'处置渠道对照',head:['物品','去处'],
+  rows:[['成色好的衣物','捐赠箱或二手平台'],['家电家具','二手平台或回收站'],['书籍','二手书平台或多抓鱼类'],['纸箱塑料','可回收物'],['旧手机','官方回收或改造利用'],['过期药品','有害垃圾，勿混猫砂以外随意丢']],
+  note:'捐赠也讲成本。破洞的衣服捐出去，是把自己的处理成本转给公益机构。'},
+ {title:'情感物品怎么处理',head:['做法','说明'],
+  rows:[['拍照留存','留下记忆，不留体积'],['只留最好的一件','一箱情书留三封'],['设定一个盒子','纪念品总量不超过一箱'],['给孩子的东西','先问本人要不要'],['遗物','一年后再处理，别在情绪里决定'],['数字化','扫描存档后原件可弃']],
+  note:'纪念品的价值在记忆，不在实物。一张照片能承载的信息，比一件发黄的 T 恤多。'},
+ {title:'防止再堆积',head:['规则','做法'],
+  rows:[['一进一出','买一件新的，处理一件旧的'],['30 天冷静期','想买的先记下来，30 天后再看'],['不囤消耗品','纸巾最多囤三个月量'],['固定收纳上限','抽屉满了就不再添'],['每周十分钟','固定时间归位，不积成大工程'],['不因打折而买','便宜不是理由，需要才是']],
+  note:'整理一次靠决心，保持靠规则。给自己定一条"一进一出"，比每年大扫除一次有用。'}
+]},
+
+{id:'tripsafety',en:'Travel Safety',g:'吃穿住行',icon:'🧭',name:'家庭旅行安全',type:'tables',sub:'旅行出问题，八成不是意外，是准备不足：没记住宿地址、没约定走散后在哪等、证件全放在一个包里。',sections:[
+ {title:'出发前',head:['要做的事','原因'],
+  rows:[['拍下证件与保单','遗失时能报出号码'],['证件分开放','两人各带一份，不集中在一个包'],['存住宿地址与电话','孩子能背出酒店名'],['告知紧急联系人','把行程发给一位家人'],['查目的地天气与预警','山区与沿海尤其重要'],['备常用药与创可贴','异地买药很费时间']],
+  note:'把酒店名片放进孩子口袋，比让孩子背地址更可靠。走散时警察可以直接送回。'},
+ {title:'交通与自驾',head:['场景','要点'],
+  rows:[['长途自驾','每 2 小时休息，不疲劳驾驶'],['儿童乘车','安全座椅按身高体重选，不放副驾'],['夜间山区','降低车速，注意落石与无灯车辆'],['雨天高速','车速降 20%，跟车距离加倍'],['陌生城市','优先地铁与正规网约车'],['打车','上车前核对车牌，后排落座']],
+  note:'自驾最危险的不是高速，是连续开四小时后的省道。困意上来时，任何提神手段都只撑 20 分钟。'},
+ {title:'住宿安全',head:['检查项','做法'],
+  rows:[['门锁与反锁','入住先试锁，确认能反锁'],['猫眼与门链','用纸团堵猫眼，防反窥'],['逃生路线','数清到最近楼梯的转弯数'],['消防通道','确认不被杂物堵住'],['楼层','六层以上优先选可走楼梯的房型'],['隐私','关窗拉帘，检查正对床的异常物']],
+  note:'入住第一件事不是放行李，是走一遍到楼梯间的路。真起火时，烟里看不见指示牌。'},
+ {title:'走失与求助',head:['情况','做法'],
+  rows:[['孩子走散','原地不动 3 分钟，家长回原路找'],['约定地点','每次进入新场所先指一个显眼处'],['求助对象','穿制服的工作人员、带孩子的家长'],['报警','走失即可报警，不必等 24 小时'],['孩子自救','记住家长手机号，找收银台广播'],['境外','记下大使馆电话与当地报警号']],
+  note:'教孩子一句最有用的话："我找不到我妈妈了，请帮我打电话。"比背一百个字都管用。'},
+ {title:'应急准备',head:['物品','用途'],
+  rows:[['充电宝与数据线','导航与联络全靠手机'],['现金零钞','断网与不支持刷卡时'],['常用药','退烧、止泻、抗过敏、创可贴'],['保温杯','冲药与补水'],['口哨','求救比喊叫省力且传得远'],['纸质地图','手机没电时的备份']],
+  note:'所有应急物品要放在随身包里，不要放在托运的行李箱。行李丢了，应急能力也丢了。'}
+]},
+
+{id:'parkingspace',en:'Parking & Spaces',g:'吃穿住行',icon:'🅿️',name:'小区停车与车位',type:'tables',sub:'车位比车贵的情况很常见。买还是租，取决于产权能不能过户、小区车位配比、以及你打算住几年。',sections:[
+ {title:'车位类型',head:['类型','产权','注意'],
+  rows:[['产权车位','有独立产权证，可买卖过户','最贵，也最保值'],['人防车位','无产权，只有使用权','不能买卖，合同期限不超 20 年'],['公摊车位','属全体业主共有','只能租，收益归全体业主'],['机械车位','视规划审批而定','层高与车宽限制，大车停不进'],['租赁车位','按月或按年','优先确认是否可续租']],
+  note:'人防车位买卖是无效的，只能签使用权合同。销售说"可以过户"，一定要看产权证。'},
+ {title:'买还是租',head:['判断','结论'],
+  rows:[['车位配比低于 1:1','稀缺，买更稳'],['车位比 1:1.5 以上','租足够，不必买'],['打算住 5 年以上','买的总成本通常更低'],['车位价超过车价','除非稀缺，否则租'],['无产权车位','只租不买'],['租金回报率高于 4%','租更划算']],
+  note:'算一遍：车位价 ÷ 月租金 = 多少个月回本。超过 200 个月（约 16 年），买不如租。'},
+ {title:'费用与计费',head:['项目','说明'],
+  rows:[['车位管理费','买下车位也要交，常 50–150 元/月'],['临停计费','首小时与封顶价要问清'],['月租与年租','年付通常有折扣'],['产权税费','车位过户契税与增值税'],['新能源优惠','部分城市有减免或免费时长'],['涨价条款','租赁合同应写明涨幅上限']],
+  note:'买下车位不等于没有成本。管理费加上资金占用，往往比租金还高。'},
+ {title:'被堵与占位',head:['情况','处理'],
+  rows:[['固定车位被占','先联系物业，不自行锁车或划车'],['通道被堵','拨打 12123 一键挪车'],['对方不接电话','物业登记车牌，留存照片'],['长期占位','物业书面告知，累计证据'],['车辆被划','报警并调监控，48 小时内'],['自己的车位出租','签书面协议，写明违约']],
+  note:'私自锁车、放气、划车都可能构成侵权甚至违法。有理的事，别做成没理。'},
+ {title:'充电车位',head:['项','要点'],
+  rows:[['能否装桩','需物业同意与电力容量'],['产权前提','租用车位需业主书面同意'],['电表','申请独立电表，走居民电价'],['车位位置','靠近配电房省线缆'],['共享桩','可分时共享，注意责任划分'],['消防要求','不得占用疏散通道']],
+  note:'装桩前先问物业"电容够不够"。这一句能省掉后面所有的返工。'}
+]},
+
+{id:'emergencydrill',en:'Family Emergency Drill',g:'生活日常',icon:'🚨',name:'家庭应急预案演练',type:'tables',sub:'预案写在本子上没有用，全家走过一遍才有用。目标不是做到专业，是黑烟里也能凭记忆走出去。',sections:[
+ {title:'先约定四件事',head:['项','内容'],
+  rows:[['集合点','楼下固定一处，如小区门口便利店'],['外地联络人','选一位不在本地的亲戚做信息中转'],['分工','谁抱孩子、谁拿应急包、谁断电气'],['口令','一句"现在就走"，不需要解释']],
+  note:'为什么要有外地联络人：本地网络瘫痪时，外地电话往往能打通，家人靠他互相报平安。'},
+ {title:'火灾演练',head:['步骤','做法'],
+  rows:[['报警','先按响楼道警铃或喊醒邻居'],['判断','摸门把手，烫则不开门'],['撤离','低姿沿墙走楼梯，不乘电梯'],['防护','湿毛巾捂口鼻，只挡颗粒不挡毒气'],['关门','离开时关门，延缓火势'],['到齐','集合点清点人数，不再返回']],
+  note:'火灾死亡多数是一氧化碳中毒，不是烧伤。逃生第一位是离开烟气，不是灭火。'},
+ {title:'地震与燃气',head:['情况','做法'],
+  rows:[['地震在室内','躲桌下或承重墙角，护住头颈'],['地震在高层','不跳窗，不进电梯，震后再撤'],['震后撤离','走楼梯，注意坠物'],['闻到燃气味','不开灯、不打电话、不开排风扇'],['关阀开窗','关总阀，轻开门窗通风'],['到室外再报警','离开可能泄漏的空间再拨号']],
+  note:'燃气泄漏时按开关产生的电火花就足以引爆。所有动作都要慢，所有电器都不要碰。'},
+ {title:'分工卡片',head:['角色','负责'],
+  rows:[['成人 A','抱最年幼的孩子，带应急包'],['成人 B','断电断气，招呼老人'],['大孩子','穿鞋、拿手电，门口等待'],['老人','穿鞋，扶稳，不拿东西'],['宠物','牵引绳挂在门边，随手带走'],['最后离开者','关门，确认无人遗留']],
+  note:'分工要写下来贴在门后。真出事时人不会思考，只会执行熟悉的动作。'},
+ {title:'演练与检查',head:['频率','做什么'],
+  rows:[['每半年','走一次逃生路线，计时'],['每季度','检查应急包与手电电量'],['每年','更换过期药品与饮用水'],['搬新家','一周内走两遍路线'],['孩子 4 岁起','教按电梯报警键与找工作人员'],['每次演练后','说清哪里慢了，下次改']],
+  note:'第一次演练一定会乱。乱一次没关系，乱三次就是没练。'}
+]},
+
+{id:'kitchenclean',en:'Kitchen Cleaning',g:'居家装修',icon:'🧽',name:'厨房油污与清洁',type:'tables',sub:'油污是油脂被氧化后粘在表面上。清洁的核心不是用力擦，是让碱性清洁剂先把油脂皂化，等它松动了再擦。',sections:[
+ {title:'清洁剂怎么选',head:['类型','适用','注意'],
+  rows:[['碱性厨房清洁剂','灶台、油烟机、瓷砖','不适用于铝制品，会发黑'],['中性洗洁精','日常餐具与台面','重油污无效'],['小苏打糊','局部重油与焦渍','需静置 15 分钟'],['白醋','水垢与不锈钢水痕','不与含氯清洁剂混用'],['蒸汽清洁机','缝隙与滤网','注意烫伤与电路进水'],['专用除油泡沫','油烟机滤网','喷后静置再擦']],
+  note:'碱性越强除油越快，也越伤手和铝件。戴手套，铝制锅具只用中性。'},
+ {title:'清洁周期',head:['部位','频率'],
+  rows:[['灶台与台面','每次做完饭'],['油烟机滤网','每月一次'],['油烟机内部','每半年一次'],['水槽与下水口','每周'],['冰箱内部','每季度'],['橱柜内部','每半年']],
+  note:'油烟机滤网每月洗一次，吸力能保持七成以上。等油滴下来再洗，电机已经累了。'},
+ {title:'重油区处理',head:['部位','方法'],
+  rows:[['油烟机滤网','热水加小苏打浸泡 30 分钟'],['灶台焦渍','小苏打糊敷 15 分钟后擦'],['瓷砖缝','旧牙刷加碱性清洁剂'],['不锈钢表面','沿拉丝方向擦，不画圈'],['玻璃门油膜','白醋加洗洁精'],['油烟机外壳','喷后等 3 分钟再擦']],
+  note:'不要用钢丝球擦不锈钢和涂层灶台。划痕一旦留下，之后更容易积油。'},
+ {title:'绝对不能混用',head:['组合','后果'],
+  rows:[['84 消毒液 + 洁厕灵','产生氯气，可致命'],['含氯 + 酸性（白醋）','释放氯气'],['含氯 + 酒精','生成氯仿等有害物'],['双氧水 + 白醋','生成过氧乙酸，腐蚀'],['多种清洁剂叠加','成分未知，风险叠加']],
+  note:'一次只用一种清洁剂。要用第二种，先把第一种冲干净。'},
+ {title:'省力方法',head:['做法','原理'],
+  rows:[['先喷后等','给清洁剂反应时间，比用力擦有效'],['从上往下擦','脏水不重复污染'],['热水优于冷水','温度提高皂化速度'],['厨房纸先吸油','减少抹布换洗'],['锡纸垫灶眼','定期更换即可'],['做完就擦','余温时油还没固化']],
+  note:'做完饭趁灶台还有余温擦一遍，三十秒的事。等凉透了再擦，要三分钟。'}
+]},
+
+{id:'pettrain',en:'Pet Training',g:'生活日常',icon:'🐕',name:'宠物行为与训练',type:'tables',sub:'狗的问题行为几乎都是被无意中奖励出来的。猫的问题行为几乎都是环境不对。先改环境，再谈训练。',sections:[
+ {title:'训练的四个原则',head:['原则','说明'],
+  rows:[['即时奖励','行为发生后 2 秒内给，晚了就奖励错了对象'],['一次一个指令','不叠加，不重复喊'],['短时高频','每次 3–5 分钟，一天数次'],['奖励分级','日常零食普通，训练用高价值零食']],
+  note:'狗听不懂长句子。说"坐"就只说"坐"，不要说"你快坐下别动"。'},
+ {title:'狗常见问题',head:['行为','原因与对策'],
+  rows:[['扑人','求关注，转身不理，四脚落地才给关注'],['乱叫','有需求或警戒，先排除无聊与缺乏运动'],['拆家','运动量与独处时间不足'],['护食','幼期就要做手靠近碗的训练'],['拉绳','停止前进，绳松才继续走'],['随地大小便','固定时间带去，成功立刻奖励']],
+  note:'拆家九成是运动不够。一只每天只遛十五分钟的边牧，拆家是它的正常需求。'},
+ {title:'猫常见问题',head:['行为','原因与对策'],
+  rows:[['乱尿','先查泌尿疾病，再看猫砂盆'],['猫砂盆要求','数量等于猫数加一，远离食盆'],['抓家具','放猫抓板在睡醒必经处'],['夜间跑酷','睡前用逗猫棒消耗 15 分钟'],['咬手','不用手当玩具，用玩具替代'],['躲藏','提供高处与遮蔽，不强抱']],
+  note:'猫乱尿第一件事是去医院查尿，不是换猫砂。公猫尿闭是致命的。'},
+ {title:'社会化窗口',head:['年龄','重点'],
+  rows:[['狗 3–14 周','接触人、声音、地面材质、其他动物'],['狗 4–6 月','习惯牵引、剪指甲、进笼'],['猫 2–7 周','接触人手与家庭声音'],['猫 8 周后','逐步引入陌生人'],['成年后','靠脱敏与反条件反射，进度慢']],
+  note:'社会化窗口错过就要用几倍时间补。疫苗未完成也可以抱着出门听声音，不必等全部打完。'},
+ {title:'不该用的方法',head:['做法','问题'],
+  rows:[['打骂','建立恐惧，破坏信任，可能引发攻击'],['按头闻尿','狗无法建立因果，只会怕你'],['关笼惩罚','笼子会变成可怕的地方'],['饿肚子训练','损害健康，效果也不持久'],['喷水吓猫','猫会把恐惧关联到你身上'],['喊叫制止','等于一起叫，反而强化']],
+  note:'惩罚只能压制行为，不能教会正确做法。要它别做 A，就得告诉它做 B。'}
+]},
+
+{id:'valuables',en:'Valuables & Safe',g:'钱与账',icon:'🔒',name:'贵重物品与保管',type:'tables',sub:'家里真正值得保护的，不是最贵的，是最难补办的：证件、照片、老物件。保险箱解决的是火灾与水，不是防盗。',sections:[
+ {title:'哪些值得保管',head:['物品','保护理由'],
+  rows:[['证件与证书','补办耗时数周，且需多次跑动'],['首饰','单价高、体积小、易被顺走'],['老照片与家书','不可复制'],['合同与票据','维权与报销的凭据'],['电子数据备份','勒索病毒与硬盘损坏'],['纪念性物品','情感价值不可替代']],
+  note:'分类标准不是"值多少钱"，是"丢了能不能补回来"。补不回来的才要专门保管。'},
+ {title:'保管方式对比',head:['方式','适用','局限'],
+  rows:[['家用保险箱','证件、首饰、少量现金','不防专业盗窃，需固定'],['银行保管箱','重要证件与贵重首饰','网点时间限制，年费'],['云端加密存储','扫描件与备份','依赖账号安全'],['分散存放','降低一次全失的风险','需记录位置'],['亲友代管','极端情况备用','需可靠且方便取']],
+  note:'保险箱的第一功能是防火防水，不是防盗。要防盗，得固定在承重墙或地面上。'},
+ {title:'家用保险箱选购',head:['参数','要点'],
+  rows:[['防火等级','看是否标注耐火时长'],['锁具','电子加机械钥匙双备份'],['固定方式','膨胀螺栓入墙或入地'],['尺寸','按 A4 文件能否平放'],['防水','水浸场景常被忽略'],['备份钥匙','放家外可靠处，不放在抽屉里']],
+  note:'钥匙放在同一个抽屉里，等于没锁。备份钥匙要放在家外，比如父母家或保管箱。'},
+ {title:'数字资产也要安排',head:['项','做法'],
+  rows:[['密码管理','用口令式规则，不用生日'],['两步验证','开启并保存恢复码'],['数据备份','3-2-1：三份、两种介质、一份异地'],['账号清单','只写位置不写密码'],['紧急联系人','授权一位家人可申请取回'],['数字遗产','写进家庭备忘，说明哪些要留']],
+  note:'最现实的风险不是黑客，是你自己出事时家人打不开该打开的东西。'},
+ {title:'被盗或遗失后',head:['步骤','做法'],
+  rows:[['先报警','立案回执是后续理赔与补办的凭据'],['挂失证件','身份证、银行卡逐一致电'],['冻结账户','先冻结，再核对明细'],['通知保险公司','按合同时限报案'],['补办顺序','身份证优先，其余靠它'],['复盘','找出是保管问题还是流程问题']],
+  note:'证件丢失最急的不是钱，是被冒用。身份证挂失与补办要放在第一小时。'}
+]},
+
+{id:'toolkit',en:'Home Tool Kit',g:'居家装修',icon:'🧰',name:'家用工具与五金',type:'tables',sub:'一套够用的家用工具不超过 500 元，能解决八成日常维修。关键是买对规格，不是买多。',sections:[
+ {title:'基础工具清单',head:['工具','用途'],
+  rows:[['十字与一字螺丝刀','各一大一小，覆盖九成螺丝'],['活动扳手','水管与螺母'],['卷尺 5 m','测量与验收'],['羊角锤','敲钉与起钉'],['美工刀','开箱与裁切'],['内六角套装','家具与自行车']],
+  note:'螺丝刀要选带磁性的，拧小螺丝时能吸住，掉进缝里很难取。'},
+ {title:'进阶与电动',head:['工具','什么时候值得买'],
+  rows:[['电钻','一年要打十个以上孔才值'],['锂电螺丝刀','家具多、常拆装'],['水平尺','挂画、装层板'],['管钳','自己修水管'],['万用表','排查电路与插座'],['热熔胶枪','临时修补']],
+  note:'电钻买之前先想清楚：墙是混凝土还是轻体砖。混凝土要冲击钻，买错了打不进。'},
+ {title:'耗材与配件',head:['备什么','规格'],
+  rows:[['螺丝与膨胀管','M4、M5、M6 各一小盒'],['生料带','水管螺纹密封'],['玻璃胶','选中性与防霉型'],['电工胶带','绝缘包扎'],['砂纸','80 与 240 目各一'],['扎带','理线与临时固定']],
+  note:'生料带要顺着螺纹方向缠，反了会漏水。缠 15 圈左右，不是越多越好。'},
+ {title:'安全底线',head:['场景','规则'],
+  rows:[['动电','先断电，验电后再动手'],['登高','梯子放平，不站在最上层'],['打孔','先确认墙内无水管电线'],['切割','戴护目镜，刀口朝外'],['燃气','任何燃气管道改动必须找专业人员'],['承重墙','一律不动']],
+  note:'在承重墙和燃气管道上省下的钱，会在事故里加倍还回去。这两件事永远找专业的人。'},
+ {title:'收纳与保养',head:['做法','原因'],
+  rows:[['工具箱固定位置','找得到才会用'],['螺丝按规格分盒','省下翻找的十分钟'],['金属工具涂防锈油','潮湿环境下必做'],['电池取出','长期不用防漏液'],['刀片单独收纳','防割伤'],['每半年盘点','补耗材、换钝刀片']],
+  note:'工具的价值不在拥有，在需要时三分钟内能找到。散在抽屉里的工具等于没有。'}
+]},
+
+{id:'pcclean',en:'Computer Cleanup',g:'数字与编码',icon:'💻',name:'旧电脑与数据清理',type:'tables',sub:'电脑变慢，八成不是硬件不行，是启动项太多、磁盘太满、后台在偷偷同步。清理顺序比清理力度重要。',sections:[
+ {title:'变慢的真实原因',head:['原因','判断'],
+  rows:[['启动项过多','开机后三分钟仍在加载'],['磁盘占用超 85%','系统无空间做缓存'],['机械硬盘老化','开机与打开文件都慢'],['内存不足','多开几个网页就卡'],['后台同步','风扇常转、硬盘灯常亮'],['散热积灰','高温降频']],
+  note:'先看任务管理器的磁盘占用。长期 100% 的机械硬盘，换一块固态比任何清理软件都有效。'},
+ {title:'清理顺序',head:['步骤','做法'],
+  rows:[['1','卸载不用的软件，不是删快捷方式'],['2','关闭开机自启项'],['3','清临时文件与浏览器缓存'],['4','把大文件移出系统盘'],['5','检查同步盘是否在同步整个目录'],['6','最后才考虑重装系统']],
+  note:'清理软件常常自己变成负担。系统自带的磁盘清理足够用，不需要装三个。'},
+ {title:'数据整理',head:['做法','说明'],
+  rows:[['桌面只放临时文件','超过一周就该归档'],['按年-项目建目录','不用按类型分'],['文件名含日期','2026-10-28 比 最终版 有用'],['定期备份','3-2-1 原则'],['删前先确认','回收站不是备份'],['重要文件双份','本机加移动硬盘']],
+  note:'"最终版-最终版-真的最终版"是找不到文件的主要原因。文件名里放日期，一切迎刃而解。'},
+ {title:'换机与退役',head:['步骤','做法'],
+  rows:[['先备份','整盘镜像，不只是文档'],['退出账号','浏览器、云盘、办公软件'],['解绑授权','软件许可常绑定设备'],['清除数据','格式化后再填满无用文件再格式化'],['物理处理','硬盘可拆下保留或钻孔'],['旧机利用','做备份机、媒体机或送人']],
+  note:'简单格式化不等于数据消失。机械硬盘的残留数据可以被恢复，卖之前要么保留硬盘，要么物理销毁。'},
+ {title:'长期维护',head:['频率','做什么'],
+  rows:[['每周','清一次桌面与下载文件夹'],['每月','检查磁盘空间与备份是否成功'],['每季度','清灰，检查风扇'],['每半年','更新系统与浏览器'],['每年','评估是否该换电池或硬盘'],['换机时','迁移并核对文件数量']],
+  note:'备份只有验证过才算备份。每年至少做一次完整的恢复演练，别等真丢数据时才发现备份是空的。'}
+]},
+
 {id:'hardness',en:'Hardness',g:'石油与工程',g2:'居家装修',icon:'🔨',name:'材料硬度',type:'custom',panel:'hardnessPanel',bind:'bindHardness'},
 {id:'threads',en:'Thread Specs',g:'石油与工程',g2:'居家装修',icon:'🔩',name:'螺纹规格',type:'tables',sub:'公制、UNC/UNF、G/BSP、NPT 四种螺纹的牙数与外径对照。',sections:[
  {title:'公制螺纹螺距',head:['规格','粗牙','细牙 1','细牙 2'],rows:[
@@ -6194,10 +6420,23 @@ function bindManage(){
   });
   stat();
 }
+const PRINT_KEY = 'lifeconv_print_v1';
+function getPrintSel(){
+  try{
+    const raw = localStorage.getItem(PRINT_KEY);
+    if(raw === null) return null;
+    const a = JSON.parse(raw);
+    return Array.isArray(a) ? a : null;
+  }catch(e){ return null; }
+}
+function savePrintSel(ids){ try{ localStorage.setItem(PRINT_KEY, JSON.stringify(ids.slice(0,300))); }catch(e){} }
 function printPanel(){
   const tabs = CATS.filter(c=>c.type==='tables');
   let favIds = [];
   try{ favIds = getFavs().map(f=>f.mid).filter(Boolean); }catch(e){}
+  const savedSel = getPrintSel();
+  const preIds = savedSel === null ? favIds : savedSel;
+  const isPre = id => preIds.indexOf(id) >= 0;
   let h = '<div class="panel"><h2>🖨️ '+t('速查卡合集','Print Center')+'</h2><p class="sub">'+t('勾选要带的模块，一次打印成 A4 册子——一页一个模块，贴墙、放工具箱都行。','Tick the cards you need and print them as one A4 booklet — one module per page, ready for the wall or the toolbox.')+'</p>';
   h += '<div class="card"><h3>'+t('选择模块','Choose modules')+'</h3>';
   h += '<div class="rowline"><button class="btn ghost" id="pcAll">'+t('全选','Select all')+'</button><button class="btn ghost" id="pcNone">'+t('清空','Clear')+'</button><button class="btn ghost" id="pcFav">'+t('选收藏过的','Pick favourites')+'</button><span class="mini" id="pcCount"></span></div>';
@@ -6205,9 +6444,9 @@ function printPanel(){
   GROUP_ORDER.forEach(g=>{ const n = tabs.filter(c=>c.g===g).length; if(n) grps.push([g, n]); });
   h += '<div class="mini" style="margin-top:10px">'+t('按分组勾选（再点一次取消本组）：','Pick by group (tap again to clear it):')+'</div>';
   h += '<div class="pcgrp">' + grps.map(g=>'<button class="btn ghost pcg" data-g="'+g[0]+'">'+(isEN()?(GROUP_EN[g[0]]||g[0]):g[0])+'<i>'+g[1]+'</i></button>').join('') + '</div>';
-  h += '<div class="pcgrid">' + tabs.map(c=>'<label class="pci"><input type="checkbox" value="'+c.id+'"'+(favIds.indexOf(c.id)>=0?' checked':'')+'><span>'+c.icon+' '+nm(c)+'</span></label>').join('') + '</div>';
+  h += '<div class="pcgrid">' + tabs.map(c=>'<label class="pci"><input type="checkbox" value="'+c.id+'"'+(isPre(c.id)?' checked':'')+'><span>'+c.icon+' '+nm(c)+'</span></label>').join('') + '</div>';
   h += '</div>';
-  h += '<div class="rowline"><button class="btn" id="pcGo">'+t('生成并打印','Build and print')+'</button><span class="mini" id="pcMsg">'+t('打印对话框里选「另存为 PDF」，也能存成文件','Choose "Save as PDF" in the dialog to keep a file too')+'</span></div>';
+  h += '<div class="rowline"><button class="btn" id="pcGo">'+t('生成并打印','Build and print')+'</button><span class="mini" id="pcMsg">'+(savedSel && savedSel.length ? t('已恢复上次勾选 '+savedSel.length+' 个','Restored '+savedSel.length+' from last time') : t('打印对话框里选「另存为 PDF」，也能存成文件','Choose "Save as PDF" in the dialog to keep a file too'))+'</span></div>';
   h += '<p class="note">'+t('合集只收录表格类速查模块；计算器类模块请用浏览器自带的打印快捷键。','Only table-style cards are included; use your browser print shortcut for calculator modules.')+'</p>';
   return h + '</div>';
 }
@@ -6223,7 +6462,9 @@ function bindPrint(){
   }
   const upd = ()=>{
     const el = document.getElementById('pcCount');
-    if(el) el.textContent = t('已选 ','Selected ') + boxes().filter(b=>b.checked).length + ' / ' + boxes().length;
+    const on = boxes().filter(b=>b.checked);
+    if(el) el.textContent = t('已选 ','Selected ') + on.length + ' / ' + boxes().length;
+    savePrintSel(on.map(b=>b.value));
     markGrp();
   };
   const setAll = v => { boxes().forEach(b=>{ b.checked = v; }); upd(); };
@@ -6358,6 +6599,8 @@ function helpPanel(){
     '<li><b>Want a conversion to stay:</b> press “＋ Add to Combo” and it joins the Combo Board, where it can live beside formula rows.</li>' +
     '<li><b>Want a card in your own spreadsheet:</b> every reference card has “Export Excel” and “Copy table”. The copy button pastes into Excel or a chat with the columns intact.</li>' +
     '<li><b>Card too long to scan:</b> use the “Filter this page” box at the top of any reference card — type “slope” or “deposit” and only the matching rows stay. Esc clears it.</li>' +
+    '<li><b>Want one row on its own:</b> click any row in a reference table and the whole row is copied with its column names — paste it straight into a chat or a note.</li>' +
+    '<li><b>Printing the same set again:</b> the Print Center remembers what you ticked last time and restores it, so a weekly booklet is two clicks.</li>' +
     '<li><b>Need your own ratio:</b> pick “🧮 Formula row” in the Combo Board. x is the number on the left, so x*0.13, x/1.13 or x*0.6+80 all work — commission, VAT-inclusive price, shipping. r1 is the result of row 1, so r1*1.06 chains rows together.</li>' +
     '<li><b>Need a whole column of numbers:</b> in any converter press “📋 Copy all units” to get every unit as two columns (name and value), ready to paste into a spreadsheet.</li>' +
   '</ul>') +
@@ -6383,7 +6626,7 @@ function aboutPanel(){
   return '<div class="panel"><h2>ℹ️ About & Changelog</h2><p class="sub">Version, stack, licences — and what we refuse to build.</p>' +
   card('About', '<div class="kv">' +
     '<dt>Name</dt><dd>Life Converter · All-in-One Handbook</dd>' +
-    '<dt>Version</dt><dd>V7.1 (2026-10-28)</dd>' +
+    '<dt>Version</dt><dd>V8.0 (2026-10-28)</dd>' +
     '<dt>Form</dt><dd>Single-page app + PWA, installable</dd>' +
     '<dt>Modules</dt><dd>142 across 10 groups, 75 reference cards</dd>' +
     '<dt>Data</dt><dd>All calculations on-device, no upload</dd>' +
@@ -6410,6 +6653,10 @@ function aboutPanel(){
     ['V4.5','Waterproofing, cabinetry, network and gas cards; every calculator can export its result as a card; recently used modules surface at the top of the sidebar; swap buttons on the Combo Board'],
     ['V4.6','Appliance buying, storage planning, contract & payment, and checkup numbers cards; value boxes accept sums like 12*8; every reference card exports to Excel or copies as a table; history exports to Excel; Alt+↑/↓ jumps between modules'],
     ['V4.7','Gift money, exercise burn, laundry care and underfloor heating cards; the Combo Board takes formula rows (x*0.13); filter box on every reference card; copy all units at once'],
+    ['V8.0','Click any row in a reference table to copy that row; the Print Center remembers your last tick list; printing switches the dark theme to black on white'],
+    ['V7.4','Pet training, valuables and safes, the home tool kit, and computer cleanup cards'],
+    ['V7.3','Travel safety, parking and spaces, family emergency drills, and kitchen grease cards'],
+    ['V7.2','Cold and flu medicine, appliance energy labels, school enrolment, and decluttering cards'],
     ['V7.1','Children\'s eyesight, neighbours and estate affairs, holiday bookings, and renting out a home cards'],
     ['V7.0','Balcony plumbing and wiring, EV charger installation, second-hand baby gear, and renovation extras cards'],
     ['V6.9','Preparing for a health check, child vaccinations, family accounts and passwords, and attention cards'],
@@ -6466,6 +6713,8 @@ function helpPanelZH(){
     '<li><b>想让这组换算常驻：</b>换算页点「＋ 加到组合台」，它就会出现在「组合工作台」里，和公式行一起一屏换算。</li>' +
     '<li><b>想把速查表带走：</b>每张速查卡顶部有「导出 Excel」和「复制表格」，复制后可以直接粘进 Excel 或微信，格式不会散。</li>' +
     '<li><b>表格太长找不到：</b>速查卡顶部有「筛选本页」，输入「违约金」「坡度」这类词，只留下命中的行，Esc 清空。</li>' +
+    '<li><b>只想拿走一行：</b>点速查表里任意一行，整行会连着列名一起复制，直接粘到微信或备忘录就是一条完整信息。</li>' +
+    '<li><b>每周都要打同一套：</b>速查卡合集会记住你上次勾选的模块，下次打开自动恢复，两下就能出册子。</li>' +
     '<li><b>要算自己的比例：</b>组合工作台里选「🧮 公式行」，x 就是左边那个数，写成 <code>x*0.13</code>、<code>x/1.13</code>、<code>x*0.6+80</code> 都行——算提成、含税价、运费一口气搞定。r1 是第 1 行的结果，可以接着算，例如 <code>r1*1.06</code>。</li>' +
     '<li><b>要一整列数字：</b>换算页点「📋 复制全部对照」，把当前值的所有单位一次复制成两列（单位 + 数值），粘进 Excel 正好是表格。</li>' +
   '</ul>') +
@@ -6493,9 +6742,9 @@ function aboutPanelZH(){
   return '<div class="panel"><h2>ℹ️ 关于与更新日志</h2><p class="sub">版本、技术、许可，以及我们坚决不做的事。</p>' +
   card('关于', '<div class="kv">' +
     '<dt>名称</dt><dd>生活换算 · 全能手册</dd>' +
-    '<dt>版本</dt><dd>V7.1（2026-10-28）</dd>' +
+    '<dt>版本</dt><dd>V8.0（2026-10-28）</dd>' +
     '<dt>形态</dt><dd>单页应用 + PWA，可安装到桌面</dd>' +
-    '<dt>模块</dt><dd>225 个，10 个分组，158 张速查表</dd>' +
+    '<dt>模块</dt><dd>237 个，10 个分组，170 张速查表</dd>' +
     '<dt>数据</dt><dd>全部本地计算，不上传</dd>' +
   '</div>') +
   card('更新日志', tbl(['版本','主要变化'],[
@@ -6513,6 +6762,10 @@ function aboutPanelZH(){
     ['V3.2','中英界面、无障碍与键盘操作、安装引导、意见反馈'],
     ['V3.3','全部模块标题与说明英译、单位模块注释英译'],
     ['V3.4','表格模块（扳手/管钳/螺栓/钻头/床品/螺纹）表头与注释英译'],
+    ['V8.0','速查表任意一行点击即复制（带列名）；速查卡合集记住上次勾选；深色模式下打印自动转白底黑字'],
+    ['V7.4','新增宠物行为与训练、贵重物品与保管、家用工具与五金、旧电脑与数据清理 4 张速查表'],
+    ['V7.3','新增家庭旅行安全、小区停车与车位、家庭应急预案演练、厨房油污与清洁 4 张速查表'],
+    ['V7.2','新增感冒用药与误区、家电能效与换新、孩子入学与转学、旧物断舍离 4 张速查表'],
     ['V7.1','新增孩子视力保护、邻里与小区事务、假期出行预约、出租房屋与房东责任 4 张速查表'],
     ['V7.0','新增阳台水电改造、电动车充电桩安装、二手母婴用品、家装增项清单 4 张速查表'],
     ['V6.9','新增体检前准备、儿童疫苗接种、家庭账号与密码托管、注意力与信息节食 4 张速查表'],
@@ -7680,6 +7933,40 @@ function copyText(txt, msgEl){
     try{ ok = document.execCommand('copy'); }catch(e){}
     ta.remove(); done(ok);
   }
+}
+/* ==================== 表格行一键复制 ==================== */
+function rowLineText(tr){
+  const table = tr.closest('table');
+  const heads = table ? Array.from(table.querySelectorAll('thead th')).map(x=>x.textContent.trim()) : [];
+  const cells = Array.from(tr.children).map(x=>x.textContent.replace(/\s+/g,' ').trim());
+  if(heads.length === cells.length && heads.length > 1){
+    return cells.map((v,i)=> (heads[i] ? heads[i] + '：' + v : v)).join(' | ');
+  }
+  return cells.join(' | ');
+}
+function rowToast(msg){
+  let el = document.getElementById('rowToast');
+  if(!el){ el = document.createElement('div'); el.id = 'rowToast'; document.body.appendChild(el); }
+  el.textContent = msg; el.classList.add('on');
+  clearTimeout(el._t); el._t = setTimeout(()=>el.classList.remove('on'), 1600);
+}
+function bindRowCopy(){
+  document.addEventListener('click', e=>{
+    if(!e.target || !e.target.closest) return;
+    if(e.target.closest('a,button,input,select,label')) return;
+    const td = e.target.closest('td');
+    if(!td) return;
+    const table = td.closest('table.tbl');
+    const tr = td.closest('tr');
+    if(!table || !tr) return;
+    if(table.closest('.printarea') || document.body.classList.contains('printing')) return;
+    const sel = window.getSelection ? String(window.getSelection()) : '';
+    if(sel && sel.trim()) return;
+    const txt = rowLineText(tr);
+    if(!txt) return;
+    copyText(txt);
+    rowToast(t('📋 已复制这一行：','📋 Row copied: ') + (txt.length > 46 ? txt.slice(0,46) + '…' : txt));
+  });
 }
 function favoritesPanel(){
   const a = getFavs();
@@ -8985,7 +9272,7 @@ function updateStatic(){
   const brandrow = document.querySelector('.brandrow');
   if(brandrow && brandrow.childNodes[0]) brandrow.childNodes[0].textContent = t('生活换算','Life Conversion');
   const brand = document.querySelector('.brand > span');
-  if(brand) brand.textContent = t('全能手册 · 本地离线版 v7.1', 'All-in-One Handbook · v7.1');
+  if(brand) brand.textContent = t('全能手册 · 本地离线版 v8.0', 'All-in-One Handbook · v8.0');
   const bl = document.getElementById('backlink');
   if(bl) bl.textContent = t('← 返回工具箱','← Back to toolbox');
   const side = document.querySelector('.side');
@@ -9178,7 +9465,19 @@ const SUB_EN_MORE = {
  "eyesight": "Once myopia starts it never reverses. Only two things really work: two hours outdoors every day, and looking up and away every 20 minutes.",
  "community": "In a residential estate, reaching the right person matters more than saying the right thing. Maintenance, management, the owners' committee and the neighbourhood office each handle a different problem.",
  "tripbooking": "Holiday money is not wasted on expensive things but on late bookings. Treat reservations as the first task of the trip and you save about a third.",
- "landlord": "Renting out a flat is not just collecting rent. A vague contract costs more than half a year's rent in one dispute."
+ "landlord": "Renting out a flat is not just collecting rent. A vague contract costs more than half a year's rent in one dispute.",
+ "coldmed": "A cold ends on its own; medicine only makes the days easier, it does not shorten them. What matters is not doubling up on the same ingredient, and knowing when to stop treating at home and go in.",
+ "energygrade": "The energy label compares running cost, not quality. A tier-one unit pays back its premium only if you keep it long enough — do the division before you pay.",
+ "schoolenroll": "Enrolment turns on whether the paperwork is complete by the deadline, not on how bright the child is. Put the timeline and the document list on the fridge door.",
+ "declutter": "Decluttering is not throwing things away; it is refusing to keep things because they might be useful later. One question does the work: did this make the past year better?",
+ "tripsafety": "Most travel trouble is not bad luck but bad preparation: nobody memorised the hotel address, nobody agreed where to meet if separated, all the documents in one bag.",
+ "parkingspace": "A parking space can cost more than the car. Buy or rent turns on whether the title can be transferred, the ratio of spaces to flats, and how many years you plan to stay.",
+ "emergencydrill": "A plan on paper does nothing. Walking it once as a family does. The goal is not to be professional; it is to find the door in smoke.",
+ "kitchenclean": "Grease is oil that has oxidised onto a surface. Cleaning is not scrubbing harder: it is letting an alkaline cleaner saponify the grease, then wiping it off once it has let go.",
+ "pettrain": "Almost every dog behaviour problem is something the owner accidentally rewards. Almost every cat problem is the environment. Fix the environment before you train.",
+ "valuables": "What is worth protecting at home is not the most expensive thing but the hardest to replace: documents, photographs, old objects. A safe protects against fire and water, not against a burglar.",
+ "toolkit": "A useful home tool kit costs under 500 and solves eight problems in ten. What matters is the right size, not the number of tools.",
+ "pcclean": "A slow computer is rarely worn out: it is too many start-up items, too full a disk, or a sync running in the background. Order of operations beats effort."
 };
 Object.assign(SUB_EN, SUB_EN_MORE);
 const NOTE_EN = {"length": "Chinese: 1 chi = 1/3 m, 1 li = 500 m, 1 zhang = 10 chi. Imperial: 1 inch = 25.4 mm by definition.", "area": "1 mu ≈ 666.67 m² = 60 square zhang; 1 mu = 10 fen = 100 li. 1 hectare = 15 mu.", "volume": "1 oil barrel (bbl) = 42 US gallons ≈ 158.99 L. Chinese: 1 shi = 10 dou = 100 L.", "mass": "Mainland 1 jin = 500 g; Taiwan 1 jin = 600 g; HK 1 jin ≈ 604.79 g. 1 liang = 10 qian = 50 g.", "speed": "1 knot = 1 nautical mile per hour ≈ 1.852 km/h. Mach is approximate at sea level (340.3 m/s).", "pressure": "Tyre pressure: 2.5 bar = 250 kPa ≈ 36.3 psi. Pipeline: 1 MPa ≈ 10 bar ≈ 145 psi.", "power": "Two horsepower standards: metric PS = 735.5 W (CN/EU), imperial hp = 745.7 W (US). Car specs usually mean PS.", "energy": "Food labels: 1 kcal = 4.184 kJ. Chinese nutrition tables use kJ — divide by 4.184. 1 kWh = 1 unit of electricity.", "data": "Windows and RAM use 1024; drive makers use 1000. That is why a 1TB drive shows about 931GB — nobody cheated you.", "flow": "1 barrel per day ≈ 0.00662 m³/h ≈ 158.99 L/day. 1 m³/h ≈ 151 bpd.", "angle": "One turn = 360° = 2π rad = 400 grad = 6400 mils (military).", "duration": "Month is averaged at 30.44 days, year at 365.25. For exact months use the date difference tool.", "force": "1 kgf = 9.80665 N. Ratings on slings and anchors are often in kgf or kN.", "density": "Crude oil API gravity: API = 141.5/SG − 131.5. Higher API means lighter oil; 32°API ≈ 0.865 g/cm³."};
@@ -10032,6 +10331,90 @@ const TABLE_EN_MORE = {
  {"title": "Deposit and moving out", "head": ["Step", "Practice"], "rows": [["Check-in", "A signed handover sheet plus photographs"], ["Notice", "30 days as per the contract"], ["Check-out", "Compare against the move-in photos, item by item"], ["Fair wear", "Light marks on walls and furniture wear are normal"], ["Deductions", "At actual repair cost, with receipts"], ["Refund", "Transfer within the contractual period and keep the record"]], "note": "Fair wear and tear must not be deducted. Paint ageing and light floor wear are not the tenant's liability."},
  {"title": "Who repairs what", "head": ["Situation", "Responsibility"], "rows": [["Structure and services", "Landlord: leaks, ageing wiring"], ["Appliance failure", "Landlord: water heater, air-conditioning"], ["Damage caused", "Tenant, or deducted from the deposit"], ["Consumables", "Tenant: bulbs, filters"], ["Management fee", "Per contract, usually the landlord"], ["Emergencies", "Landlord may authorise the tenant if unable to attend"]], "note": "An air-conditioner that will not cool or a heater that will not heat is part of the property. Drag your feet and the tenant may repair it and offset the rent."},
  {"title": "Common disputes", "head": ["Situation", "Handling"], "rows": [["Rent arrears", "Written demand, then terminate per contract and sue"], ["Unauthorised subletting", "Terminate, keeping the evidence"], ["Overcrowding or structural change", "Stop it immediately; report to the district if needed"], ["Refusing to leave", "Written notice, then litigation if negotiation fails"], ["Damage unpaid", "Deduct from the deposit; claim the rest separately"], ["Tenant disappears", "Notarised inventory of belongings before removing anything"]], "note": "Put every step in writing. WeChat records count as evidence — provided you have not deleted them."}
+],
+"coldmed": [
+{"title": "Work out which one it is", "head": ["Type", "Features", "Course"], "rows": [["Common cold", "Blocked nose, runny nose, sore throat, rarely high fever", "Clears in 7-10 days"], ["Influenza", "Sudden fever above 39, whole-body aches", "1-2 weeks, antivirals help"], ["Allergic rhinitis", "Clear watery discharge, sneezing fits, itchy eyes", "Flares on contact with the allergen"], ["COVID-19", "Overlaps with a cold, needs a test to confirm", "Usually 5-7 days"], ["Bacterial pharyngitis", "Severe sore throat, pus on tonsils, no runny nose", "Needs a doctor"]], "note": "Antivirals only help within the first 48 hours of influenza. For a common cold they do nothing at all."},
+{"title": "What is inside a combination cold remedy", "head": ["Ingredient", "What it does", "Watch out"], "rows": [["Paracetamol", "Brings down fever, relieves pain", "2 g a day maximum, caution with liver disease"], ["Ibuprofen", "Fever, pain, inflammation", "Caution with ulcers and kidney disease"], ["Pseudoephedrine", "Clears a blocked nose", "Avoid with high blood pressure, heart disease, thyroid disease"], ["Chlorphenamine", "Stops a runny nose and itching", "Drowsy: no driving or working at height"], ["Dextromethorphan", "Suppresses a dry cough", "Wrong for a productive cough, it traps the phlegm"], ["Guaifenesin", "Thins phlegm", "Only works if you drink enough water"]], "note": "The commonest overdose is not taking too much medicine but taking two products that share one ingredient. Check both labels before you buy."},
+{"title": "Six common mistakes", "head": ["What people do", "Why it is wrong"], "rows": [["Antibiotics for a cold", "Most colds are viral; antibiotics do nothing and harm the gut"], ["Two cold remedies together", "Duplicated ingredients, easiest way to overdose on paracetamol"], ["Half an adult dose for a child", "Dose by body weight, not by halving"], ["An injection for every fever", "Below 38.5 with a well child, nothing is needed"], ["Sweating out a fever", "Can trigger febrile convulsions in children"], ["Stopping every cough", "With phlegm, suppressing the cough blocks the airway"]], "note": "The aim of bringing a fever down is comfort, not a number. If the person is alert and drinking, 38.5 needs no medicine."},
+{"title": "When to go to hospital", "head": ["Sign", "Possibility"], "rows": [["Fever over three days", "Bacterial infection or pneumonia"], ["Fast breathing, tight chest", "Pneumonia, myocarditis"], ["Drowsy, hard to wake", "Serious illness"], ["Persistent vomiting, much less urine", "Dehydration"], ["Severe headache with a stiff neck", "Meningitis: emergency"], ["A rash that does not fade under pressure", "Bleeding disorder: emergency"]], "note": "A fever above 38 in a three-month-old is not a wait-and-see. Go straight in."},
+{"title": "Caring for someone at home", "head": ["What to do", "Why"], "rows": [["Drink plenty of water", "Fever and thick phlegm both need fluid"], ["Keep humidity at 40-60%", "Dry air worsens a sore throat and a blocked nose"], ["Saline nasal rinse", "Safer and more effective than medicine"], ["Space out antipyretics", "Paracetamol and ibuprofen 4-6 hours apart"], ["Eat properly", "Not just congee: protein matters"], ["Rest", "Sleep is the best immune support there is"]], "note": "Cold medicine does not shorten a cold. Everything you do is to help the person sleep, eat and drink."}
+],
+"energygrade": [
+{"title": "Reading the energy label", "head": ["Item", "Meaning"], "rows": [["Energy class", "Class 1 is the most efficient; class 3 is the minimum allowed"], ["Annual consumption", "Estimated under standard test conditions, real use is higher"], ["Efficiency ratio APF", "Cooling output per unit of power: higher is better"], ["Rated power", "Consumption while running continuously"], ["Capacity", "Decides whether it is big enough, not whether it is good"], ["Manufacturer", "Check it is the same model you compared"]], "note": "The gap between classes is often 500-1500 yuan. Two hundred kWh a year at 0.6 yuan is only 120 yuan a year."},
+{"title": "Where the electricity goes", "head": ["Appliance", "Share of home use"], "rows": [["Air conditioning", "30-45%"], ["Water heater", "15-20%"], ["Fridge", "10-15%"], ["Washer and dryer", "5-8%"], ["Lighting", "5-8%"], ["Standby, all devices", "3-8%"]], "note": "Replace the air conditioner and the water heater first. Together they are more than half; ten light bulbs are not."},
+{"title": "Is replacing worth it", "head": ["Situation", "Verdict"], "rows": [["Over ten years old", "Efficiency has fallen; replacing usually pays"], ["Repair costs over 40% of new", "Replace"], ["Class 1 costs under 500 more", "Take class 1"], ["Gap over 2000", "Work out the payback years first"], ["Trade-in subsidy available", "Often cheaper than any online price"], ["Old one still works fine", "Do not replace just to save power"]], "note": "Divide the price gap by the annual saving times the tariff. If the payback is over eight years, it is not worth replacing for efficiency alone."},
+{"title": "Standby and hidden load", "head": ["Device", "What to do"], "rows": [["Set-top box", "Standby draw often beats the fridge: put it on a switched strip"], ["Router", "Needs to stay on; leave it"], ["Water heater", "Holding temperature is costly: use a timer or an instant unit"], ["Chargers left plugged in", "Tiny each, but pull them out"], ["Smart speaker", "Fine to leave on"], ["Television", "Switch off at the wall"]], "note": "Standby looks trivial, but it runs 24 hours. An 8 W set-top box is 70 kWh a year."},
+{"title": "What to check before buying", "head": ["Spec", "How to use it"], "rows": [["Cooling and heating output", "Room area times 150-200 W"], ["Efficiency ratio APF", "Higher wins at the same price"], ["Noise level", "Under 35 dB for a bedroom"], ["Warranty", "Compressors often 6-10 years"], ["Installation fees", "Ask about height charges and extra pipe up front"], ["Service network", "Is there a repair point near you"]], "note": "An air conditioner is three parts product, seven parts installation. Under 15 minutes of vacuum pumping and the best unit runs loud and costly."}
+],
+"schoolenroll": [
+{"title": "Enrolment timeline", "head": ["When", "What to do"], "rows": [["September to November, year before", "Confirm the catchment and the residency requirement"], ["March to April", "Policy published: read this year's changes"], ["April to May", "Online registration and data collection"], ["May to June", "Document checks in person"], ["June to July", "Offer and confirmation"], ["August", "Registration, health check, uniform"]], "note": "The policy changes every year, but the process does not. The one line to watch is how many years of residency are required."},
+{"title": "Document checklist", "head": ["Document", "Watch out"], "rows": [["Household register", "Copy the cover page and the child's page"], ["Deed or registered lease", "A lease must be registered for the required number of years"], ["Birth certificate", "Must match the household register exactly"], ["Vaccination record", "Required vaccines must be complete"], ["Guardian ID", "Both parents"], ["Proof of residence", "Utility bills help as supporting evidence"]], "note": "Two things block most applications: a birth certificate that does not match the register, and an unregistered lease. Check both six months ahead."},
+{"title": "Catchment and residency", "head": ["Situation", "What it means"], "rows": [["One place, one seat", "Six years per seat: check whether it has been used"], ["Years of residency", "Popular schools often require two to three years"], ["Shared ownership", "Share size and whether it is your only home affect ranking"], ["Grandparent-owned property", "Mostly requires the parents to own no home"], ["Renters' rights", "Some cities allow it, with registration and a minimum term"], ["Private school ballot", "Oversubscribed places are allocated by lottery"]], "note": "Before buying a catchment flat, ask the school or the education bureau whether the seat has been used in the last six years. The agent will not volunteer it."},
+{"title": "Transferring schools", "head": ["Step", "How"], "rows": [["Find a receiving school", "Ask first whether there is a spare seat"], ["Current school agrees", "Apply and collect the student record"], ["Education bureau approval", "Cross-district needs both sides"], ["Record transfer", "Done online in the national system"], ["Documents", "Register, deed, record form"], ["Register at the new school", "On the date they give"]], "note": "The hard part of a transfer is not the paperwork but the seat. Secure the receiving school before you tell the old one, or you can end up with neither."},
+{"title": "Getting ready for school", "head": ["Area", "What to practise"], "rows": [["Routine", "Shift to school hours two weeks early"], ["Self-care", "Toilet alone, pack their own bag"], ["Speaking up", "Can say I need the toilet, I do not feel well"], ["Social skills", "Waiting, taking turns"], ["Attention", "Sit still and quiet for 15 minutes"], ["Feelings", "Explain what school is, never use the teacher as a threat"]], "note": "More useful than early phonics is being brave enough to tell the teacher something is wrong. That decides how the year feels."}
+],
+"declutter": [
+{"title": "The test", "head": ["Question", "Keep it if"], "rows": [["Used in the past year", "Yes, or it is clearly seasonal"], ["Would you repair it", "Yes, and the repair is affordable"], ["Is there a substitute", "No, or the substitute is inconvenient"], ["Is the space worth more", "The item is worth more than the space it takes"], ["Kept out of guilt", "No. Guilt is not a reason"], ["Kept as a spare", "No more than one spare"]], "note": "It might be useful later is the most expensive sentence in the language. It keeps everything, until you cannot find anything."},
+{"title": "Order of attack", "head": ["Order", "Category", "Why"], "rows": [["1", "Expired medicine and cosmetics", "Easiest, no emotional weight"], ["2", "Broken small appliances", "Repair costs more than replacement"], ["3", "Clothes that do not fit", "Takes the most space"], ["4", "Duplicate kitchen tools", "You need one spatula, not three"], ["5", "Paper documents", "Scan, then shred"], ["6", "Keepsakes", "Last: it needs time"]], "note": "Start with the easiest. Decluttering gets easier with practice; build the habit before you touch anything meaningful."},
+{"title": "Where things should go", "head": ["Item", "Destination"], "rows": [["Good-condition clothes", "Donation bank or resale app"], ["Appliances and furniture", "Resale app or scrap collection"], ["Books", "Second-hand book platform or a book bank"], ["Cardboard and plastic", "Recycling"], ["Old phones", "Official trade-in or repurpose"], ["Expired medicine", "Hazardous waste, never down the drain"]], "note": "Donating has a cost too. Giving away torn clothes transfers your disposal problem to a charity."},
+{"title": "Things with feelings attached", "head": ["Approach", "Why"], "rows": [["Photograph it", "Keep the memory, lose the volume"], ["Keep only the best one", "Three letters out of a box"], ["Set one box", "Keepsakes must fit in a single box"], ["Ask the child first", "Their childhood, their call"], ["A bereavement: wait a year", "Do not decide inside the grief"], ["Digitise it", "Scan, then let the original go"]], "note": "A keepsake is worth the memory, not the object. One photograph carries more than a yellowed T-shirt."},
+{"title": "Stopping the pile coming back", "head": ["Rule", "How"], "rows": [["One in, one out", "Buy something new, let something old go"], ["30-day cooling off", "Write it down, look again in a month"], ["Do not stockpile", "At most three months of consumables"], ["Fixed capacity", "When the drawer is full, nothing more goes in"], ["Ten minutes a week", "Put things back before it becomes a project"], ["Do not buy because it is cheap", "Cheap is not a reason; need is"]], "note": "One big tidy-up needs willpower; keeping it tidy needs a rule. One in, one out beats an annual clear-out."}
+],
+"tripsafety": [
+{"title": "Before you go", "head": ["What to do", "Why"], "rows": [["Photograph documents and policy", "You can quote the numbers if they are lost"], ["Split the documents", "One set each, never all in one bag"], ["Memorise the hotel address", "The child can name the hotel"], ["Tell one relative the itinerary", "Someone knows where you should be"], ["Check weather and warnings", "Especially mountains and coast"], ["Pack basic medicine and plasters", "Buying them abroad costs a day"]], "note": "A hotel card in the child's pocket beats a memorised address. The police can bring them straight back."},
+{"title": "Transport and driving", "head": ["Situation", "Key point"], "rows": [["Long drive", "Stop every two hours; do not drive tired"], ["Children in the car", "Child seat by height and weight, never the front seat"], ["Mountain roads at night", "Slow down, watch for rockfall and unlit vehicles"], ["Motorway in rain", "Cut speed by 20%, double the gap"], ["Unfamiliar city", "Metro and licensed ride-hailing first"], ["Taxi", "Check the plate before getting in, sit in the back"]], "note": "The dangerous part of a drive is not the motorway but the fourth hour on a provincial road. Once drowsiness starts, nothing keeps you awake for more than 20 minutes."},
+{"title": "Accommodation safety", "head": ["Check", "What to do"], "rows": [["Lock and deadbolt", "Test both on arrival"], ["Peephole and chain", "Block the peephole against reverse viewing"], ["Escape route", "Count the turns to the nearest stairwell"], ["Fire exit", "Confirm it is not blocked"], ["Floor", "Above the sixth, prefer a floor you can walk down from"], ["Privacy", "Close curtains, check for anything facing the bed"]], "note": "The first thing on arrival is not unpacking: it is walking the route to the stairs. In smoke you cannot read the signs."},
+{"title": "Getting lost and asking for help", "head": ["Situation", "What to do"], "rows": [["Child separated", "Child stays put three minutes; parent retraces the route"], ["Meeting point", "Point one out on entering any new place"], ["Who to approach", "Staff in uniform, or a parent with children"], ["Reporting", "Report at once; there is no 24-hour rule"], ["Child acting alone", "Know the parent's number, ask for a tannoy"], ["Abroad", "Save the embassy number and the local emergency line"]], "note": "Teach one sentence: I cannot find my mother, please help me call her. It works better than a hundred words of address."},
+{"title": "Emergency kit", "head": ["Item", "Use"], "rows": [["Power bank and cable", "Navigation and contact depend on the phone"], ["Small notes and coins", "When the network or the card reader is down"], ["Basic medicine", "Fever, diarrhoea, allergy, plasters"], ["Thermos", "Making up medicine, keeping water"], ["Whistle", "Carries further than shouting and costs no breath"], ["Paper map", "Backup when the phone dies"]], "note": "Keep the kit in the bag you carry, never in checked luggage. Lose the case and you lose the ability to respond."}
+],
+"parkingspace": [
+{"title": "Types of space", "head": ["Type", "Title", "Watch out"], "rows": [["Titled space", "Separate title deed, can be sold and transferred", "Most expensive, holds value best"], ["Civil-defence space", "No title, right of use only", "Cannot be sold; contracts capped at 20 years"], ["Shared-area space", "Owned by all owners collectively", "Rent only; income belongs to all owners"], ["Mechanical stacker", "Depends on planning approval", "Height and width limits; large cars will not fit"], ["Rented space", "Monthly or yearly", "Confirm it can be renewed"]], "note": "Selling a civil-defence space is void; you can only sign a right-of-use contract. If the agent says it can be transferred, ask for the title deed."},
+{"title": "Buy or rent", "head": ["Situation", "Verdict"], "rows": [["Fewer than one space per flat", "Scarce: buying is safer"], ["More than 1.5 per flat", "Renting is enough"], ["Staying five years or more", "Buying usually costs less overall"], ["Space costs more than the car", "Rent, unless genuinely scarce"], ["No title deed", "Rent only, never buy"], ["Rental yield above 4%", "Renting is cheaper"]], "note": "Divide the price by the monthly rent. Past 200 months, roughly sixteen years, buying loses to renting."},
+{"title": "Costs and billing", "head": ["Item", "Note"], "rows": [["Management fee", "Payable even on a space you own: often 50-150 a month"], ["Hourly rate", "Ask about the first hour and the daily cap"], ["Monthly and yearly", "Yearly usually carries a discount"], ["Transfer taxes", "Deed tax and VAT on transfer"], ["EV concessions", "Some cities waive fees or give free hours"], ["Rent increases", "Put a cap in the lease"]], "note": "Owning a space is not cost-free. Management fees plus the capital tied up often exceed the rent."},
+{"title": "Blocked and occupied", "head": ["Situation", "Handling"], "rows": [["Someone in your space", "Call management; do not clamp or scratch the car"], ["Blocking the lane", "Use the 12123 move-your-car service"], ["No answer on the phone", "Management logs the plate; keep photos"], ["Long-term occupation", "Written notice, accumulate evidence"], ["Your car scratched", "Report and pull the footage within 48 hours"], ["Subletting your space", "Written agreement with a penalty clause"]], "note": "Clamping, deflating tyres or keying a car can be tortious or illegal. Being in the right does not survive doing the wrong thing."},
+{"title": "Charging spaces", "head": ["Item", "Key point"], "rows": [["Permission to install", "Needs management consent and spare capacity"], ["Ownership", "A rented space needs the owner's written consent"], ["Meter", "Apply for a dedicated meter at the residential tariff"], ["Location", "Near the distribution room saves cable"], ["Shared chargers", "Possible, but agree who is liable"], ["Fire rules", "Never occupy an escape route"]], "note": "Ask management one question first: is there spare capacity? It saves every rework that follows."}
+],
+"emergencydrill": [
+{"title": "Agree four things", "head": ["Item", "What"], "rows": [["Meeting point", "One fixed place outside, such as the shop at the gate"], ["Out-of-town contact", "A relative outside the city who relays messages"], ["Roles", "Who carries the child, who grabs the kit, who cuts the power"], ["The phrase", "One sentence meaning leave now, with no discussion"]], "note": "Why an out-of-town contact: when the local network fails, a call out of the area often still connects."},
+{"title": "Fire drill", "head": ["Step", "What to do"], "rows": [["Raise the alarm", "Hit the corridor alarm or wake the neighbours"], ["Feel the door", "If the handle is hot, do not open it"], ["Evacuate", "Low, along the wall, down the stairs, never the lift"], ["Protect", "Wet cloth over nose and mouth; it stops particles, not gas"], ["Close doors", "Closing doors slows the fire"], ["Head count", "Count at the meeting point; nobody goes back"]], "note": "Most fire deaths are carbon monoxide, not burns. The first job is leaving the smoke, not fighting the fire."},
+{"title": "Earthquake and gas", "head": ["Situation", "What to do"], "rows": [["Indoors during a quake", "Under a table or in a load-bearing corner, protect the head"], ["High floor", "Do not jump, do not use the lift, evacuate after the shaking"], ["Evacuating after", "Take the stairs, watch for falling objects"], ["Smell of gas", "No light switches, no phone calls, no extractor fan"], ["Shut off and ventilate", "Close the main valve, open doors and windows gently"], ["Call from outside", "Leave the space before dialling"]], "note": "A spark from a switch is enough to ignite gas. Move slowly and touch no electrical device."},
+{"title": "Role cards", "head": ["Role", "Responsibility"], "rows": [["Adult A", "Carry the youngest child, bring the emergency kit"], ["Adult B", "Cut power and gas, get the elderly moving"], ["Older child", "Shoes on, torch in hand, wait at the door"], ["Elderly", "Shoes on, hold steady, carry nothing"], ["Pets", "Lead by the door, take it with you"], ["Last one out", "Close the door, confirm nobody is left"]], "note": "Write the roles down and stick them behind the door. In a real event people do not think; they execute what they have practised."},
+{"title": "Drills and checks", "head": ["How often", "What"], "rows": [["Twice a year", "Walk the escape route and time it"], ["Every quarter", "Check the kit and the torch batteries"], ["Every year", "Replace expired medicine and water"], ["New home", "Walk the route twice in the first week"], ["From age four", "Teach the lift alarm and how to find staff"], ["After each drill", "Name what was slow and fix it"]], "note": "The first drill is always chaotic. Once is fine. Three times means you never drilled."}
+],
+"kitchenclean": [
+{"title": "Choosing a cleaner", "head": ["Type", "Use it on", "Watch out"], "rows": [["Alkaline kitchen cleaner", "Hob, extractor, tiles", "Not on aluminium: it blackens"], ["Neutral washing-up liquid", "Daily dishes and worktops", "Useless on heavy grease"], ["Bicarbonate paste", "Local heavy grease and burnt-on marks", "Leave 15 minutes"], ["White vinegar", "Limescale and water marks on steel", "Never with chlorine cleaners"], ["Steam cleaner", "Gaps and filters", "Burns and water in electrics"], ["Foaming degreaser", "Extractor filters", "Spray, wait, then wipe"]], "note": "The stronger the alkali, the faster the grease goes and the more it damages skin and aluminium. Wear gloves; neutral only on aluminium pans."},
+{"title": "Cleaning cycles", "head": ["Area", "How often"], "rows": [["Hob and worktop", "After every meal"], ["Extractor filters", "Monthly"], ["Inside the extractor", "Twice a year"], ["Sink and drain", "Weekly"], ["Inside the fridge", "Quarterly"], ["Inside cupboards", "Twice a year"]], "note": "Wash the filters monthly and the extractor keeps about seventy percent of its pull. Wait until it drips and the motor has already been working too hard."},
+{"title": "Heavy grease", "head": ["Area", "Method"], "rows": [["Extractor filters", "Soak 30 minutes in hot water and bicarbonate"], ["Burnt-on hob marks", "Bicarbonate paste for 15 minutes, then wipe"], ["Tile grout", "Old toothbrush with alkaline cleaner"], ["Stainless steel", "Wipe along the grain, never in circles"], ["Greasy glass doors", "Vinegar with washing-up liquid"], ["Extractor casing", "Spray, wait three minutes, then wipe"]], "note": "Never use steel wool on stainless steel or a coated hob. Once scratched, it collects grease faster for good."},
+{"title": "Never mix", "head": ["Combination", "Result"], "rows": [["Bleach and toilet cleaner", "Chlorine gas, potentially fatal"], ["Bleach and acid", "Releases chlorine"], ["Bleach and alcohol", "Forms chloroform and other compounds"], ["Hydrogen peroxide and vinegar", "Peracetic acid, corrosive"], ["Several cleaners layered", "Unknown chemistry, added risk"]], "note": "One cleaner at a time. To use a second, rinse the first away completely."},
+{"title": "Easier methods", "head": ["What to do", "Why it works"], "rows": [["Spray, then wait", "Reaction time beats scrubbing"], ["Work top down", "Dirty water does not re-contaminate"], ["Hot water over cold", "Heat speeds up saponification"], ["Blot grease with kitchen paper", "Fewer cloths to wash"], ["Foil liner under the burners", "Replace it instead of scrubbing"], ["Wipe while still warm", "Grease has not set yet"]], "note": "Wipe the hob while it is still warm: thirty seconds. Wait until it is cold and it is three minutes."}
+],
+"pettrain": [
+{"title": "Four principles", "head": ["Principle", "Why"], "rows": [["Reward immediately", "Within two seconds, or you reward the wrong thing"], ["One command at a time", "No stacking, no repeating"], ["Short and often", "Three to five minutes, several times a day"], ["Grade the rewards", "Everyday treats for good, high value in training"]], "note": "Dogs do not parse long sentences. Say sit, and only sit."},
+{"title": "Dog problems", "head": ["Behaviour", "Cause and fix"], "rows": [["Jumping up", "Wants attention: turn away, reward four paws on the floor"], ["Barking", "Needs something, or alerting: rule out boredom and too little exercise"], ["Destruction", "Not enough exercise or too long alone"], ["Food guarding", "Start in puppyhood by touching the bowl while it eats"], ["Pulling on the lead", "Stop walking; move forward only when the lead is slack"], ["Toileting indoors", "Take out on a schedule, reward on the spot"]], "note": "Nine out of ten destruction cases are under-exercised. A collie walked for fifteen minutes a day is chewing the sofa out of need."},
+{"title": "Cat problems", "head": ["Behaviour", "Cause and fix"], "rows": [["Inappropriate urination", "Rule out urinary disease first, then look at the tray"], ["Litter tray", "One more tray than cats, away from food"], ["Scratching furniture", "Put a scratcher where the cat wakes and walks"], ["Night running", "Fifteen minutes with a wand toy before bed"], ["Biting hands", "Never use hands as toys; use a toy"], ["Hiding", "Give height and cover, do not force handling"]], "note": "The first response to a cat urinating outside the tray is a vet visit, not new litter. A blocked male cat is fatal."},
+{"title": "Socialisation window", "head": ["Age", "Focus"], "rows": [["Dog, 3-14 weeks", "People, sounds, floor surfaces, other animals"], ["Dog, 4-6 months", "Lead, nail clipping, going into a crate"], ["Cat, 2-7 weeks", "Human hands and household sounds"], ["Cat, from 8 weeks", "Gradual introduction to strangers"], ["Adult", "Desensitisation and counter-conditioning: slow"]], "note": "Miss the window and it takes several times longer to catch up. An unvaccinated puppy can still be carried out to hear the world."},
+{"title": "Methods to avoid", "head": ["Method", "Problem"], "rows": [["Hitting or shouting", "Builds fear, breaks trust, can trigger aggression"], ["Rubbing the nose in it", "Dogs cannot connect cause and effect; they only learn to fear you"], ["Crate as punishment", "The crate becomes a frightening place"], ["Training by starvation", "Damages health and does not last"], ["Spraying water at a cat", "The cat associates the fear with you"], ["Shouting to stop barking", "You are barking along, which reinforces it"]], "note": "Punishment suppresses behaviour but never teaches the alternative. To stop A, you must show B."}
+],
+"valuables": [
+{"title": "What to protect", "head": ["Item", "Why"], "rows": [["Documents and certificates", "Weeks to replace and several trips"], ["Jewellery", "High value, small, easy to take"], ["Old photographs and letters", "Irreplaceable"], ["Contracts and receipts", "Evidence for claims and reimbursements"], ["Electronic backups", "Ransomware and dead drives"], ["Keepsakes", "Sentimental value cannot be replaced"]], "note": "The test is not what it costs but whether it can be replaced. Only the irreplaceable needs special handling."},
+{"title": "Storage compared", "head": ["Method", "Good for", "Limits"], "rows": [["Home safe", "Documents, jewellery, some cash", "Not against a determined burglar; must be fixed down"], ["Bank safe deposit", "Key documents and valuables", "Branch hours, annual fee"], ["Encrypted cloud", "Scans and backups", "Depends on account security"], ["Spread the risk", "Avoiding one total loss", "You need a record of where things are"], ["Trusted relative", "Emergency fallback", "Must be reliable and reachable"]], "note": "A safe is for fire and water first, theft second. To resist theft it must be bolted to a wall or floor."},
+{"title": "Choosing a home safe", "head": ["Spec", "Key point"], "rows": [["Fire rating", "Check that a resistance time is stated"], ["Lock", "Electronic plus a mechanical key as backup"], ["Fixing", "Expansion bolts into wall or floor"], ["Size", "Can an A4 folder lie flat inside"], ["Water resistance", "Flooding is the forgotten scenario"], ["Spare key", "Kept outside the home, not in a drawer"]], "note": "A spare key in the same drawer means no lock at all. Keep it at a parent's home or in a deposit box."},
+{"title": "Digital assets", "head": ["Item", "What to do"], "rows": [["Password management", "Use a passphrase rule, never birthdays"], ["Two-factor", "Turn it on and store the recovery codes"], ["Backups", "3-2-1: three copies, two media, one off-site"], ["Account list", "Where things are, never the passwords"], ["Emergency contact", "Authorise one relative to request access"], ["Digital legacy", "Write down what should be kept"]], "note": "The realistic risk is not a hacker. It is your family being unable to open what they legitimately need to open."},
+{"title": "After loss or theft", "head": ["Step", "What to do"], "rows": [["Report first", "The police record is your basis for claims and replacement"], ["Cancel documents", "ID, then each bank card in turn"], ["Freeze accounts", "Freeze first, review the statement second"], ["Notify the insurer", "Within the period stated in the policy"], ["Replacement order", "ID first: everything else depends on it"], ["Review", "Was this a storage failure or a process failure"]], "note": "With lost documents the urgent risk is not money but impersonation. Cancelling the ID belongs in the first hour."}
+],
+"toolkit": [
+{"title": "The basics", "head": ["Tool", "Use"], "rows": [["Phillips and flat screwdrivers", "One large, one small each, covers nine screws in ten"], ["Adjustable spanner", "Pipes and nuts"], ["5 m tape measure", "Measuring and checking work"], ["Claw hammer", "Driving and pulling nails"], ["Utility knife", "Opening boxes, cutting"], ["Hex key set", "Furniture and bicycles"]], "note": "Buy magnetised screwdrivers. They hold small screws that would otherwise disappear into a gap."},
+{"title": "Power tools and extras", "head": ["Tool", "When it pays"], "rows": [["Electric drill", "More than ten holes a year"], ["Cordless screwdriver", "Lots of furniture, frequent assembly"], ["Spirit level", "Hanging pictures, fitting shelves"], ["Pipe wrench", "Doing your own plumbing"], ["Multimeter", "Tracing circuits and sockets"], ["Glue gun", "Temporary repairs"]], "note": "Before buying a drill, know your wall: concrete needs a hammer drill. Buy the wrong one and it will not go in."},
+{"title": "Consumables", "head": ["Keep", "Spec"], "rows": [["Screws and wall plugs", "A small box each of M4, M5, M6"], ["PTFE tape", "Sealing pipe threads"], ["Silicone sealant", "Neutral, mould resistant"], ["Electrical tape", "Insulating wraps"], ["Sandpaper", "80 and 240 grit"], ["Cable ties", "Cable management and temporary fixing"]], "note": "Wrap PTFE tape in the direction of the thread. Wrapped the wrong way it leaks. About fifteen turns, not more."},
+{"title": "Safety floor", "head": ["Situation", "Rule"], "rows": [["Anything electrical", "Cut the power, test dead, then work"], ["Working at height", "Level the ladder, never stand on the top step"], ["Drilling", "Check for pipes and cables in the wall first"], ["Cutting", "Goggles on, blade away from the body"], ["Gas", "Any change to gas pipework is for a registered engineer"], ["Load-bearing walls", "Never touch them"]], "note": "Money saved on a load-bearing wall or a gas pipe is repaid with interest in the accident."},
+{"title": "Storage and upkeep", "head": ["What to do", "Why"], "rows": [["One fixed place for the box", "You will only use what you can find"], ["Sort screws by size", "Saves ten minutes of searching"], ["Oil metal tools", "Essential in a damp home"], ["Remove batteries", "Prevents leakage in storage"], ["Store blades separately", "Avoids cuts"], ["Inventory twice a year", "Restock and replace blunt blades"]], "note": "A tool is worth what it saves when you need it within three minutes. Scattered in a drawer, it may as well not exist."}
+],
+"pcclean": [
+{"title": "Why it slows down", "head": ["Cause", "How to tell"], "rows": [["Too many start-up items", "Still loading three minutes after boot"], ["Disk over 85% full", "No room for system cache"], ["Ageing hard drive", "Slow to boot and to open files"], ["Not enough memory", "Slows as soon as a few tabs open"], ["Background sync", "Fan often on, drive light often on"], ["Dust in the heatsink", "Thermal throttling"]], "note": "Look at disk usage in the task manager. A hard drive pinned at 100% is fixed by an SSD, not by any cleaner app."},
+{"title": "Order of cleanup", "head": ["Step", "What to do"], "rows": [["1", "Uninstall software you do not use; deleting the shortcut does nothing"], ["2", "Turn off start-up items"], ["3", "Clear temp files and browser cache"], ["4", "Move large files off the system drive"], ["5", "Check whether a sync client is syncing everything"], ["6", "Only then consider reinstalling"]], "note": "Cleaner apps often become the burden. The built-in disk cleanup is enough; you do not need three of them."},
+{"title": "Tidy your data", "head": ["Practice", "Why"], "rows": [["Desktop for temporary files only", "Anything older than a week belongs elsewhere"], ["Folders by year and project", "Not by file type"], ["Dates in filenames", "2026-10-28 beats final version"], ["Back up on a schedule", "Follow 3-2-1"], ["Confirm before deleting", "The recycle bin is not a backup"], ["Two copies of what matters", "Local plus an external drive"]], "note": "final-final-really-final is why you cannot find anything. A date in the filename ends it."},
+{"title": "Replacing and retiring", "head": ["Step", "What to do"], "rows": [["Back up first", "An image of the disk, not just documents"], ["Sign out", "Browser, cloud, office accounts"], ["Release licences", "Many are tied to the device"], ["Erase", "Format, fill with junk files, format again"], ["Physical handling", "Keep or drill the drive"], ["Reuse", "Backup machine, media box, or give it away"]], "note": "A quick format does not erase data. A hard drive can be recovered, so keep it or destroy it before selling."},
+{"title": "Long-term upkeep", "head": ["How often", "What"], "rows": [["Weekly", "Clear the desktop and downloads"], ["Monthly", "Check free space and whether backups ran"], ["Quarterly", "Dust out, check the fans"], ["Twice a year", "Update system and browser"], ["Yearly", "Decide whether the battery or drive needs replacing"], ["On replacement", "Migrate and check the file count"]], "note": "A backup you have not restored is not a backup. Do one full restore test a year, before you need it."}
 ]
 };
 Object.assign(TABLE_EN, TABLE_EN_MORE);
@@ -10167,7 +10550,7 @@ function initInstall(){
 const FEEDBACK_EMAIL = '';
 function feedbackPanel(){
   const ua = navigator.userAgent || '';
-  const tpl = t('【生活换算反馈】\n版本：V7.1\n页面：','【Life Conversion Feedback】\nVersion: V7.1\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
+  const tpl = t('【生活换算反馈】\n版本：V8.0\n页面：','【Life Conversion Feedback】\nVersion: V8.0\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
     t('\n\n问题描述：\n1. 我在做什么：\n2. 期望结果：\n3. 实际结果：\n4. 是否可复现：\n','\n\nIssue description:\n1. What I was doing:\n2. Expected result:\n3. Actual result:\n4. Reproducible:\n');
   const subj = t('生活换算反馈','Life Conversion Feedback');
   const mail = FEEDBACK_EMAIL
@@ -10360,6 +10743,7 @@ updateStatic();
 initSidebar();
 buildNav();
 bindPalette();
+try{ bindRowCopy(); }catch(e){}
 render();
 applyHash();
 initPWA();
