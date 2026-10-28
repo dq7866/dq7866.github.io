@@ -128,6 +128,17 @@ function auditData(doc, window){
   if(headBad.length) bad('表格结构问题：' + list(headBad)); else ok(`${secs - widgets} 个表格小节标题与表头齐全、无重复（另有 ${widgets} 个交互式子面板）`);
   if(emptyCells.length) bad('空单元格：' + list(emptyCells)); else ok(`${cells} 个单元格无空缺`);
   if(enBad.length) bad('中英表格不对齐：' + list(enBad)); else ok('中英表格节数 / 表头 / 行数全部对齐');
+
+  // 信息项：仍复用中文行的英文小节（技术债跟踪，不算失败）
+  let reuseZh = 0; const reuseMods = new Set();
+  A.cats.filter(c=>c.type==='tables'&&c.sections).forEach(c=>{
+    const en = A.en && A.en[c.id]; if(!en) return;
+    c.sections.forEach((zs,i)=>{ const es = en[i];
+      if(zs.html || !zs.rows || (es && es.rows)) return;
+      if(zs.rows.some(r=>r.some(v=>ZH_RE.test(String(v))))){ reuseZh++; reuseMods.add(c.id); }
+    });
+  });
+  if(reuseZh) console.log('  · 已知技术债：' + reuseZh + ' 个英文小节仍复用中文行（涉及 ' + reuseMods.size + ' 个模块），后续批次补译');
 }
 
 /* ---------- 3. jsdom 冒烟遍历 ---------- */
@@ -191,6 +202,18 @@ function step3(){
   r = traverse('en');
   if(r.badOnes.length){ bad(`英文模式 ${r.badOnes.length} 项异常: ` + r.badOnes.slice(0, 5).join('; ')); }
   else ok(`英文模式 ${r.n}/${r.n} 个导航项渲染正常，标题零中文`);
+  /* 英文模式下五金四件表格应为纯英文（V8.4 补行批次） */
+  const hwBad = [];
+  ['wrench','pipe','bolt','drill'].forEach(id=>{
+    const it = doc.querySelector('.nitem[data-id="' + id + '"]');
+    if(!it) return;
+    it.click();
+    const txt = doc.getElementById('main').textContent;
+    if(ZH_RE.test(txt)) hwBad.push(id);
+  });
+  if(hwBad.length) bad('英文模式下仍有中文的五金表: ' + hwBad.join(', '));
+  else ok('英文模式下 wrench/pipe/bolt/drill 表格为纯英文');
+
   // 切回中文再验一次（语言往返）
   if(btn) btn.click();
   r = traverse('zh');
