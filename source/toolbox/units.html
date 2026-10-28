@@ -272,7 +272,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div class="app">
   <aside class="side" aria-label="模块导航">
-    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v6.8</span></div>
+    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v7.1</span></div>
     <a class="backlink" id="backlink" href="index.html" style="display:none">← 返回工具箱</a>
     <input id="q" class="search" placeholder="搜模块：亩 / 鞋码 / 扳手 / 汇率…       也能直接算：10 km to mi / 12*8">
     <div id="qc" class="qc" role="status" aria-live="polite"></div>
@@ -3743,6 +3743,258 @@ const CATS = [
   note:'涨价通知里通常有一句"继续使用即视为同意"。看到这句话就去检查自动续费状态。'}
 ]},
 
+{id:'precheck',en:'Before a Health Check',g:'健康与饮食',icon:'🧪',name:'体检前准备',type:'tables',sub:'体检结果的准确度，一半取决于前一晚。空腹多久、哪些药不能停、女性要避开哪几天，先弄清楚再去。',sections:[
+ {title:'空腹与饮食',head:['项目','要求'],
+  rows:[['空腹时长','8–12 小时，别超过 16 小时'],['前一天晚餐','清淡，不油炸不喝酒'],['禁食起点','前一晚 20:00 后不再进食'],['饮水','可少量白水，不超过 200 毫升'],['酒精','前 48 小时不喝'],['剧烈运动','前 24 小时避免']],
+  note:'空腹时间太长也会让血糖和血脂失真。晚上八点后不吃，早上八点抽血，正好。'},
+ {title:'哪些药不能停',head:['药物','处理'],
+  rows:[['降压药','照常服，用少量水送服'],['降糖药与胰岛素','先问医生，可能需当天空腹'],['甲状腺药','照常服'],['抗凝药','不能自行停，提前告知医生'],['感冒药与止痛药','可能影响肝功，尽量避开'],['保健品与维生素','停 3 天再查']],
+  note:'"体检要空腹所以药也别吃"是最危险的误解。降压药停一天，血压波动比体检结果本身更值得担心。'},
+ {title:'女性特别注意',head:['情况','要求'],
+  rows:[['月经期','避开，尿检与妇科检查都受影响'],['妇科检查时间','月经结束后 3–7 天'],['乳腺检查','月经结束后 7–10 天'],['孕期或备孕','不做放射检查，提前告知'],['哺乳期','告知医生，部分项目需调整'],['妇科 B 超','经腹需憋尿，阴超需排空']],
+  note:'预约前先算自己的周期。撞上经期只能改期，白跑一趟还浪费一次空腹。'},
+ {title:'体检前一晚',head:['事项','做法'],
+  rows:[['睡眠','23 点前睡，熬夜会让转氨酶升高'],['晚餐','七分饱，少油少盐'],['饮水','正常喝，不要刻意少喝'],['吸烟','前 12 小时不吸'],['准备材料','身份证、医保卡、往年报告'],['衣物','宽松、无金属扣，方便脱换']],
+  note:'穿运动裤和一脚蹬的鞋。体检要反复穿脱，系带的鞋最费时间。'},
+ {title:'当天流程顺序',head:['顺序','原因'],
+  rows:[['先抽血','空腹项目优先，抽完可以吃东西'],['再憋尿做 B 超','抽血后开始喝水'],['穿插心电图与内外科','不冲突，随时可做'],['放射检查放后面','需去除金属物品'],['最后留尿样','晨尿最准，但要先完成空腹项目'],['进食','抽血与 B 超完成后吃早餐']],
+  note:'一次缴费、一次预约、按楼层排路线。来回跑是体检最累的部分，不是检查本身。'},
+ {title:'拿到报告先做什么',head:['步骤','做法'],
+  rows:[['别急着搜','单独一个箭头说明不了什么'],['对比往年','同一指标三年的趋势最有用'],['看组合','血脂、血糖、血压同时异常要一起看'],['标出变化','新增异常与持续异常分开'],['决定复查','轻度异常 1–3 个月复查'],['保存','按日期归档，电子版存云盘']],
+  note:'体检的价值在连续几年对比，不在于某一年的箭头。没有历史报告，一张纸的参考意义有限。'}
+]},
+
+{id:'vaccine',en:'Child Vaccines',g:'健康与饮食',icon:'💉',name:'儿童疫苗接种',type:'tables',sub:'免费疫苗按程序打，自费疫苗按风险选。接种证要留到入学，丢了补办很麻烦。',sections:[
+ {title:'免疫规划疫苗时间表',head:['月龄','疫苗'],
+  rows:[['出生','乙肝第一针、卡介苗'],['1 月龄','乙肝第二针'],['2 月龄','脊灰第一剂'],['3 月龄','脊灰、百白破第一剂'],['6 月龄','乙肝第三针、流脑 A 第一剂'],['8 月龄','麻腮风、乙脑'],['18 月龄','百白破加强、麻腮风第二剂'],['4 岁','脊灰加强'],['6 岁','白破、流脑 A+C']],
+  note:'各地程序略有差异，以接种证上打印的时间为准。接种证和出生证一样重要，务必收好。'},
+ {title:'自费疫苗怎么选',head:['疫苗','建议'],
+  rows:[['肺炎球菌结合','建议打，婴幼儿重症肺炎主因'],['轮状病毒','建议打，秋季腹泻最常见病因'],['手足口 EV71','建议打，重症保护明显'],['水痘','建议打，两剂保护更好'],['流感','每年一剂，6 月龄以上'],['HPV','9–14 岁接种效果最好']],
+  note:'自费不等于可选可不选。按"这个病常不常见、重不重、有没有特效治疗"三个问题排序。'},
+ {title:'接种前准备',head:['事项','做法'],
+  rows:[['身体状况','发热、急性病期间暂缓'],['过敏史','如实告知，尤其鸡蛋与抗生素'],['上次反应','告知上次有无高热或抽搐'],['进食','不空腹，也不要吃太饱'],['衣物','宽松短袖，方便露出上臂'],['资料','带接种证，核对上次记录']],
+  note:'接种前一周内用过免疫球蛋白或输过血，要告知医生，部分活疫苗需推迟。'},
+ {title:'接种后反应',head:['反应','处理'],
+  rows:[['局部红肿','冷敷，不揉不热敷'],['低热 38.5 度以下','多喝水，物理降温，观察'],['高热或持续哭闹','就医，告知接种时间与疫苗名称'],['皮疹','多数 3 天内自愈，加重则就诊'],['食欲下降','正常，一两天恢复'],['留观','接种后现场留观 30 分钟']],
+  note:'留观 30 分钟是为了应对极罕见的急性过敏。这半小时不要急着走。'},
+ {title:'漏种与补种',head:['情况','处理'],
+  rows:[['错过一剂','尽快补，不必从头再来'],['间隔超期','多数只需续种，不需重启'],['生病延后','痊愈一周后补种'],['外地接种','带接种证，全国可续'],['记录丢失','接种单位可查系统补录'],['入学查验','小学入学需查验接种证']],
+  note:'补种原则是"缺什么补什么，缺几剂补几剂"。不需要因为晚了几个月重新开始。'},
+ {title:'记录与查验',head:['环节','做法'],
+  rows:[['接种证','每次接种后核对打印内容'],['拍照备份','每一页拍照存云盘'],['电子记录','部分省份可在健康 App 查询'],['入园入学','提前一学期核对是否齐全'],['出国留学','部分国家需英文接种证明'],['成人后','接种记录对出国、从业都有用']],
+  note:'接种证一旦丢失，补办要跑接种单位查历史系统。每接种一次就拍照，成本几乎为零。'}
+]},
+
+{id:'passwords',en:'Accounts and Passwords',g:'数字与编码',icon:'🔐',name:'家庭账号与密码托管',type:'tables',sub:'密码不是记在脑子里就安全。真正的问题是：万一你出事，家里人能不能打开该打开的东西。',sections:[
+ {title:'谁该知道什么',head:['类别','知情人'],
+  rows:[['日常账号','本人，配偶可代为处理'],['银行与支付','本人，配偶知道在哪查'],['房产与保险','配偶必须知道'],['云相册与邮箱','至少一位家人'],['社交账号','一般不必，但遗嘱可写'],['工作账号','不交给家人，由公司处理']],
+  note:'区分"需要知道内容"和"需要知道去哪里找"。多数情况后者就够了。'},
+ {title:'密码怎么设',head:['原则','做法'],
+  rows:[['长度优先','12 位以上，比复杂符号更有效'],['不用个人信息','生日、手机号、姓名拼音都不行'],['一账号一密码','重复使用是最大风险'],['句式记忆法','一句话取首字母加数字'],['定期更换','重要账号 6–12 个月，其余泄露后改'],['不写在便签上','尤其不要贴在显示器上']],
+  note:'"八个字符含大小写"已经过时。现在推荐的是长而不复杂的口令，比如四个不相关的词。'},
+ {title:'密码管理器怎么用',head:['步骤','说明'],
+  rows:[['选工具','本地加密、可导出、有开源审计更佳'],['设主密码','唯一一个必须记住的密码'],['开两步验证','管理器本身也要保护'],['逐步导入','先导重要账号，再补其余'],['浏览器插件','自动填充，减少钓鱼风险'],['定期导出','离线备份一份加密文件']],
+  note:'主密码忘了基本救不回来。写在纸上锁进抽屉，比存在另一个账号里安全。'},
+ {title:'两步验证',head:['方式','安全性'],
+  rows:[['短信验证码','可用，但可被补卡攻击'],['验证器 App','推荐，不依赖信号'],['硬件密钥','最安全，适合邮箱与主账号'],['推送确认','方便，注意别误点'],['备用码','打印出来与证件分开存'],['绝不用','把验证码告诉任何人']],
+  note:'换手机前先迁移验证器，否则可能被锁在账号外面。这是最常见的自找麻烦。'},
+ {title:'紧急访问方案',head:['情况','准备'],
+  rows:[['突发住院','一封密封信，写明账号清单与存放位置'],['长期失能','密码管理器设定紧急联系人'],['身故','遗嘱中写明数字资产处理方式'],['手机丢失','提前记下找回账号与备用码'],['搬家换号','先改绑，再停用旧号'],['定期演练','每年一次，确认家人能找到']],
+  note:'"我记在手机里"等于没有备份。手机进不去的时候，里面的密码也一起没了。'},
+ {title:'账号清单模板',head:['分类','记录什么'],
+  rows:[['金融','银行、支付、证券、保险'],['通讯','手机号、邮箱、社交'],['生活','水电燃气、物业、快递'],['资产','房产、车辆、云盘、订阅'],['账号信息','用户名、绑定手机、注册邮箱'],['不记录','密码本身，只记录存放位置']],
+  note:'清单里写"密码在密码管理器的哪个条目"，不写密码。清单泄露不会直接丢账号。'}
+]},
+
+{id:'focus',en:'Attention',g:'生活日常',icon:'🧠',name:'注意力与信息节食',type:'tables',sub:'注意力不是被偷走的，是被一片一片递出去的。先把通知关掉，再谈自律。',sections:[
+ {title:'注意力去哪了',head:['来源','消耗'],
+  rows:[['推送通知','每天几十次，每次恢复需 20 分钟'],['短视频','单条不算多，累计两三小时'],['群消息','随时被打断，无法进入深度状态'],['无意识解锁','每天上百次，多数没有目的'],['多任务切换','切换成本比做事本身高'],['睡前刷屏','推迟入睡，第二天注意力更差']],
+  note:'最大的消耗不是刷了多久，是被打断后重新进入状态的那 20 分钟。'},
+ {title:'手机怎么设',head:['设置','效果'],
+  rows:[['关闭所有非人工通知','只留电话与少数白名单'],['首屏只放工具','社交与视频移到第二屏文件夹'],['灰度显示','屏幕变灰，吸引力明显下降'],['卸载再装','只留网页版，增加使用成本'],['定时免打扰','工作时段与睡前一小时'],['充电位置','卧室外充电，用闹钟替代手机']],
+  note:'把最想少用的 App 放到第三屏的文件夹里，多两步操作就足以劝退一半的无意识打开。'},
+ {title:'通知分级',head:['级别','处理'],
+  rows:[['必须即时','电话、家人消息、门禁'],['当天处理','工作邮件、日程提醒'],['每天一次','社群、订阅号、平台消息'],['每周一次','促销、系统通知'],['永不','营销推送、游戏召回'],['原则','默认关闭，按需打开']],
+  note:'通知是别人替你决定优先级。默认全关，再一项一项打开你真正在意的。'},
+ {title:'深度时段怎么留',head:['做法','说明'],
+  rows:[['固定时段','每天同一时间，90 分钟不被打断'],['提前告知','告诉同事与家人这段时间勿扰'],['单一任务','桌上只留这一件事需要的东西'],['关掉网络','需要查资料就先记下来'],['计时器','90 分钟一到就休息'],['记录打断','想到别的事就写在纸上，不立刻去做']],
+  note:'一天能有 90 分钟真正的深度时间，产出就超过多数人一整天的忙碌。'},
+ {title:'信息源怎么筛',head:['类型','标准'],
+  rows:[['保留','能改变你判断或行动的内容'],['减少','只是让你有情绪的内容'],['取消','看完就想买东西的账号'],['替换','用长文替代碎片，用书替代推送'],['限定','每天固定时间看一次新闻'],['退出','无意义的群与拼单']],
+  note:'判断一个信息源值不值得留，看一周后你还记得什么。记不住的就是噪音。'},
+ {title:'恢复注意力',head:['方法','说明'],
+  rows:[['走路','不带耳机走 20 分钟，让思绪发散'],['单调劳动','洗碗、拖地，反而容易想通事情'],['充足睡眠','比任何专注技巧都重要'],['一次只做一件','包括吃饭时不看屏幕'],['留白','日程里刻意留出不安排的时间'],['周末断网半天','恢复对长时间阅读的耐受力']],
+  note:'注意力像肌肉，需要恢复期。连续高强度用脑不休息，效率下降是生理性的，不是意志力问题。'}
+]},
+
+{id:'balconyutil',en:'Balcony Utilities',g:'居家装修',icon:'🚰',name:'阳台水电改造',type:'tables',sub:'阳台改洗衣区，三件事最重要：地漏、防水、独立回路。做错一样，后面全是返工。',sections:[
+ {title:'先判断能不能改',head:['条件','要求'],
+  rows:[['排水立管','阳台有没有污水立管，没有就得抬高或改道'],['楼板承重','洗衣机加水近 200 公斤，老房要确认'],['是否封闭','开放式阳台做柜体要考虑防雨'],['物业规定','外立面改动、下水改造多数需报备'],['防水层','原有防水是否完好，改动就要重做'],['燃气管道','燃气表与管道不能包进柜体']],
+  note:'没有污水立管的阳台，洗衣水只能排雨水管，多数城市不允许。先问物业，再谈设计。'},
+ {title:'水路怎么布',head:['项目','做法'],
+  rows:[['给水','从厨房或卫生间引一路，加装角阀'],['排水','优先接污水立管，接口用斜三通'],['地漏','必须单独设，选防返味深水封'],['洗衣机排水','专用接口，别直接插地漏'],['热水','需要热水就多引一路，或装小厨宝'],['防冻','北方阳台管路要保温或加伴热带']],
+  note:'洗衣机排水瞬间流量大，直接插地漏会返水。用专用接口加密封圈，几十块钱解决大问题。'},
+ {title:'电路怎么布',head:['项目','要求'],
+  rows:[['独立回路','洗衣机与烘干机各一路，不与其他共用'],['漏电保护','必须装，潮湿环境不能省'],['插座高度','台面以上 30 厘米，避开溅水区'],['防水盒','带翻盖的防溅盒'],['照明','选防潮灯具，开关放室内侧'],['预留','多留一个插座，扫地机或除湿机会用到']],
+  note:'阳台插座跳闸最常见的原因是和其他大功率电器共用回路。单独一路，成本多一两百，省无数麻烦。'},
+ {title:'防水与排水',head:['项目','标准'],
+  rows:[['地面找坡','1%–2%，坡向地漏'],['防水高度','地面全做，墙面返高 30 厘米'],['闭水试验','蓄水 24 小时，看楼下有无渗漏'],['地漏位置','避开柜体正下方，留检修口'],['溢流口','有洗衣机的区域建议设'],['门槛石','做挡水条，防倒灌进室内']],
+  note:'闭水试验必须做，而且要下楼看。只在自家看地面不渗，说明不了任何问题。'},
+ {title:'洗衣区尺寸',head:['项目','参考'],
+  rows:[['洗衣机','宽 60 深 60 高 85 厘米，左右各留 2 厘米'],['烘干机叠放','总高约 175 厘米，上方不能再做柜'],['台面高度','85–90 厘米，与洗衣机齐平'],['柜体深度','60–65 厘米，留出管线空间'],['开门方向','提前确认，别被墙挡住'],['上方储物','深度 35 厘米即可，太深够不着']],
+  note:'先买机器再做柜是最稳的顺序。按机器尺寸定制，比按"标准尺寸"做柜少一次返工。'},
+ {title:'常见返工',head:['问题','原因'],
+  rows:[['地漏返味','用了浅水封或没存水弯'],['排水慢','管径小、坡度不够、有存水弯堵塞'],['频繁跳闸','与其他回路共用或没做防水'],['柜体发霉','背板贴墙无空隙，潮气散不出'],['阳台门打不开','柜体挡住门扇开启范围'],['冬天冷凝水','烘干机排湿没接管']],
+  note:'柜体背板离墙留 2 厘米空隙，底部留通气孔。这点距离就能让潮气散掉大半。'}
+]},
+
+{id:'charging',en:'EV Charger Install',g:'居家装修',icon:'🔌',name:'电动车充电桩安装',type:'tables',sub:'装充电桩最难的不是设备，是物业和电容。先确认能不能装，再谈买哪个。',sections:[
+ {title:'先确认能不能装',head:['条件','说明'],
+  rows:[['车位产权','自有产权最顺，租赁车位需业主书面同意'],['物业同意','多数小区需物业盖章，这是第一道关'],['电容余量','小区变压器是否有富余容量'],['电表位置','离车位多远，决定线缆成本'],['消防要求','地下车库有专门规定，需喷淋与烟感'],['是否人防车位','人防工程审批更严']],
+  note:'先去物业问"小区能不能装、需要什么材料"，不要先买设备。设备买了装不了，退货很麻烦。'},
+ {title:'申请流程',head:['步骤','要点'],
+  rows:[['一、问物业','拿同意书与施工要求'],['二、申请电表','电网 App 或营业厅，报装专用电表'],['三、现场勘察','电网与施工方一起确认走线'],['四、装表接电','电表独立计量，费率可申请峰谷'],['五、装桩调试','施工方安装并测试'],['六、验收备案','部分城市需报备，保留资料']],
+  note:'专用电表是关键。从家里电表拉线，容量不够还会影响家用电价阶梯。'},
+ {title:'设备怎么选',head:['参数','建议'],
+  rows:[['功率','家用 7 kW 交流足够，一夜充满'],['相数','单相 7 kW 或三相 11 kW，看车支持'],['枪线长度','5 米够用，车位远选 7 米'],['联网功能','预约充电、看电量，配合谷电省钱'],['防护等级','地下车库 IP54 起，室外要 IP65'],['品牌与售后','选本地有服务网点的']],
+  note:'不必追求最高功率。家用场景一夜 8 小时，7 kW 已能补 300 公里以上。'},
+ {title:'费用构成',head:['项目','参考'],
+  rows:[['设备','2000–5000 元（含基础安装）'],['线缆','按米计，30–60 元一米'],['施工','开槽、穿管、桥架，500–2000 元'],['电表','多数由电网免费安装'],['物业押金','部分小区收取，可退'],['增容','需扩容时费用较高，需协商']],
+  note:'线缆距离是最大变量。电表到车位 30 米和 100 米，差价可能超过设备本身。'},
+ {title:'安装要点',head:['项目','要求'],
+  rows:[['走线','沿桥架或穿镀锌管，不裸奔'],['保护','加装漏电保护与过流保护'],['接地','必须有可靠接地，不可省略'],['防雨','室外加装防雨箱'],['标识','张贴警示标识与报修电话'],['高度','枪头离地 1.2–1.5 米，方便插拔']],
+  note:'漏保和接地是安全底线。这两项省下的钱，出事时赔不起。'},
+ {title:'使用与安全',head:['情况','做法'],
+  rows:[['日常充电','保持在 20%–80% 之间，电池更耐用'],['长期停放','电量留一半，别满电也别亏电'],['雨天充电','接口有防水设计，正常使用即可'],['线缆检查','定期看有无破皮、发烫'],['共享给邻居','明确责任，最好有协议'],['故障','先断电，再联系售后，别自行拆']],
+  note:'充电时闻到焦味或看到插头发黑，立即停用。这是接触不良发热的信号，不是小毛病。'}
+]},
+
+{id:'babysecond',en:'Second-hand Baby Gear',g:'吃穿住行',icon:'🍼',name:'二手母婴用品',type:'tables',sub:'母婴用品折旧快，二手能省一半。但安全座椅、奶瓶、吸奶器这三类，风险比省钱重要。',sections:[
+ {title:'可以放心买二手',head:['品类','注意'],
+  rows:[['婴儿床','检查螺丝、栏杆间距、是否有召回'],['推车','看刹车、折叠机构、布料霉斑'],['餐椅','确认安全带与防倾倒设计'],['背带','检查卡扣与织带磨损'],['玩具','可清洗消毒，木质看漆面'],['衣物','清洗暴晒即可，注意尺码']],
+  note:'婴儿床栏杆间距必须小于 6 厘米，大于这个数值有卡头风险，二手尤其要量。'},
+ {title:'绝对不要二手',head:['品类','原因'],
+  rows:[['安全座椅','曾受撞击可能有隐性损伤，肉眼看不出'],['奶瓶与奶嘴','材质老化，无法彻底消毒'],['吸奶器','属个人卫生用品，交叉感染风险'],['头盔','一次撞击即失效'],['牙刷与牙胶','无法消毒'],['贴身内衣','卫生与弹性都已下降']],
+  note:'安全座椅没有"看起来还好"这回事。外壳受撞后内部结构可能已裂，再撞时不再保护。'},
+ {title:'怎么验货',head:['检查项','做法'],
+  rows:[['生产日期','塑料件一般 5–8 年老化'],['召回记录','查品牌型号是否在召回名单'],['结构件','螺丝齐全、无裂纹、无变形'],['活动部件','折叠、调节、刹车是否顺畅'],['布料','有无霉斑、异味、破损'],['配件','原装雨罩、蚊帐、说明书是否齐']],
+  note:'见面验货时当场折叠三次、踩两次刹车。顺畅的才要，卡顿的别抱侥幸。'},
+ {title:'价格参考',head:['品类','二手残值'],
+  rows:[['婴儿床','原价 3–5 折'],['推车','原价 3–5 折，热门款更保值'],['餐椅','原价 4–6 折'],['安全座椅','不建议买，若买不超过 2 折'],['衣物','原价 1–3 折'],['玩具','原价 2–4 折']],
+  note:'同城自提的价格通常比邮寄低三成。大件运输成本高，卖家也愿意让价。'},
+ {title:'交易安全',head:['环节','做法'],
+  rows:[['选平台','同城二手平台，看信用与历史评价'],['沟通','问清使用时长、有无磕碰、为何出售'],['验货','白天当面，带卷尺和湿巾'],['付款','验完再付，走平台担保'],['留证','聊天记录、商品照片、交易截图'],['运输','大件自提，别让卖家发货']],
+  note:'"急着出手、只接受转账"是典型话术。当面验货、平台付款，两条守住就不会吃大亏。'},
+ {title:'用完怎么处理',head:['方式','适合'],
+  rows:[['转卖','品相好、品牌保值'],['送人','亲友之间，说明使用情况'],['捐赠','正规机构，注意卫生要求'],['回收','塑料与金属分类回收'],['改造','婴儿床改书桌、围栏改晾衣架'],['留着','打算要二胎再留，注意存放干燥']],
+  note:'婴儿床和推车留着占地方，存放受潮反而报废。确定不要就尽早出手，越放越不值钱。'}
+]},
+
+{id:'addon',en:'Renovation Extras',g:'居家装修',icon:'📋',name:'家装增项清单',type:'tables',sub:'装修超预算，八成超在增项。签合同前把这张单子逐条问一遍，能省下五位数。',sections:[
+ {title:'最常见的增项',head:['项目','为什么超'],
+  rows:[['水电改造','报价按"预估"、结算按实际米数'],['墙面找平','原墙不平，报价里没含'],['地面找平','铺地板前必须做，常被漏报'],['防水加做','阳台、厨房是否含在报价内'],['拆改与垃圾清运','拆多少算多少，垃圾按车计'],['成品保护与保洁','开工前不说，收尾时加钱']],
+  note:'增项不可怕，可怕的是没有上限。合同里写清"增项不超过总价 5%"，主动权就回来了。'},
+ {title:'报价单要看什么',head:['要素','要求'],
+  rows:[['单位','米、平方米、项，单位不同价差巨大'],['数量','写清预估量，避免"按实结算"'],['单价','人工与辅料分开列'],['工艺','几底几面、几遍防水，写清'],['品牌型号','写具体型号，不写"同等品牌"'],['是否含辅料','胶、钉子、龙骨谁买']],
+  note:'"同等品牌"是最贵的四个字。型号写进合同，到货才能对得上。'},
+ {title:'怎么锁价',head:['做法','效果'],
+  rows:[['闭口合同','总价包干，超出由施工方承担'],['单价锁定','工程量可调，单价不可调'],['工程量上限','约定浮动不超过 10%'],['变更书面化','口头变更一律不认'],['增项比例','写明上限，如 5%'],['违约金','工期与增项都设违约条款']],
+  note:'闭口合同要配合详细的报价单。报价单越粗，后期增项空间越大。'},
+ {title:'水电最容易超',head:['计费方式','风险'],
+  rows:[['按米算','走线路径随意绕，米数翻倍'],['按点位算','点位单价高，但总量可控'],['开槽费','砖墙、混凝土墙价格不同'],['弱电','网线、电视线常另计'],['回路数','回路越多越贵，需提前定'],['验收','打压、摇表、拍照留档']],
+  note:'按点位算通常更可控。要求施工前出水电点位图，双方签字，按图施工。'},
+ {title:'变更怎么谈',head:['情况','做法'],
+  rows:[['施工方提出变更','要求书面报价，比价后再定'],['自己临时改主意','先问价，再决定改不改'],['必须做的隐蔽工程','做完拍照，留验收记录'],['"不做会出问题"','要求说明具体后果'],['工期影响','变更是否顺延，写清楚'],['拒绝','明确书面回复，避免默认同意']],
+  note:'"这个不做以后会漏水"是最有效的推销话术。让对方说清原理和概率，多数时候会发现并非必须。'},
+ {title:'结算时核对',head:['项目','要点'],
+  rows:[['实际工程量','现场复尺，与报价单对比'],['变更单','逐张核对签字是否齐全'],['减项','没做的项目必须扣掉'],['材料清单','对照合同型号验收'],['保修条款','隐蔽工程通常 5 年'],['尾款','留 5%–10% 过完一个雨季再付']],
+  note:'尾款是唯一的筹码。留一成过完一个雨季，渗漏问题才会真正暴露出来。'}
+]},
+
+{id:'eyesight',en:"Children's Eyesight",g:'健康与饮食',icon:'👁️',name:'孩子视力保护',type:'tables',sub:'近视一旦发生不可逆。真正有效的只有两件事：每天两小时户外，和看近处每 20 分钟抬头望远。',sections:[
+ {title:'各年龄段视力',head:['年龄','正常视力'],
+  rows:[['3 岁','0.5 左右'],['4 岁','0.6 左右'],['5 岁','0.8 左右'],['6 岁','1.0 左右'],['7 岁以上','1.0'],['原则','看是否达到年龄下限，不追求 1.5']],
+  note:'孩子视力发育有过程，5 岁 0.8 是正常的。真正要警惕的是低于年龄下限，或两眼差距超过两行。'},
+ {title:'每天必须做的',head:['项目','标准'],
+  rows:[['户外','每天累计 2 小时，阴天也有效'],['20-20-20','每 20 分钟看 20 英尺外 20 秒'],['读写距离','眼睛离书 33 厘米以上'],['光照','读写时桌面照度 300 勒克斯以上'],['坐姿','胸口离桌一拳，眼睛离书一尺'],['睡眠','小学生 10 小时，初中生 9 小时']],
+  note:'户外是唯一被反复证实有效的预防手段。不是因为看远，是因为自然光强度远高于室内。'},
+ {title:'环境怎么改',head:['项目','做法'],
+  rows:[['台灯位置','惯用手的对侧，避免手影'],['主灯','必须同时开，不能只开台灯'],['桌面照度','300–500 勒克斯，可用照度计测'],['屏幕距离','手机 40 厘米，平板 50 厘米，电脑 60 厘米'],['屏幕大小','能用大屏就不用小屏'],['桌椅','脚能踩实，肘部与桌面齐平']],
+  note:'只开台灯不开主灯，眼睛在明暗交替中反复调节，比光线不足更累。'},
+ {title:'早期信号',head:['表现','可能'],
+  rows:[['眯眼看远处','近视或散光'],['凑得很近','已形成习惯或视力下降'],['歪头看电视','双眼视力不等或斜视'],['频繁揉眼眨眼','视疲劳或过敏'],['抄错题、跳行','调节或双眼协调问题'],['抱怨头痛','长时间用眼后的调节痉挛']],
+  note:'孩子很少主动说看不清，因为他不知道清晰是什么样。靠观察行为比靠问更可靠。'},
+ {title:'检查与干预',head:['环节','做法'],
+  rows:[['建立档案','3 岁起，每半年一次'],['散瞳验光','判断真假近视的唯一方法'],['眼轴测量','比度数更早反映趋势'],['离焦镜片','延缓进展，需专业验配'],['角膜塑形镜','需严格护理与定期复查'],['低浓度阿托品','需医生处方与随访']],
+  note:'第一次配镜一定要散瞳。不散瞳验出来的度数，可能把假性近视当成真性。'},
+ {title:'常见误区',head:['说法','事实'],
+  rows:[['"戴眼镜会越戴越深"','不戴才涨得快，看不清会加重疲劳'],['"护眼灯能防近视"','照度够就行，灯本身不防近视'],['"防蓝光眼镜有用"','对近视预防无证据'],['"眼保健操能恢复视力"','缓解疲劳，不能逆转近视'],['"多吃胡萝卜"','维生素 A 缺乏才相关，正常饮食不缺'],['"长大了做手术就行"','手术矫正度数，不消除高度近视的风险']],
+  note:'近视手术只是把眼镜做在角膜上。眼轴变长带来的眼底风险，一样存在。'}
+]},
+
+{id:'community',en:'Neighbours and Estate',g:'关系与文化',icon:'🏘️',name:'邻里与小区事务',type:'tables',sub:'小区里的问题，找对人比说对话更重要。物业管服务，业委会管钱，居委会管协调，报修和投诉是两回事。',sections:[
+ {title:'常见纠纷怎么处理',head:['情况','第一步'],
+  rows:[['楼上漏水','拍照录像，先关自家总阀，再上门'],['噪音扰民','记录时间段，先私聊再找物业'],['占用消防通道','拍照，直接找物业与消防'],['宠物扰民','先沟通，再找物业与社区'],['高空抛物','立即报警，不要自行上门'],['公共区域私占','拍照提交物业与业委会']],
+  note:'先取证再沟通。没有照片和时间的投诉，物业很难受理，也很难向上反馈。'},
+ {title:'物业、业委会、居委会',head:['主体','管什么'],
+  rows:[['物业','保洁、保安、维修、公共设施运行'],['业委会','监督物业、决定公共收益使用'],['居委会','协调纠纷、组织选举、对接街道'],['街道与住建','物业违规的监管与投诉受理'],['消防','消防通道、电动车入户'],['12345','综合投诉入口，会转派到对应部门']],
+  note:'物业费纠纷找住建，服务不到位找业委会，邻里纠纷找居委会。找错门只会被转回来。'},
+ {title:'物业费与公共收益',head:['项目','要点'],
+  rows:[['物业费构成','人员、保洁、绿化、公共能耗、维修'],['涨价','需业主大会或双过半同意'],['公共收益','电梯广告、场地租赁、快递柜'],['收益归属','归全体业主，应定期公示'],['公示要求','收支应每年公开'],['监督','业委会可查账，业主可申请查阅']],
+  note:'电梯广告和快递柜的收益归全体业主。多数小区从不公示，这是最容易被忽略的一笔钱。'},
+ {title:'装修与噪音报备',head:['事项','要求'],
+  rows:[['报备','装修前向物业登记，缴纳押金'],['施工时间','工作日 8:00–12:00、14:00–18:00'],['禁止时段','夜间与午休、法定节假日'],['噪音工艺','打孔、切割集中时段做'],['垃圾清运','按物业指定位置堆放'],['验收','完工后申请押金退还']],
+  note:'法定休息日和节假日全天禁止产生噪音的装修作业。这条规定在多数城市都适用，可以直接引用。'},
+ {title:'高空抛物与安全',head:['情况','做法'],
+  rows:[['发现抛物','立即报警，保留物品'],['被砸受伤','先就医，保留病历与现场照片'],['责任认定','民法典规定可能加害的住户需自证清白'],['防范','申请加装监控，对准楼体'],['电动车入户','禁止，可向消防举报'],['消防通道','停车占用可举报，也可要求物业清障']],
+  note:'高空抛物已入刑。不要自己上门理论，直接报警是最有效也最安全的做法。'},
+ {title:'怎么有效投诉',head:['要素','做法'],
+  rows:[['对象明确','写清楼栋、单元、时间、频次'],['证据','照片、视频、录音（自己参与对话时可录）'],['渠道','物业、业委会、12345、住建、消防'],['书面化','工单比电话有效，有编号可追踪'],['联合','同栋多户联名，权重明显提高'],['跟进','按工单编号催办，记录每次回复']],
+  note:'打一次电话不如提一张工单。工单有编号、有时限、要回复，电话只有一句"我们会反映"。'}
+]},
+
+{id:'tripbooking',en:'Holiday Bookings',g:'吃穿住行',icon:'🎫',name:'假期出行预约',type:'tables',sub:'假期的钱不是花在贵上，是花在晚订上。把"预约"当成行程的第一件事，能省下三成预算。',sections:[
+ {title:'提前多久订',head:['项目','时间'],
+  rows:[['机票','国内 1–2 个月，国际 2–4 个月'],['火车票','开售即抢，热门线路 15 天'],['酒店','提前 1 个月，节假日更早'],['景区门票','多数需提前 1–7 天实名预约'],['租车','提前 2–4 周，节假日翻倍'],['演出与展览','开票即买，热门秒空']],
+  note:'节假日出行，最难的不是机票而是门票。先把需要预约的景点定下来，再排行程。'},
+ {title:'门票与预约',head:['类型','要点'],
+  rows:[['实名预约','身份证信息要准确，改签麻烦'],['限流景区','分时段入园，选早场人少'],['免费不免票','仍需预约，别当天去'],['联票','算清是否真的会用'],['学生与老人票','带证件，现场核验'],['退改规则','看清是否可退，多数提前一天免费']],
+  note:'把每个景点的预约码截图存相册并单独建一个文件夹。现场找网络加载小程序，是最容易卡住的一步。'},
+ {title:'交通怎么选',head:['方式','适合'],
+  rows:[['高铁','1000 公里内，市中心到市中心'],['飞机','超过 1200 公里，注意机场通勤'],['自驾','目的地分散、带娃带老人'],['当地包车','人多、路线固定'],['公共交通','城市内，避开高峰'],['夜车','省一晚住宿，但第二天状态差']],
+  note:'算交通要算门到门。机场加安检加通勤常常三小时，比高铁看着快实际慢。'},
+ {title:'住宿怎么挑',head:['关注','原因'],
+  rows:[['位置','离地铁与景点步行距离'],['隔音','临街与电梯口房间要避开'],['床型','带娃确认能否加床'],['取消政策','行程有变时最有用'],['评价','看差评里的重复问题'],['押金与杂费','是否含早、停车费']],
+  note:'订房先看差评，重点看"隔音""热水""异味"这三个词出现了几次。'},
+ {title:'行程怎么排',head:['原则','做法'],
+  rows:[['每天一个重点','其余作为备选'],['留缓冲','景点之间留 30–60 分钟'],['就近成组','同区域一天走完'],['避开高峰','热门景点开门就到'],['留半天机动','应对天气或疲劳'],['吃饭不将就','提前定好一两顿']],
+  note:'一天排三个景点是纸面行程。带孩子或老人，实际能完成两个就不错。'},
+ {title:'突发应对',head:['情况','做法'],
+  rows:[['航班取消','先改签再谈赔偿，保留延误证明'],['酒店超售','要求同级替代并承担差价'],['景区临时关闭','关注官方号，多数可退'],['证件丢失','就近派出所开临时证明'],['生病','先去医院，保留票据用于保险'],['行程变更','先看退改规则，再联系平台']],
+  note:'所有票据、短信、通知截图都留着。保险理赔和投诉，靠的都是这些。'}
+]},
+
+{id:'landlord',en:'Renting Out a Home',g:'钱与账',icon:'🏢',name:'出租房屋与房东责任',type:'tables',sub:'出租不是收租那么简单。合同写不清楚，一次纠纷就能吃掉半年租金。',sections:[
+ {title:'出租前准备',head:['事项','要点'],
+  rows:[['产权核验','房产证与身份证一致，共有需共有人同意'],['房屋状态','拍照录像，记录原有瑕疵'],['家电清单','列明品牌型号与状态，双方签字'],['水电燃气','抄表记录起始读数'],['钥匙','换锁芯或更换智能锁密码'],['合规','部分城市需办理租赁备案']],
+  note:'交房当天拍一条完整视频，从门口走到每个房间，重点拍墙面、地板、家电。这是退租时唯一有效的证据。'},
+ {title:'租金定价',head:['因素','影响'],
+  rows:[['地段与交通','地铁步行 10 分钟内溢价明显'],['装修与家电','拎包入住可高 10%–15%'],['楼层与朝向','中间楼层、南向最受欢迎'],['付款方式','押一付三比月付低总价'],['空置成本','空一个月等于全年降 8%'],['市场行情','参考同小区在租房源，不参考成交传言']],
+  note:'宁可月租低 200 租给稳定的人，也不要高价空置两个月。空置成本比降价高得多。'},
+ {title:'合同必备条款',head:['条款','写清什么'],
+  rows:[['租期与租金','起止日期、付款日、逾期违约金'],['押金','金额、退还条件与时限'],['费用承担','物业、水电、取暖、维修各归谁'],['转租','是否允许，需书面同意'],['提前退租','通知期与违约金'],['房屋用途','居住，禁止群租与经营']],
+  note:'"押金退还时限"必须写具体天数。只写"退租后退还"，等于给了无限期拖延的空间。'},
+ {title:'押金与退租',head:['环节','做法'],
+  rows:[['入住验收','双方签字的交接单加照片'],['退租通知','按合同提前 30 天'],['退租验收','对照入住照片逐项检查'],['正常损耗','墙面轻微污渍、家具磨损属正常'],['扣款标准','按实际维修费用，需提供票据'],['退还时限','合同约定期限内转账并留记录']],
+  note:'"正常使用损耗"不该扣押金。墙皮自然老化、地板轻微磨损，都不是租客的责任。'},
+ {title:'维修责任划分',head:['情况','责任'],
+  rows:[['房屋主体与管线','房东，如漏水、电路老化'],['家电自然损坏','房东，如热水器、空调'],['人为损坏','租客，或从押金扣除'],['日常消耗','租客，如灯泡、滤芯'],['物业费','按合同约定，通常房东'],['紧急维修','房东不能及时到场可授权租客处理']],
+  note:'空调不制冷、热水器不加热属于房屋配套，房东必须修。拖着不修，租客有权自行维修并抵扣租金。'},
+ {title:'常见纠纷',head:['情况','处理'],
+  rows:[['拖欠租金','书面催告，按合同解除并起诉'],['擅自转租','按合同解除，保留证据'],['群租或改结构','立即制止，必要时报街道'],['到期不退房','书面通知，协商不成走诉讼'],['损坏不赔','从押金扣，不足部分另行主张'],['租客失联','公证清点物品后再处理']],
+  note:'任何一步都要留书面记录。微信聊天记录也可以作为证据，前提是没有删。'}
+]},
+
 {id:'hardness',en:'Hardness',g:'石油与工程',g2:'居家装修',icon:'🔨',name:'材料硬度',type:'custom',panel:'hardnessPanel',bind:'bindHardness'},
 {id:'threads',en:'Thread Specs',g:'石油与工程',g2:'居家装修',icon:'🔩',name:'螺纹规格',type:'tables',sub:'公制、UNC/UNF、G/BSP、NPT 四种螺纹的牙数与外径对照。',sections:[
  {title:'公制螺纹螺距',head:['规格','粗牙','细牙 1','细牙 2'],rows:[
@@ -6131,7 +6383,7 @@ function aboutPanel(){
   return '<div class="panel"><h2>ℹ️ About & Changelog</h2><p class="sub">Version, stack, licences — and what we refuse to build.</p>' +
   card('About', '<div class="kv">' +
     '<dt>Name</dt><dd>Life Converter · All-in-One Handbook</dd>' +
-    '<dt>Version</dt><dd>V6.8 (2026-10-28)</dd>' +
+    '<dt>Version</dt><dd>V7.1 (2026-10-28)</dd>' +
     '<dt>Form</dt><dd>Single-page app + PWA, installable</dd>' +
     '<dt>Modules</dt><dd>142 across 10 groups, 75 reference cards</dd>' +
     '<dt>Data</dt><dd>All calculations on-device, no upload</dd>' +
@@ -6158,6 +6410,9 @@ function aboutPanel(){
     ['V4.5','Waterproofing, cabinetry, network and gas cards; every calculator can export its result as a card; recently used modules surface at the top of the sidebar; swap buttons on the Combo Board'],
     ['V4.6','Appliance buying, storage planning, contract & payment, and checkup numbers cards; value boxes accept sums like 12*8; every reference card exports to Excel or copies as a table; history exports to Excel; Alt+↑/↓ jumps between modules'],
     ['V4.7','Gift money, exercise burn, laundry care and underfloor heating cards; the Combo Board takes formula rows (x*0.13); filter box on every reference card; copy all units at once'],
+    ['V7.1','Children\'s eyesight, neighbours and estate affairs, holiday bookings, and renting out a home cards'],
+    ['V7.0','Balcony plumbing and wiring, EV charger installation, second-hand baby gear, and renovation extras cards'],
+    ['V6.9','Preparing for a health check, child vaccinations, family accounts and passwords, and attention cards'],
     ['V6.8','Hospital visits and consultations, learning to drive, visas and borders, and managing subscriptions cards'],
     ['V6.7','Talking to children, the family weekly plan, New Year shopping, and reusing old phones cards'],
     ['V6.6','Comparing commutes, flatmate rules, workout planning, and reading test results cards'],
@@ -6238,9 +6493,9 @@ function aboutPanelZH(){
   return '<div class="panel"><h2>ℹ️ 关于与更新日志</h2><p class="sub">版本、技术、许可，以及我们坚决不做的事。</p>' +
   card('关于', '<div class="kv">' +
     '<dt>名称</dt><dd>生活换算 · 全能手册</dd>' +
-    '<dt>版本</dt><dd>V6.8（2026-10-28）</dd>' +
+    '<dt>版本</dt><dd>V7.1（2026-10-28）</dd>' +
     '<dt>形态</dt><dd>单页应用 + PWA，可安装到桌面</dd>' +
-    '<dt>模块</dt><dd>213 个，10 个分组，146 张速查表</dd>' +
+    '<dt>模块</dt><dd>225 个，10 个分组，158 张速查表</dd>' +
     '<dt>数据</dt><dd>全部本地计算，不上传</dd>' +
   '</div>') +
   card('更新日志', tbl(['版本','主要变化'],[
@@ -6258,6 +6513,9 @@ function aboutPanelZH(){
     ['V3.2','中英界面、无障碍与键盘操作、安装引导、意见反馈'],
     ['V3.3','全部模块标题与说明英译、单位模块注释英译'],
     ['V3.4','表格模块（扳手/管钳/螺栓/钻头/床品/螺纹）表头与注释英译'],
+    ['V7.1','新增孩子视力保护、邻里与小区事务、假期出行预约、出租房屋与房东责任 4 张速查表'],
+    ['V7.0','新增阳台水电改造、电动车充电桩安装、二手母婴用品、家装增项清单 4 张速查表'],
+    ['V6.9','新增体检前准备、儿童疫苗接种、家庭账号与密码托管、注意力与信息节食 4 张速查表'],
     ['V6.8','新增陪诊与就医流程、学车与驾照、签证与出入境、订阅与会员管理 4 张速查表'],
     ['V6.7','新增家庭教育沟通、家庭周计划与分工、年货采购清单、旧手机改造利用 4 张速查表'],
     ['V6.6','新增通勤方式比较、合租与室友公约、健身计划编排、体检报告怎么看 4 张速查表'],
@@ -8727,7 +8985,7 @@ function updateStatic(){
   const brandrow = document.querySelector('.brandrow');
   if(brandrow && brandrow.childNodes[0]) brandrow.childNodes[0].textContent = t('生活换算','Life Conversion');
   const brand = document.querySelector('.brand > span');
-  if(brand) brand.textContent = t('全能手册 · 本地离线版 v6.8', 'All-in-One Handbook · v6.8');
+  if(brand) brand.textContent = t('全能手册 · 本地离线版 v7.1', 'All-in-One Handbook · v7.1');
   const bl = document.getElementById('backlink');
   if(bl) bl.textContent = t('← 返回工具箱','← Back to toolbox');
   const side = document.querySelector('.side');
@@ -8908,7 +9166,19 @@ const SUB_EN_MORE = {
  "accompany": "In a consultation, what you say in five minutes matters more than which doctor you see. Write three sentences before you go: the complaint, the change, and what you want.",
  "license": "The biggest variable in learning to drive is not talent but the instructor and the hours behind the wheel. Ask how long you get alone in a car before you ask the price.",
  "visa": "A visa officer is not asking how much you want to go; they are asking whether you will come back. Itinerary, funds and job must line up.",
- "subs": "The frightening part of subscriptions is not the price, it is the auto-renewal. Over a year, the ones you forgot cost more than the ones you use."
+ "subs": "The frightening part of subscriptions is not the price, it is the auto-renewal. Over a year, the ones you forgot cost more than the ones you use.",
+ "precheck": "Half the accuracy of a health check is decided the night before. How long to fast, which medicines to keep taking, which days women should avoid — settle it before you go.",
+ "vaccine": "Free vaccines follow the schedule; paid ones follow the risk. Keep the vaccination booklet until school entry — replacing it is a nuisance.",
+ "passwords": "A password is not safe because you memorised it. The real question is whether your family could open the things that matter if something happened to you.",
+ "focus": "Attention is not stolen all at once; it is handed away a slice at a time. Turn off the notifications first, then talk about discipline.",
+ "balconyutil": "Converting a balcony into a laundry takes three things: a proper drain, waterproofing, and its own circuit. Get one wrong and everything gets redone.",
+ "charging": "The hard part of installing a charger is not the equipment; it is the property management and the building's spare capacity. Confirm you can install at all before comparing models.",
+ "babysecond": "Baby gear depreciates fast and second-hand saves half. But for car seats, bottles and breast pumps, the risk matters more than the saving.",
+ "addon": "When a renovation runs over, eight times in ten it is the extras. Walk this list item by item before signing and you can save five figures.",
+ "eyesight": "Once myopia starts it never reverses. Only two things really work: two hours outdoors every day, and looking up and away every 20 minutes.",
+ "community": "In a residential estate, reaching the right person matters more than saying the right thing. Maintenance, management, the owners' committee and the neighbourhood office each handle a different problem.",
+ "tripbooking": "Holiday money is not wasted on expensive things but on late bookings. Treat reservations as the first task of the trip and you save about a third.",
+ "landlord": "Renting out a flat is not just collecting rent. A vague contract costs more than half a year's rent in one dispute."
 };
 Object.assign(SUB_EN, SUB_EN_MORE);
 const NOTE_EN = {"length": "Chinese: 1 chi = 1/3 m, 1 li = 500 m, 1 zhang = 10 chi. Imperial: 1 inch = 25.4 mm by definition.", "area": "1 mu ≈ 666.67 m² = 60 square zhang; 1 mu = 10 fen = 100 li. 1 hectare = 15 mu.", "volume": "1 oil barrel (bbl) = 42 US gallons ≈ 158.99 L. Chinese: 1 shi = 10 dou = 100 L.", "mass": "Mainland 1 jin = 500 g; Taiwan 1 jin = 600 g; HK 1 jin ≈ 604.79 g. 1 liang = 10 qian = 50 g.", "speed": "1 knot = 1 nautical mile per hour ≈ 1.852 km/h. Mach is approximate at sea level (340.3 m/s).", "pressure": "Tyre pressure: 2.5 bar = 250 kPa ≈ 36.3 psi. Pipeline: 1 MPa ≈ 10 bar ≈ 145 psi.", "power": "Two horsepower standards: metric PS = 735.5 W (CN/EU), imperial hp = 745.7 W (US). Car specs usually mean PS.", "energy": "Food labels: 1 kcal = 4.184 kJ. Chinese nutrition tables use kJ — divide by 4.184. 1 kWh = 1 unit of electricity.", "data": "Windows and RAM use 1024; drive makers use 1000. That is why a 1TB drive shows about 931GB — nobody cheated you.", "flow": "1 barrel per day ≈ 0.00662 m³/h ≈ 158.99 L/day. 1 m³/h ≈ 151 bpd.", "angle": "One turn = 360° = 2π rad = 400 grad = 6400 mils (military).", "duration": "Month is averaged at 30.44 days, year at 365.25. For exact months use the date difference tool.", "force": "1 kgf = 9.80665 N. Ratings on slings and anchors are often in kgf or kN.", "density": "Crude oil API gravity: API = 141.5/SG − 131.5. Higher API means lighter oil; 32°API ≈ 0.865 g/cm³."};
@@ -9664,6 +9934,105 @@ const TABLE_EN_MORE = {
  {"title": "Cancelling", "head": ["Channel", "How"], "rows": [["In the app", "Account, subscriptions, turn off auto-renew"], ["Apple", "Settings, Apple ID, Subscriptions"], ["Android", "App store, subscriptions"], ["Alipay", "Me, settings, payment settings, no-password payments"], ["WeChat", "Me, services, wallet, payment settings"], ["Direct debit", "Written request to support; keep the screenshot"]], "note": "Screenshot the “cancelled” confirmation. In a billing dispute, that screenshot is the only proof that counts."},
  {"title": "When the price goes up", "head": ["Situation", "Response"], "rows": [["Existing users charged more", "Ask support whether the old rate can be kept"], ["Annual plan rises", "Switch to monthly to watch, or cancel"], ["Features cut", "Compare with a rival before deciding"], ["Bundled offer", "Price the total, not the headline item"], ["Switching", "Export your data first; check the format"], ["Done with it", "Cancel and remove the payment method"]], "note": "Price-rise notices usually say “continued use constitutes acceptance”. That sentence is your cue to check the auto-renewal status."}
 ]
+,
+"precheck": [
+ {"title": "Fasting and food", "head": ["Item", "Requirement"], "rows": [["Fasting window", "8–12 hours; never over 16"], ["Dinner the night before", "Light, no fried food, no alcohol"], ["When fasting starts", "Nothing to eat after 20:00"], ["Water", "A little plain water is fine, under 200 ml"], ["Alcohol", "None for 48 hours before"], ["Hard exercise", "Avoid for 24 hours"]], "note": "Fasting too long also distorts glucose and lipids. Nothing after eight in the evening, bloods at eight in the morning — that is the window."},
+ {"title": "Medicines you must not stop", "head": ["Medicine", "Handling"], "rows": [["Blood pressure pills", "Take as usual, with a sip of water"], ["Diabetes pills and insulin", "Ask the doctor first; the fasting dose may change"], ["Thyroid medication", "Take as usual"], ["Anticoagulants", "Never stop on your own; tell the doctor"], ["Cold remedies and painkillers", "Can affect liver results; avoid if possible"], ["Supplements and vitamins", "Stop three days before"]], "note": "“It's a fasting test so I skipped my pills” is the most dangerous misunderstanding. One day off blood pressure medication is worse than any number on the report."},
+ {"title": "For women", "head": ["Situation", "Requirement"], "rows": [["Menstruation", "Avoid; urine and gynae results are both affected"], ["Gynae exam timing", "3–7 days after the period ends"], ["Breast imaging", "7–10 days after the period ends"], ["Pregnant or trying", "No radiation; tell them at check-in"], ["Breastfeeding", "Tell the doctor; some tests need adjusting"], ["Pelvic ultrasound", "Abdominal needs a full bladder; transvaginal needs it empty"]], "note": "Work out where you are in your cycle before booking. Hitting your period means rebooking and fasting all over again."},
+ {"title": "The night before", "head": ["Item", "Practice"], "rows": [["Sleep", "In bed before 23:00; a late night raises transaminases"], ["Dinner", "Seven-tenths full, low oil and salt"], ["Water", "Drink normally; do not deliberately cut down"], ["Smoking", "None for 12 hours"], ["What to bring", "ID, insurance card, previous reports"], ["Clothing", "Loose, no metal buttons, easy to change out of"]], "note": "Wear tracksuit trousers and slip-on shoes. You will be dressing and undressing repeatedly; laces are the slowest thing in the building."},
+ {"title": "Order of the morning", "head": ["Order", "Why"], "rows": [["Bloods first", "Fasting tests first, then you can eat"], ["Then the ultrasound", "Start drinking after the bloods"], ["ECG and physical in between", "No conflict; slot them into gaps"], ["Imaging later", "Metal has to come off"], ["Urine sample last", "Morning urine is best, but after the fasting tests"], ["Eat", "Once bloods and ultrasound are done"]], "note": "Pay once, book everything once, then plan a route by floor. Walking back and forth is the tiring part, not the tests."},
+ {"title": "Before you read the report", "head": ["Step", "Practice"], "rows": [["Do not search yet", "A single arrow on its own means little"], ["Compare with previous years", "Three years of one marker is the useful signal"], ["Read the cluster", "Lipids, glucose and pressure together"], ["Mark the changes", "Separate new abnormalities from persistent ones"], ["Decide on a retest", "Mild abnormality: retest in 1–3 months"], ["File it", "By date, with a copy in the cloud"]], "note": "A health check is worth what several years of comparison give you, not the arrows in one year. One sheet alone says little."}
+],
+"vaccine": [
+ {"title": "The routine schedule", "head": ["Age", "Vaccine"], "rows": [["At birth", "Hep B dose 1, BCG"], ["1 month", "Hep B dose 2"], ["2 months", "Polio dose 1"], ["3 months", "Polio and DTaP dose 1"], ["6 months", "Hep B dose 3, meningococcal A dose 1"], ["8 months", "MMR, Japanese encephalitis"], ["18 months", "DTaP booster, MMR dose 2"], ["4 years", "Polio booster"], ["6 years", "DT, meningococcal A+C"]], "note": "Schedules differ slightly by region; the dates printed in the booklet are authoritative. The booklet matters as much as the birth certificate — keep it safe."},
+ {"title": "Choosing the paid ones", "head": ["Vaccine", "Advice"], "rows": [["Pneumococcal conjugate", "Recommended; a leading cause of severe pneumonia in infants"], ["Rotavirus", "Recommended; the commonest cause of autumn diarrhoea"], ["Hand-foot-mouth EV71", "Recommended; clear protection against severe cases"], ["Chickenpox", "Recommended; two doses protect better"], ["Influenza", "Annually from six months of age"], ["HPV", "Best at 9–14 years"]], "note": "Paid does not mean optional. Rank them by three questions: how common is the disease, how severe, and is there effective treatment?"},
+ {"title": "Before the appointment", "head": ["Item", "Practice"], "rows": [["Health status", "Postpone during fever or acute illness"], ["Allergy history", "Tell them, especially eggs and antibiotics"], ["Last reaction", "Report any high fever or convulsion"], ["Eating", "Not on an empty stomach, not too full either"], ["Clothing", "Short sleeves so the arm is easy to reach"], ["Documents", "Bring the booklet and check the last entry"]], "note": "If your child had immunoglobulin or a blood transfusion in the past week, say so — some live vaccines must be postponed."},
+ {"title": "After the injection", "head": ["Reaction", "Handling"], "rows": [["Local redness", "Cold compress; do not rub or apply heat"], ["Mild fever below 38.5", "Fluids, cooling, watch"], ["High fever or inconsolable crying", "See a doctor; report the vaccine and the date"], ["Rash", "Usually clears within three days; worse means go in"], ["Poor appetite", "Normal; back within a day or two"], ["Observation", "Stay 30 minutes at the clinic"]], "note": "The 30 minutes exist for the extremely rare acute allergic reaction. Do not rush off."},
+ {"title": "Missed doses", "head": ["Situation", "Handling"], "rows": [["One dose missed", "Catch up soon; no need to start over"], ["Interval exceeded", "Usually just resume, not restart"], ["Postponed for illness", "Catch up a week after recovery"], ["Vaccinated elsewhere", "Bring the booklet; it continues nationwide"], ["Record lost", "The clinic can look it up in the system"], ["School entry", "Primary schools check the booklet"]], "note": "The rule is simple: give what is missing, as many doses as are missing. Being months late does not reset the course."},
+ {"title": "Records and checks", "head": ["Step", "Practice"], "rows": [["The booklet", "Check the printout after every visit"], ["Photograph it", "Every page, into cloud storage"], ["Electronic records", "Some provinces have them in the health app"], ["Nursery and school", "Check completeness a term ahead"], ["Going abroad", "Some countries want an English certificate"], ["As an adult", "Records matter for travel and some jobs"]], "note": "Replacing a lost booklet means visiting the clinic to search old systems. Photographing each entry costs nothing."}
+],
+"passwords": [
+ {"title": "Who should know what", "head": ["Category", "Who knows"], "rows": [["Everyday accounts", "You; a spouse can act on your behalf"], ["Banking and payments", "You; a spouse knows where to look"], ["Property and insurance", "A spouse must know"], ["Cloud photos and email", "At least one family member"], ["Social media", "Generally not, but name it in a will"], ["Work accounts", "Never family; the employer handles it"]], "note": "Distinguish “needs to know the contents” from “needs to know where to find it”. Most of the time the second is enough."},
+ {"title": "How to set one", "head": ["Principle", "Practice"], "rows": [["Length first", "12 characters or more beats clever symbols"], ["No personal data", "No birthdays, phone numbers or name pinyin"], ["One per account", "Reuse is the biggest single risk"], ["Passphrase method", "Take a sentence, use initials plus digits"], ["Change cadence", "Critical accounts every 6–12 months; others after a breach"], ["Never on a sticky note", "Especially not on the monitor"]], "note": "“Eight characters with a capital and a symbol” is outdated advice. Long and simple beats short and contorted."},
+ {"title": "Using a password manager", "head": ["Step", "Explanation"], "rows": [["Pick one", "Local encryption, exportable, ideally open to audit"], ["Set the master password", "The one password you actually memorise"], ["Turn on two-factor", "The manager needs protecting too"], ["Import gradually", "Critical accounts first, the rest later"], ["Browser extension", "Autofill also guards against phishing"], ["Export regularly", "One encrypted backup, offline"]], "note": "A forgotten master password is usually unrecoverable. Written on paper and locked in a drawer beats stored inside another account."},
+ {"title": "Two-factor", "head": ["Method", "Security"], "rows": [["SMS code", "Workable, but vulnerable to SIM swaps"], ["Authenticator app", "Recommended; needs no signal"], ["Hardware key", "Strongest; for email and primary accounts"], ["Push approval", "Convenient; beware tapping blindly"], ["Backup codes", "Print them; store apart from your ID"], ["Never", "Read a code out to anyone"]], "note": "Migrate your authenticator before changing phones, or you will be locked out. It is the most common self-inflicted problem."},
+ {"title": "Emergency access", "head": ["Situation", "Preparation"], "rows": [["Sudden hospital stay", "A sealed letter naming the accounts and where they live"], ["Long-term incapacity", "Set an emergency contact in the manager"], ["Death", "Name digital assets in the will"], ["Phone lost", "Note the recovery account and backup codes beforehand"], ["Moving or new number", "Rebind first, then retire the old number"], ["Rehearse", "Once a year, check a family member can find it"]], "note": "“It's on my phone” is no backup at all. When the phone is locked, the passwords inside it are gone too."},
+ {"title": "An inventory template", "head": ["Category", "What to record"], "rows": [["Financial", "Banks, payments, brokerages, insurance"], ["Communication", "Mobile number, email, social"], ["Household", "Utilities, property management, couriers"], ["Assets", "Property, vehicle, cloud storage, subscriptions"], ["Account details", "Username, linked phone, registered email"], ["Never record", "The passwords themselves — only where they are"]], "note": "The inventory says “the password is the entry named X in the manager”. A leaked inventory then costs you nothing directly."}
+],
+"focus": [
+ {"title": "Where attention goes", "head": ["Source", "Cost"], "rows": [["Push notifications", "Dozens a day; 20 minutes to recover from each"], ["Short video", "Not much per clip, two or three hours in total"], ["Group chats", "Constant interruption; deep states never form"], ["Unconscious unlocking", "Over a hundred times a day, mostly purposeless"], ["Task switching", "The switching costs more than the work"], ["Scrolling in bed", "Delays sleep and worsens tomorrow's attention"]], "note": "The real cost is not the time spent scrolling but the 20 minutes it takes to get back into the work."},
+ {"title": "Setting up the phone", "head": ["Setting", "Effect"], "rows": [["Turn off every non-human notification", "Keep calls and a short allowlist"], ["Only tools on the first screen", "Move social and video to a second-screen folder"], ["Greyscale display", "Visibly less attractive"], ["Uninstall and use the web", "Adds friction to every visit"], ["Scheduled do-not-disturb", "Work hours and the hour before bed"], ["Charge outside the bedroom", "Use an alarm clock instead"]], "note": "Put the app you want to use least in a folder on the third screen. Two extra taps is enough to deter half the unconscious opens."},
+ {"title": "Grading notifications", "head": ["Level", "Handling"], "rows": [["Immediate", "Calls, family messages, door entry"], ["Same day", "Work email, calendar reminders"], ["Once a day", "Communities, newsletters, platform messages"], ["Once a week", "Promotions, system notices"], ["Never", "Marketing pushes, game win-backs"], ["Principle", "Off by default; opt in deliberately"]], "note": "A notification is someone else setting your priorities. Start with everything off, then turn on what you actually care about."},
+ {"title": "Protecting deep time", "head": ["Practice", "Explanation"], "rows": [["A fixed slot", "Same time daily, 90 minutes uninterrupted"], ["Announce it", "Tell colleagues and family not to interrupt"], ["One task only", "Clear the desk of everything else"], ["Disconnect", "Write down anything to look up, check it later"], ["A timer", "Stop at 90 minutes and rest"], ["Capture interruptions", "Note the urge on paper; do not act on it"]], "note": "Ninety genuinely deep minutes a day beats most people's entire busy day."},
+ {"title": "Filtering sources", "head": ["Type", "Criterion"], "rows": [["Keep", "Changes what you think or do"], ["Reduce", "Only makes you feel something"], ["Unfollow", "Makes you want to buy after every post"], ["Replace", "Long reads for fragments; books for pushes"], ["Limit", "News once a day at a fixed time"], ["Leave", "Pointless groups and group-buying chats"]], "note": "Ask what you still remember a week later. Whatever you cannot recall was noise."},
+ {"title": "Recovering it", "head": ["Method", "Explanation"], "rows": [["Walking", "20 minutes without headphones; let the mind wander"], ["Manual work", "Washing up or mopping often unblocks a problem"], ["Enough sleep", "Matters more than any focus technique"], ["One thing at a time", "Including not watching anything while eating"], ["Leave blanks", "Deliberately unscheduled time in the week"], ["Half a day offline", "Rebuilds tolerance for long reading"]], "note": "Attention is like muscle: it needs recovery. Declining output after sustained concentration is physiology, not weak will."}
+]
+,
+"balconyutil": [
+ {"title": "Can it be converted at all", "head": ["Condition", "Requirement"], "rows": [["Soil stack", "Is there a waste stack on the balcony? If not, the drain must be raised or rerouted"], ["Floor loading", "A washer plus water is nearly 200 kg; check in older buildings"], ["Enclosed or not", "Open balconies need rain-proof cabinetry"], ["Building rules", "Facade changes and drainage alterations usually need approval"], ["Waterproofing", "If it is intact, any change means redoing it"], ["Gas pipes", "Meters and pipes must never be boxed into a cupboard"]], "note": "Without a waste stack, the washer can only drain to rainwater, which most cities prohibit. Ask the management office before you design."},
+ {"title": "Running the water", "head": ["Item", "Practice"], "rows": [["Supply", "Bring one line from the kitchen or bathroom, with an angle valve"], ["Drainage", "Connect to the waste stack with a swept tee"], ["Floor drain", "Install a separate one with a deep seal against odour"], ["Washer outlet", "A dedicated connection; never stuffed straight into the floor drain"], ["Hot water", "Run a second line or fit a small local heater"], ["Frost", "Insulate the pipes, or add trace heating in the north"]], "note": "A washer discharges a lot of water at once. Stuffed into a floor drain it backs up; a dedicated outlet with a seal costs almost nothing."},
+ {"title": "Running the power", "head": ["Item", "Requirement"], "rows": [["Dedicated circuit", "One for the washer, one for the dryer; never shared"], ["Earth leakage", "Mandatory; this is a wet area"], ["Socket height", "30 cm above the worktop, clear of splashes"], ["Splash cover", "A hinged waterproof box"], ["Lighting", "Damp-rated fittings; switch inside the room"], ["Spare socket", "One extra for a robot vacuum or dehumidifier"]], "note": "The usual cause of a tripping balcony socket is sharing a circuit with another high-load appliance. A separate circuit costs a little and saves a lot."},
+ {"title": "Waterproofing and drainage", "head": ["Item", "Standard"], "rows": [["Fall", "1–2%, towards the drain"], ["Membrane height", "Whole floor, 30 cm up the walls"], ["Flood test", "24 hours of standing water, then check downstairs"], ["Drain position", "Not directly under the cabinet; leave an access hatch"], ["Overflow", "Worth fitting where a washer sits"], ["Threshold", "A water bar to stop backflow into the room"]], "note": "The flood test is not optional, and you must go downstairs to look. Checking only your own floor proves nothing."},
+ {"title": "Laundry dimensions", "head": ["Item", "Reference"], "rows": [["Washer", "60 W × 60 D × 85 H cm; 2 cm clearance each side"], ["Stacked dryer", "About 175 cm total; nothing above it"], ["Worktop", "85–90 cm, flush with the washer"], ["Cabinet depth", "60–65 cm, leaving room for pipes"], ["Door swing", "Check it first; a wall can block it"], ["Upper storage", "35 cm deep is enough; deeper is unreachable"]], "note": "Buy the machines before building the cabinets. Made-to-measure beats “standard size” and avoids one full rebuild."},
+ {"title": "Common rework", "head": ["Problem", "Cause"], "rows": [["Smell from the drain", "Shallow seal, or no trap at all"], ["Slow drainage", "Undersized pipe, insufficient fall, blocked trap"], ["Tripping breakers", "Shared circuit or missing waterproofing"], ["Mouldy cabinet", "Back panel flush to the wall, no air gap"], ["Balcony door will not open", "Cabinet blocks the swing"], ["Condensation in winter", "Dryer vented into the room"]], "note": "Leave a 2 cm gap between the back panel and the wall, with vents at the bottom. That alone lets most of the moisture out."}
+],
+"charging": [
+ {"title": "Confirm you can install", "head": ["Condition", "Explanation"], "rows": [["Ownership of the space", "Owned is easiest; a rented space needs the owner's written consent"], ["Management approval", "Most estates require a stamped consent — the first hurdle"], ["Spare capacity", "Does the building transformer have headroom?"], ["Meter location", "Distance to the space drives cable cost"], ["Fire rules", "Underground garages have specific requirements, sprinklers and alarms"], ["Civil-defence spaces", "Approval is stricter for converted shelters"]], "note": "Ask the management office whether it is possible and what documents they need before buying equipment. A charger you cannot install is a difficult return."},
+ {"title": "The application", "head": ["Step", "Key point"], "rows": [["1. Ask management", "Get consent and their installation requirements"], ["2. Apply for a meter", "Grid app or office; request a dedicated meter"], ["3. Site survey", "Grid and installer agree the cable route"], ["4. Meter and supply", "Separately metered; ask for a time-of-use tariff"], ["5. Install and test", "The installer commissions it"], ["6. Sign-off", "Some cities require filing; keep the paperwork"]], "note": "The dedicated meter is the key. Pulling from your flat's supply may exceed its capacity and push you up the tariff tiers."},
+ {"title": "Choosing the unit", "head": ["Parameter", "Advice"], "rows": [["Power", "7 kW AC is plenty at home; a full charge overnight"], ["Phases", "Single-phase 7 kW or three-phase 11 kW, depending on the car"], ["Cable length", "5 m is enough; 7 m if the space is far"], ["Connectivity", "Scheduled charging and energy monitoring, paired with off-peak rates"], ["Ingress rating", "IP54 minimum underground; IP65 outdoors"], ["Brand and service", "Pick one with a local service point"]], "note": "Do not chase the highest power. Over eight hours at home, 7 kW already adds more than 300 km."},
+ {"title": "What it costs", "head": ["Item", "Typical"], "rows": [["Equipment", "¥2,000–5,000 including basic installation"], ["Cable", "Priced per metre, ¥30–60"], ["Labour", "Chasing, conduit, tray: ¥500–2,000"], ["Meter", "Often installed free by the grid"], ["Management deposit", "Some estates charge one, refundable"], ["Capacity upgrade", "Expensive when needed; negotiate"]], "note": "Cable distance is the biggest variable. Thirty metres versus a hundred can cost more than the hardware."},
+ {"title": "Installation essentials", "head": ["Item", "Requirement"], "rows": [["Routing", "Along trays or in galvanised conduit; never bare"], ["Protection", "Earth leakage and overcurrent protection"], ["Earthing", "A reliable earth is mandatory, no exceptions"], ["Rain", "A weatherproof enclosure outdoors"], ["Signage", "Warning labels and a service number"], ["Height", "Connector 1.2–1.5 m above ground for easy handling"]], "note": "Leakage protection and earthing are the safety floor. The money saved by skipping them is money you cannot pay out when it goes wrong."},
+ {"title": "Use and safety", "head": ["Situation", "Practice"], "rows": [["Daily charging", "Keep between 20% and 80% for battery life"], ["Long storage", "Leave it near half, not full and not empty"], ["Rain", "The connector is weatherproofed; normal use is fine"], ["Cable checks", "Look for cracked insulation or heat marks"], ["Sharing with neighbours", "Agree liability in writing first"], ["Faults", "Cut the power, then call service; do not open it"]], "note": "A burning smell or a blackened plug means stop using it. That is contact resistance heating, not a minor niggle."}
+],
+"babysecond": [
+ {"title": "Safe to buy used", "head": ["Item", "Check"], "rows": [["Cot", "Screws, bar spacing, any recall history"], ["Pushchair", "Brakes, folding mechanism, mildew in the fabric"], ["High chair", "Harness and anti-tip design"], ["Carrier", "Buckles and webbing wear"], ["Toys", "Washable and disinfectable; check paint on wood"], ["Clothing", "Wash and sun-dry; check the sizing"]], "note": "Cot bar spacing must be under 6 cm. Anything wider risks a trapped head — measure it on second-hand items especially."},
+ {"title": "Never buy used", "head": ["Item", "Why"], "rows": [["Car seat", "A crash can leave invisible damage"], ["Bottles and teats", "Material ages; cannot be fully sterilised"], ["Breast pump", "Personal hygiene item; cross-infection risk"], ["Helmet", "One impact and it is spent"], ["Toothbrush and teethers", "Cannot be disinfected"], ["Underwear", "Hygiene and elasticity both gone"]], "note": "There is no “it looks fine” with a car seat. The shell may be cracked internally and will not protect in a second impact."},
+ {"title": "Inspecting it", "head": ["Check", "How"], "rows": [["Manufacture date", "Plastics age in five to eight years"], ["Recall history", "Search the brand and model"], ["Structure", "All screws present, no cracks or deformation"], ["Moving parts", "Folding, adjustment and brakes all smooth"], ["Fabric", "No mildew, smell or tears"], ["Accessories", "Rain cover, net, manual all included"]], "note": "At the meet-up, fold it three times and stamp on the brake twice. Smooth, or walk away — do not hope."},
+ {"title": "What to pay", "head": ["Item", "Resale share"], "rows": [["Cot", "30–50% of new"], ["Pushchair", "30–50%; popular models hold value"], ["High chair", "40–60%"], ["Car seat", "Not advised; if you must, under 20%"], ["Clothing", "10–30%"], ["Toys", "20–40%"]], "note": "Local pick-up prices run about 30% below shipped ones. Bulky items cost a lot to move, and sellers know it."},
+ {"title": "Trading safely", "head": ["Step", "Practice"], "rows": [["Platform", "Local second-hand apps; check ratings and history"], ["Ask", "How long used, any damage, why selling"], ["Inspect", "Daylight, in person; bring a tape measure and wipes"], ["Pay", "Only after inspecting, through the platform"], ["Keep records", "Chat logs, photos, transaction screenshots"], ["Transport", "Collect bulky items yourself; do not have them shipped"]], "note": "“Need it gone, bank transfer only” is a classic script. Inspect in person and pay through the platform, and you avoid most of the risk."},
+ {"title": "Passing it on", "head": ["Route", "Suits"], "rows": [["Resell", "Good condition, strong brand"], ["Give away", "Friends and family; describe the usage honestly"], ["Donate", "Reputable organisations, subject to hygiene rules"], ["Recycle", "Separate plastic and metal"], ["Repurpose", "Cot into a desk, playpen into a drying rack"], ["Keep", "Only if a second child is planned, stored dry"]], "note": "Cots and pushchairs take up space and deteriorate in damp storage. If you are not keeping them, sell early — value only falls."}
+],
+"addon": [
+ {"title": "The usual extras", "head": ["Item", "Why it overruns"], "rows": [["Electrical and plumbing", "Quoted as an estimate, settled by actual metres"], ["Wall levelling", "The walls are not flat; not in the quote"], ["Floor levelling", "Required before flooring, often omitted"], ["Extra waterproofing", "Balcony and kitchen sometimes excluded"], ["Demolition and waste", "Charged by volume and by the truck"], ["Protection and final clean", "Not mentioned at the start, added at the end"]], "note": "Extras are not the problem; extras without a cap are. Write “extras not to exceed 5% of contract value” and you keep the initiative."},
+ {"title": "Reading the quote", "head": ["Element", "Requirement"], "rows": [["Unit", "Metre, square metre, or lump sum — the unit changes everything"], ["Quantity", "State the estimate; avoid “settled as built”"], ["Unit price", "Labour and materials listed separately"], ["Method", "How many coats of paint, how many of waterproofing"], ["Brand and model", "A specific model, never “equivalent brand”"], ["Consumables", "Who buys glue, screws, battens"]], "note": "“Equivalent brand” are the four most expensive words in a renovation. Put the model in the contract so deliveries can be checked."},
+ {"title": "Locking the price", "head": ["Method", "Effect"], "rows": [["Fixed-price contract", "The builder absorbs overruns"], ["Locked unit rates", "Quantities may vary; prices may not"], ["Quantity cap", "Agreed variation of no more than 10%"], ["Written variations", "Verbal changes are not recognised"], ["Extras cap", "State a ceiling, e.g. 5%"], ["Penalties", "For both delay and overrun"]], "note": "A fixed price needs a detailed quote behind it. The vaguer the quote, the more room for extras later."},
+ {"title": "Where services overrun", "head": ["Charging basis", "Risk"], "rows": [["Per metre", "Routes wander; the metre count doubles"], ["Per point", "Higher unit price, but the total is bounded"], ["Chasing", "Brick and concrete are priced differently"], ["Low voltage", "Data and TV cabling often billed separately"], ["Circuits", "More circuits cost more; decide up front"], ["Sign-off", "Pressure test, insulation test, photographs"]], "note": "Per point is usually more controllable. Demand a point layout drawing, signed by both sides, and build to it."},
+ {"title": "Negotiating a change", "head": ["Situation", "Practice"], "rows": [["The builder proposes it", "Ask for a written price; compare before agreeing"], ["You change your mind", "Ask the price first, then decide"], ["Genuinely hidden work", "Photograph it and keep a record"], ["“It will fail otherwise”", "Ask what exactly will happen, and how likely"], ["Schedule impact", "State in writing whether the date moves"], ["Refusing", "Reply in writing so silence is not consent"]], "note": "“Without this it will leak later” is the most effective sales line in the trade. Ask for the mechanism and the probability; often it is optional."},
+ {"title": "Checking the final bill", "head": ["Item", "Key point"], "rows": [["Actual quantities", "Measure on site and compare with the quote"], ["Variation orders", "Check every one is signed"], ["Deductions", "Anything not done must come off"], ["Materials", "Match the models in the contract"], ["Warranty", "Hidden work is usually five years"], ["Retention", "Hold 5–10% until a rainy season has passed"]], "note": "The retention is your only leverage. Hold back a tenth until the wet season is over; leaks only show up then."}
+]
+,
+"eyesight": [
+ {"title": "Normal vision by age", "head": ["Age", "Normal acuity"], "rows": [["3 years", "About 0.5"], ["4 years", "About 0.6"], ["5 years", "About 0.8"], ["6 years", "About 1.0"], ["7 and over", "1.0"], ["Principle", "Meet the floor for the age; do not chase 1.5"]], "note": "Vision develops over years; 0.8 at five is normal. What matters is falling below the floor for the age, or a two-line gap between the eyes."},
+ {"title": "The daily must-dos", "head": ["Item", "Standard"], "rows": [["Outdoors", "Two hours total a day; cloudy days still count"], ["20-20-20", "Every 20 minutes, look 20 feet away for 20 seconds"], ["Reading distance", "At least 33 cm from the page"], ["Light", "Over 300 lux at the desk while reading"], ["Posture", "A fist from chest to desk, a foot from eyes to book"], ["Sleep", "10 hours in primary school, 9 in middle school"]], "note": "Outdoors is the only prevention repeatedly proven. It works not because you look far but because natural light is far brighter than indoors."},
+ {"title": "Fixing the environment", "head": ["Item", "Practice"], "rows": [["Desk lamp", "On the opposite side to the writing hand, so no shadow"], ["Ceiling light", "Must be on at the same time; never the lamp alone"], ["Desk illuminance", "300–500 lux; a light meter can measure it"], ["Screen distance", "Phone 40 cm, tablet 50 cm, computer 60 cm"], ["Screen size", "Never a small screen when a large one is available"], ["Furniture", "Feet flat on the floor, elbows level with the desk"]], "note": "A desk lamp alone in a dark room makes the eye re-adapt constantly between bright and dim, which is more tiring than dim light."},
+ {"title": "Early warning signs", "head": ["Sign", "Possibly"], "rows": [["Squinting at distance", "Myopia or astigmatism"], ["Holding things very close", "A habit, or falling acuity"], ["Head tilted at the television", "Unequal eyes or a squint"], ["Rubbing and blinking a lot", "Eye strain or allergy"], ["Copying wrong, skipping lines", "Accommodation or binocular coordination"], ["Headaches", "Accommodative spasm after long near work"]], "note": "Children rarely say they cannot see clearly; they do not know what clear looks like. Watch behaviour rather than ask."},
+ {"title": "Exams and treatment", "head": ["Step", "Practice"], "rows": [["Build a record", "From age three, every six months"], ["Cycloplegic refraction", "The only way to tell true from false myopia"], ["Axial length", "Shows the trend earlier than the prescription"], ["Defocus lenses", "Slow progression; need proper fitting"], ["Ortho-k lenses", "Requires strict hygiene and follow-up"], ["Low-dose atropine", "Prescription and monitoring required"]], "note": "The first pair of glasses must follow a cycloplegic exam. Without drops, a false myopia can be prescribed as real."},
+ {"title": "Common myths", "head": ["Claim", "Fact"], "rows": [["“Glasses make it worse”", "Not wearing them makes it progress faster"], ["“A护眼 lamp prevents myopia”", "Enough light is what matters, not the lamp"], ["“Blue-light glasses help”", "No evidence for myopia prevention"], ["“Eye exercises restore vision”", "They relieve fatigue; they do not reverse myopia"], ["“Eat more carrots”", "Only matters if vitamin A deficient"], ["“Surgery later fixes it”", "Surgery corrects the prescription, not the retinal risk"]], "note": "Refractive surgery just builds the glasses into the cornea. The retinal risk from a long eyeball remains."}
+],
+"community": [
+ {"title": "Common disputes", "head": ["Situation", "First step"], "rows": [["Water leaking from above", "Photograph, shut your own main valve, then go up"], ["Noise", "Log the times, speak privately, then involve management"], ["Fire route blocked", "Photograph; go straight to management and the fire service"], ["Pets causing nuisance", "Talk first, then management and the neighbourhood office"], ["Something thrown from height", "Call the police; do not go door to door"], ["Shared space occupied", "Photograph and report to management and the committee"]], "note": "Collect evidence before you talk. A complaint with no photo and no time cannot be logged, let alone escalated."},
+ {"title": "Who handles what", "head": ["Body", "Responsibility"], "rows": [["Property management", "Cleaning, security, repairs, running the shared systems"], ["Owners' committee", "Oversee management; decide how shared income is spent"], ["Neighbourhood office", "Mediate disputes, run elections, liaise with the district"], ["Housing authority", "Regulates management companies; takes fee complaints"], ["Fire service", "Blocked escape routes, e-bikes brought indoors"], ["12345 hotline", "General complaints; routes them to the right department"]], "note": "Fees go to the housing authority, poor service to the committee, neighbour disputes to the neighbourhood office. Knocking on the wrong door just gets you redirected."},
+ {"title": "Fees and shared income", "head": ["Item", "Key point"], "rows": [["What fees cover", "Staff, cleaning, landscaping, shared energy, repairs"], ["Increases", "Require a owners' meeting vote, usually double majority"], ["Shared income", "Lift advertising, venue hire, parcel lockers"], ["Who owns it", "All owners collectively; must be published"], ["Disclosure", "Accounts should be published annually"], ["Oversight", "The committee can audit; owners may request the books"]], "note": "Lift advertising and parcel locker income belongs to all owners. Most estates never publish it — the easiest money to overlook."},
+ {"title": "Renovation and noise rules", "head": ["Item", "Requirement"], "rows": [["Registration", "Register with management and pay a deposit before starting"], ["Working hours", "Weekdays 8:00–12:00 and 14:00–18:00"], ["Prohibited", "Nights, lunch breaks, public holidays"], ["Noisy work", "Drilling and cutting grouped into set windows"], ["Waste", "To the place management designates"], ["Deposit", "Apply for the refund once finished and inspected"]], "note": "Noisy renovation is banned all day on rest days and public holidays in most cities. That rule can be quoted directly."},
+ {"title": "Falling objects and safety", "head": ["Situation", "Practice"], "rows": [["You see something fall", "Call the police and keep the object"], ["Someone is hit", "Treat first, then keep the medical record and scene photos"], ["Liability", "Under the Civil Code, possible sources must prove they are not responsible"], ["Prevention", "Ask for a camera aimed at the facade"], ["E-bikes indoors", "Prohibited; report to the fire service"], ["Blocked fire routes", "Report it, and ask management to clear it"]], "note": "Throwing objects from height is a criminal offence. Do not go and argue; call the police — it is both safer and more effective."},
+ {"title": "Complaining effectively", "head": ["Element", "Practice"], "rows": [["Be specific", "Building, entrance, time, frequency"], ["Evidence", "Photos, video, recordings of conversations you are part of"], ["Channel", "Management, committee, 12345, housing authority, fire service"], ["In writing", "A ticket beats a phone call; it has a number"], ["Together", "Several households signing carries real weight"], ["Follow up", "Quote the ticket number and log every reply"]], "note": "One phone call is worth less than one ticket. A ticket has a number, a deadline and a mandatory reply; a call gets “we'll look into it”."}
+],
+"tripbooking": [
+ {"title": "How far ahead to book", "head": ["Item", "Timing"], "rows": [["Flights", "Domestic 1–2 months, international 2–4"], ["Train tickets", "The moment sales open; 15 days out on busy routes"], ["Hotels", "A month ahead; earlier for holidays"], ["Attraction tickets", "Most need real-name booking 1–7 days ahead"], ["Car hire", "2–4 weeks; prices double in peak season"], ["Shows and exhibitions", "The day tickets open; popular ones sell out"]], "note": "For holiday travel the hardest thing is not the flight but the tickets. Book everything that requires a reservation first, then build the itinerary."},
+ {"title": "Tickets and reservations", "head": ["Type", "Key point"], "rows": [["Real-name booking", "ID details must be exact; changes are painful"], ["Capacity-limited sites", "Timed entry; take the earliest slot"], ["Free but ticketed", "Still needs booking; do not just turn up"], ["Combined tickets", "Work out whether you will really use them"], ["Student and senior", "Bring the document; checked on entry"], ["Refund rules", "Check; most are free up to a day before"]], "note": "Screenshot every booking code and keep them in one album. Loading a mini-program at the gate on weak signal is where people get stuck."},
+ {"title": "Choosing transport", "head": ["Mode", "Suits"], "rows": [["High-speed rail", "Under 1,000 km, city centre to city centre"], ["Flying", "Over 1,200 km; watch the airport transfer"], ["Driving", "Scattered destinations, children or elders"], ["Hired car with driver", "Groups on a fixed route"], ["Public transport", "Within a city, avoiding peak hours"], ["Overnight train", "Saves a hotel night, costs you the next morning"]], "note": "Always count door to door. Airport plus security plus transfer is often three hours — slower than the train it appears to beat."},
+ {"title": "Choosing a hotel", "head": ["Look at", "Why"], "rows": [["Location", "Walking distance to the metro and sights"], ["Soundproofing", "Avoid street-facing and lift-adjacent rooms"], ["Bed type", "Confirm whether an extra bed is possible"], ["Cancellation policy", "Most useful when plans shift"], ["Reviews", "Read the complaints for recurring problems"], ["Deposits and extras", "Breakfast included? Parking fee?"]], "note": "Read the negative reviews first, and count how often three words appear: noise, hot water, smell."},
+ {"title": "Building the itinerary", "head": ["Principle", "Practice"], "rows": [["One anchor a day", "Everything else is optional"], ["Buffer", "30–60 minutes between stops"], ["Group by area", "Finish one district before moving"], ["Beat the crowds", "Be there when the gates open"], ["Half a day spare", "For weather or fatigue"], ["Plan the meals", "Fix one or two restaurants in advance"]], "note": "Three sights a day is a paper itinerary. With children or elders, two done properly is a good day."},
+ {"title": "When things go wrong", "head": ["Situation", "Practice"], "rows": [["Flight cancelled", "Rebook first, argue compensation later; keep the delay notice"], ["Hotel overbooked", "Demand an equivalent alternative and the price difference"], ["Site closed unexpectedly", "Check the official account; most refund"], ["Lost documents", "Get a temporary certificate from the nearest police station"], ["Illness", "Hospital first; keep receipts for insurance"], ["Changed plans", "Read the refund rules, then contact the platform"]], "note": "Keep every receipt, message and notification. Insurance claims and complaints are built entirely on them."}
+],
+"landlord": [
+ {"title": "Before you rent it out", "head": ["Item", "Key point"], "rows": [["Title check", "Deed matches the ID; co-owned needs consent"], ["Condition", "Photograph and video everything, recording existing flaws"], ["Appliance list", "Brand, model, condition; signed by both"], ["Meter readings", "Record the starting figures for water, power and gas"], ["Keys", "Change the lock cylinder or the smart-lock code"], ["Compliance", "Some cities require the tenancy to be registered"]], "note": "Film a full walk-through on handover day, room by room, close on walls, floors and appliances. It is the only evidence that holds at the end."},
+ {"title": "Setting the rent", "head": ["Factor", "Effect"], "rows": [["Location", "Within ten minutes' walk of a metro commands a premium"], ["Finish and appliances", "Move-in ready adds 10–15%"], ["Floor and aspect", "Middle floors and south-facing let fastest"], ["Payment terms", "Three months upfront prices lower than monthly"], ["Void cost", "One empty month equals an 8% cut for the year"], ["Market", "Compare live listings nearby, not hearsay about achieved prices"]], "note": "Better to take ¥200 less from a stable tenant than hold out and lose two months. Vacancy costs more than a discount."},
+ {"title": "Contract essentials", "head": ["Clause", "What to state"], "rows": [["Term and rent", "Start and end dates, payment day, late-payment penalty"], ["Deposit", "Amount, conditions and a deadline for return"], ["Costs", "Management fee, utilities, heating, repairs — who pays"], ["Subletting", "Allowed or not; written consent required"], ["Early termination", "Notice period and penalty"], ["Use", "Residential only; no overcrowding, no business"]], "note": "The deposit deadline must be a specific number of days. “Returned after moving out” gives unlimited room to delay."},
+ {"title": "Deposit and moving out", "head": ["Step", "Practice"], "rows": [["Check-in", "A signed handover sheet plus photographs"], ["Notice", "30 days as per the contract"], ["Check-out", "Compare against the move-in photos, item by item"], ["Fair wear", "Light marks on walls and furniture wear are normal"], ["Deductions", "At actual repair cost, with receipts"], ["Refund", "Transfer within the contractual period and keep the record"]], "note": "Fair wear and tear must not be deducted. Paint ageing and light floor wear are not the tenant's liability."},
+ {"title": "Who repairs what", "head": ["Situation", "Responsibility"], "rows": [["Structure and services", "Landlord: leaks, ageing wiring"], ["Appliance failure", "Landlord: water heater, air-conditioning"], ["Damage caused", "Tenant, or deducted from the deposit"], ["Consumables", "Tenant: bulbs, filters"], ["Management fee", "Per contract, usually the landlord"], ["Emergencies", "Landlord may authorise the tenant if unable to attend"]], "note": "An air-conditioner that will not cool or a heater that will not heat is part of the property. Drag your feet and the tenant may repair it and offset the rent."},
+ {"title": "Common disputes", "head": ["Situation", "Handling"], "rows": [["Rent arrears", "Written demand, then terminate per contract and sue"], ["Unauthorised subletting", "Terminate, keeping the evidence"], ["Overcrowding or structural change", "Stop it immediately; report to the district if needed"], ["Refusing to leave", "Written notice, then litigation if negotiation fails"], ["Damage unpaid", "Deduct from the deposit; claim the rest separately"], ["Tenant disappears", "Notarised inventory of belongings before removing anything"]], "note": "Put every step in writing. WeChat records count as evidence — provided you have not deleted them."}
+]
 };
 Object.assign(TABLE_EN, TABLE_EN_MORE);
 
@@ -9798,7 +10167,7 @@ function initInstall(){
 const FEEDBACK_EMAIL = '';
 function feedbackPanel(){
   const ua = navigator.userAgent || '';
-  const tpl = t('【生活换算反馈】\n版本：V6.8\n页面：','【Life Conversion Feedback】\nVersion: V6.8\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
+  const tpl = t('【生活换算反馈】\n版本：V7.1\n页面：','【Life Conversion Feedback】\nVersion: V7.1\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
     t('\n\n问题描述：\n1. 我在做什么：\n2. 期望结果：\n3. 实际结果：\n4. 是否可复现：\n','\n\nIssue description:\n1. What I was doing:\n2. Expected result:\n3. Actual result:\n4. Reproducible:\n');
   const subj = t('生活换算反馈','Life Conversion Feedback');
   const mail = FEEDBACK_EMAIL
