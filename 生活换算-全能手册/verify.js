@@ -73,6 +73,63 @@ function step2(){
   console.log(`  · 模块定义约 ${nMods} 处`);
 }
 
+/* ---------- 2.5 全表数据体检（在 jsdom 内取真实 CATS / TABLE_EN） ---------- */
+function auditData(doc, window){
+  const sc = doc.createElement('script');
+  sc.textContent = 'window.__audit = { cats: CATS, en: TABLE_EN, groups: (typeof GROUP_ORDER !== "undefined" ? GROUP_ORDER : []) };';
+  doc.body.appendChild(sc);
+  const A = window.__audit;
+  if(!A || !A.cats){ bad('数据体检：无法访问 CATS（注入失败）'); return; }
+
+  const ids = Object.create(null), dupIds = [], badGroup = [];
+  const rowBad = [], headBad = [], enBad = [], emptyCells = [];
+  let secs = 0, rows = 0, cells = 0, tables = 0, widgets = 0;
+
+  A.cats.forEach(c=>{
+    if(ids[c.id]) dupIds.push(c.id); else ids[c.id] = 1;
+    if(A.groups.length && c.g && A.groups.indexOf(c.g) < 0) badGroup.push(c.id + ' → ' + c.g);
+    if(c.type !== 'tables' || !c.sections) return;
+    tables++;
+    const titles = Object.create(null);
+    c.sections.forEach((sec, i)=>{
+      secs++;
+      if(sec.html && !sec.head){ widgets++; return; }   // 交互式子面板，不是表格
+      if(!sec.title) headBad.push(c.id + '#' + (i+1) + ' 缺小节标题');
+      else if(titles[sec.title]) headBad.push(c.id + ' 小节标题重复「' + sec.title + '」');
+      else titles[sec.title] = 1;
+      if(!Array.isArray(sec.head) || !sec.head.length){ headBad.push(c.id + '#' + (i+1) + ' 缺表头'); return; }
+      if(!Array.isArray(sec.rows) || !sec.rows.length){ headBad.push(c.id + '#' + (i+1) + ' 无数据行'); return; }
+      sec.rows.forEach((r, ri)=>{
+        rows++; cells += r.length;
+        if(r.length !== sec.head.length) rowBad.push(c.id + '#' + (i+1) + ' 第' + (ri+1) + '行 ' + r.length + ' 列 ≠ 表头 ' + sec.head.length);
+        r.forEach((v, vi)=>{ if(v === '' || v == null) emptyCells.push(c.id + '#' + (i+1) + ' 第' + (ri+1) + '行第' + (vi+1) + '列'); });
+      });
+    });
+    const en = A.en && A.en[c.id];
+    if(!en) return;
+    if(en.length !== c.sections.length) enBad.push(c.id + ' 英文 ' + en.length + ' 节 ≠ 中文 ' + c.sections.length + ' 节');
+    en.forEach((es, i)=>{
+      const zs = c.sections[i];
+      if(!zs) return;
+      if(es.head && zs.head && es.head.length !== zs.head.length) enBad.push(c.id + '#' + (i+1) + ' 英文表头 ' + es.head.length + ' ≠ 中文 ' + zs.head.length);
+      if(es.rows){
+        if(zs.rows && es.rows.length !== zs.rows.length) enBad.push(c.id + '#' + (i+1) + ' 英文 ' + es.rows.length + ' 行 ≠ 中文 ' + zs.rows.length + ' 行');
+        es.rows.forEach((r, ri)=>{
+          if(Array.isArray(es.head) && r.length !== es.head.length) enBad.push(c.id + '#' + (i+1) + ' 英文第' + (ri+1) + '行 ' + r.length + ' 列 ≠ 表头 ' + es.head.length);
+        });
+      }
+    });
+  });
+
+  const list = a => a.slice(0, 3).join('；') + (a.length > 3 ? ` …共 ${a.length} 处` : '');
+  if(dupIds.length) bad('模块 id 重复：' + list(dupIds)); else ok(`${A.cats.length} 个模块 id 无重复`);
+  if(badGroup.length) bad('分组名不在 GROUP_ORDER：' + list(badGroup)); else ok('全部分组名都在 GROUP_ORDER 内');
+  if(rowBad.length) bad('表格行列数不符：' + list(rowBad)); else ok(`${tables} 张表 / ${rows} 行的列数与表头一致`);
+  if(headBad.length) bad('表格结构问题：' + list(headBad)); else ok(`${secs - widgets} 个表格小节标题与表头齐全、无重复（另有 ${widgets} 个交互式子面板）`);
+  if(emptyCells.length) bad('空单元格：' + list(emptyCells)); else ok(`${cells} 个单元格无空缺`);
+  if(enBad.length) bad('中英表格不对齐：' + list(enBad)); else ok('中英表格节数 / 表头 / 行数全部对齐');
+}
+
 /* ---------- 3. jsdom 冒烟遍历 ---------- */
 function step3(){
   console.log('\n[3/3] jsdom 双语全模块冒烟遍历');
@@ -100,18 +157,24 @@ function step3(){
   const { window } = dom;
   const doc = window.document;
 
+  console.log('  · 数据体检');
+  try{ auditData(doc, window); }catch(e){ bad('数据体检抛错: ' + e.message); }
+
   function traverse(lang){
     let n = 0, badOnes = [];
-    const items = [...doc.querySelectorAll('.nitem')];
-    for(const it of items){
+    /* 每次按 data-id 重新查询：导航在切换模块后会重建，缓存的旧节点会失效 → 空转 */
+    const ids = [...doc.querySelectorAll('.nitem')].map(b=>b.dataset.id);
+    for(const id of ids){
+      const it = doc.querySelector('.nitem[data-id="' + id + '"]');
+      if(!it){ badOnes.push(id + '(导航项消失)'); continue; }
       it.click();
       const mainEl = doc.getElementById('main');
       const text = mainEl ? mainEl.textContent.trim() : '';
       const hasH2 = mainEl && mainEl.querySelector('h2');
-      if(!text || !hasH2){ badOnes.push(it.textContent.trim() + '(空面板)'); continue; }
+      if(!text || !hasH2){ badOnes.push(id + '(空面板)'); continue; }
       if(lang === 'en'){
         const h2 = mainEl.querySelector('h2').textContent;
-        if(ZH_RE.test(h2)) badOnes.push(it.textContent.trim() + `(英文标题残留中文: ${h2})`);
+        if(ZH_RE.test(h2)) badOnes.push(id + `(英文标题残留中文: ${h2})`);
       }
       n++;
     }
@@ -481,9 +544,32 @@ function step3(){
         else bad(`关于页统计异常：${st.mods} / ${st.groups} / ${st.tables} / ${st.rows}`);
       } else bad('aboutStats 未定义');
 
+      /* 使用统计：记录 / 面板 / 清空 */
+      if(typeof window.getUsage === 'function'){
+        const u = window.getUsage();
+        const nUsed = Object.keys(u).length;
+        if(nUsed > 100) ok(`使用统计已记录 ${nUsed} 个模块的打开次数`);
+        else bad(`使用统计记录过少（${nUsed}）`);
+        const uNav = doc.querySelector('.nitem[data-id="usage"]');
+        if(uNav){
+          uNav.click();
+          const body = doc.getElementById('main').textContent;
+          const clear = doc.getElementById('usageClear');
+          if(/用过模块/.test(body) && /\d+%/.test(body) && clear) ok('使用统计面板渲染正常（覆盖率 + 清空按钮）');
+          else bad('使用统计面板内容异常');
+          window.confirm = () => true;
+          if(clear){
+            clear.click();
+            const after = Object.keys(window.getUsage()).length;
+            if(after <= 2) ok(`清空统计生效（剩余 ${after} 条，为面板自身）`);
+            else bad(`清空统计未生效（剩余 ${after} 条）`);
+          }
+        } else bad('导航里找不到「使用统计」');
+      } else bad('getUsage 未定义');
+
       window.__errLog = [{ m:'TEST_ERR: canvas unavailable', at:'units.html:1' }];
       const fb = window.feedbackPanel();
-      if(fb.indexOf('V8.3') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V8.3 与最近错误信息');
+      if(fb.indexOf('V8.4') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V8.4 与最近错误信息');
       else bad('反馈模板版本或错误位缺失');
     }catch(e){ bad('功能抽查抛错: ' + e.message); }
   }
