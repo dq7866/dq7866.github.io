@@ -127,6 +127,13 @@ function auditData(doc, window){
   if(rowBad.length) bad('表格行列数不符：' + list(rowBad)); else ok(`${tables} 张表 / ${rows} 行的列数与表头一致`);
   if(headBad.length) bad('表格结构问题：' + list(headBad)); else ok(`${secs - widgets} 个表格小节标题与表头齐全、无重复（另有 ${widgets} 个交互式子面板）`);
   if(emptyCells.length) bad('空单元格：' + list(emptyCells)); else ok(`${cells} 个单元格无空缺`);
+
+  /* 数据新鲜度：chk 字段格式合法、覆盖足够、互不越界 */
+  const chks = A.cats.filter(c=>c.chk);
+  const fmtBad = chks.filter(c=>!/^\d{4}-(0[1-9]|1[0-2])$/.test(c.chk)).map(c=>c.id);
+  if(fmtBad.length) bad('核对日期格式非法：' + list(fmtBad));
+  else if(chks.length >= 25) ok(`数据核对角标覆盖 ${chks.length} 个时效模块，日期格式全部合法`);
+  else bad('核对角标覆盖不足（' + chks.length + ' 个，需 ≥25）');
   if(enBad.length) bad('中英表格不对齐：' + list(enBad)); else ok('中英表格节数 / 表头 / 行数全部对齐');
 
   // 英文小节不得回退中文行：英文模式必须整表英文
@@ -642,8 +649,17 @@ async function step3(){
 
       window.__errLog = [{ m:'TEST_ERR: canvas unavailable', at:'units.html:1' }];
       const fb = window.feedbackPanel();
-      if(fb.indexOf('V8.7') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V8.7 与最近错误信息');
+      if(fb.indexOf('V8.8') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V8.8 与最近错误信息');
       else bad('反馈模板版本或错误位缺失');
+
+      /* 数据新鲜度角标：时效模块渲染 chkbar */
+      const navCur = doc.querySelector('.nitem[data-id="currency"]');
+      if(navCur){
+        navCur.click();
+        const bar = doc.querySelector('#main .chkbar');
+        if(bar && /2026-10/.test(bar.textContent)) ok('时效模块显示「数据核对」角标（currency）');
+        else bad('currency 未显示核对角标');
+      } else bad('导航里找不到 currency');
 
       /* 拼音首字母搜索：jd → 家电选购，sn → 收纳，dy → 打印中心 */
       if(typeof window.pyIndex === 'function'){

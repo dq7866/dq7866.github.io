@@ -231,6 +231,7 @@ ul.plain li{margin:3px 0}
 .sectoc .stc i{font-style:normal;opacity:.6;margin-right:4px;font-size:11px}
 .secshare{float:right;margin-left:8px;border:0;background:none;color:var(--muted);font-size:13px;cursor:pointer;opacity:.5;padding:0 2px;line-height:1.5}
 .secshare:hover{opacity:1;color:var(--accent)}
+.chkbar{font-size:12px;color:var(--muted);background:var(--card);border:1px dashed var(--line);border-radius:8px;padding:7px 12px;margin:0 0 12px;line-height:1.6}
 .card.sectflash{animation:sectflash 1.1s ease-out}
 @keyframes sectflash{0%{box-shadow:0 0 0 2px var(--accent)}100%{box-shadow:0 0 0 2px transparent}}
 /* 打印整册：封面与目录 */
@@ -319,7 +320,7 @@ table.tbl tbody tr{cursor:copy}
   .out,.allrow b,.kv dd,.kv dt,code{color:#000!important}
   code{background:#f2f2f2!important}
   tr:nth-child(even) td{background:#fafafa!important}
-  .snapout,#rowToast,.pci,.updbar,.tourcard,.sectoc,.secshare{display:none!important}
+  .snapout,#rowToast,.pci,.updbar,.tourcard,.sectoc,.secshare,.chkbar{display:none!important}
   table.tbl tbody tr{cursor:auto}
   a{color:#000!important;text-decoration:none!important}
   tr,li{break-inside:avoid}
@@ -358,7 +359,7 @@ table.tbl tbody tr{cursor:copy}
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div class="app">
   <aside class="side" aria-label="模块导航">
-    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v8.7</span></div>
+    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v8.8</span></div>
     <a class="backlink" id="backlink" href="index.html" style="display:none">← 返回工具箱</a>
     <input id="q" class="search" placeholder="搜模块：亩 / 鞋码 / 扳手 / 汇率…       也能直接算：10 km to mi / 12*8">
     <div id="qc" class="qc" role="status" aria-live="polite"></div>
@@ -1368,7 +1369,7 @@ const CATS = [
 {id:'time',en:'Date & Time',g:'生活日常',icon:'🕒',name:'时间与日期',type:'time'},
 
 /* ---------- 钱与账 ---------- */
-{id:'currency',en:'Currency',g:'钱与账',icon:'💱',name:'货币汇率',type:'currency'},
+{id:'currency',chk:'2026-10',en:'Currency',g:'钱与账',icon:'💱',name:'货币汇率',type:'currency'},
 {id:'percent',en:'Discount & Interest',g:'钱与账',icon:'％',name:'折扣与利率',type:'percent'},
 
 /* ---------- 生活尺寸 ---------- */
@@ -2117,18 +2118,18 @@ const CATS = [
 {id:'subnet',en:'Subnets',g:'数字与编码',icon:'🌐',name:'网络与子网',type:'custom',panel:'subnetPanel',bind:'bindSubnet'},
 
 /* ---------- 钱与账 ---------- */
-{id:'loan',en:'Loans & Compound',g:'钱与账',icon:'🏦',name:'贷款与复利',type:'custom',panel:'loanPanel',bind:'bindLoan'},
-{id:'salary',en:'Salary & Tax',g:'钱与账',icon:'💰',name:'工资与个税',type:'custom',panel:'salaryPanel',bind:'bindSalary'},
+{id:'loan',chk:'2026-10',en:'Loans & Compound',g:'钱与账',icon:'🏦',name:'贷款与复利',type:'custom',panel:'loanPanel',bind:'bindLoan'},
+{id:'salary',chk:'2026-10',en:'Salary & Tax',g:'钱与账',icon:'💰',name:'工资与个税',type:'custom',panel:'salaryPanel',bind:'bindSalary'},
 {id:'capital',en:'RMB in Words',g:'钱与账',icon:'🧾',name:'人民币大写',type:'custom',panel:'capitalPanel',bind:'bindCapital'},
 
 {id:'jobvalue',en:'Job Value',g:'钱与账',icon:'💼',name:'工作性价比',type:'custom',panel:'jobvaluePanel',bind:'bindJobvalue'},
-{id:'pension',en:'Pension',g:'钱与账',icon:'🏛️',name:'养老金估算',type:'custom',panel:'pensionPanel',bind:'bindPension'},
-{id:'retire',en:'Retirement Age',g:'钱与账',icon:'📅',name:'退休年龄',type:'custom',panel:'retirePanel',bind:'bindRetire'},
+{id:'pension',chk:'2026-10',en:'Pension',g:'钱与账',icon:'🏛️',name:'养老金估算',type:'custom',panel:'pensionPanel',bind:'bindPension'},
+{id:'retire',chk:'2026-10',en:'Retirement Age',g:'钱与账',icon:'📅',name:'退休年龄',type:'custom',panel:'retirePanel',bind:'bindRetire'},
 
 /* ---------- 健康与饮食 ---------- */
 {id:'health',en:'BMI & Calories',g:'健康与饮食',icon:'❤️',name:'BMI 与热量',type:'custom',panel:'healthPanel',bind:'bindHealth'},
 {id:'drinks',en:'Alcohol & Caffeine',g:'健康与饮食',icon:'🍷',name:'酒精与咖啡因',type:'custom',panel:'drinksPanel',bind:'bindDrinks'},
-{id:'checkup',en:'Health Checkup Numbers',g:'健康与饮食',icon:'🩺',name:'体检指标',type:'tables',sub:'报告上的箭头不等于生病，但连续两年同一项偏高，就值得去问医生。',sections:[
+{id:'checkup',chk:'2026-10',en:'Health Checkup Numbers',g:'健康与饮食',icon:'🩺',name:'体检指标',type:'tables',sub:'报告上的箭头不等于生病，但连续两年同一项偏高，就值得去问医生。',sections:[
  {title:'血常规',head:['项目','参考范围','偏高','偏低'],
   rows:[['白细胞 WBC','3.5–9.5 ×10⁹/L','感染、炎症、应激','病毒感染、药物影响'],['红细胞 RBC','男 4.3–5.8；女 3.8–5.1 ×10¹²/L','脱水、缺氧','贫血、失血'],['血红蛋白 Hb','男 130–175；女 115–150 g/L','红细胞增多','缺铁、地贫可能'],['血小板 PLT','125–350 ×10⁹/L','血栓风险、炎症','出血倾向、免疫因素'],['中性粒细胞 %','40–75%','细菌感染','病毒感染多见'],['淋巴细胞 %','20–50%','病毒感染','免疫低下']],
   note:'参考范围各实验室略有差异，以自己报告单上的区间为准。单次轻微异常先复查，别急着下结论。'},
@@ -2186,7 +2187,7 @@ const CATS = [
   note:'海平面 101.3 kPa；3000m 约 70 kPa，所以高原煮饭要用高压锅。'}
 ],bind:'bindWeather'},
 
-{id:'jewelry',en:'Precious Metals',g:'钱与账',icon:'💎',name:'贵金属与宝石',type:'tables',sub:'买金饰最常见的坑：K 金不是"含金量百分比"，是 24 分之几。',sections:[
+{id:'jewelry',chk:'2026-10',en:'Precious Metals',g:'钱与账',icon:'💎',name:'贵金属与宝石',type:'tables',sub:'买金饰最常见的坑：K 金不是"含金量百分比"，是 24 分之几。',sections:[
  {title:'黄金纯度',head:['标识','含金量','说明'],
   rows:[['足金 999','99.9%','传统足金'],['24K','99.9% 以上','理论纯金'],['22K','91.6%','中东、南亚常见'],['18K','75.0%','硬度高，适合镶嵌'],['14K','58.5%','欧美常见'],['9K','37.5%','英国最低标准']],
   note:'18K = 18/24 = 75%，不是 18%。'},
@@ -2198,7 +2199,7 @@ const CATS = [
   note:'"白金"在国标里指铂金（Pt），白色 K 金是另一回事，买时看印记。'}
 ]},
 
-{id:'logistics',en:'Logistics',g:'吃穿住行',icon:'📦',name:'物流与集装箱',type:'tables',sub:'运费按"计费重量"收，体积大但轻的货会按体积算。',sections:[
+{id:'logistics',chk:'2026-10',en:'Logistics',g:'吃穿住行',icon:'📦',name:'物流与集装箱',type:'tables',sub:'运费按"计费重量"收，体积大但轻的货会按体积算。',sections:[
  {title:'标准集装箱',head:['箱型','内尺寸 m','容积','常见载重'],
   rows:[['20GP','5.90 × 2.35 × 2.39','33.2 m³','约 28 t'],['40GP','12.03 × 2.35 × 2.39','67.7 m³','约 26 t'],['40HQ','12.03 × 2.35 × 2.69','76.4 m³','约 26 t'],['45HQ','13.56 × 2.35 × 2.69','86.0 m³','约 25 t']],
   note:'HQ 是高柜，比 GP 高 30cm，装轻抛货更划算。'},
@@ -2284,7 +2285,7 @@ const CATS = [
 ]},
 
 /* ---------- 生活账与日常 ---------- */
-{id:'rental',en:'Renting & Deposits',g:'吃穿住行',icon:'🏠',name:'租房与押金',type:'tables',sub:'看房看的是房子，签约签的是退路。押金怎么退、维修谁负责，写在纸上才算数。',sections:[
+{id:'rental',chk:'2026-10',en:'Renting & Deposits',g:'吃穿住行',icon:'🏠',name:'租房与押金',type:'tables',sub:'看房看的是房子，签约签的是退路。押金怎么退、维修谁负责，写在纸上才算数。',sections:[
  {title:'看房必查',head:['项目','怎么查','为什么'],
   rows:[['水压','同时开淋浴和厨房水龙头','水压不够，洗澡像受刑'],['热水器','开 3 分钟看是否稳定','老式燃气热水器常常打不着'],['下水','接一盆水倒进地漏','返味和慢排当场就能看出来'],['电路','问清是否独立电表、总闸位置','合表容易被邻居连累停电'],['墙面返潮','看墙角与窗框下方','南方梅雨季一到就发霉'],['隔音','晚上 8 点后再来一趟','白天安静不代表晚上安静'],['手机信号','每个房间看格数','死角很难靠设备补'],['电梯','早高峰等一次','二十层爬楼梯不现实']],
   note:'看房清单照着走一遍，比看十张精修图有用。带一支测电笔和一个手电，十分钟能查出大半问题。'},
@@ -2355,7 +2356,7 @@ const CATS = [
   rows:[['干皮','保湿加封闭','频繁去角质'],['油皮','控油加轻保湿','一天洗三次脸'],['敏感肌','精简加修护','一次换全套新品'],['痘肌','水杨酸点涂加防晒','用手挤'],['混合肌','分区护理','全脸用最厚的那款'],['孕期','物理防晒加基础保湿','A 醇与高浓度酸']],
   note:'肤质会随季节和年龄变，一年自评两次。用在脸上的东西，宁缺毋滥。'}
 ]},
-{id:'medicine',en:'Home Medicine',g:'健康与饮食',icon:'💊',name:'家庭药箱与用药',type:'tables',sub:'药箱里最值钱的不是药，是「按体重算剂量」和「哪些药不能一起吃」这两条常识。',sections:[
+{id:'medicine',chk:'2026-10',en:'Home Medicine',g:'健康与饮食',icon:'💊',name:'家庭药箱与用药',type:'tables',sub:'药箱里最值钱的不是药，是「按体重算剂量」和「哪些药不能一起吃」这两条常识。',sections:[
  {title:'常备药清单',head:['类别','药品','用途','注意'],
   rows:[['退热止痛','对乙酰氨基酚 / 布洛芬','发热、头痛、牙痛','二选一，别叠加吃'],['感冒','生理海水鼻喷、复方感冒药','鼻塞、流涕','复方里常含退热成分，别重复'],['腹泻','口服补液盐Ⅲ、蒙脱石散','腹泻、呕吐','补液比止泻更重要'],['抗过敏','氯雷他定 / 西替利嗪','荨麻疹、过敏性鼻炎','二代不嗜睡'],['外伤','碘伏、无菌敷贴、莫匹罗星','小伤口','别用酒精冲伤口'],['咳嗽','氨溴索（有痰）/ 右美沙芬（干咳）','咳嗽','有痰时别用强力镇咳'],['烫伤','烫伤膏、无菌纱布','轻度烫伤','先冲冷水 15 分钟'],['肠胃','铝碳酸镁、奥美拉唑','反酸、胃痛','连用不超过 2 周']],
   note:'每类留 1–2 种就够，药箱不是越多越好。买之前先翻一遍家里有没有——过期药比没药更危险。'},
@@ -2393,7 +2394,7 @@ const CATS = [
   rows:[['换汇','出发前银行换好现金','机场汇率最差'],['刷卡','选免货币转换费的卡','拒绝 DCC 动态换汇'],['移动支付','境外已开通的城市可用','小店只收现金'],['小费','美国 15–20%，日本不给','各国规则不同'],['预算','日均 × 1.3 留余量','交通门票常被漏算'],['退税','离境机场办','留好小票与登机牌'],['刷卡退款','到账 7–14 天','别当场催']],
   note:'境外消费记住一条：任何机器让你选"用人民币计价"都拒绝，选当地货币，汇率永远更好。'}
 ]},
-{id:'carcost',en:'Car Running Costs',g:'吃穿住行',icon:'🚙',name:'用车成本与保养',type:'tables',sub:'买车是一次性支出，养车是每年一笔。真正贵的是折旧，最容易忘的也是折旧。',sections:[
+{id:'carcost',chk:'2026-10',en:'Car Running Costs',g:'吃穿住行',icon:'🚙',name:'用车成本与保养',type:'tables',sub:'买车是一次性支出，养车是每年一笔。真正贵的是折旧，最容易忘的也是折旧。',sections:[
  {title:'保养周期',head:['项目','周期','费用（元）'],
   rows:[['机油机滤','5000–10000 km 或 1 年','300–800'],['空气滤芯','1–2 万 km','50–150'],['空调滤芯','1 年或 1–2 万 km','60–200'],['刹车油','2 年或 4 万 km','200–400'],['防冻液','2–4 年','200–500'],['火花塞','3–6 万 km','200–800'],['变速箱油','6–8 万 km','600–1500'],['正时皮带','6–10 万 km','800–2500']],
   note:'保养手册写的周期是上限，不是建议值。城市短途多、堵车多，机油该提前换。'},
@@ -2457,7 +2458,7 @@ const CATS = [
   note:'这套工具加起来不到 500 元，能挡掉的返工通常上万。装修完还能留着用一辈子。'}
 ]},
 
-{id:'traffic',en:'Parking & Traffic Rules',g:'吃穿住行',icon:'🅿️',name:'停车与交规速查',type:'tables',sub:'罚单大多不是因为不会开车，是因为没看懂标线。停车前多看两眼地面颜色和路边牌子，比事后申诉省事。',sections:[
+{id:'traffic',chk:'2026-10',en:'Parking & Traffic Rules',g:'吃穿住行',icon:'🅿️',name:'停车与交规速查',type:'tables',sub:'罚单大多不是因为不会开车，是因为没看懂标线。停车前多看两眼地面颜色和路边牌子，比事后申诉省事。',sections:[
  {title:'停车位类型与价格',head:['类型','常见价格','注意'],
   rows:[['产权车位','10–40 万（一线）','有独立产权证，能买卖'],['人防车位','使用权 20 年，5–20 万','办不了产权证，看清合同期'],['月租','300–1500 元/月','问清是否含管理费'],['临停','5–15 元/小时，多有封顶','商场消费常免 2 小时'],['路侧泊位','首小时 2–10 元，夜间便宜','看标线颜色和时段'],['机械车位','5–15 万','限高 1.55 m，SUV 进不去']],
   note:'买人防车位签的是"使用权转让"，本质是长租。到期能否续、遇拆迁怎么算，一定写进条款。'},
@@ -2584,7 +2585,7 @@ const CATS = [
   note:'分类不要超过 8 个。记太细坚持不过三个月，记太粗看不出问题。先把"食"和"悦"拆开，钱多半漏在这两格。'}
 ]},
 
-{id:'insurance',en:'Insurance Basics',g:'钱与账',icon:'🛡️',name:'保险配置',type:'tables',sub:'保险是买保额，不是买产品。同样的预算，先给挣钱的人买够，再谈其他。',sections:[
+{id:'insurance',chk:'2026-10',en:'Insurance Basics',g:'钱与账',icon:'🛡️',name:'保险配置',type:'tables',sub:'保险是买保额，不是买产品。同样的预算，先给挣钱的人买够，再谈其他。',sections:[
  {title:'四类保险优先级',head:['险种','解决什么','优先级'],
   rows:[['百万医疗','大额住院费，几百块买几百万额度','最高'],['意外险','意外身故、伤残、医疗','高，一人一份'],['定期寿险','家庭经济支柱身故后的收入替代','有房贷有娃必买'],['重疾险','生病期间的收入损失','中高，看预算'],['年金 / 增额寿','长期储蓄，不是保障','最后考虑'],['返还型 / 分红型','保障弱、保费贵','一般不推荐']],
   note:'一年几百块的百万医疗，性价比高过一万块的返还型。先把保障做足，再谈储蓄型产品。'},
@@ -2736,7 +2737,7 @@ const CATS = [
   note:'家里有小孩或宠物，一律不碰有机磷和菊酯类。物理防治（黄板、纱网、手捉）慢一点，但没有残留风险。'}
 ]},
 
-{id:'carbuy',en:'Buying a Car',g:'吃穿住行',icon:'🚗',name:'买车与选车',type:'tables',sub:'车价只是首付的一部分。落地价比裸车价高 12–15%，而五年折旧才是最大的一笔支出。',sections:[
+{id:'carbuy',chk:'2026-10',en:'Buying a Car',g:'吃穿住行',icon:'🚗',name:'买车与选车',type:'tables',sub:'车价只是首付的一部分。落地价比裸车价高 12–15%，而五年折旧才是最大的一笔支出。',sections:[
  {title:'落地价构成',head:['项目','比例','说明'],
   rows:[['裸车价','100%','指导价 × 优惠后的成交价'],['购置税','约 8.85%','裸车价 ÷ 1.13 × 10%'],['保险（首年）','3–5%','交强 + 商业，按车价递增'],['上牌与杂费','2000–5000 元','含临牌、验车、代办'],['装潢 / 加装','0–5%','可砍，尽量折成现金优惠'],['新能源购置税','2026 年减半征收','有上限，看政策']],
   note:'谈价只谈"落地总价"，不要分开谈裸车和装潢。销售靠装潢和保险把让出去的利润再赚回来。'},
@@ -2757,7 +2758,7 @@ const CATS = [
   note:'提车当天就要把问题指出来，开出门再回来说"这块漆不是我弄的"，基本没法举证。全程录像最省事。'}
 ]},
 
-{id:'phone',en:'Phone Specs',g:'数字与编码',icon:'📱',name:'手机选购与参数',type:'tables',sub:'参数表里最不值钱的是像素，最值钱的是重量、手感和你每天真正在用的那三个功能。',sections:[
+{id:'phone',chk:'2026-10',en:'Phone Specs',g:'数字与编码',icon:'📱',name:'手机选购与参数',type:'tables',sub:'参数表里最不值钱的是像素，最值钱的是重量、手感和你每天真正在用的那三个功能。',sections:[
  {title:'关键参数含义',head:['参数','看什么','参考值'],
   rows:[['处理器','制程与能效，不只看跑分','3 nm 旗舰 / 4 nm 中端'],['内存（RAM）','决定后台能留几个 App','12 GB 起步，16 GB 更好'],['存储（ROM）','UFS 版本影响读写','UFS 4.0 > 3.1'],['屏幕','分辨率、刷新率、亮度','1.5K / 120 Hz / 峰值 2000 nit'],['电池','容量 + 充电功率','5000 mAh + 80 W'],['重量','每天握在手上','180–200 g 舒适'],['散热','VC 面积，游戏才看','长时间游戏必看']],
   note:'处理器型号后面的后缀很关键：同一颗芯片的"降频版""青春版"性能能差 20%。买之前查一下具体型号，不要只看宣传名。'},
@@ -2883,7 +2884,7 @@ const CATS = [
   note:'收纳设计的验收标准只有一个：住进去三个月，还能保持。靠意志力维持的收纳，都不是好设计。'}
 ]},
 
-{id:'secondhand',en:'Second-hand Trading',g:'钱与账',icon:'🔄',name:'二手交易防骗',type:'tables',sub:'二手交易的每一次纠纷，几乎都能追溯到"没录像""没走平台""没写清瑕疵"这三件事。',sections:[
+{id:'secondhand',chk:'2026-10',en:'Second-hand Trading',g:'钱与账',icon:'🔄',name:'二手交易防骗',type:'tables',sub:'二手交易的每一次纠纷，几乎都能追溯到"没录像""没走平台""没写清瑕疵"这三件事。',sections:[
  {title:'二手定价参考',head:['品类','使用时长','残值率'],
   rows:[['手机','1 年','原价 50–60%'],['手机','2 年','35–45%'],['笔记本','1 年','60–70%'],['相机机身','1–2 年','65–80%'],['相机镜头','1–3 年','70–85%（最保值）'],['家具','1–3 年','20–40%'],['大家电','1–3 年','30–50%'],['母婴用品','—','30–50%'],['图书','—','10–30%']],
   note:'定价看"成交价"，不看"标价"。搜同款按"已售出"排序，取最近 10 条的中位数，再上浮 10% 留砍价空间。'},
@@ -2925,7 +2926,7 @@ const CATS = [
   note:'答谢宴的本质是"补一句谢谢"。所有流程设计都该围绕这句话，而不是围绕"再办一场婚礼"。'}
 ]},
 
-{id:'tradein',en:'Trade-in Subsidy',g:'生活日常',icon:'🔌',name:'家电以旧换新',type:'tables',sub:'补贴是真的，但"先涨价再补贴"也是真的。判断划不划算，只看一条：补贴后的实付价，是否低于近 30 天最低价。',sections:[
+{id:'tradein',chk:'2026-10',en:'Trade-in Subsidy',g:'生活日常',icon:'🔌',name:'家电以旧换新',type:'tables',sub:'补贴是真的，但"先涨价再补贴"也是真的。判断划不划算，只看一条：补贴后的实付价，是否低于近 30 天最低价。',sections:[
  {title:'补贴大致怎么算',head:['品类','补贴比例','单件上限'],
   rows:[['八类家电（冰洗电视空调电脑热水器灶具油烟机）','15%，1 级能效 20%','多为 2000 元'],['手机、平板、智能手表','10–15%','500–1000 元'],['家装厨卫（局部改造）','10–20%','地方政策，差异大'],['汽车报废更新','定额','新能源高于燃油'],['电动自行车','定额','300–600 元'],['结算方式','立减或事后返','立减更省心']],
   note:'各地补贴比例、上限、名额都不同，且按批次发放。下单前先看本地商务部门的当期公告，别按去年的政策算。'},
@@ -2967,7 +2968,7 @@ const CATS = [
   note:'猫减肥最危险的是"饿太快"：猫不进食超过 12 小时就可能启动脂肪肝。宁可慢，不要猛。'}
 ]},
 
-{id:'salecal',en:'Sale Calendar',g:'钱与账',icon:'🛒',name:'大促日历与比价',type:'tables',sub:'大促不是"最便宜"，是"最贵的时段里折扣最大"。真正的省钱靠比价，不靠等日子。',sections:[
+{id:'salecal',chk:'2026-10',en:'Sale Calendar',g:'钱与账',icon:'🛒',name:'大促日历与比价',type:'tables',sub:'大促不是"最便宜"，是"最贵的时段里折扣最大"。真正的省钱靠比价，不靠等日子。',sections:[
  {title:'一年大促节点',head:['时间','活动','力度'],
   rows:[['1 月','年货节','食品、家电、礼品，中'],['3 月','38 焕新节','美妆、服饰，中'],['6 月','618','上半年最大，家电数码'],['8 月','88 会员节','平台会员向，中'],['9 月','99 划算节','日用、囤货，中'],['11 月','双 11','全年最大，全品类'],['12 月','双 12','清仓尾货，弱于双 11'],['每月','品类日 / 超级品牌日','单品类深度折扣']],
   note:'大促已经"日常化"，几乎每月都有名目。真正值得等的只有 618 和双 11，其余时间按需买更省心。'},
@@ -3051,7 +3052,7 @@ const CATS = [
   note:'"标识不清"的充电宝会被直接没收，哪怕容量合规。出门前用记号笔把 Wh 写在壳上。'}
 ]},
 
-{id:'shipping',en:'Parcel Shipping',g:'生活日常',icon:'📮',name:'寄件与运费省钱',type:'tables',sub:'运费贵不贵，一半看重量，一半看体积。把箱子换小一号，往往比谈折扣更有效。',sections:[
+{id:'shipping',chk:'2026-10',en:'Parcel Shipping',g:'生活日常',icon:'📮',name:'寄件与运费省钱',type:'tables',sub:'运费贵不贵，一半看重量，一半看体积。把箱子换小一号，往往比谈折扣更有效。',sections:[
  {title:'运费怎么算',head:['项目','规则'],
   rows:[['首重','1 kg，省内 8–12 元，跨省 12–22 元'],['续重','省内 2–6 元/kg，跨省 6–10 元/kg'],['体积重','长×宽×高(cm) ÷ 6000'],['计费重量','实重与体积重取大者'],['抛货','被子、玩偶、纸箱大而轻，按体积计'],['偏远地区','加收 5–20 元'],['上楼费','无电梯大件另收 20–50 元']],
   note:'寄轻飘大件时，体积重往往是实重的三倍。把空气挤出去——真空袋压缩被子，是最直接的省钱方式。'},
@@ -3210,7 +3211,7 @@ const CATS = [
   rows:[['普通片剂','拆出药片混入生活垃圾，包装撕毁'],['抗生素、激素','送有害废物回收点，不要冲马桶'],['针剂、胰岛素','连针头送医疗废物回收点'],['口服液、糖浆','倒出混吸附物后丢弃'],['抗癌与免疫药','必须送有害废物回收点'],['空药盒','撕掉个人信息再扔']],
   note:'冲马桶和倒下水道是最差的做法——药会进水源。药片混上猫砂或咖啡渣再扔，能防止被翻捡。'}
 ]},
-{id:'carins',en:'Car Insurance',g:'钱与账',icon:'🛡️',name:'汽车保险怎么买',type:'tables',sub:'决定"会不会破产"的是三者险额度，不是车损险。三者从 100 万加到 300 万，保费通常只多两三百。',sections:[
+{id:'carins',chk:'2026-10',en:'Car Insurance',g:'钱与账',icon:'🛡️',name:'汽车保险怎么买',type:'tables',sub:'决定"会不会破产"的是三者险额度，不是车损险。三者从 100 万加到 300 万，保费通常只多两三百。',sections:[
  {title:'险种清单',head:['险种','要不要买'],
   rows:[['交强险','强制，必须买，但保额很低'],['第三者责任险','建议 200–300 万'],['车损险','新车、贷款车必买'],['车上人员责任险','按座位买，常载人就买'],['医保外用药责任险','几十块，很值'],['划痕险','新车可买，旧车没必要']],
   note:'保费的大头花在车损上，但真正兜底的是三者额度。先把这个额度买够，再考虑其他。'},
@@ -3323,7 +3324,7 @@ const CATS = [
   rows:[['换锁芯','租的房子也换，旧锁可能有人有钥匙'],['拍照存档','全屋视频+关键位置特写'],['登记居住','需要办居住证或备案的及时办'],['水电过户','App 绑定自己的账号'],['邻里','认识对门，留电话'],['报修','把待修项一次列清单发给房东']],
   note:'换锁芯把旧芯留着，退租时装回去。这一步花一百多，能解决"前租客还留着钥匙"的隐患。'}
 ]},
-{id:'creditcard',en:'Credit & Score',g:'钱与账',icon:'💳',name:'信用卡与征信管理',type:'tables',sub:'"花钱修复征信"全是骗局。真实逾期记录只能等 5 年自然消除，唯一能做的是不再新增。',sections:[
+{id:'creditcard',chk:'2026-10',en:'Credit & Score',g:'钱与账',icon:'💳',name:'信用卡与征信管理',type:'tables',sub:'"花钱修复征信"全是骗局。真实逾期记录只能等 5 年自然消除，唯一能做的是不再新增。',sections:[
  {title:'征信报告怎么看',head:['项目','要点'],
   rows:[['查询渠道','央行征信中心官网，每年 2 次免费'],['重点看','逾期记录、查询记录、担保信息'],['逾期保留','结清后保留 5 年'],['硬查询','短时间过多会拉低评分'],['呆账','最严重，必须主动处理'],['公共记录','欠税、判决也会记录']],
   note:'"频繁申请网贷"留下的密集硬查询记录，对房贷审批的影响往往比一次小额逾期更大。'},
@@ -3527,7 +3528,7 @@ const CATS = [
   rows:[['楼上漏水','先拍照，再请物业关阀，损失留证'],['宠物吠叫','先沟通，再物业，最后报警'],['群租扰民','向物业与街道举报'],['夜间经营','查是否有营业资质'],['住户精神异常','联系社区与家属，别自行对峙'],['长期纠纷','调解结果书面化']],
   note:'漏水纠纷的关键是及时固定证据。等水干了再谈赔偿，责任很难划清。'}
 ]},
-{id:'powerbill',en:'Electricity Bill',g:'钱与账',icon:'⚡',name:'家庭电费与峰谷电价',type:'tables',sub:'租房先问清水电是民用价还是商用价。商电贵近一倍，一年差出一台冰箱。',sections:[
+{id:'powerbill',chk:'2026-10',en:'Electricity Bill',g:'钱与账',icon:'⚡',name:'家庭电费与峰谷电价',type:'tables',sub:'租房先问清水电是民用价还是商用价。商电贵近一倍，一年差出一台冰箱。',sections:[
  {title:'电费怎么算',head:['类型','说明'],
   rows:[['阶梯电价','按月用量分三档，第三档最贵'],['峰谷电价','自愿申请，夜间便宜'],['合表用户','按统一价，无阶梯'],['一户一表','最常见'],['商水商电','租房常见，贵近一倍'],['基本电费','部分容量制用户有']],
   note:'看电费单先找"单价"和"阶梯档位"。单价 1 元以上，基本就是商电。'},
@@ -3643,7 +3644,7 @@ const CATS = [
   note:'判断一个计划好不好，标准只有一个：你能连续做三个月吗。做不到，就把它改小一半。'}
 ]},
 
-{id:'medreport',en:'Reading Test Results',g:'健康与饮食',icon:'🩺',name:'体检报告怎么看',type:'tables',sub:'体检报告上的箭头不等于生病。先看趋势，再看绝对值，最后看这个指标在你的情况下意味着什么。',sections:[
+{id:'medreport',chk:'2026-10',en:'Reading Test Results',g:'健康与饮食',icon:'🩺',name:'体检报告怎么看',type:'tables',sub:'体检报告上的箭头不等于生病。先看趋势，再看绝对值，最后看这个指标在你的情况下意味着什么。',sections:[
  {title:'必看指标与参考',head:['指标','参考范围','提示'],
   rows:[['血压','120/80 理想，140/90 为高血压','连续三天同一时间测，别只看一次'],['空腹血糖','3.9–6.1 mmol/L','空腹 8 小时以上；6.1–7.0 属糖前期'],['糖化血红蛋白','5.7% 以下正常，6.5% 以上糖尿病','反映近三个月平均，不受当天饮食影响'],['总胆固醇','5.2 mmol/L 以下','5.2–6.2 是边缘升高，三个月后复查'],['低密度脂蛋白','3.4 以下，有心血管病 1.8 以下','「坏胆固醇」，用药主要盯这一项'],['体重指数 BMI','18.5–23.9（中国标准）','24 以上超重，28 以上肥胖']],
   note:'中国标准 BMI 24 就是超重，比国际的 25 更严。亚洲人内脏脂肪更容易堆积。'},
@@ -3769,7 +3770,7 @@ const CATS = [
   note:'老人常会漏说症状，因为怕麻烦人。出门前在家先问一遍，把答案写在纸上带过去。'}
 ]},
 
-{id:'license',en:'Driving Licence',g:'吃穿住行',icon:'🚦',name:'学车与驾照',type:'tables',sub:'学车最大的变量不是天赋，是教练和练车时间。报名前先问清"一人一车多久"，比问价格重要。',sections:[
+{id:'license',chk:'2026-10',en:'Driving Licence',g:'吃穿住行',icon:'🚦',name:'学车与驾照',type:'tables',sub:'学车最大的变量不是天赋，是教练和练车时间。报名前先问清"一人一车多久"，比问价格重要。',sections:[
  {title:'报名前搞清楚',head:['项目','要问清'],
   rows:[['车型','C1 手动挡还是 C2 自动挡'],['费用包含','补考费、模拟费、接送是否另收'],['练车方式','一人一车还是排队轮练'],['教练分配','能否换教练，怎么换'],['训练场距离','通勤时间算进总成本'],['拿证周期','平均多久，旺季多久']],
   note:'C2 自动挡更简单、拿证更快，日常家用足够。除非要开货车或老车，不必执着手动挡。'},
@@ -3790,7 +3791,7 @@ const CATS = [
   note:'换证可以线上办，但体检要去指定医院。到期前一个月就会收到提醒短信，别等到过期。'}
 ]},
 
-{id:'visa',en:'Visas and Borders',g:'吃穿住行',icon:'🛂',name:'签证与出入境',type:'tables',sub:'签证官看的不是你多想去，是你会不会回来。行程、资金、工作三件事对得上，通过率就高。',sections:[
+{id:'visa',chk:'2026-10',en:'Visas and Borders',g:'吃穿住行',icon:'🛂',name:'签证与出入境',type:'tables',sub:'签证官看的不是你多想去，是你会不会回来。行程、资金、工作三件事对得上，通过率就高。',sections:[
  {title:'签证类型怎么选',head:['目的','类型'],
   rows:[['旅游','个人旅游签，多数需行程与酒店'],['商务','需邀请函与派遣函'],['探亲','需亲属关系证明与邀请人资料'],['留学','需录取通知书与资金证明'],['过境','停留时间短，注意是否需过境签'],['多次往返','有良好出入境记录更容易批']],
   note:'目的必须与实际一致。拿旅游签去工作，一旦被发现会被遣返并留下记录。'},
@@ -3853,7 +3854,7 @@ const CATS = [
   note:'体检的价值在连续几年对比，不在于某一年的箭头。没有历史报告，一张纸的参考意义有限。'}
 ]},
 
-{id:'vaccine',en:'Child Vaccines',g:'健康与饮食',icon:'💉',name:'儿童疫苗接种',type:'tables',sub:'免费疫苗按程序打，自费疫苗按风险选。接种证要留到入学，丢了补办很麻烦。',sections:[
+{id:'vaccine',chk:'2026-10',en:'Child Vaccines',g:'健康与饮食',icon:'💉',name:'儿童疫苗接种',type:'tables',sub:'免费疫苗按程序打，自费疫苗按风险选。接种证要留到入学，丢了补办很麻烦。',sections:[
  {title:'免疫规划疫苗时间表',head:['月龄','疫苗'],
   rows:[['出生','乙肝第一针、卡介苗'],['1 月龄','乙肝第二针'],['2 月龄','脊灰第一剂'],['3 月龄','脊灰、百白破第一剂'],['6 月龄','乙肝第三针、流脑 A 第一剂'],['8 月龄','麻腮风、乙脑'],['18 月龄','百白破加强、麻腮风第二剂'],['4 岁','脊灰加强'],['6 岁','白破、流脑 A+C']],
   note:'各地程序略有差异，以接种证上打印的时间为准。接种证和出生证一样重要，务必收好。'},
@@ -4063,7 +4064,7 @@ const CATS = [
   note:'所有票据、短信、通知截图都留着。保险理赔和投诉，靠的都是这些。'}
 ]},
 
-{id:'landlord',en:'Renting Out a Home',g:'钱与账',icon:'🏢',name:'出租房屋与房东责任',type:'tables',sub:'出租不是收租那么简单。合同写不清楚，一次纠纷就能吃掉半年租金。',sections:[
+{id:'landlord',chk:'2026-10',en:'Renting Out a Home',g:'钱与账',icon:'🏢',name:'出租房屋与房东责任',type:'tables',sub:'出租不是收租那么简单。合同写不清楚，一次纠纷就能吃掉半年租金。',sections:[
  {title:'出租前准备',head:['事项','要点'],
   rows:[['产权核验','房产证与身份证一致，共有需共有人同意'],['房屋状态','拍照录像，记录原有瑕疵'],['家电清单','列明品牌型号与状态，双方签字'],['水电燃气','抄表记录起始读数'],['钥匙','换锁芯或更换智能锁密码'],['合规','部分城市需办理租赁备案']],
   note:'交房当天拍一条完整视频，从门口走到每个房间，重点拍墙面、地板、家电。这是退租时唯一有效的证据。'},
@@ -4084,7 +4085,7 @@ const CATS = [
   note:'任何一步都要留书面记录。微信聊天记录也可以作为证据，前提是没有删。'}
 ]},
 
-{id:'coldmed',en:'Cold & Flu Medicine',g:'健康与饮食',icon:'🤧',name:'感冒用药与误区',type:'tables',sub:'感冒是自限性的，药只让你舒服一点，不缩短病程。真正要记住的是：哪些成分不能重复吃，哪些情况必须去医院。',sections:[
+{id:'coldmed',chk:'2026-10',en:'Cold & Flu Medicine',g:'健康与饮食',icon:'🤧',name:'感冒用药与误区',type:'tables',sub:'感冒是自限性的，药只让你舒服一点，不缩短病程。真正要记住的是：哪些成分不能重复吃，哪些情况必须去医院。',sections:[
  {title:'先分清是什么',head:['类型','特点','病程'],
   rows:[['普通感冒','鼻塞流涕咽痛为主，很少高热','7–10 天自愈'],['流感','突然高热 39 度以上、全身酸痛','1–2 周，需抗病毒药'],['过敏性鼻炎','清水样鼻涕、连续打喷嚏、眼痒','接触过敏原就发作'],['新冠','症状可与感冒重叠，需抗原确认','5–7 天多见'],['细菌性咽炎','咽痛剧烈、扁桃体化脓、无鼻涕','需就医']],
   note:'只有流感早期（48 小时内）用奥司他韦才有意义。普通感冒吃抗病毒药，等于白吃。'},
@@ -4102,7 +4103,7 @@ const CATS = [
   note:'感冒药不会缩短病程。所有努力都是为了睡得着、吃得下、喝得进。'}
 ]},
 
-{id:'energygrade',en:'Appliance Energy Labels',g:'居家装修',icon:'⚡',name:'家电能效与换新',type:'tables',sub:'能效等级只说明"同样效果下耗电多少"。一级能省电，但省下的电费要几年才追回差价——算过之后再决定。',sections:[
+{id:'energygrade',chk:'2026-10',en:'Appliance Energy Labels',g:'居家装修',icon:'⚡',name:'家电能效与换新',type:'tables',sub:'能效等级只说明"同样效果下耗电多少"。一级能省电，但省下的电费要几年才追回差价——算过之后再决定。',sections:[
  {title:'能效标识怎么看',head:['项','含义'],
   rows:[['能效等级','1 级最省电，3 级为市场准入线'],['年耗电量','按标准工况估算，实际会偏高'],['能效比 APF','空调制冷量与耗电之比，越高越省'],['额定功率','连续运行的耗电速度'],['容量/匹数','决定够不够用，不是越大越好'],['生产者名称','核对是否为同一型号']],
   note:'同一台机器换个能效等级，差价常在 500–1500 元。年耗电量差 200 度，按 0.6 元算一年只差 120 元。'},
@@ -4324,15 +4325,15 @@ const CATS = [
 /* ---------- 专业计量 ---------- */
 {id:'moreunits',en:'Engineering Units',g:'石油与工程',g2:'数字与编码',icon:'🧪',name:'专业单位',type:'custom',panel:'moreUnitsPanel',bind:'bindMoreUnits'},
 {id:'acoustic',en:'Acoustics & Optics',g:'石油与工程',g2:'数字与编码',icon:'🔊',name:'声学与光学',type:'custom',panel:'acousticPanel',bind:'bindAcoustic'},
-{id:'tire',en:'Tire Pressure',g:'吃穿住行',g2:'石油与工程',icon:'🛞',name:'胎压',type:'custom',panel:'tirePanel',bind:'bindTire'},
-{id:'prepay',en:'Early Repayment',g:'钱与账',icon:'💸',name:'提前还款',type:'custom',panel:'prepayPanel',bind:'bindPrepay'},
+{id:'tire',chk:'2026-10',en:'Tire Pressure',g:'吃穿住行',g2:'石油与工程',icon:'🛞',name:'胎压',type:'custom',panel:'tirePanel',bind:'bindTire'},
+{id:'prepay',chk:'2026-10',en:'Early Repayment',g:'钱与账',icon:'💸',name:'提前还款',type:'custom',panel:'prepayPanel',bind:'bindPrepay'},
 
 /* ---------- 生活补充 ---------- */
 {id:'slope',en:'Slope',g:'居家装修',g2:'石油与工程',icon:'📐',name:'坡度换算',type:'custom',panel:'slopePanel',bind:'bindSlope'},
 {id:'petage',en:'Pet Age',g:'生活日常',icon:'🐾',name:'宠物年龄',type:'custom',panel:'petagePanel',bind:'bindPetage'},
-{id:'social',en:'Social Insurance',g:'钱与账',icon:'🛡️',name:'五险一金',type:'custom',panel:'socialPanel',bind:'bindSocial'},
+{id:'social',chk:'2026-10',en:'Social Insurance',g:'钱与账',icon:'🛡️',name:'五险一金',type:'custom',panel:'socialPanel',bind:'bindSocial'},
 {id:'coupon',en:'Coupons',g:'钱与账',icon:'🛒',name:'凑单满减',type:'custom',panel:'couponPanel',bind:'bindCoupon'},
-{id:'utility',en:'Utility Tariffs',g:'钱与账',icon:'📊',name:'水电燃气阶梯',type:'tables',sub:'阶梯计价的意思是：用得越多，每一度越贵。算清自己在第几档，比抠每一度更省。',sections:[
+{id:'utility',chk:'2026-10',en:'Utility Tariffs',g:'钱与账',icon:'📊',name:'水电燃气阶梯',type:'tables',sub:'阶梯计价的意思是：用得越多，每一度越贵。算清自己在第几档，比抠每一度更省。',sections:[
  {title:'居民阶梯电价',head:['档位','年用电量','电价（元/度）'],
   rows:[['第一档','2760 度以内','约 0.50–0.55'],['第二档','2761–4800 度','每度加价约 0.05'],['第三档','4800 度以上','每度加价约 0.30'],['一户多人口','可申请增加基数','按户籍人口核定'],['合表用户','不执行阶梯','按合表电价']],
   note:'各省数字略有差异，但"越用越贵"的结构全国一致。家里五口人以上，去营业厅申请一户多人口，一年能省几百。'},
@@ -6875,12 +6876,16 @@ function helpPanel(){
 }
 
 function aboutStats(){
-  const st = { mods:0, groups:0, tables:0, rows:0 };
+  const st = { mods:0, groups:0, tables:0, rows:0, chks:0, oldest:'' };
   try{
     st.mods = CATS.length;
     const gs = new Set();
     CATS.forEach(c=>{
       if(c.g) gs.add(c.g);
+      if(c.chk){
+        st.chks++;
+        if(!st.oldest || c.chk < st.oldest) st.oldest = c.chk;
+      }
       if(c.type === 'tables' && c.sections && c.sections.length){
         st.tables++;
         c.sections.forEach(s=>{ if(s && s.rows) st.rows += s.rows.length; });
@@ -6896,9 +6901,10 @@ function aboutPanel(){
   return '<div class="panel"><h2>ℹ️ About & Changelog</h2><p class="sub">Version, stack, licences — and what we refuse to build.</p>' +
   card('About', '<div class="kv">' +
     '<dt>Name</dt><dd>Life Converter · All-in-One Handbook</dd>' +
-    '<dt>Version</dt><dd>V8.7 (2026-10-29)</dd>' +
+    '<dt>Version</dt><dd>V8.8 (2026-10-29)</dd>' +
     '<dt>Form</dt><dd>Single-page app + PWA, installable</dd>' +
     '<dt>Modules</dt><dd>' + st.mods + ' across ' + st.groups + ' groups — ' + st.tables + ' reference cards, ' + st.rows.toLocaleString('en-US') + ' rows</dd>' +
+    '<dt>Freshness</dt><dd>' + st.chks + ' price / policy cards carry a checked-on date (earliest ' + st.oldest + ')</dd>' +
     '<dt>Data</dt><dd>All calculations on-device, no upload</dd>' +
   '</div><div class="rowline" style="margin-top:10px"><button class="btn ghost" id="tourAgain">Show the getting-started card again</button></div>') +
   card('Changelog', tbl(['Version','Highlights'],[
@@ -6923,6 +6929,7 @@ function aboutPanel(){
     ['V4.5','Waterproofing, cabinetry, network and gas cards; every calculator can export its result as a card; recently used modules surface at the top of the sidebar; swap buttons on the Combo Board'],
     ['V4.6','Appliance buying, storage planning, contract & payment, and checkup numbers cards; value boxes accept sums like 12*8; every reference card exports to Excel or copies as a table; history exports to Excel; Alt+↑/↓ jumps between modules'],
     ['V4.7','Gift money, exercise burn, laundry care and underfloor heating cards; the Combo Board takes formula rows (x*0.13); filter box on every reference card; copy all units at once'],
+    ['V8.8','Freshness badges: 33 price / policy / rate modules carry a "data checked 2026-10" notice, and the About page tracks how many are marked and when the oldest check was'],
     ['V8.7','Pinyin-initial search (type jd to reach the appliance module) and deep-linked sections: #m=id&s=n jumps straight to a section, the chip rail keeps the URL current, and every section card has a copy-link button'],
     ['V8.6','Section navigation for long cards (138 of 170 table modules get a tappable chip rail that follows scrolling) and one-tap group booklets in the Print Center with a cover and a two-column contents page'],
     ['V8.5','Every remaining English table translated: 61 sections / 371 rows across 13 modules (appliance buying, storage, fitted furniture, contracts, waterproofing, checkups, networking, gas, wiring, renovation, plumbing, tiling, bedding), and a zero-fallback rule is now a permanent test'],
@@ -7022,9 +7029,10 @@ function aboutPanelZH(){
   return '<div class="panel"><h2>ℹ️ 关于与更新日志</h2><p class="sub">版本、技术、许可，以及我们坚决不做的事。</p>' +
   card('关于', '<div class="kv">' +
     '<dt>名称</dt><dd>生活换算 · 全能手册</dd>' +
-    '<dt>版本</dt><dd>V8.7（2026-10-29）</dd>' +
+    '<dt>版本</dt><dd>V8.8（2026-10-29）</dd>' +
     '<dt>形态</dt><dd>单页应用 + PWA，可安装到桌面</dd>' +
     '<dt>模块</dt><dd>' + st.mods + ' 个，' + st.groups + ' 个分组，' + st.tables + ' 张速查表、' + st.rows.toLocaleString('zh-CN') + ' 条对照</dd>' +
+    '<dt>数据核对</dt><dd>' + st.chks + ' 个价格 / 政策类模块带核对角标（最早 ' + st.oldest + '）</dd>' +
     '<dt>数据</dt><dd>全部本地计算，不上传</dd>' +
   '</div><div class="rowline" style="margin-top:10px"><button class="btn ghost" id="tourAgain">再看一次新手提示</button></div>') +
   card('更新日志', tbl(['版本','主要变化'],[
@@ -7042,6 +7050,7 @@ function aboutPanelZH(){
     ['V3.2','中英界面、无障碍与键盘操作、安装引导、意见反馈'],
     ['V3.3','全部模块标题与说明英译、单位模块注释英译'],
     ['V3.4','表格模块（扳手/管钳/螺栓/钻头/床品/螺纹）表头与注释英译'],
+    ['V8.8','数据新鲜度角标：33 个价格 / 政策 / 费率类模块顶部显示「数据核对 2026-10」提示条，关于页统计已标注模块数与最早核对月份'],
     ['V8.7','拼音首字母搜索（输 jd 直达家电选购、dy 直达打印中心）＋小节深链：#m=模块&s=序号 直达第几节，点小节胶囊地址栏同步更新，每个小节卡带「🔗 复制本节链接」按钮'],
     ['V8.6','长表页内小节导航：138/170 个表格模块顶部出现可点的小节胶囊，点击直达、滚动跟随高亮，可与页内筛选联动；打印中心新增「按分组一键整册」：带封面和两栏目录，一次装订成册'],
     ['V8.5','英文表格补译收官：13 个模块 61 个小节 / 371 行全部补上英文行（家电选购、收纳、全屋定制、合同、防水、体检、弱电、燃气、电工、旧房、水暖、瓷砖、床品行李），「英文小节零中文回退」成为永久校验'],
@@ -9716,7 +9725,7 @@ function updateStatic(){
   const brandrow = document.querySelector('.brandrow');
   if(brandrow && brandrow.childNodes[0]) brandrow.childNodes[0].textContent = t('生活换算','Life Conversion');
   const brand = document.querySelector('.brand > span');
-  if(brand) brand.textContent = t('全能手册 · 本地离线版 v8.7', 'All-in-One Handbook · v8.7');
+  if(brand) brand.textContent = t('全能手册 · 本地离线版 v8.8', 'All-in-One Handbook · v8.8');
   const bl = document.getElementById('backlink');
   if(bl) bl.textContent = t('← 返回工具箱','← Back to toolbox');
   const side = document.querySelector('.side');
@@ -11013,7 +11022,7 @@ function initInstall(){
 const FEEDBACK_EMAIL = '';
 function feedbackPanel(){
   const ua = navigator.userAgent || '';
-  const tpl = t('【生活换算反馈】\n版本：V8.7\n页面：','【Life Conversion Feedback】\nVersion: V8.7\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
+  const tpl = t('【生活换算反馈】\n版本：V8.8\n页面：','【Life Conversion Feedback】\nVersion: V8.8\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
     (window.__errLog && window.__errLog.length
       ? t('\n最近错误：','\nLast error: ') + window.__errLog[0].m + t('（',' (') + (window.__errLog[0].at || '') + '）'
       : '') +
@@ -11306,6 +11315,12 @@ function render(){
     case 'custom':   main.innerHTML = window[c.panel](); if(c.bind) window[c.bind](); break;
     case 'tables':   main.innerHTML = tablesPanel(c); if(c.bind) window[c.bind](); bindTables(c); break;
     default:         main.innerHTML = aboutPanel();
+  }
+  /* 数据新鲜度角标：价格 / 政策 / 费率类模块显示最近核对月份 */
+  if(c.chk){
+    main.insertAdjacentHTML('afterbegin',
+      '<div class="chkbar">🕒 ' + t('数据核对：' + c.chk + ' · 价格 / 政策 / 费率会随时间变化，重要决策前请以官方最新口径为准',
+                                  'Data checked ' + c.chk + ' · prices and policies drift — confirm with official sources before big decisions') + '</div>');
   }
   if(isEN()){
     main.insertAdjacentHTML('afterbegin', '<div class="langnote">English UI · RMB formal numerals and lunar month names stay in Chinese by design</div>');
