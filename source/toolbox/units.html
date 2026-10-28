@@ -272,7 +272,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div class="app">
   <aside class="side" aria-label="模块导航">
-    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v6.5</span></div>
+    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v6.8</span></div>
     <a class="backlink" id="backlink" href="index.html" style="display:none">← 返回工具箱</a>
     <input id="q" class="search" placeholder="搜模块：亩 / 鞋码 / 扳手 / 汇率…       也能直接算：10 km to mi / 12*8">
     <div id="qc" class="qc" role="status" aria-live="polite"></div>
@@ -3491,6 +3491,258 @@ const CATS = [
 ]},
 
 /* ---------- 专业计量 ---------- */
+{id:'commute',en:'Commuting',g:'吃穿住行',icon:'🚇',name:'通勤方式比较',type:'tables',sub:'通勤比的不是哪一种快，是哪一种每天都能忍。算清门到门时间、月成本和换乘次数——单程差 20 分钟，一年是 160 小时。',sections:[
+ {title:'门到门时间怎么算',head:['方式','要算进去的环节'],
+  rows:[['地铁','步行 + 安检 + 等车 + 换乘 + 出站步行'],['公交','步行 + 等车（含不确定性）+ 堵车'],['自驾','取车 + 堵车 + 找车位 + 停车楼步行'],['电动车','取车 + 充电时间摊到每天 + 找车位'],['自行车','取车 + 换衣 + 到公司洗漱'],['步行','纯时间，但可算进运动量']],
+  note:'很多人的 20 分钟通勤只算了车上时间。把两端步行和等车加进去，往往是 40 分钟。'},
+ {title:'月成本对照',head:['方式','月成本构成','参考区间'],
+  rows:[['地铁','按次或月票','100–300 元'],['公交','月票或按次','50–150 元'],['自驾','油电 + 停车 + 保险折旧摊销','1500–3500 元'],['网约车','按次，通勤高峰溢价','1500–4000 元'],['电动车','电费 + 2–3 年换电池','30–80 元'],['自行车','购置摊销 + 维护','20–60 元']],
+  note:'自驾的真实成本里，停车费常常比油费高。先问公司停车多少钱一个月，再决定买不买车。'},
+ {title:'换乘与确定性',head:['指标','影响'],
+  rows:[['换乘次数','每多一次，实际耗时多 5–8 分钟'],['首末班','决定你能不能加班'],['班次间隔','10 分钟以上就要看时刻表'],['雨天备选','有没有一条不淋雨的替代路线'],['故障率','地铁偶发，公交常态'],['坐位概率','决定你能不能在路上补觉']],
+  note:'通勤的疲惫感来自不可控，不是来自时间长短。同样 45 分钟，一趟直达比两次换乘轻松得多。'},
+ {title:'时间价值换算',head:['月薪','每小时约','每天多 30 分钟，一年'],
+  rows:[['8000','45 元','约 90 小时'],['15000','85 元','约 90 小时'],['25000','142 元','约 90 小时'],['40000','227 元','约 90 小时'],['算法','月薪 ÷ 21.75 ÷ 8','按 250 个工作日算']],
+  note:'换成钱不是为了让你租更贵的房子，是为了提醒你——通勤时间是可以被定价的，别默认它免费。'},
+ {title:'天气与身体',head:['情况','建议'],
+  rows:[['雨季长','优先地铁或带棚路线'],['夏天 35 度以上','骑车通勤要留洗漱时间'],['冬天雾霾','骑车等于加倍吸入'],['颈椎腰椎不好','别在车上低头看手机'],['孕期','避免长时间站立与换乘'],['带娃通勤','优先直达，换乘越少越好']],
+  note:'坚持不下来的通勤方式，成本再低也是零。先看能不能连续做三个月。'},
+ {title:'混合通勤',head:['组合','适合'],
+  rows:[['骑车 + 地铁','家离站 1–3 公里，避开早高峰'],['开车 + 地铁','郊区到市区，停车费便宜'],['公交 + 步行','短途，顺便凑步数'],['拼车','同小区同事，成本分摊'],['错峰自驾','弹性上班，避开拥堵'],['远程 + 到岗','每周 2 天到岗，租房可以更远']],
+  note:'混合方案的关键是停车能长期停。很多换乘停车场早上八点就满了，先实地看一次。'}
+]},
+
+{id:'roomrule',en:'Flatmate Rules',g:'关系与文化',icon:'🏠',name:'合租与室友公约',type:'tables',sub:'合租的矛盾九成来自没说过。搬进去第一周把六件事写下来发群里，比事后讲道理有用一百倍。',sections:[
+ {title:'入住前必谈六件事',head:['事项','要问清楚'],
+  rows:[['租金与押金','押几付几、退押条件、谁来收'],['水电网气','怎么分摊、谁去开户'],['保洁','请阿姨还是轮流、钱怎么出'],['访客与留宿','能不能带人、提前多久说'],['做饭','厨具共用吗、油烟谁清'],['退租','提前多久说、能否转租']],
+  note:'谈钱不伤感情，含糊才伤。所有约定写进群公告，比口头承诺管用。'},
+ {title:'费用怎么分',head:['项目','常见分法'],
+  rows:[['房租','按房间大小与朝向分，不按人头'],['水电','按人头均分最简单'],['燃气','做饭多的多出一点，或按人头'],['网费','按人头'],['保洁','按人头'],['公共耗材','设一个公共基金，每人每月固定存']],
+  note:'公共基金是最省事的设计：每人每月存 100，纸巾洗洁精从里面出，不用每次算谁买过。'},
+ {title:'公共区域规则',head:['区域','规则'],
+  rows:[['厨房','做完饭当次清理，锅碗不过夜'],['冰箱','各自一层，超过一周的贴日期'],['卫生间','洗完把地漏头发清掉'],['客厅','私人物品当天收走'],['阳台','晾衣按时间段分，别占一整天'],['门口','鞋不超过两双，快递当天拿']],
+  note:'当次清理比轮流打扫有效。轮值表总会有人漏，当次清理是即时反馈。'},
+ {title:'作息与噪音',head:['情况','做法'],
+  rows:[['作息不同','22:30 后戴耳机，洗衣机不启动'],['带人回家','提前一天群里说'],['打电话','回自己房间，不在客厅开免提'],['养宠物','先全体同意，再谈责任'],['装修或搬家','提前三天通知，避开休息日早晨'],['冲突升级','先私聊，再群聊，不当众指责']],
+  note:'噪音投诉的正确顺序是私聊而不是群里点名。公开指责会让小事变成面子问题。'},
+ {title:'出了问题怎么处理',head:['问题','处理'],
+  rows:[['有人长期不交钱','书面催一次，仍不交就走退租'],['卫生长期不达标','拍照留证加群内明确分工'],['东西被用坏','先确认是不是共用，再谈赔'],['室友带人长住','按合同人数条款提出'],['实在合不来','按合同提前通知，别赌气搬走'],['押金被扣','入住时的照片与清单就是证据']],
+  note:'入住当天拍一遍全屋视频，重点拍墙面、家电、家具瑕疵。这是退租时唯一有效的证据。'},
+ {title:'退租与押金',head:['环节','要点'],
+  rows:[['提前通知','按合同，通常 30 天'],['找接手','转租需房东书面同意'],['清洁','按入住时的状态还原'],['费用结清','水电燃气抄表拍照'],['押金退还','约定 7 日内，写进群记录'],['交接','钥匙、门禁卡、快递代收点变更']],
+  note:'押金拖着不退是最常见的纠纷。退租当天把水电读数、房屋状态、钥匙交接拍成一条视频发群里，留时间戳。'}
+]},
+
+{id:'fitplan',en:'Workout Plan',g:'健康与饮食',icon:'🏋️',name:'健身计划编排',type:'tables',sub:'新手最容易犯的错是练得太狠、去得太少。每周三次、每次 40 分钟，坚持三个月，比任何计划都有效。',sections:[
+ {title:'每周怎么排',head:['频率','安排'],
+  rows:[['2 天','全身训练，隔天做'],['3 天','全身或推拉腿，隔天做'],['4 天','上下肢分化，练二休一'],['5 天','推拉腿加上肢加下肢'],['6 天以上','只适合有基础且睡眠充足的人'],['新手建议','每周 3 天，先练满 8 周再调整']],
+  note:'肌肉在休息时生长，不是在训练时。同一肌群间隔 48 小时是底线。'},
+ {title:'训练量基线',head:['项目','新手','进阶'],
+  rows:[['每个动作组数','2–3 组','3–4 组'],['每组次数','8–12 次','6–12 次（力量 3–6）'],['组间休息','60–90 秒','90–180 秒（大重量）'],['单次时长','40–50 分钟','60–75 分钟'],['每周动作数','5–6 个','6–8 个'],['力竭程度','留 2–3 次余量','最后一组可接近力竭']],
+  note:'留 2 次余量的意思是：做到你觉得还能再做两下就停。新手练到力竭，恢复会拖三天。'},
+ {title:'动作怎么选',head:['模式','动作'],
+  rows:[['蹲','高脚杯深蹲、腿举、保加利亚分腿蹲'],['髋铰链','罗马尼亚硬拉、臀桥、髋外展'],['推（水平）','俯卧撑、哑铃卧推、器械推胸'],['拉（水平）','坐姿划船、哑铃划船'],['推（垂直）','哑铃肩推、器械推肩'],['拉（垂直）','高位下拉、引体（可辅助）']],
+  note:'六个模式每样一个动作就是一套完整的全身计划。不必追求花哨，先把六个模式练熟。'},
+ {title:'有氧怎么加',head:['目标','做法'],
+  rows:[['减脂','每周 150 分钟中等强度，或 75 分钟高强度'],['心肺','每周 2 次 20–30 分钟间歇'],['和力量同天','先力量后有氧，或隔 6 小时'],['只做有氧','容易掉肌肉，配合力量更好'],['走路','每天 8000 步已足够打底'],['心率区间','（220 减年龄）乘 60%–75% 为中等']],
+  note:'有氧不是越多越好。每周超过 5 小时高强度有氧，恢复和激素都会受影响。'},
+ {title:'恢复与睡眠',head:['因素','要求'],
+  rows:[['睡眠','7–8 小时，少于 6 小时训练效果减半'],['蛋白质','每公斤体重 1.4–1.8 克'],['水','训练前后各 300–500 毫升'],['酸痛','48–72 小时属正常，超过一周要减量'],['休息日','可以走路、拉伸，不必完全不动'],['连续疲劳','静息心率升高 5 次以上，减量一周']],
+  note:'练了三个月没进步，先看睡眠和蛋白质，再看计划。九成问题不在动作上。'},
+ {title:'常见错误',head:['错误','后果'],
+  rows:[['一上来就练五分化','每个肌群都练不到位'],['只练胸和手臂','圆肩、体态失衡'],['动作幅度不足','关节与肌腱受伤'],['盲目加重量','腰和肩最先出问题'],['忽略热身','5–10 分钟动态热身不能省'],['三天打鱼','适应期反复重启，永远在新手阶段']],
+  note:'判断一个计划好不好，标准只有一个：你能连续做三个月吗。做不到，就把它改小一半。'}
+]},
+
+{id:'medreport',en:'Reading Test Results',g:'健康与饮食',icon:'🩺',name:'体检报告怎么看',type:'tables',sub:'体检报告上的箭头不等于生病。先看趋势，再看绝对值，最后看这个指标在你的情况下意味着什么。',sections:[
+ {title:'必看指标与参考',head:['指标','参考范围','提示'],
+  rows:[['血压','120/80 理想，140/90 为高血压'],['空腹血糖','3.9–6.1 mmol/L'],['糖化血红蛋白','5.7% 以下正常，6.5% 以上糖尿病'],['总胆固醇','5.2 mmol/L 以下'],['低密度脂蛋白','3.4 以下，有心血管病 1.8 以下'],['体重指数 BMI','18.5–23.9（中国标准）']],
+  note:'中国标准 BMI 24 就是超重，比国际的 25 更严。亚洲人内脏脂肪更容易堆积。'},
+ {title:'血脂四项',head:['项目','怎么看'],
+  rows:[['总胆固醇','单项高不必慌，要看构成'],['低密度 LDL','坏胆固醇，越低越好，是首要目标'],['高密度 HDL','好胆固醇，高一点好'],['甘油三酯','受饮食影响最大，前一晚吃油腻就会高'],['非高密度脂蛋白','总胆固醇减 HDL，比单项更准'],['复查','异常先控饮食 3 个月再复查']],
+  note:'甘油三酯高多半是吃出来的：酒、糖、精制碳水。复查前三天别喝酒、别吃夜宵。'},
+ {title:'血糖与糖化',head:['项目','意义'],
+  rows:[['空腹血糖','反映基础胰岛素功能，需空腹 8 小时'],['餐后 2 小时','比空腹更早发现异常'],['糖化血红蛋白','近 2–3 个月平均血糖，不受当天饮食影响'],['空腹受损','6.1–7.0 之间是糖尿病前期'],['胰岛素抵抗','腰围、甘油三酯、血压同时偏高要警惕'],['复查','首次异常建议做糖耐量试验']],
+  note:'体检只查空腹血糖会漏掉一半的早期问题。有家族史的，加一个糖化血红蛋白。'},
+ {title:'肝功能',head:['项目','提示'],
+  rows:[['ALT 谷丙','最敏感的肝细胞损伤指标'],['AST 谷草','升高且 AST 高于 ALT 要查心肌与肌肉'],['GGT','与饮酒、脂肪肝、胆道相关'],['胆红素','轻度升高常见于体质性，需结合其他'],['白蛋白','长期偏低提示营养或肝脏合成功能'],['脂肪肝','B 超分级加肝功能一起看']],
+  note:'体检前熬夜、剧烈运动、喝酒都会让转氨酶升高。轻度异常先规律作息两周再复查。'},
+ {title:'结节与囊肿',head:['发现','处理'],
+  rows:[['甲状腺结节','看 TI-RADS 分级，3 级以下多随访'],['乳腺结节','BI-RADS 3 级 6 个月复查'],['肺结节','看大小与密度，6 毫米以下多为年度随访'],['肝囊肿','单纯囊肿无需处理'],['肾囊肿','Bosniak I 级定期看即可'],['胆囊息肉','10 毫米以上或有症状考虑手术']],
+  note:'结节的关键不是有没有，是大小有没有变。把每次报告按日期存好，趋势比单次更重要。'},
+ {title:'什么时候该复查',head:['情况','建议'],
+  rows:[['轻度异常','1–3 个月复查，别隔一年'],['持续异常','专科门诊，不要自己上网查'],['指标突然变化','对比上次报告，找变化原因'],['多项同时异常','考虑代谢综合征，一起评估'],['家族史','相应项目提前 5–10 年开始筛查'],['报告丢了','医院公众号可查 3–5 年内报告']],
+  note:'体检的价值在于连续几年对比，不在于某一年的箭头。没有历史报告，单张纸的参考意义有限。'}
+]},
+
+{id:'parenttalk',en:'Talking to Kids',g:'关系与文化',icon:'🧑‍👦',name:'家庭教育沟通',type:'tables',sub:'孩子不听话，八成不是态度问题，是任务太难、时间太紧、或者他根本没听见。先把指令说清楚，再谈配合。',sections:[
+ {title:'不听话的三种真实原因',head:['原因','表现'],
+  rows:[['能力不足','说了很多遍还是做不好，可能是动作太难'],['注意力被占','正在玩，喊三遍没反应'],['控制感缺失','越催越慢，是在争夺决定权'],['需求没被看见','闹情绪其实是想被关注'],['规则不一致','今天可以明天不行，他一直在试探'],['疲劳或饥饿','傍晚六点的崩溃多数是这个']],
+  note:'先排除前三种生理与能力原因，再谈"态度"。把能力问题当态度问题管，只会越来越僵。'},
+ {title:'有效指令怎么下',head:['做法','例子'],
+  rows:[['靠近再说','走到他面前，蹲下来，看着眼睛'],['一次一件事','"把积木放进蓝箱子"，不要说"收拾房间"'],['具体可执行','说做什么，不说别做什么'],['给两个选项','"现在洗澡，还是五分钟后"'],['预告过渡','"再玩两次滑梯就回家"'],['说完等五秒','别追着重复，给他反应时间']],
+  note:'"不要跑"在幼儿脑子里等于"跑"。直接说"牵手走"，成功率高一倍。'},
+ {title:'情绪爆发时怎么接',head:['阶段','做法'],
+  rows:[['爆发中','先保证安全，少说话，不讲道理'],['命名情绪','"你很生气，因为积木倒了"'],['允许情绪','情绪可以，打人不行'],['陪伴','坐在旁边，不急着哄好'],['平静后','复盘一句话就够，别开长会'],['事后','教他下次可以怎么说']],
+  note:'讲道理要在情绪平复之后。人在激动时，负责逻辑的那部分大脑基本是关着的，大人也一样。'},
+ {title:'表扬与批评怎么说',head:['类型','说法'],
+  rows:[['表扬努力','"你今天自己试了三次"，不说"你真聪明"'],['表扬具体','指出哪一个动作做对了'],['批评行为','"你刚才推了他"，不说"你就是坏孩子"'],['给补救','"去问问他疼不疼，帮他捡起来"'],['避免比较','别提"你看人家"'],['比例','五次肯定配一次纠正']],
+  note:'"你真聪明"会让孩子回避难题，因为失败就等于不聪明。夸过程才让人愿意继续试。'},
+ {title:'屏幕时间怎么谈',head:['做法','说明'],
+  rows:[['先定规则','什么时候可以看、看多久，写下来贴墙上'],['用计时器','到点由计时器说话，不由妈妈说话'],['共同观看','低龄段陪着看并解说'],['不以屏幕为奖惩','会让它变得更诱人'],['睡前一小时','所有屏幕离开卧室'],['家长同步','自己刷手机时别要求孩子放下']],
+  note:'让孩子自己按停计时器，比你喊停有效。把冲突从"人和人"变成"人和规则"。'},
+ {title:'青春期沟通',head:['情况','做法'],
+  rows:[['不愿说话','并肩做事时更容易开口，别面对面审问'],['关门','尊重门，但保留每天一次简短交流'],['顶嘴','先接住观点，再谈表达方式'],['隐私','不翻手机，除非有明确安全风险'],['朋友问题','先问"你怎么看"，别急着评价'],['重大分歧','给底线，其余留空间']],
+  note:'青春期的沉默不是拒绝你，是在练习独立。把门敲开的最好方式，是不追问。'}
+]},
+
+{id:'weekplan',en:'Weekly Plan',g:'关系与文化',icon:'🗓️',name:'家庭周计划与分工',type:'tables',sub:'家务不是靠谁更勤快，是靠谁负责哪一块。把"帮忙"改成"负责"，家里的争吵会少一半。',sections:[
+ {title:'周计划怎么开',head:['环节','时长'],
+  rows:[['固定时间','周日晚上或周一早上，20 分钟'],['过一遍日程','谁哪天晚归、谁要出差、孩子有什么活动'],['排饭','先定五天晚饭，再买菜'],['领任务','各自认领，不指派'],['留白','至少留一天不安排'],['贴出来','冰箱上或群里，写下来才算数']],
+  note:'计划会超过 30 分钟就会没人愿意开第二次。用计时器，到点结束。'},
+ {title:'家务怎么分',head:['分法','适合'],
+  rows:[['按区域','你管厨房，我管卫生间，责任清晰'],['按类型','做饭、采购、清洁、缴费各归一人'],['按周期','周任务与日任务分开'],['轮换','脏活累活每月轮'],['外包','保洁两周一次，省下的时间更值'],['孩子参与','按年龄给固定岗位']],
+  note:'按区域分比按次数分好。次数需要天天协商，区域只需要一次交接。'},
+ {title:'孩子能做什么',head:['年龄','可以负责'],
+  rows:[['3–4 岁','把玩具放回箱子、把脏衣服放进篮子'],['5–6 岁','摆碗筷、浇花、擦桌子'],['7–9 岁','整理书包、叠衣服、倒垃圾'],['10–12 岁','洗碗、简单做早餐、扫地'],['13 岁以上','做一顿饭、洗自己的衣服、采购清单'],['原则','固定岗位比临时叫唤有效']],
+  note:'孩子做事慢、做得不好是正常的。让他做完再偷偷返工，比当着他的面重做更好。'},
+ {title:'时间块安排',head:['时段','安排'],
+  rows:[['早晨','只做三件事：洗漱、吃饭、出门'],['放学后','先动一动再写作业，效率更高'],['晚饭后','家务 20 分钟全家一起做'],['睡前','固定流程：洗澡、读书、关灯'],['周末上午','大扫除或采购'],['周末下午','留白，不排课']],
+  note:'"全家一起做 20 分钟"比"各做各的"效率高，因为有人在旁边，拖延会自然消失。'},
+ {title:'计划为什么总失败',head:['原因','对策'],
+  rows:[['排太满','一周只排七成，留三成缓冲'],['只有任务没有时间','每件事都写清在哪天哪个时段'],['一个人扛','公开分工，写名字'],['没有复盘','每周花五分钟看哪里卡住'],['标准太高','先做到 60 分，再慢慢加'],['忽略疲劳','忙的那周主动减量']],
+  note:'计划的作用不是把所有事做完，是让重要的事不被挤掉。做不完是设计问题，不是人品问题。'},
+ {title:'每月复盘',head:['看什么','怎么改'],
+  rows:[['哪件事总被拖','要么换人，要么外包，要么删掉'],['谁负担过重','把一项任务转出去'],['孩子的新能力','加一个岗位'],['花钱的地方','有没有可以一次买齐的'],['一次例外','记下来，下月提前准备'],['一句肯定','说出一件对方做得好的事']],
+  note:'复盘只谈事不谈人。"这个月垃圾总是满"比"你从来不倒垃圾"更容易改。'}
+]},
+
+{id:'newyear',en:'New Year Shopping',g:'吃穿住行',icon:'🧧',name:'年货采购清单',type:'tables',sub:'年货最大的浪费不是买贵了，是买多了。按人数和天数算量，比凭感觉囤货省一半。',sections:[
+ {title:'提前多久买',head:['品类','时间'],
+  rows:[['坚果干货','提前 3–4 周，越近年关越贵'],['腊味腌货','提前 2–3 周，需要晾挂'],['酒水饮料','提前 2 周，节前一周涨价'],['冷冻海鲜','提前 1–2 周，冰箱要留空间'],['新鲜蔬菜','节前 2–3 天'],['鲜肉禽类','节前 1–2 天']],
+  note:'年三十前三天是价格最高点，也是品质最差的时候。耐放的提前买，鲜货最后买。'},
+ {title:'干货坚果按人算',head:['品类','每人份量'],
+  rows:[['混合坚果','200–250 克'],['瓜子','150 克'],['糖果','100 克（有小孩翻倍）'],['果干','100 克'],['茶叶','50 克，客人多再加'],['香菇木耳','合计 50 克（泡发后约 250 克）']],
+  note:'坚果开封后两周内吃完最好。买小包装分装，比一大袋反复开合强。'},
+ {title:'生鲜与肉类',head:['品类','每人每餐'],
+  rows:[['猪肉','150–200 克'],['牛羊肉','150 克'],['整鸡','半只够 3–4 人'],['鱼','200 克（带骨）'],['虾','100–150 克'],['饺子','15–20 个']],
+  note:'年夜饭按"人数 × 1.2"备料就够。菜品种类多时，每样减量比减少品种更受欢迎。'},
+ {title:'送礼年货',head:['对象','选择'],
+  rows:[['长辈','实用为主：粮油、保暖、体检卡'],['有小孩的家庭','零食礼盒加一套书'],['同事','小份可分食的，别送贵重'],['邻居','地方特产，价格不必高'],['客户','合规优先，注意单位规定'],['通用','不送需要对方费心保存的东西']],
+  note:'送礼最忌"需要对方处理"的东西：活禽、大件、需要冷藏的。送到就省心才是好礼。'},
+ {title:'储存与保鲜',head:['品类','存放'],
+  rows:[['坚果','密封罐加干燥剂，阴凉处'],['腊味','悬挂通风，或冷冻保存'],['冷冻肉','分小份压平冷冻，解冻快'],['蔬菜','别洗，用厨房纸包住再装袋'],['水果','热带水果不进冰箱'],['熟食','冷藏不超过 3 天']],
+  note:'冰箱塞满反而不冷。留出三分之一空间，冷气才能循环。'},
+ {title:'别买太多',head:['常见过量','后果'],
+  rows:[['瓜子糖果','吃到二月还没完，回潮'],['冷冻海鲜','冰箱放不下，反复解冻'],['礼盒','送不出去，占地方'],['饮料','过期扔掉'],['一次性餐具','用不完囤一年'],['烟花爆竹','多数城市禁放']],
+  note:'买之前先算"除夕到初七，家里实际有几顿饭"。多数家庭的年货是按半个月的量买的。'}
+]},
+
+{id:'oldphone',en:'Reusing Old Phones',g:'数字与编码',icon:'📱',name:'旧手机改造利用',type:'tables',sub:'换下来的手机不是垃圾，是一台还能用三年的小电脑。当监控、当车机、当备用机，比卖掉划算。',sections:[
+ {title:'能做什么',head:['用途','要求'],
+  rows:[['家庭监控','摄像头可用、能长期插电'],['车载导航','屏幕完好、GPS 正常'],['时钟与天气屏','屏幕无坏点，常亮显示'],['儿童机','性能足够、可设家长控制'],['备用机','电池健康度 80% 以上'],['下载机与遥控器','能连 Wi-Fi 即可']],
+  note:'判断标准只有一条：能不能长期插着电用。电池老化的机器做固定用途反而合适。'},
+ {title:'改成监控',head:['步骤','要点'],
+  rows:[['装应用','选支持局域网查看的，别只依赖云'],['固定位置','对着门或客厅，避开卧室与卫生间'],['供电','长期插电，设充电上限 80% 更安全'],['网络','连访客网络，别放主网络'],['账号','单独账号加两步验证'],['隐私','告知同住的人，别偷偷装']],
+  note:'旧手机做监控最大的问题是发热。别放在密闭柜子里，也别盖东西。'},
+ {title:'当车载或导航',head:['项目','做法'],
+  rows:[['固定','出风口支架或吸盘，别挡视线'],['供电','点烟器供电，线走暗线'],['离线地图','提前下载所在省份'],['屏幕常亮','设为不熄屏并降低亮度'],['夏天','别放前挡风下暴晒'],['下车','随手取下，别留车里']],
+  note:'夏天车内能到 60 度以上，锂电池长期高温会鼓包。要用就取下带走。'},
+ {title:'给孩子的第一台',head:['设置','做法'],
+  rows:[['账号','用儿童账号，不用家长主账号'],['应用','只装白名单，关闭应用商店安装'],['支付','完全关闭，不绑任何卡'],['时长','设置可用时段与总时长'],['定位','开启家人共享定位'],['联系人','只允许通讯录内号码']],
+  note:'别把旧手机直接恢复出厂就给孩子。先花二十分钟把上面六项设好，比事后管容易。'},
+ {title:'卖掉还是留着',head:['情况','建议'],
+  rows:[['三年内旗舰','卖二手，残值还不错'],['电池健康 80% 以下','留着做固定用途更划算'],['屏幕碎裂','维修费常超过残值，留着'],['有重要数据风险','彻底清除后再卖'],['给孩子用','留着，比买新的合适'],['闲置超过一年','卖掉或送人，别囤']],
+  note:'闲置手机放着不用，电池会自然老化到无法开机。要么用起来，要么处理掉。'},
+ {title:'数据彻底清除',head:['步骤','说明'],
+  rows:[['退出账号','先退云账号，否则会锁机'],['解除绑定','银行卡、支付、门禁、车钥匙'],['转移验证','两步验证改到新设备'],['加密覆写','恢复出厂后填满无用文件再重置一次'],['取出卡','SIM 卡与存储卡'],['最后检查','相册、通讯录、聊天记录都为空']],
+  note:'只做一次恢复出厂，专业工具仍可能恢复部分数据。填满再重置一次，成本很低。'}
+]},
+
+{id:'accompany',en:'Hospital Visits',g:'健康与饮食',icon:'🏥',name:'陪诊与就医流程',type:'tables',sub:'看病效率差别最大的不是医生，是你在诊室里那五分钟说了什么。提前写好三句话，胜过现场回忆十分钟。',sections:[
+ {title:'出门前准备',head:['带什么','说明'],
+  rows:[['证件','身份证、医保卡、就诊卡'],['既往资料','出院小结、上次报告、正在吃的药'],['药盒拍照','连剂量一起拍，比口述准'],['症状记录','什么时候开始、什么情况下加重'],['空腹准备','需抽血或做 B 超的项目提前确认'],['陪同人','老人、儿童、需麻醉检查必须有人']],
+  note:'把正在吃的药拍照存手机里。医生问"吃什么药"时，翻照片比回忆快十倍。'},
+ {title:'挂号与选科',head:['症状','首选科室'],
+  rows:[['发热咳嗽','呼吸内科，儿童挂儿科'],['胸闷心悸','心内科，急性剧烈先急诊'],['腹痛','消化内科，右下腹剧痛去急诊'],['头晕','神经内科，伴耳鸣可去耳鼻喉'],['皮疹','皮肤科'],['不明原因消瘦','先挂全科或内科，别自己猜']],
+  note:'拿不准就挂全科或普通内科，让医生分诊。挂错科室浪费的是半天时间，不是挂号费。'},
+ {title:'候诊时写三句话',head:['要点','示例'],
+  rows:[['主诉','"咳嗽三周，夜间加重"'],['变化','"上周开始有黄痰，昨天发烧 38.5"'],['诉求','"想确认要不要拍片"'],['用药','"已吃过三天阿莫西林，没好转"'],['担心','"家里有老人，怕传染"'],['时间线','按日期列，不要按感受列']],
+  note:'医生平均只有几分钟。三句话说完，剩下的时间留给医生提问，效率最高。'},
+ {title:'检查排队顺序',head:['项目','技巧'],
+  rows:[['抽血','多数需空腹，早上第一批做'],['B 超','憋尿项目先喝水，再去做别的'],['CT 与核磁','先预约，按预约时间倒排其他检查'],['心电图','随时可做，穿插在等待间隙'],['内镜','需空腹并有人陪同，安排在最后'],['取报告','多数可线上查，别在机器前干等']],
+  note:'把所有检查单一次性缴费、一次性预约，再按时间排路线。来回跑是最大的时间浪费。'},
+ {title:'诊室里要记什么',head:['要问','为什么'],
+  rows:[['诊断是什么','病名要写下来，回家才好查'],['为什么这么判断','了解依据，避免过度检查'],['药怎么吃','饭前饭后、几天、漏了怎么办'],['什么情况要复诊','给出明确信号'],['有没有替代方案','价格、副作用、疗程'],['下次带什么','复查要带的资料']],
+  note:'出门前用手机复述一遍："我理解是……对吗？"理解错用药说明，是最常见的回家后出错。'},
+ {title:'陪老人看病',head:['要点','做法'],
+  rows:[['听不清','提前告知医生老人耳背，请大声'],['说不清','由家属补充，但让老人自己先说'],['多科并看','把科室按楼层排好，减少走动'],['用药冲突','把所有药给医生看一遍'],['记不住','全程录音（先征得同意）'],['回家后','把医嘱写成大字贴在冰箱上']],
+  note:'老人常会漏说症状，因为怕麻烦人。出门前在家先问一遍，把答案写在纸上带过去。'}
+]},
+
+{id:'license',en:'Driving Licence',g:'吃穿住行',icon:'🚦',name:'学车与驾照',type:'tables',sub:'学车最大的变量不是天赋，是教练和练车时间。报名前先问清"一人一车多久"，比问价格重要。',sections:[
+ {title:'报名前搞清楚',head:['项目','要问清'],
+  rows:[['车型','C1 手动挡还是 C2 自动挡'],['费用包含','补考费、模拟费、接送是否另收'],['练车方式','一人一车还是排队轮练'],['教练分配','能否换教练，怎么换'],['训练场距离','通勤时间算进总成本'],['拿证周期','平均多久，旺季多久']],
+  note:'C2 自动挡更简单、拿证更快，日常家用足够。除非要开货车或老车，不必执着手动挡。'},
+ {title:'四个科目要点',head:['科目','重点'],
+  rows:[['科目一','题库刷完一遍，错题刷三遍'],['科目二','记点位，车速慢到能随时停'],['科目三','听指令、看后视镜、转向灯三秒'],['科目四','安全文明驾驶，多选题是失分点'],['共同点','紧张比不会更容易挂'],['补考','多数地区有次数限制，别浪费']],
+  note:'科目二挂得最多的是倒车入库和坡道起步。这两项多练两小时，比刷十套题有用。'},
+ {title:'时间与费用',head:['项目','参考'],
+  rows:[['总周期','快则 2 个月，慢则半年'],['练车时长','累计 20–40 小时较常见'],['费用','一线城市 5000–9000 元'],['模拟费','按小时另收，考前必做'],['补考费','每次一两百，各地不同'],['隐形支出','交通、请假、加练']],
+  note:'周末班和晚班最挤。能请半天假在工作日练，效率通常高出一倍。'},
+ {title:'怎么选教练',head:['信号','判断'],
+  rows:[['话少但纠正到位','好教练，直接说问题'],['一直聊天不指导','换'],['让你自己练很久不来','换'],['情绪化骂人','立刻换，别忍'],['愿意讲原理','值得跟，学得快'],['考前主动加练','负责任']],
+  note:'教练的风格直接决定你敢不敢上路。学车期间换教练是正常操作，不必觉得不好意思。'},
+ {title:'拿证后第一年',head:['情况','建议'],
+  rows:[['实习期','12 个月内记满 12 分注销驾照'],['高速','实习期需 3 年以上驾龄的人陪同'],['贴标志','车后贴统一实习标志'],['头三个月','避开早晚高峰与雨天'],['停车','先练倒车入库和侧方，别怕慢'],['租车练手','比开新车压力小，也更容易出险']],
+  note:'拿证不等于会开。前 5000 公里是事故高发期，宁愿多绕一段路，也别硬挤复杂路口。'},
+ {title:'换证与扣分',head:['事项','周期'],
+  rows:[['首次换证','6 年期满前 90 天内'],['第二次','10 年期'],['长期','符合条件的可换长期'],['体检','换证需提交身体条件证明'],['记分周期','12 个月，满 12 分需重新学习'],['学法减分','符合条件可线上减分，每年有上限']],
+  note:'换证可以线上办，但体检要去指定医院。到期前一个月就会收到提醒短信，别等到过期。'}
+]},
+
+{id:'visa',en:'Visas and Borders',g:'吃穿住行',icon:'🛂',name:'签证与出入境',type:'tables',sub:'签证官看的不是你多想去，是你会不会回来。行程、资金、工作三件事对得上，通过率就高。',sections:[
+ {title:'签证类型怎么选',head:['目的','类型'],
+  rows:[['旅游','个人旅游签，多数需行程与酒店'],['商务','需邀请函与派遣函'],['探亲','需亲属关系证明与邀请人资料'],['留学','需录取通知书与资金证明'],['过境','停留时间短，注意是否需过境签'],['多次往返','有良好出入境记录更容易批']],
+  note:'目的必须与实际一致。拿旅游签去工作，一旦被发现会被遣返并留下记录。'},
+ {title:'材料清单',head:['类别','常见要求'],
+  rows:[['身份','护照（有效期 6 个月以上）、照片'],['工作','在职证明、营业执照复印件'],['资金','近 6 个月流水、存款证明'],['行程','机票与酒店预订单'],['关系','户口本、结婚证、亲属证明'],['保险','申根等国强制要求医疗保险']],
+  note:'在职证明要写清职位、入职时间、准假时间和谁承担费用。含糊的证明是拒签常见原因。'},
+ {title:'资金证明',head:['要点','说明'],
+  rows:[['流水','近 6 个月，稳定收入比大额存入重要'],['余额','覆盖行程花费，通常每天 500–1000 元'],['临时大额','签证前突然存入反而可疑'],['存款证明','冻结期覆盖行程即可'],['多账户','合并打印，别只交一张卡'],['共同承担','由他人出资需出资证明与关系证明']],
+  note:'签证官更在意"钱是怎么来的"，而不是"有多少钱"。稳定的工资流水最有说服力。'},
+ {title:'面签与电话调查',head:['情况','准备'],
+  rows:[['面签','回答简短、与材料一致，不主动扩展'],['行程问题','能说出城市与天数'],['工作问题','职位、职责、入职时间'],['资金问题','收入来源与余额'],['电话调查','打到公司时前台要知道你请假了'],['一致性','所有材料口径统一，包括日期']],
+  note:'电话调查打给公司前台，说"没这个人"是常见拒签原因。提交前先跟行政打个招呼。'},
+ {title:'入境流程',head:['环节','注意'],
+  rows:[['值机','确认护照有效期与签证页'],['入境卡','部分国家需填写，提前备好地址'],['边检','如实回答停留目的与天数'],['行李','肉类、种子、超额现金需申报'],['入境章','核对日期与停留期'],['海关','超过免税额要申报，否则罚款']],
+  note:'入境时回答"旅游、住朋友家、十天"就够了。说得越多，越容易被追问细节。'},
+ {title:'被拒签怎么办',head:['情况','处理'],
+  rows:[['拒签信','先看清理由代码，别盲目重申'],['材料不足','补齐后重新申请'],['资金疑点','增加稳定流水与资产证明'],['目的存疑','补行程与邀请函细节'],['记录影响','拒签记录会被看到，需解释变化'],['申诉','多数国家无正式申诉，只能重申']],
+  note:'同一份材料原样再交一次，结果基本一样。拒签后要么补材料，要么换目的地积累记录。'}
+]},
+
+{id:'subs',en:'Subscriptions',g:'钱与账',icon:'💳',name:'订阅与会员管理',type:'tables',sub:'订阅的可怕之处不是单价，是自动续费。一年下来，忘掉的那些比在用的贵得多。',sections:[
+ {title:'先盘点',head:['类别','常见项'],
+  rows:[['影音','视频、音乐、有声书'],['云存储','网盘、相册、备份'],['软件','办公、修图、笔记、密码管理'],['生活','外卖会员、电商会员、打车月卡'],['健康','健身、冥想、体检套餐'],['学习','课程、题库、电子书']],
+  note:'从支付宝和微信的"自动续费"列表里逐个看，比凭记忆列更准。这里才是真实的清单。'},
+ {title:'哪些值得留',head:['判断','结论'],
+  rows:[['每周都在用','留'],['为了一次性需求开的','用完就退'],['只为免运费','算一下运费总额'],['和别的重复','留一个，退其余'],['涨价后没再用','退'],['家人也在用','留，可开家庭版']],
+  note:'判断标准很简单：过去 30 天你打开过几次。想不起来上次用是什么时候的，直接退。'},
+ {title:'自动续费的坑',head:['坑','应对'],
+  rows:[['首月低价','首月 6 元，次月原价，看清条款'],['默认勾选','付款页面的小勾要去掉'],['年付折扣','用不满一年反而更贵'],['退订入口深','在账号设置里找，不在首页'],['提前扣款','到期前 3 天就扣，别等到期日'],['苹果内购','需在系统订阅管理里取消']],
+  note:'在 App 里删掉应用不等于退订。必须在支付渠道或系统订阅里取消，否则照扣。'},
+ {title:'家庭共享',head:['方案','适合'],
+  rows:[['家庭版','3–6 人分摊，人均更低'],['学生认证','有学籍的可享折扣'],['运营商套餐','常含视频或音乐会员'],['电商联合会员','一个价含多个权益'],['信用卡权益','部分卡自带会员'],['公司账号','工作用途别用个人订阅']],
+  note:'家庭版要确认同住要求。部分平台会验证地址，凑单被查会一起失效。'},
+ {title:'退订流程',head:['渠道','做法'],
+  rows:[['App 内','账号、订阅管理、取消自动续费'],['苹果','设置、Apple ID、订阅'],['安卓','应用商店、订阅管理'],['支付宝','我的、设置、支付设置、免密支付'],['微信','我、服务、钱包、支付设置'],['直接扣款','联系客服书面申请，保留截图']],
+  note:'退订后截图保存"已取消"页面。扣费争议时，这张截图是唯一有效的凭证。'},
+ {title:'涨价怎么应对',head:['情况','做法'],
+  rows:[['老用户涨价','问客服有没有保留原价的方案'],['年付涨价','改月付观察，或直接退'],['权益缩水','对比竞品再决定'],['捆绑销售','算总价，别被单项吸引'],['换平台','先导出数据，注意格式'],['彻底不用','退订并删除支付方式']],
+  note:'涨价通知里通常有一句"继续使用即视为同意"。看到这句话就去检查自动续费状态。'}
+]},
+
 {id:'hardness',en:'Hardness',g:'石油与工程',g2:'居家装修',icon:'🔨',name:'材料硬度',type:'custom',panel:'hardnessPanel',bind:'bindHardness'},
 {id:'threads',en:'Thread Specs',g:'石油与工程',g2:'居家装修',icon:'🔩',name:'螺纹规格',type:'tables',sub:'公制、UNC/UNF、G/BSP、NPT 四种螺纹的牙数与外径对照。',sections:[
  {title:'公制螺纹螺距',head:['规格','粗牙','细牙 1','细牙 2'],rows:[
@@ -5879,7 +6131,7 @@ function aboutPanel(){
   return '<div class="panel"><h2>ℹ️ About & Changelog</h2><p class="sub">Version, stack, licences — and what we refuse to build.</p>' +
   card('About', '<div class="kv">' +
     '<dt>Name</dt><dd>Life Converter · All-in-One Handbook</dd>' +
-    '<dt>Version</dt><dd>V6.5 (2026-10-28)</dd>' +
+    '<dt>Version</dt><dd>V6.8 (2026-10-28)</dd>' +
     '<dt>Form</dt><dd>Single-page app + PWA, installable</dd>' +
     '<dt>Modules</dt><dd>142 across 10 groups, 75 reference cards</dd>' +
     '<dt>Data</dt><dd>All calculations on-device, no upload</dd>' +
@@ -5906,6 +6158,9 @@ function aboutPanel(){
     ['V4.5','Waterproofing, cabinetry, network and gas cards; every calculator can export its result as a card; recently used modules surface at the top of the sidebar; swap buttons on the Combo Board'],
     ['V4.6','Appliance buying, storage planning, contract & payment, and checkup numbers cards; value boxes accept sums like 12*8; every reference card exports to Excel or copies as a table; history exports to Excel; Alt+↑/↓ jumps between modules'],
     ['V4.7','Gift money, exercise burn, laundry care and underfloor heating cards; the Combo Board takes formula rows (x*0.13); filter box on every reference card; copy all units at once'],
+    ['V6.8','Hospital visits and consultations, learning to drive, visas and borders, and managing subscriptions cards'],
+    ['V6.7','Talking to children, the family weekly plan, New Year shopping, and reusing old phones cards'],
+    ['V6.6','Comparing commutes, flatmate rules, workout planning, and reading test results cards'],
     ['V6.5','Neighbour noise and mediation, household electricity bills, pet first aid, and pocket money cards'],
     ['V6.4','Used books and resale, upcycling and donation, home cameras and privacy, and travel camera kit cards'],
     ['V6.3','Renovation payment stages, photo and video backup, lift safety, and e-bike battery safety cards'],
@@ -5983,9 +6238,9 @@ function aboutPanelZH(){
   return '<div class="panel"><h2>ℹ️ 关于与更新日志</h2><p class="sub">版本、技术、许可，以及我们坚决不做的事。</p>' +
   card('关于', '<div class="kv">' +
     '<dt>名称</dt><dd>生活换算 · 全能手册</dd>' +
-    '<dt>版本</dt><dd>V6.5（2026-10-28）</dd>' +
+    '<dt>版本</dt><dd>V6.8（2026-10-28）</dd>' +
     '<dt>形态</dt><dd>单页应用 + PWA，可安装到桌面</dd>' +
-    '<dt>模块</dt><dd>201 个，10 个分组，134 张速查表</dd>' +
+    '<dt>模块</dt><dd>213 个，10 个分组，146 张速查表</dd>' +
     '<dt>数据</dt><dd>全部本地计算，不上传</dd>' +
   '</div>') +
   card('更新日志', tbl(['版本','主要变化'],[
@@ -6003,6 +6258,9 @@ function aboutPanelZH(){
     ['V3.2','中英界面、无障碍与键盘操作、安装引导、意见反馈'],
     ['V3.3','全部模块标题与说明英译、单位模块注释英译'],
     ['V3.4','表格模块（扳手/管钳/螺栓/钻头/床品/螺纹）表头与注释英译'],
+    ['V6.8','新增陪诊与就医流程、学车与驾照、签证与出入境、订阅与会员管理 4 张速查表'],
+    ['V6.7','新增家庭教育沟通、家庭周计划与分工、年货采购清单、旧手机改造利用 4 张速查表'],
+    ['V6.6','新增通勤方式比较、合租与室友公约、健身计划编排、体检报告怎么看 4 张速查表'],
     ['V6.5','新增邻里噪音与沟通、家庭电费与峰谷电价、宠物常见病与急救、孩子零花钱与财商 4 张速查表'],
     ['V6.4','新增二手书与旧物交易、旧物改造与捐赠、家庭摄像头与隐私、旅行摄影装备 4 张速查表'],
     ['V6.3','新增家装付款节点、家庭照片与视频备份、电梯安全与被困应对、电动车电池安全 4 张速查表'],
@@ -8469,7 +8727,7 @@ function updateStatic(){
   const brandrow = document.querySelector('.brandrow');
   if(brandrow && brandrow.childNodes[0]) brandrow.childNodes[0].textContent = t('生活换算','Life Conversion');
   const brand = document.querySelector('.brand > span');
-  if(brand) brand.textContent = t('全能手册 · 本地离线版 v6.5', 'All-in-One Handbook · v6.5');
+  if(brand) brand.textContent = t('全能手册 · 本地离线版 v6.8', 'All-in-One Handbook · v6.8');
   const bl = document.getElementById('backlink');
   if(bl) bl.textContent = t('← 返回工具箱','← Back to toolbox');
   const side = document.querySelector('.side');
@@ -8638,7 +8896,19 @@ const SUB_EN_MORE = {
  "neighbor": "In a noise dispute, “when” and “how long” are easier to prove than “how loud”. A two-week log beats a single recording every time.",
  "powerbill": "Ask first whether the flat is on domestic or commercial tariffs. Commercial power costs nearly double — a fridge's worth over a year.",
  "petfirstaid": "A blocked male cat is the emergency of emergencies: 24 hours can mean kidney failure. Straining in the litter tray with no urine means go now.",
- "kidsmoney": "Pocket money is not about giving money; it is about handing over decisions. Start too late and the child never gets to practise getting it wrong."
+ "kidsmoney": "Pocket money is not about giving money; it is about handing over decisions. Start too late and the child never gets to practise getting it wrong.",
+ "commute": "Commuting is not about which mode is fastest; it is about which one you can stand every day. Count the walk at each end and the waiting, not just the time on board.",
+ "roomrule": "Nine out of ten flatmate conflicts come from something nobody ever said out loud. Write the six things down in the first week — it beats arguing later.",
+ "fitplan": "The beginner's mistake is training too hard and going too rarely. Three sessions a week, forty minutes each, kept for three months, beats any clever programme.",
+ "medreport": "An arrow on a test report is not a diagnosis. Look at the trend first, the absolute number second, and only then at what it means for you.",
+ "parenttalk": "When a child will not listen, it is rarely attitude: the task is too hard, the timing is wrong, or they genuinely did not hear you. Make the instruction clear before you ask for cooperation.",
+ "weekplan": "Housework does not depend on who is more diligent; it depends on who owns which part. Change “helping out” into “being responsible for”, and half the arguments disappear.",
+ "newyear": "The real waste at New Year is not buying expensive things, it is buying too much. Work from headcount and days, not from feeling.",
+ "oldphone": "An old phone is not rubbish; it is a small computer with three good years left. As a monitor, a car unit or a spare, it beats the resale price.",
+ "accompany": "In a consultation, what you say in five minutes matters more than which doctor you see. Write three sentences before you go: the complaint, the change, and what you want.",
+ "license": "The biggest variable in learning to drive is not talent but the instructor and the hours behind the wheel. Ask how long you get alone in a car before you ask the price.",
+ "visa": "A visa officer is not asking how much you want to go; they are asking whether you will come back. Itinerary, funds and job must line up.",
+ "subs": "The frightening part of subscriptions is not the price, it is the auto-renewal. Over a year, the ones you forgot cost more than the ones you use."
 };
 Object.assign(SUB_EN, SUB_EN_MORE);
 const NOTE_EN = {"length": "Chinese: 1 chi = 1/3 m, 1 li = 500 m, 1 zhang = 10 chi. Imperial: 1 inch = 25.4 mm by definition.", "area": "1 mu ≈ 666.67 m² = 60 square zhang; 1 mu = 10 fen = 100 li. 1 hectare = 15 mu.", "volume": "1 oil barrel (bbl) = 42 US gallons ≈ 158.99 L. Chinese: 1 shi = 10 dou = 100 L.", "mass": "Mainland 1 jin = 500 g; Taiwan 1 jin = 600 g; HK 1 jin ≈ 604.79 g. 1 liang = 10 qian = 50 g.", "speed": "1 knot = 1 nautical mile per hour ≈ 1.852 km/h. Mach is approximate at sea level (340.3 m/s).", "pressure": "Tyre pressure: 2.5 bar = 250 kPa ≈ 36.3 psi. Pipeline: 1 MPa ≈ 10 bar ≈ 145 psi.", "power": "Two horsepower standards: metric PS = 735.5 W (CN/EU), imperial hp = 745.7 W (US). Car specs usually mean PS.", "energy": "Food labels: 1 kcal = 4.184 kJ. Chinese nutrition tables use kJ — divide by 4.184. 1 kWh = 1 unit of electricity.", "data": "Windows and RAM use 1024; drive makers use 1000. That is why a 1TB drive shows about 931GB — nobody cheated you.", "flow": "1 barrel per day ≈ 0.00662 m³/h ≈ 158.99 L/day. 1 m³/h ≈ 151 bpd.", "angle": "One turn = 360° = 2π rad = 400 grad = 6400 mils (military).", "duration": "Month is averaged at 30.44 days, year at 365.25. For exact months use the date difference tool.", "force": "1 kgf = 9.80665 N. Ratings on slings and anchors are often in kgf or kN.", "density": "Crude oil API gravity: API = 141.5/SG − 131.5. Higher API means lighter oil; 32°API ≈ 0.865 g/cm³."};
@@ -9295,6 +9565,105 @@ const TABLE_EN_MORE = {
  {"title": "Cards and mobile payment", "head": ["Stage", "Practice"], "rows": [["Primary school", "Cash, so “money runs out” is visible"], ["Secondary school", "A limited parent-linked card"], ["Limit", "Set to the weekly allowance"], ["Alerts", "Notify the parent of every purchase"], ["Mobile payment", "Link the limited card, never the main one"], ["In-game purchases", "Disable one-tap pay; set a per-transaction cap"]], "note": "Mobile payment makes money invisible. Build the feeling with cash first, then move to a card — reversing the order is hard to fix."},
  {"title": "Beyond the basics", "head": ["Concept", "How to explain it"], "rows": [["Interest", "A savings account demonstrating compounding"], ["Investing", "An index fund as “owning a piece of companies”"], ["Risk", "Higher return always means higher risk"], ["Scams", "“Guaranteed profit” is always a scam"], ["Work", "Income comes from creating value"], ["Giving", "Donate a share; understand allocation"]], "note": "Teaching a child to spot a scam matters far more than teaching them to pick a fund. Lesson one: “guaranteed profit” does not exist."}
 ]
+,
+"commute": [
+ {"title": "Counting door to door", "head": ["Mode", "What to include"], "rows": [["Metro", "Walk + security + wait + transfer + walk out"], ["Bus", "Walk + wait (variable) + traffic"], ["Driving", "Fetch car + traffic + find a space + walk from the car park"], ["E-bike", "Fetch + daily share of charging + parking"], ["Bicycle", "Fetch + change clothes + wash at work"], ["Walking", "Pure time, but it counts as exercise"]], "note": "Most people's “20-minute commute” counts only the time on board. Add the walking and waiting at both ends and it is usually 40."},
+ {"title": "Monthly cost", "head": ["Mode", "What makes up the cost", "Typical range"], "rows": [["Metro", "Per trip or a monthly pass", "¥100–300"], ["Bus", "Pass or per trip", "¥50–150"], ["Driving", "Fuel or charge + parking + insurance and depreciation", "¥1500–3500"], ["Ride-hailing", "Per trip, with peak surcharges", "¥1500–4000"], ["E-bike", "Electricity + a new battery every 2–3 years", "¥30–80"], ["Bicycle", "Purchase amortised + maintenance", "¥20–60"]], "note": "In real driving costs, parking often beats fuel. Ask what a parking space at work costs before deciding to buy a car."},
+ {"title": "Transfers and reliability", "head": ["Factor", "Effect"], "rows": [["Number of transfers", "Each adds 5–8 minutes in practice"], ["First and last train", "Decides whether you can work late"], ["Headway", "Over 10 minutes and you live by the timetable"], ["Rain plan", "Is there a route where you stay dry?"], ["Breakdowns", "Rare on metro, normal on buses"], ["Chance of a seat", "Decides whether you can nap"]], "note": "Commuting fatigue comes from unpredictability, not from duration. The same 45 minutes direct feels far lighter than two changes."},
+ {"title": "What your time is worth", "head": ["Monthly salary", "Per hour", "Extra 30 min a day, per year"], "rows": [["¥8,000", "¥45", "About 90 hours"], ["¥15,000", "¥85", "About 90 hours"], ["¥25,000", "¥142", "About 90 hours"], ["¥40,000", "¥227", "About 90 hours"], ["Method", "Salary ÷ 21.75 ÷ 8", "Over 250 working days"]], "note": "Pricing it is not an argument for renting somewhere more expensive; it is a reminder that commute time has a price and is not free by default."},
+ {"title": "Weather and your body", "head": ["Situation", "Advice"], "rows": [["Long rainy season", "Favour the metro or a covered route"], ["Summer above 35°C", "Cycling needs washing-up time at work"], ["Winter smog", "Cycling doubles your exposure"], ["Neck or back problems", "Do not stare down at a phone on board"], ["Pregnancy", "Avoid long standing and multiple transfers"], ["Commuting with a child", "Direct routes first; fewer changes"]], "note": "A mode you cannot keep up costs nothing but is worth nothing. Check whether you could do it for three months straight."},
+ {"title": "Mixed commutes", "head": ["Combination", "Suits"], "rows": [["Bike + metro", "Home 1–3 km from the station; avoids the peak"], ["Drive + metro", "Suburb to city, where parking is cheap"], ["Bus + walk", "Short trips, and the steps add up"], ["Carpool", "Colleagues in the same estate, costs shared"], ["Off-peak driving", "Flexible hours, missing the jams"], ["Remote + office", "Two days in, so you can live further out"]], "note": "The key to a mixed commute is parking you can rely on. Many park-and-ride sites fill by eight — go and look once."}
+],
+"roomrule": [
+ {"title": "Six things to settle before moving in", "head": ["Item", "What to ask"], "rows": [["Rent and deposit", "How many months each, refund conditions, who collects"], ["Utilities", "How split, whose name on the accounts"], ["Cleaning", "A cleaner or a rota, and who pays"], ["Guests and overnight stays", "Allowed, and how much notice"], ["Cooking", "Shared pans, and who cleans the grease"], ["Leaving", "Notice period, and whether subletting is allowed"]], "note": "Talking about money does not damage a friendship; vagueness does. Put it in the group chat, not in memory."},
+ {"title": "Splitting the bills", "head": ["Item", "Common approach"], "rows": [["Rent", "By room size and orientation, not per head"], ["Water and power", "Per head is simplest"], ["Gas", "Whoever cooks more pays a little more, or per head"], ["Internet", "Per head"], ["Cleaning", "Per head"], ["Household supplies", "A kitty: everyone pays in a fixed amount monthly"]], "note": "A kitty is the lowest-friction design: ¥100 each per month covers tissues and detergent, and nobody has to track who bought what."},
+ {"title": "Shared-space rules", "head": ["Area", "Rule"], "rows": [["Kitchen", "Clean as you cook; no pans left overnight"], ["Fridge", "One shelf each; label anything over a week old"], ["Bathroom", "Clear the drain of hair after showering"], ["Living room", "Personal items go back the same day"], ["Balcony", "Book drying slots; do not occupy it all day"], ["Hallway", "Two pairs of shoes maximum; parcels collected same day"]], "note": "“Clean as you go” works better than a rota. Rotas always have a gap; immediate cleanup gives immediate feedback."},
+ {"title": "Hours and noise", "head": ["Situation", "Practice"], "rows": [["Different schedules", "Headphones after 22:30; no washing machine"], ["Bringing someone home", "Say so a day ahead in the group"], ["Phone calls", "In your own room, not on speaker in the living room"], ["Pets", "Everyone agrees first, then discuss responsibility"], ["Renovation or moving", "Three days' notice, never early on a rest day"], ["Escalating conflict", "Private message first, then the group, never in public"]], "note": "The right order for a noise complaint is a private message, not a public call-out. Public criticism turns a small thing into a matter of face."},
+ {"title": "When something goes wrong", "head": ["Problem", "Handling"], "rows": [["Someone stops paying", "One written reminder, then the exit clause"], ["Persistent mess", "Photograph it, then assign clearly in the group"], ["Something gets broken", "Confirm whether it was shared, then discuss cost"], ["A guest moves in", "Invoke the occupancy clause in the contract"], ["You simply cannot get on", "Give notice properly; do not storm out"], ["Deposit withheld", "Your move-in photos and inventory are the evidence"]], "note": "Film the whole flat on move-in day, close on walls, appliances and furniture flaws. That video is the only evidence that counts at the end."},
+ {"title": "Leaving and deposits", "head": ["Step", "Key point"], "rows": [["Notice", "Per the contract, usually 30 days"], ["Replacement tenant", "Subletting needs the landlord's written consent"], ["Cleaning", "Restore to the move-in condition"], ["Settling up", "Photograph the meter readings"], ["Deposit refund", "Agree within 7 days; keep it in writing"], ["Handover", "Keys, access cards, change the parcel address"]], "note": "A dragged-out deposit is the most common dispute. On the day you leave, film the meters, the flat's condition and the key handover in one clip and post it with a timestamp."}
+],
+"fitplan": [
+ {"title": "How to arrange the week", "head": ["Frequency", "Arrangement"], "rows": [["2 days", "Full body, every other day"], ["3 days", "Full body or push/pull/legs, alternate days"], ["4 days", "Upper/lower split, two on one off"], ["5 days", "Push/pull/legs plus upper and lower"], ["6+ days", "Only with a base and enough sleep"], ["Beginner", "Three days a week for a full eight weeks first"]], "note": "Muscle grows while you rest, not while you train. Forty-eight hours between sessions for the same muscle is the floor."},
+ {"title": "Baseline volume", "head": ["Item", "Beginner", "Intermediate"], "rows": [["Sets per exercise", "2–3", "3–4"], ["Reps per set", "8–12", "6–12 (3–6 for strength)"], ["Rest between sets", "60–90 s", "90–180 s on heavy work"], ["Session length", "40–50 min", "60–75 min"], ["Exercises per week", "5–6", "6–8"], ["Proximity to failure", "Leave 2–3 reps in the tank", "Last set can be near failure"]], "note": "“Two in reserve” means stop when you could still do two more. A beginner who trains to failure takes three days to recover."},
+ {"title": "Choosing the movements", "head": ["Pattern", "Exercises"], "rows": [["Squat", "Goblet squat, leg press, split squat"], ["Hinge", "Romanian deadlift, glute bridge, hip abduction"], ["Push (horizontal)", "Push-up, dumbbell bench press, chest press machine"], ["Pull (horizontal)", "Seated row, dumbbell row"], ["Push (vertical)", "Dumbbell shoulder press, shoulder press machine"], ["Pull (vertical)", "Lat pulldown, assisted pull-up"]], "note": "One exercise from each of the six patterns is a complete full-body programme. Skip the exotic variations until the six are solid."},
+ {"title": "Adding cardio", "head": ["Goal", "Approach"], "rows": [["Fat loss", "150 minutes moderate a week, or 75 vigorous"], ["Conditioning", "Two 20–30 minute interval sessions a week"], ["Same day as weights", "Weights first, or separate by six hours"], ["Cardio only", "You lose muscle; pair it with lifting"], ["Walking", "8,000 steps a day is a good base"], ["Heart-rate zone", "(220 − age) × 60–75% is moderate"]], "note": "More cardio is not better. Above five hours of hard cardio a week, recovery and hormones both suffer."},
+ {"title": "Recovery and sleep", "head": ["Factor", "Requirement"], "rows": [["Sleep", "7–8 hours; under 6 halves the results"], ["Protein", "1.4–1.8 g per kg of body weight"], ["Water", "300–500 ml before and after training"], ["Soreness", "48–72 hours is normal; a week is not"], ["Rest days", "Walk and stretch; you need not be still"], ["Accumulated fatigue", "Resting heart rate up 5 bpm or more: deload for a week"]], "note": "No progress after three months? Check sleep and protein before you touch the programme. Nine times in ten the problem is not the exercises."},
+ {"title": "Common mistakes", "head": ["Mistake", "Consequence"], "rows": [["Starting on a five-day split", "No muscle gets enough work"], ["Chest and arms only", "Rounded shoulders, poor posture"], ["Partial range of motion", "Joint and tendon injuries"], ["Adding weight blindly", "Back and shoulders go first"], ["Skipping the warm-up", "Five to ten minutes of dynamic work is not optional"], ["On and off again", "You restart the adaptation and stay a beginner"]], "note": "There is one test of a good programme: can you keep doing it for three months? If not, cut it in half."}
+],
+"medreport": [
+ {"title": "The numbers that matter", "head": ["Measure", "Reference", "Note"], "rows": [["Blood pressure", "120/80 ideal; 140/90 is hypertension"], ["Fasting glucose", "3.9–6.1 mmol/L"], ["HbA1c", "Below 5.7% normal; 6.5% and above diabetes"], ["Total cholesterol", "Below 5.2 mmol/L"], ["LDL", "Below 3.4; below 1.8 with heart disease"], ["BMI", "18.5–23.9 on the Chinese standard"]], "note": "On the Chinese standard, a BMI of 24 is already overweight — stricter than the international 25. Asian bodies store visceral fat more readily."},
+ {"title": "The lipid panel", "head": ["Measure", "How to read it"], "rows": [["Total cholesterol", "A single high number is not alarming; look at the parts"], ["LDL", "The “bad” one; lower is better and it is the main target"], ["HDL", "The “good” one; higher is better"], ["Triglycerides", "Most diet-sensitive; a rich dinner the night before shows up"], ["Non-HDL", "Total minus HDL; more informative than either alone"], ["Retest", "Abnormal: three months of diet first, then retest"]], "note": "High triglycerides are usually made at the table: alcohol, sugar, refined carbs. No drinking or late dinners for three days before the retest."},
+ {"title": "Glucose and HbA1c", "head": ["Measure", "What it means"], "rows": [["Fasting glucose", "Baseline insulin function; needs an 8-hour fast"], ["2-hour post-meal", "Finds problems earlier than fasting alone"], ["HbA1c", "Average of the last 2–3 months, unaffected by today's food"], ["Impaired fasting", "6.1–7.0 is “pre-diabetes”"], ["Insulin resistance", "Waist, triglycerides and blood pressure all high: suspect it"], ["Retest", "First abnormal result: ask for an oral glucose tolerance test"]], "note": "Checking only fasting glucose misses half of early problems. With a family history, add HbA1c."},
+ {"title": "Liver panel", "head": ["Measure", "Note"], "rows": [["ALT", "The most sensitive marker of liver-cell damage"], ["AST", "If AST exceeds ALT, look at heart and muscle too"], ["GGT", "Linked to alcohol, fatty liver and the bile ducts"], ["Bilirubin", "Mild elevation is often constitutional; read it with the rest"], ["Albumin", "Chronically low suggests nutrition or synthetic function"], ["Fatty liver", "Read the ultrasound grade together with the liver panel"]], "note": "Late nights, hard exercise and alcohol all raise transaminases. For a mild abnormality, fix your sleep for two weeks and retest."},
+ {"title": "Nodules and cysts", "head": ["Finding", "Handling"], "rows": [["Thyroid nodule", "Read the TI-RADS grade; below 3 is usually surveillance"], ["Breast nodule", "BI-RADS 3: repeat in six months"], ["Lung nodule", "Size and density; under 6 mm is usually annual follow-up"], ["Liver cyst", "A simple cyst needs nothing"], ["Kidney cyst", "Bosniak I: just keep watching"], ["Gallbladder polyp", "10 mm or symptoms: consider surgery"]], "note": "The question about a nodule is not whether it exists but whether it has changed size. File every report by date — the trend beats any single sheet."},
+ {"title": "When to go back", "head": ["Situation", "Advice"], "rows": [["Mild abnormality", "Retest in 1–3 months, not next year"], ["Persistent abnormality", "See the specialty clinic; do not self-diagnose online"], ["Sudden change", "Compare with the last report and find the cause"], ["Several at once", "Consider metabolic syndrome and assess together"], ["Family history", "Start screening 5–10 years earlier"], ["Report lost", "Hospital apps usually keep 3–5 years of results"]], "note": "A health check is worth what several years of comparison give you, not the arrows in any one year. One sheet on its own says little."}
+]
+,
+"parenttalk": [
+ {"title": "Three real reasons a child does not listen", "head": ["Reason", "Signs"], "rows": [["Not yet capable", "Told many times, still cannot do it — the task may be too hard"], ["Attention is elsewhere", "Deep in play; you call three times with no response"], ["Loss of control", "The more you hurry them, the slower they go"], ["A need unseen", "The tantrum is really a request for attention"], ["Inconsistent rules", "Allowed today, not tomorrow — so they keep testing"], ["Tired or hungry", "Most six o'clock meltdowns are this"]], "note": "Rule out the physical and capability reasons first. Treating a capability problem as an attitude problem only hardens the standoff."},
+ {"title": "Giving an instruction that works", "head": ["Practice", "Example"], "rows": [["Get close", "Walk over, crouch down, look them in the eye"], ["One thing at a time", "“Put the blocks in the blue box”, not “tidy the room”"], ["Say what to do", "Describe the action, not the prohibition"], ["Offer two choices", "“Bath now, or in five minutes”"], ["Warn about transitions", "“Two more goes on the slide, then home”"], ["Then wait five seconds", "Do not repeat yourself; give them time to react"]], "note": "“Don't run” translates in a toddler's head to “run”. Say “hold my hand” instead and the hit rate doubles."},
+ {"title": "Handling a meltdown", "head": ["Stage", "Practice"], "rows": [["During", "Safety first, few words, no reasoning"], ["Name it", "“You're angry because the tower fell”"], ["Allow the feeling", "Feelings are fine; hitting is not"], ["Stay close", "Sit beside them; do not rush to cheer them up"], ["Afterwards", "One sentence of review, not a long meeting"], ["Later", "Teach the words they could use next time"]], "note": "Reasoning comes after calm. In a flooded state the logical part of the brain is offline — in adults too."},
+ {"title": "Praise and criticism", "head": ["Type", "How to say it"], "rows": [["Praise effort", "“You tried three times yourself”, not “you're so clever”"], ["Be specific", "Name the exact thing they did right"], ["Criticise the act", "“You pushed him”, not “you're a bad boy”"], ["Offer repair", "“Ask if it hurts and help pick it up”"], ["No comparisons", "Never “look at how well she does it”"], ["Ratio", "Five acknowledgements to one correction"]], "note": "“You're so clever” teaches a child to avoid hard problems, because failing would mean not being clever. Praise the process and they keep trying."},
+ {"title": "Negotiating screen time", "head": ["Practice", "Why"], "rows": [["Agree rules first", "When and how long, written down and posted"], ["Use a timer", "Let the timer end it, not the parent"], ["Watch together", "For young children, sit and comment"], ["Never use as reward or punishment", "It makes the screen more desirable"], ["One hour before bed", "All screens leave the bedroom"], ["Model it", "Do not scroll while telling them to stop"]], "note": "Let the child stop the timer themselves. It turns a person-versus-person conflict into a person-versus-rule one."},
+ {"title": "Talking to teenagers", "head": ["Situation", "Practice"], "rows": [["They will not talk", "Side by side is easier than face to face; do an activity"], ["The closed door", "Respect the door, but keep one short exchange a day"], ["Talking back", "Acknowledge the point, then discuss how it was said"], ["Privacy", "Do not search the phone unless there is a real safety risk"], ["Friendships", "Ask “what do you think” before offering a verdict"], ["Big disagreements", "Hold the hard lines, leave room on the rest"]], "note": "Teenage silence is not rejection; it is practice at being separate. The best way in is not to interrogate."}
+],
+"weekplan": [
+ {"title": "Running the weekly meeting", "head": ["Step", "Time"], "rows": [["Fixed slot", "Sunday evening or Monday morning, 20 minutes"], ["Go through the week", "Late nights, trips, the children's activities"], ["Plan dinners", "Five weeknight meals first, then shop"], ["Claim tasks", "People volunteer; nobody is assigned"], ["Leave blanks", "At least one day with nothing planned"], ["Post it", "On the fridge or in the group chat — written down counts"]], "note": "Any meeting over 30 minutes will not happen twice. Use a timer and stop when it goes."},
+ {"title": "Dividing the housework", "head": ["Approach", "Suits"], "rows": [["By area", "You take the kitchen, I take the bathroom: clear ownership"], ["By type", "Cooking, shopping, cleaning, bills — one owner each"], ["By rhythm", "Daily tasks separate from weekly ones"], ["Rotation", "The unpleasant jobs rotate monthly"], ["Outsource", "A cleaner fortnightly; the time saved is worth more"], ["Children included", "A fixed post by age"]], "note": "Splitting by area beats splitting by turn. Turns need daily negotiation; areas need one handover."},
+ {"title": "What children can own", "head": ["Age", "Can be responsible for"], "rows": [["3–4", "Toys back in the box, dirty clothes in the basket"], ["5–6", "Laying the table, watering plants, wiping the table"], ["7–9", "Packing the school bag, folding clothes, taking out rubbish"], ["10–12", "Washing up, a simple breakfast, sweeping"], ["13+", "Cooking one meal, washing their own clothes, the shopping list"], ["Principle", "A fixed post beats being called over"]], "note": "Slow and badly done is normal. Let them finish and quietly redo it, rather than redoing it in front of them."},
+ {"title": "Time blocks", "head": ["Slot", "Arrangement"], "rows": [["Morning", "Three things only: wash, eat, leave"], ["After school", "Move first, then homework — it works better"], ["After dinner", "Twenty minutes of housework, everyone at once"], ["Bedtime", "Same sequence: bath, book, lights out"], ["Weekend morning", "Deep clean or the big shop"], ["Weekend afternoon", "Nothing scheduled"]], "note": "Twenty minutes with everyone working beats everyone working alone — procrastination disappears when someone is beside you."},
+ {"title": "Why plans fail", "head": ["Cause", "Fix"], "rows": [["Packed too full", "Plan 70%; keep 30% as buffer"], ["Tasks without times", "Every item names a day and a slot"], ["One person carries it", "Publish the split with names"], ["No review", "Five minutes a week on where it jammed"], ["Standards too high", "Get to 60% first, then add"], ["Ignoring fatigue", "Cut back deliberately in a busy week"]], "note": "A plan is not for finishing everything; it is for keeping the important things from being squeezed out. Unfinished is a design problem, not a character flaw."},
+ {"title": "The monthly review", "head": ["Look at", "Change"], "rows": [["What keeps slipping", "Reassign it, outsource it, or drop it"], ["Who is overloaded", "Move one task away"], ["A child's new skill", "Add a post"], ["Where money goes", "Anything that could be bought in one go?"], ["One exception", "Note it and prepare next month"], ["One acknowledgement", "Name one thing the other person did well"]], "note": "Review the task, not the person. “The bin is always full” is easier to fix than “you never take out the rubbish”."}
+],
+"newyear": [
+ {"title": "When to buy", "head": ["Category", "Timing"], "rows": [["Nuts and dried goods", "3–4 weeks ahead; prices climb nearer the day"], ["Cured meats", "2–3 weeks ahead; they need airing"], ["Drinks", "2 weeks ahead; a week before is when prices jump"], ["Frozen seafood", "1–2 weeks ahead; leave freezer space"], ["Fresh vegetables", "2–3 days before"], ["Fresh meat and poultry", "1–2 days before"]], "note": "The three days before New Year's Eve are the most expensive and the worst quality. Buy the keeps early and the fresh last."},
+ {"title": "Nuts and snacks per head", "head": ["Item", "Per person"], "rows": [["Mixed nuts", "200–250 g"], ["Sunflower seeds", "150 g"], ["Sweets", "100 g (double with children)"], ["Dried fruit", "100 g"], ["Tea", "50 g, more if there are guests"], ["Shiitake and wood ear", "50 g dry, about 250 g soaked"]], "note": "Nuts are best within two weeks of opening. Small packs beat one large bag opened and closed for a month."},
+ {"title": "Fresh food and meat", "head": ["Item", "Per person per meal"], "rows": [["Pork", "150–200 g"], ["Beef or lamb", "150 g"], ["Whole chicken", "Half a bird for 3–4 people"], ["Fish", "200 g on the bone"], ["Prawns", "100–150 g"], ["Dumplings", "15–20 pieces"]], "note": "Cater at headcount × 1.2 for the reunion dinner. With many dishes, smaller portions of each go down better than fewer dishes."},
+ {"title": "Gifts", "head": ["Recipient", "Choice"], "rows": [["Elders", "Practical: cooking oil, rice, warm clothing, a health-check voucher"], ["Households with children", "A snack box plus a set of books"], ["Colleagues", "Something small and shareable; never expensive"], ["Neighbours", "A local speciality; the price need not be high"], ["Clients", "Compliance first; check your employer's rules"], ["In general", "Nothing that makes them store or look after it"]], "note": "The worst gifts are the ones that create work: live poultry, bulky items, anything needing refrigeration. A gift should be a relief on arrival."},
+ {"title": "Storing it all", "head": ["Item", "Where"], "rows": [["Nuts", "Airtight jar with a desiccant, cool and dark"], ["Cured meat", "Hung to air, or frozen"], ["Frozen meat", "Flat, in small portions, so it thaws fast"], ["Vegetables", "Do not wash; wrap in kitchen paper and bag"], ["Fruit", "Tropical fruit does not go in the fridge"], ["Cooked food", "Refrigerated, no more than three days"]], "note": "A crammed fridge is a warm fridge. Leave a third of the space empty so the cold air can move."},
+ {"title": "Buying less", "head": ["Typical excess", "Result"], "rows": [["Seeds and sweets", "Still eating them in February, gone soft"], ["Frozen seafood", "No room, thawed and refrozen"], ["Gift boxes", "Never given away, taking up space"], ["Drinks", "Past the date and poured away"], ["Disposable tableware", "A year in the cupboard"], ["Fireworks", "Banned in most cities"]], "note": "Before buying, count the actual meals between New Year's Eve and the seventh day. Most households shop for a fortnight."}
+],
+"oldphone": [
+ {"title": "What it can become", "head": ["Use", "Requirement"], "rows": [["Home monitor", "Working camera, can stay plugged in"], ["Car navigation", "Intact screen, working GPS"], ["Clock and weather display", "No dead pixels, always-on support"], ["A child's first phone", "Fast enough, parental controls available"], ["Spare phone", "Battery health above 80%"], ["Media remote or download box", "Just needs Wi-Fi"]], "note": "There is one test: can it run plugged in permanently? A worn battery is fine for a fixed role."},
+ {"title": "Turning it into a camera", "head": ["Step", "Key point"], "rows": [["Choose the app", "Pick one that works over the local network, not cloud-only"], ["Position", "Facing the door or living room; never bedrooms or bathrooms"], ["Power", "Plugged in permanently; cap charging at 80% for safety"], ["Network", "Guest network, never the main one"], ["Account", "A separate account with two-factor authentication"], ["Privacy", "Tell everyone you live with; never install one secretly"]], "note": "Heat is the main problem with an old phone as a camera. Do not box it in or cover it."},
+ {"title": "As a car unit", "head": ["Item", "Practice"], "rows": [["Mounting", "Vent clip or suction; never blocking your view"], ["Power", "Cigarette socket, cable routed out of sight"], ["Offline maps", "Download the province before you go"], ["Screen", "Keep it awake at low brightness"], ["Summer", "Never on the dashboard in direct sun"], ["Leaving the car", "Take it with you"]], "note": "A car interior passes 60°C in summer; a lithium battery at that temperature will swell. Use it, then take it out."},
+ {"title": "A child's first phone", "head": ["Setting", "Practice"], "rows": [["Account", "A child account, never the parent's main one"], ["Apps", "An allowlist only; disable installing from the store"], ["Payments", "Off entirely; no card attached"], ["Time", "Set allowed hours and a daily total"], ["Location", "Family location sharing on"], ["Contacts", "Calls from saved contacts only"]], "note": "Do not hand over a factory-reset phone as-is. Twenty minutes on those six settings beats policing it later."},
+ {"title": "Sell or keep", "head": ["Situation", "Advice"], "rows": [["Flagship under three years old", "Sell it; resale is still decent"], ["Battery health below 80%", "Better as a fixed-purpose device"], ["Cracked screen", "Repair often exceeds the resale value — keep it"], ["Sensitive data on it", "Wipe it thoroughly before selling"], ["For a child", "Keep it; better than buying new"], ["Unused for over a year", "Sell or give away; do not hoard"]], "note": "A phone left unused will age until it will not power on. Either use it or move it on."},
+ {"title": "Wiping it properly", "head": ["Step", "Why"], "rows": [["Sign out of accounts", "Cloud accounts first, or it will lock"], ["Unlink everything", "Bank cards, payments, door access, car keys"], ["Move two-factor", "Set up verification on the new device first"], ["Encrypt and overwrite", "Factory reset, fill with dummy files, reset again"], ["Remove the cards", "SIM and any storage card"], ["Final check", "Photos, contacts and chats all empty"]], "note": "One factory reset leaves traces that recovery tools can still read. Filling it and resetting again costs very little."}
+]
+,
+"accompany": [
+ {"title": "Before you leave home", "head": ["Take", "Why"], "rows": [["Documents", "ID card, insurance card, hospital card"], ["Previous records", "Discharge summaries, last results, current medication"], ["Photograph the boxes", "Including the dose; more accurate than describing it"], ["A symptom log", "When it started, what makes it worse"], ["Fasting status", "Check first if bloods or an ultrasound are likely"], ["A companion", "Mandatory for children, elders, and any sedation"]], "note": "Photograph every medicine you take. When the doctor asks what you are on, a photo is ten times faster than memory."},
+ {"title": "Which clinic to book", "head": ["Symptom", "First choice"], "rows": [["Fever and cough", "Respiratory medicine; paediatrics for children"], ["Chest tightness", "Cardiology; severe or sudden, go to emergency"], ["Abdominal pain", "Gastroenterology; severe right-lower pain, emergency"], ["Dizziness", "Neurology; with ringing ears, ENT"], ["Rash", "Dermatology"], ["Unexplained weight loss", "General medicine first; do not self-diagnose"]], "note": "If unsure, book general medicine and let them triage. The wrong clinic costs you half a day, not the registration fee."},
+ {"title": "Three sentences for the consultation", "head": ["Element", "Example"], "rows": [["The complaint", "“Cough for three weeks, worse at night”"], ["The change", "“Yellow sputum since last week, fever 38.5 yesterday”"], ["The request", "“I want to know whether I need an X-ray”"], ["Medication so far", "“Three days of amoxicillin, no improvement”"], ["Your worry", "“There is an elderly person at home; I worry about spreading it”"], ["Timeline", "List by date, not by feeling"]], "note": "A doctor has a few minutes. Three sentences, then let them ask. That is the most efficient shape of a consultation."},
+ {"title": "Ordering the tests", "head": ["Test", "Tip"], "rows": [["Blood tests", "Most need fasting; go first thing in the morning"], ["Ultrasound", "If it needs a full bladder, drink first, then do other things"], ["CT and MRI", "Book the slot first, then work the rest around it"], ["ECG", "Quick; slot it into any waiting gap"], ["Endoscopy", "Fasting plus a companion; schedule it last"], ["Results", "Most are online; do not queue at the machine"]], "note": "Pay for every test once, book them all once, then plan a route by time. Walking back and forth is the real time sink."},
+ {"title": "What to write down", "head": ["Ask", "Why"], "rows": [["What is the diagnosis", "Write the name down; you will want to look it up"], ["How was it decided", "Understanding the reasoning prevents over-testing"], ["How to take the medicine", "Before or after food, how many days, what if a dose is missed"], ["When to come back", "Ask for a clear signal, not “if it gets worse”"], ["Alternatives", "Cost, side effects, course length"], ["What to bring next time", "So the follow-up is not wasted"]], "note": "Before leaving, repeat it back: “So I understand it as… is that right?” Misunderstanding the dosing is the most common error after a visit."},
+ {"title": "Taking an elderly parent", "head": ["Issue", "Practice"], "rows": [["Hard of hearing", "Tell the doctor up front and ask them to speak up"], ["Poor historian", "Let them speak first; then add what is missing"], ["Several clinics", "Order them by floor to cut walking"], ["Drug interactions", "Show every medicine, including supplements"], ["Cannot remember", "Record the visit, with permission"], ["Afterwards", "Write the instructions in large print on the fridge"]], "note": "Elderly patients often leave out symptoms to avoid being a nuisance. Ask at home first and bring the answers on paper."}
+],
+"license": [
+ {"title": "Before you sign up", "head": ["Item", "Ask"], "rows": [["Category", "Manual (C1) or automatic (C2)"], ["What is included", "Retest fees, simulator fees, pick-up — extra or not"], ["Practice format", "One student per car, or a queue"], ["Instructor", "Can you change, and how"], ["Distance", "The commute counts toward the real cost"], ["Timeline", "Typical time to test, and in peak season"]], "note": "Automatic is easier and faster, and enough for everyday driving. Insist on manual only if you need a van or an old car."},
+ {"title": "The four tests", "head": ["Test", "Focus"], "rows": [["Theory (1)", "Work the whole bank once, then the wrong answers three times"], ["Closed course (2)", "Learn the reference points; slow enough to stop anytime"], ["Road (3)", "Follow instructions, check mirrors, indicate three seconds"], ["Safety (4)", "Multi-select questions are where marks are lost"], ["Common factor", "Nerves fail more people than skill"], ["Retakes", "Most regions cap the number; do not waste them"]], "note": "Most people fail on reversing into a bay and hill starts. Two extra hours there beats ten mock papers."},
+ {"title": "Time and cost", "head": ["Item", "Typical"], "rows": [["Total duration", "Two months if quick, six if not"], ["Hours behind the wheel", "Usually 20–40 in total"], ["Fee", "¥5,000–9,000 in major cities"], ["Simulator time", "Charged hourly; do it before the test"], ["Retest fee", "One or two hundred per attempt"], ["Hidden costs", "Travel, leave from work, extra lessons"]], "note": "Weekend and evening slots are the most crowded. Half a day of leave on a weekday usually doubles your practice time."},
+ {"title": "Choosing an instructor", "head": ["Signal", "Verdict"], "rows": [["Quiet but corrects precisely", "Good: names the problem directly"], ["Chats and does not coach", "Change"], ["Leaves you alone for long stretches", "Change"], ["Shouts or belittles", "Change immediately; do not endure it"], ["Explains the reasoning", "Worth keeping; you learn faster"], ["Offers extra practice before the test", "Conscientious"]], "note": "The instructor decides whether you dare drive at all. Changing is normal — it is not rude."},
+ {"title": "The first year", "head": ["Situation", "Advice"], "rows": [["Probationary period", "12 months; losing all 12 points cancels the licence"], ["Motorways", "A driver with three years' experience must sit beside you"], ["Badge", "Display the standard novice sign on the back"], ["First three months", "Avoid rush hour and heavy rain"], ["Parking", "Practise bay and parallel parking; do not rush"], ["Rental practice", "Less pressure than a new car, and insured"]], "note": "Passing is not the same as driving. The first 5,000 km are the danger zone — take the longer route rather than force a complex junction."},
+ {"title": "Renewals and points", "head": ["Item", "Cycle"], "rows": [["First renewal", "Within 90 days of the 6-year expiry"], ["Second", "10 years"], ["Long-term", "Available if you qualify"], ["Medical", "A fitness certificate is needed to renew"], ["Points cycle", "12 months; 12 points means retraining"], ["Study offset", "Eligible drivers can reduce points online, with an annual cap"]], "note": "Renewal can be done online, but the medical has to be at a designated hospital. The reminder arrives a month early; do not let it lapse."}
+],
+"visa": [
+ {"title": "Choosing the category", "head": ["Purpose", "Type"], "rows": [["Tourism", "Visitor visa; usually needs itinerary and hotels"], ["Business", "Invitation letter plus employer letter"], ["Family visit", "Proof of relationship plus the host's documents"], ["Study", "Offer letter plus proof of funds"], ["Transit", "Short stay; check whether a transit visa is required"], ["Multiple entry", "Easier with a good travel history"]], "note": "The declared purpose must match reality. Working on a tourist visa, once discovered, means removal and a record."},
+ {"title": "Documents", "head": ["Category", "Usually required"], "rows": [["Identity", "Passport valid six months beyond travel, photos"], ["Employment", "Employer letter, business licence copy"], ["Funds", "Six months of statements, deposit certificate"], ["Itinerary", "Flight and hotel bookings"], ["Relationships", "Household register, marriage certificate"], ["Insurance", "Schengen states require medical cover"]], "note": "The employer letter should name your role, start date, approved leave and who pays. A vague letter is a common reason for refusal."},
+ {"title": "Proof of funds", "head": ["Point", "Explanation"], "rows": [["Statements", "Six months; steady income beats a large deposit"], ["Balance", "Enough to cover the trip; often ¥500–1,000 per day"], ["Sudden deposits", "A large sum just before applying looks suspicious"], ["Deposit certificate", "Frozen only for the trip duration"], ["Several accounts", "Print them together, not one card"], ["Sponsored", "Needs a sponsor letter and proof of relationship"]], "note": "Officers care where the money came from, not how much there is. A steady salary record is the most persuasive document."},
+ {"title": "Interviews and checks", "head": ["Situation", "Preparation"], "rows": [["Interview", "Answer briefly, match your documents, do not expand"], ["Itinerary questions", "Know the cities and the number of nights"], ["Work questions", "Role, duties, start date"], ["Money questions", "Source of income and current balance"], ["Phone checks", "Reception must know you are on leave"], ["Consistency", "Every date and figure must agree"]], "note": "When they ring the office and reception says no such person works there, that is a refusal. Tell admin before you apply."},
+ {"title": "Crossing the border", "head": ["Stage", "Note"], "rows": [["Check-in", "Confirm passport validity and visa pages"], ["Arrival card", "Some countries require one; have the address ready"], ["Immigration", "Answer honestly about purpose and length of stay"], ["Baggage", "Declare meat, seeds and large amounts of cash"], ["Entry stamp", "Check the date and permitted stay"], ["Customs", "Declare above the allowance or face a fine"]], "note": "“Tourism, staying with a friend, ten days” is enough at the desk. The more detail you volunteer, the more questions follow."},
+ {"title": "If you are refused", "head": ["Situation", "Handling"], "rows": [["Refusal letter", "Read the reason code first; do not just reapply"], ["Weak documents", "Fix them, then reapply"], ["Funds questioned", "Add steady statements and assets"], ["Purpose doubted", "Add itinerary detail and an invitation"], ["Record", "Refusals are visible; explain what changed"], ["Appeal", "Most countries have no appeal; reapply instead"]], "note": "Submitting the same file again gets the same answer. Either strengthen the case or build history with an easier destination first."}
+],
+"subs": [
+ {"title": "Take inventory", "head": ["Category", "Common items"], "rows": [["Video and audio", "Streaming, music, audiobooks"], ["Cloud", "Drive, photos, backup"], ["Software", "Office, photo editing, notes, password manager"], ["Daily life", "Food delivery, e-commerce, ride-hailing passes"], ["Health", "Gym, meditation, check-up plans"], ["Learning", "Courses, question banks, e-books"]], "note": "Go through the auto-renewal list in Alipay and WeChat one by one. That list is the real inventory, not your memory."},
+ {"title": "What to keep", "head": ["Test", "Verdict"], "rows": [["Used every week", "Keep"], ["Opened for one job", "Cancel when done"], ["Only for free shipping", "Add up the shipping you actually paid"], ["Duplicates another", "Keep one, cancel the rest"], ["Not used since the price rise", "Cancel"], ["The family uses it too", "Keep, on the family plan"]], "note": "One test: how many times did you open it in the last 30 days? If you cannot remember the last time, cancel."},
+ {"title": "Auto-renewal traps", "head": ["Trap", "Response"], "rows": [["First month cheap", "¥6 for month one, full price after — read the terms"], ["Pre-ticked box", "Untick the small box on the payment page"], ["Annual discount", "If you stop after six months it costs more"], ["Buried cancel button", "It is in account settings, not the home page"], ["Charged early", "Usually three days before expiry, not on the day"], ["Apple in-app", "Cancel in the system subscription settings"]], "note": "Deleting the app is not cancelling. You must cancel in the payment channel or the system subscriptions, or it keeps charging."},
+ {"title": "Family sharing", "head": ["Option", "Suits"], "rows": [["Family plan", "Three to six people sharing; much lower each"], ["Student rate", "Anyone with a valid student status"], ["Carrier bundle", "Often includes video or music"], ["Retail bundles", "One price, several memberships"], ["Card benefits", "Some credit cards include memberships"], ["Work account", "Never use a personal subscription for work"]], "note": "Family plans often require the same address. Platforms do check, and a faked household loses the plan for everyone."},
+ {"title": "Cancelling", "head": ["Channel", "How"], "rows": [["In the app", "Account, subscriptions, turn off auto-renew"], ["Apple", "Settings, Apple ID, Subscriptions"], ["Android", "App store, subscriptions"], ["Alipay", "Me, settings, payment settings, no-password payments"], ["WeChat", "Me, services, wallet, payment settings"], ["Direct debit", "Written request to support; keep the screenshot"]], "note": "Screenshot the “cancelled” confirmation. In a billing dispute, that screenshot is the only proof that counts."},
+ {"title": "When the price goes up", "head": ["Situation", "Response"], "rows": [["Existing users charged more", "Ask support whether the old rate can be kept"], ["Annual plan rises", "Switch to monthly to watch, or cancel"], ["Features cut", "Compare with a rival before deciding"], ["Bundled offer", "Price the total, not the headline item"], ["Switching", "Export your data first; check the format"], ["Done with it", "Cancel and remove the payment method"]], "note": "Price-rise notices usually say “continued use constitutes acceptance”. That sentence is your cue to check the auto-renewal status."}
+]
 };
 Object.assign(TABLE_EN, TABLE_EN_MORE);
 
@@ -9429,7 +9798,7 @@ function initInstall(){
 const FEEDBACK_EMAIL = '';
 function feedbackPanel(){
   const ua = navigator.userAgent || '';
-  const tpl = t('【生活换算反馈】\n版本：V6.5\n页面：','【Life Conversion Feedback】\nVersion: V6.5\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
+  const tpl = t('【生活换算反馈】\n版本：V6.8\n页面：','【Life Conversion Feedback】\nVersion: V6.8\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
     t('\n\n问题描述：\n1. 我在做什么：\n2. 期望结果：\n3. 实际结果：\n4. 是否可复现：\n','\n\nIssue description:\n1. What I was doing:\n2. Expected result:\n3. Actual result:\n4. Reproducible:\n');
   const subj = t('生活换算反馈','Life Conversion Feedback');
   const mail = FEEDBACK_EMAIL
