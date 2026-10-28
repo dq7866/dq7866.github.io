@@ -1,0 +1,16 @@
+{
+  "name": "生活换算 · 全能手册",
+  "short_name": "换算手册",
+  "description": "73 个模块的生活、工程、金融换算与速查工具，全部本地计算。",
+  "start_url": "./units.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#faf6f0",
+  "theme_color": "#e04a00",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "./units-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./units-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

@@ -1,7 +1,8 @@
 {
   "name": "智慧林间学堂",
   "short_name": "林间学堂",
-  "description": "全科益智助学儿童游戏：答题点亮成长树、驱散知识迷雾、收集博物图鉴。",
+  "description": "全科益智助学儿童游戏：答题点亮成长树、驱散知识迷雾、收集博物图鉴。240+ 张知识图鉴、1000+ 道益智题、诗词故事儿歌全免费，5-12 岁在家玩着学。",
+  "id": "./index.html",
   "start_url": "./index.html",
   "scope": "./",
   "display": "fullscreen",
@@ -12,5 +13,11 @@
     { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "assets/screenshots/shot-home.png", "sizes": "1280x720", "type": "image/png", "form_factor": "wide", "label": "森林首页：主线冒险与成长树" },
+    { "src": "assets/screenshots/shot-quiz.png", "sizes": "1280x720", "type": "image/png", "form_factor": "wide", "label": "答题闯关：覆盖语文数学英语科学" },
+    { "src": "assets/screenshots/shot-culture.png", "sizes": "1280x720", "type": "image/png", "form_factor": "wide", "label": "文化乐园：诗词、故事与儿歌" },
+    { "src": "assets/screenshots/shot-mobile.png", "sizes": "750x422", "type": "image/png", "form_factor": "wide", "label": "手机横屏：随时随地玩着学" }
   ]
 }
