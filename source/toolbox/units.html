@@ -272,7 +272,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div class="app">
   <aside class="side" aria-label="模块导航">
-    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v6.2</span></div>
+    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v6.5</span></div>
     <a class="backlink" id="backlink" href="index.html" style="display:none">← 返回工具箱</a>
     <input id="q" class="search" placeholder="搜模块：亩 / 鞋码 / 扳手 / 汇率…       也能直接算：10 km to mi / 12*8">
     <div id="qc" class="qc" role="status" aria-live="polite"></div>
@@ -3104,7 +3104,7 @@ const CATS = [
   rows:[['忘带钥匙','找备案开锁公司，需身份证加房产或租房合同'],['锁眼被堵','不要自己捅，直接报警并找开锁'],['突然停电','先看邻居，再查自家总闸'],['受伤无法起身','手机放低处，或配跌倒报警'],['闻到燃气味','不开灯不开抽油烟机，开窗后到室外打电话'],['半夜有人试门','开灯、出声、录像，同时报警']],
   note:'正规开锁公司一定核验身份，会要看房产证或租房合同。上来就开、不问身份的，不要用。'}
 ]},
-{id:'medexpire',en:'Medicine Expiry',g:'健康医疗',icon:'💊',name:'药品有效期与家庭急救箱',type:'tables',sub:'药盒上的有效期是"未开封"的。滴眼液和糖浆开封后真正的保质期只有几周，这一点最常被忽略。',sections:[
+{id:'medexpire',en:'Medicine Expiry',g:'健康与饮食',icon:'💊',name:'药品有效期与家庭急救箱',type:'tables',sub:'药盒上的有效期是"未开封"的。滴眼液和糖浆开封后真正的保质期只有几周，这一点最常被忽略。',sections:[
  {title:'有效期怎么看',head:['标注 / 剂型','实际可用到'],
   rows:[['「有效期至 2027/05」','可用到 2027 年 5 月 31 日'],['「失效期 2027/05」','只能用到 2027 年 4 月 30 日'],['瓶装片剂开封后','一般 3–6 个月，以说明书为准'],['眼药水开封后','4 周'],['糖浆开封后','1 个月，开封后冷藏'],['胰岛素开封后','28 天，室温不超过 25 ℃']],
   note:'"有效期至"含当月最后一天，"失效期"从当月第一天就不能用。买药时看清是哪个写法。'},
@@ -3121,7 +3121,7 @@ const CATS = [
   rows:[['普通片剂','拆出药片混入生活垃圾，包装撕毁'],['抗生素、激素','送有害废物回收点，不要冲马桶'],['针剂、胰岛素','连针头送医疗废物回收点'],['口服液、糖浆','倒出混吸附物后丢弃'],['抗癌与免疫药','必须送有害废物回收点'],['空药盒','撕掉个人信息再扔']],
   note:'冲马桶和倒下水道是最差的做法——药会进水源。药片混上猫砂或咖啡渣再扔，能防止被翻捡。'}
 ]},
-{id:'carins',en:'Car Insurance',g:'出行交通',icon:'🛡️',name:'汽车保险怎么买',type:'tables',sub:'决定"会不会破产"的是三者险额度，不是车损险。三者从 100 万加到 300 万，保费通常只多两三百。',sections:[
+{id:'carins',en:'Car Insurance',g:'钱与账',icon:'🛡️',name:'汽车保险怎么买',type:'tables',sub:'决定"会不会破产"的是三者险额度，不是车损险。三者从 100 万加到 300 万，保费通常只多两三百。',sections:[
  {title:'险种清单',head:['险种','要不要买'],
   rows:[['交强险','强制，必须买，但保额很低'],['第三者责任险','建议 200–300 万'],['车损险','新车、贷款车必买'],['车上人员责任险','按座位买，常载人就买'],['医保外用药责任险','几十块，很值'],['划痕险','新车可买，旧车没必要']],
   note:'保费的大头花在车损上，但真正兜底的是三者额度。先把这个额度买够，再考虑其他。'},
@@ -3166,7 +3166,7 @@ const CATS = [
   rows:[['板材','选 ENF 或 E0 级'],['涂料','水性漆，看检测报告'],['家具边角','圆角或包角'],['地面','木地板加软垫，防摔'],['玻璃','钢化加防爆膜'],['入住','通风 3 个月，测甲醛再住']],
   note:'儿童房的甲醛风险不在墙漆，在人造板家具。板材等级比涂料品牌更值得较真。'}
 ]},
-{id:'meshnet',en:'Home Wi-Fi',g:'科技数码',icon:'📶',name:'家庭 Wi-Fi 组网',type:'tables',sub:'先测有线速度：网线直连能跑满、Wi-Fi 跑不满，问题就在无线覆盖，不在宽带。别急着换套餐。',sections:[
+{id:'meshnet',en:'Home Wi-Fi',g:'数字与编码',icon:'📶',name:'家庭 Wi-Fi 组网',type:'tables',sub:'先测有线速度：网线直连能跑满、Wi-Fi 跑不满，问题就在无线覆盖，不在宽带。别急着换套餐。',sections:[
  {title:'先判断问题在哪',head:['现象','原因'],
   rows:[['只有某个房间慢','覆盖问题，加节点'],['全屋都慢','先测宽带本身'],['晚上特别慢','邻居信道拥堵'],['隔一堵墙掉一半','5 GHz 穿墙差，正常'],['老路由跑不满千兆','换 Wi-Fi 6'],['手机满格但很卡','干扰或路由性能不足']],
   note:'用网线直连电脑测一次速度，这个数字才是你家宽带的真实上限。'},
@@ -3234,7 +3234,7 @@ const CATS = [
   rows:[['换锁芯','租的房子也换，旧锁可能有人有钥匙'],['拍照存档','全屋视频+关键位置特写'],['登记居住','需要办居住证或备案的及时办'],['水电过户','App 绑定自己的账号'],['邻里','认识对门，留电话'],['报修','把待修项一次列清单发给房东']],
   note:'换锁芯把旧芯留着，退租时装回去。这一步花一百多，能解决"前租客还留着钥匙"的隐患。'}
 ]},
-{id:'creditcard',en:'Credit & Score',g:'金融理财',icon:'💳',name:'信用卡与征信管理',type:'tables',sub:'"花钱修复征信"全是骗局。真实逾期记录只能等 5 年自然消除，唯一能做的是不再新增。',sections:[
+{id:'creditcard',en:'Credit & Score',g:'钱与账',icon:'💳',name:'信用卡与征信管理',type:'tables',sub:'"花钱修复征信"全是骗局。真实逾期记录只能等 5 年自然消除，唯一能做的是不再新增。',sections:[
  {title:'征信报告怎么看',head:['项目','要点'],
   rows:[['查询渠道','央行征信中心官网，每年 2 次免费'],['重点看','逾期记录、查询记录、担保信息'],['逾期保留','结清后保留 5 年'],['硬查询','短时间过多会拉低评分'],['呆账','最严重，必须主动处理'],['公共记录','欠税、判决也会记录']],
   note:'"频繁申请网贷"留下的密集硬查询记录，对房贷审批的影响往往比一次小额逾期更大。'},
@@ -3268,7 +3268,7 @@ const CATS = [
   rows:[['维修费超新机 40%','考虑换新'],['机龄超 8 年','能效低，电费差抵得上差价'],['配件停产','修不了'],['三年修三次以上','可靠性已经崩了'],['漏电、起火隐患','立即停用换新'],['一级能效','一年省几百电费']],
   note:'十年以上的空调和冰箱，即使还能用，多耗的电费两三年就够买新的。'}
 ]},
-{id:'phonemove',en:'Phone Migration',g:'科技数码',icon:'📱',name:'手机换机数据迁移',type:'tables',sub:'微信聊天记录不在系统备份里，必须用微信自带的"聊天记录迁移"。换完才发现丢了，基本找不回。',sections:[
+{id:'phonemove',en:'Phone Migration',g:'数字与编码',icon:'📱',name:'手机换机数据迁移',type:'tables',sub:'微信聊天记录不在系统备份里，必须用微信自带的"聊天记录迁移"。换完才发现丢了，基本找不回。',sections:[
  {title:'换机前准备',head:['项目','做法'],
   rows:[['备份','云备份加电脑本地各一份'],['微信','单独迁移聊天记录，最耗时'],['解绑','银行卡、支付、门禁、车钥匙'],['清空间','新机容量至少是旧机的 1.5 倍'],['记录','列出常用 App 与账号'],['电量','两台都充到 80% 以上']],
   note:'迁移最怕中途断电或断网。插着充电器做，别在地铁上做。'},
@@ -3284,6 +3284,210 @@ const CATS = [
  {title:'新机设置',head:['项目','建议'],
   rows:[['关闭个性化广告','减少跨 App 追踪'],['App 权限','定位、通讯录按需给'],['自动更新','只留安全更新'],['电池','避免长期充到 100%，80% 上限更好'],['防诈','开启来电标识与骚扰拦截'],['备份','开启自动云备份']],
   note:'新机第一周就该把权限和备份调好。等出了事再设置，往往已经晚了。'}
+]},
+{id:'payplan',en:'Renovation Payments',g:'居家装修',icon:'💸',name:'家装付款节点',type:'tables',sub:'首付比例是判断装修公司现金流的关键。要求首付 60% 以上的，风险已经全落在你身上。',sections:[
+ {title:'标准付款节奏',head:['节点','比例'],
+  rows:[['签约首付','30%，不超过 40%'],['水电验收后','30%'],['泥木完工','25%'],['油漆完工','10%'],['竣工验收','5%'],['质保金','3–5%，入住 3 个月后付']],
+  note:'把钱压在后面，才有整改的筹码。前期付太多，后期就只能靠对方自觉。'},
+ {title:'每个节点验收什么',head:['节点','验收要点'],
+  rows:[['水电','打压 0.8 MPa 保压 30 分钟不掉压，拍照留档'],['泥木','墙砖空鼓率、地面找平、吊顶龙骨间距'],['油漆','墙面平整度、阴阳角顺直、无流挂'],['安装','柜体、洁具、五金位置与开合'],['竣工','通水通电、闭水试验 48 小时'],['质保','问题整改完成再付尾款']],
+  note:'先验收再付款。先付钱再整改，是装修里最常见的失控点。'},
+ {title:'合同要写清的条款',head:['条款','怎么写'],
+  rows:[['总价','写"闭口价"，增项不超过 5%'],['工期','写清起止日期与延期违约金'],['材料','品牌型号写全，不接受"同档次"'],['变更','书面签字才生效'],['违约金','日千分之一到千分之三'],['质保','水电 5 年，其他 2 年']],
+  note:'"同档次材料替换"是最大的口子。型号写进合同，到货逐项对。'},
+ {title:'增项怎么控',head:['增项点','怎么防'],
+  rows:[['水电改造','按实结算最容易超，先要点位图与单价'],['找平与防水','面积计算方式写清楚'],['拆改','承重墙、垃圾清运单独列'],['吊顶造型','按延米还是按平方，写明'],['瓷砖损耗','约定损耗率 5–8%'],['管理费','按比例还是包干']],
+  note:'水电按实结算的项目，结算额常是预算的 1.5 倍。签合同前就要点位图和单价。'},
+ {title:'出问题怎么维权',head:['步骤','做法'],
+  rows:[['留证据','合同、报价单、聊天记录、现场照片视频'],['先书面','微信或邮件提整改要求，保留时间戳'],['平台投诉','装修平台、12315'],['行业调解','家装协会'],['质保期内','书面通知，逾期可自行维修并索赔'],['诉讼','金额大可走小额诉讼']],
+  note:'口头承诺无效。所有变更、加价、整改要求，都要落在微信文字或合同附件上。'}
+]},
+{id:'photobackup',en:'Photo Backup',g:'数字与编码',icon:'🖼️',name:'家庭照片与视频备份',type:'tables',sub:'RAID 不是备份，它只防硬盘坏，防不了误删、勒索病毒和火灾。备份的标准是 3-2-1。',sections:[
+ {title:'3-2-1 原则',head:['要求','做法'],
+  rows:[['3 份','原机加本地加云端'],['2 种介质','硬盘加云，或硬盘加光盘'],['1 份异地','不同城市，或云端'],['每年校验','随机抽 10 张看能否打开'],['定期换盘','机械硬盘用满 5 年考虑更换'],['别只靠手机','手机丢了就全没了']],
+  note:'备份没验证过就等于没有。每年抽一次检查，比多买一块硬盘有用。'},
+ {title:'云盘怎么选',head:['方案','特点'],
+  rows:[['手机厂商云','最省事，换机自动恢复'],['网盘','容量大，注意限速与审查'],['对象存储','便宜可靠，需自己管理'],['NAS','一次投入，长期最省'],['加密','敏感照片先加密再上传'],['双云','重要资料至少放两家']],
+  note:'只用一个云，等于把全部回忆押在一家公司身上。重要照片至少两家，或一家云加一块本地硬盘。'},
+ {title:'整理与命名',head:['要点','做法'],
+  rows:[['目录','年/月/事件，不要按设备分'],['命名','2026-10-28_事件_序号'],['去重','用工具按哈希去重，别手动删'],['精选','每年挑 100 张做年度相册'],['人脸分组','方便找家人照片'],['元数据','保留 EXIF，时间地点都在里面']],
+  note:'照片最大的问题不是存不下，是找不到。按年份分目录，比任何标签系统都活得久。'},
+ {title:'长期保存',head:['介质 / 格式','要点'],
+  rows:[['机械硬盘','每年通电一次，长期闲置会坏'],['SSD','长期断电可能丢数据，不适合冷存'],['光盘','M-DISC 可存几十年，需刻录机'],['格式','保留原图，别反复转码'],['迁移','每 3–5 年整体搬到新介质'],['交接','写一张"数据在哪"的纸条给家人']],
+  note:'冷备份的硬盘每年至少通电一次。长期不通电的硬盘，坏起来毫无征兆。'},
+ {title:'共享与传承',head:['场景','做法'],
+  rows:[['共享相册','给父母开只读共享，避免重复传'],['家庭账号','一个主账号管存储，成员各自登录'],['账号密码','写进密码管理器，告知一位家人'],['数字遗产','平台可设置继承联系人'],['实体备份','重要照片洗一份放父母家'],['隐私','私密照片单独加密存放']],
+  note:'账号只有一个人知道，是数字遗产最大的风险。至少让一位家人知道主账号在哪里、怎么进。'}
+]},
+{id:'elevator',en:'Lift Safety',g:'生活日常',icon:'🛗',name:'电梯安全与被困应对',type:'tables',sub:'轿厢不是密闭的，有通风口，不会窒息。真正危险的是扒门和自行爬出。',sections:[
+ {title:'乘梯基本规则',head:['场景','做法'],
+  rows:[['进出','先下后上，不倚门'],['超载','最后一个下去，别硬挤'],['儿童','牵好手，别让孩子独自乘梯'],['宠物','抱起或收短绳，别让绳拖在门外'],['搬运','长物竖拿，别卡门'],['火灾地震','绝不乘电梯']],
+  note:'电梯门的光幕有盲区，绳子和细杆最容易被夹。宠物绳一定要收短。'},
+ {title:'被困怎么办',head:['顺序','做法'],
+  rows:[['第一步','按警铃或对讲，说明楼栋与人数'],['第二步','打物业与当地特种设备热线'],['第三步','拨打 119，说明有人被困'],['绝对不要','不要扒门、不要爬天花板'],['等待','靠墙站，节省体力，不要跳'],['有人不适','优先报告，请求优先救援']],
+  note:'轿厢有通风口，不会缺氧。困人是安全保护动作，不是故障恶化，等待救援最安全。'},
+ {title:'异常信号',head:['症状','可能原因'],
+  rows:[['开关门卡顿','门机或导轨问题'],['运行异响、抖动','导轨或钢丝绳'],['平层不准','需要重新校准'],['按钮失灵','控制板'],['轿厢照明闪烁','线路'],['闻到焦味','立即停用并报修']],
+  note:'异响、抖动、平层不准必须当天报修。小问题拖成困人，责任在管理方也在报修记录。'},
+ {title:'看到有人被困',head:['步骤','做法'],
+  rows:[['确认','问清人数与是否有人不适'],['安抚','告诉对方轿厢不会缺氧'],['报修','同时打物业与维保电话'],['不要','不要试图从外面扒门'],['记录','拍下电梯编号与时间'],['跟进','等到维保到场再离开']],
+  note:'电梯编号一般在轿厢内或门框上方。报修时报编号，能省十分钟。'},
+ {title:'自建房与家用梯',head:['项目','要点'],
+  rows:[['载重','家用梯一般 320 kg 左右'],['维保周期','至少每 15 天一次'],['年检','按当地特种设备规定'],['停电应急','确认有应急平层与备用电源'],['老人使用','加扶手、放大按钮、语音播报'],['别省维保','省下的钱不够一次救援']],
+  note:'家用电梯最容易省掉的就是维保。维保记录不全，出事后责任全在业主。'}
+]},
+{id:'ebikebatt',en:'E-bike Battery',g:'生活日常',icon:'🛵',name:'电动车电池安全',type:'tables',sub:'电动车火灾 90 秒就能产生致命浓烟。楼道充电不是"图方便"，是把唯一的逃生通道变成烟囱。',sections:[
+ {title:'起火原因',head:['原因','说明'],
+  rows:[['入户充电','楼道、客厅充电是主因'],['劣质充电器','电压不稳、无保护'],['改装电池','容量虚标、保护板缺失'],['过充','充一整夜'],['电池老化','鼓包、内阻升高'],['碰撞受损','内部短路']],
+  note:'同样一块电池，在室外烧是事故，在楼道烧是灾难。位置比习惯更决定后果。'},
+ {title:'正确充电',head:['要点','做法'],
+  rows:[['位置','室外或专用充电棚，不进楼不入户'],['时长','6–8 小时，充满即拔'],['温度','0–35 ℃，冬天别在室外充'],['充电器','原装，不要混用'],['顺序','先插车再插电，拔时相反'],['周边','充电时不堆放易燃物']],
+  note:'锂电池没有记忆效应，随用随充更好。真正伤电池的是过充和高温。'},
+ {title:'电池该换的信号',head:['信号','处理'],
+  rows:[['外壳鼓包','立即停用，不能再充'],['续航掉一半','容量衰减严重'],['充电异常快','内部短路前兆'],['发热明显','内阻升高'],['闻到异味','电解液泄漏'],['使用超 3 年','考虑更换']],
+  note:'鼓包的电池不能再充电，也不能放家里。联系回收点处理，不要自己拆。'},
+ {title:'选购要点',head:['项目','要点'],
+  rows:[['认证','有 3C 认证与正规发票'],['电芯','磷酸铁锂更耐高温，三元能量密度高'],['保护板','过充、过放、短路保护齐全'],['防水','IPX4 以上'],['容量','按通勤距离选，别盲目大容量'],['改装','不加装、不改装、不并联']],
+  note:'便宜电池省下的钱，都在电芯和保护板上。这两样恰恰是起火的关键。'},
+ {title:'起火怎么处置',head:['步骤','做法'],
+  rows:[['第一步','断电、远离、报警'],['灭火','干粉或水基灭火器，大量水降温'],['不要','不要用手搬动燃烧的电池'],['烟气','低姿撤离，烟比火致命'],['楼道起火','不要穿过烟区下楼，回房间关门堵缝'],['事后','电池交专业回收，绝不复用']],
+  note:'锂电池起火会复燃。明火扑灭后要继续降温观察，别以为灭了就安全。'}
+]},
+{id:'usedbook',en:'Used Books',g:'生活日常',icon:'📚',name:'二手书与旧物交易',type:'tables',sub:'书的定价规律：越"以后可能用得上"的越值钱，越"当时很火"的越不值钱。',sections:[
+ {title:'什么书能卖上价',head:['类型','说明'],
+  rows:[['教材教辅','开学季最好卖，看版次'],['绝版书','停印的溢价最高'],['签名本','需要能证明来源'],['套装书','整套比单本贵三成'],['童书绘本','品相要求高'],['畅销书','贬值最快，常按斤收']],
+  note:'卖之前先搜同款的"已售出"价格。那才是成交价，挂价只是卖家的一厢情愿。'},
+ {title:'平台怎么选',head:['渠道','特点'],
+  rows:[['回收平台','省事，价格低，常在一折上下'],['二手书店','绝版书能卖出高价'],['个人交易','价格高，要拍照和沟通'],['按斤卖','最差，只适合清仓'],['打包出售','同类打包出手更快'],['社群','邻里群、读书群，省运费']],
+  note:'急着清地方走回收，想卖上价走个人交易。两条路的差价，通常就是你的时间成本。'},
+ {title:'品相描述',head:['等级','标准'],
+  rows:[['全新','未拆封或仅翻阅'],['九成新','无笔记、无折角'],['七成新','少量划线或标注'],['五成新','明显磨损、泛黄'],['拍照','封面、书脊、版权页、瑕疵特写'],['如实','瑕疵写清楚，退货率才低']],
+  note:'把瑕疵拍出来反而卖得快。描述含糊的卖家，退款纠纷最多。'},
+ {title:'物流与成本',head:['环节','做法'],
+  rows:[['邮费','印刷品挂号最便宜，按重量计'],['包装','自封袋加气泡袋，防水最重要'],['重量','单本 300–600 g，多本合并寄'],['到付','容易被拒收，不建议'],['保价','超过 100 元可考虑'],['护角','硬皮书角加护角']],
+  note:'书最怕受潮和折角。一个自封袋加一层气泡膜，能省掉八成售后。'},
+ {title:'旧物处置顺序',head:['顺序','对象'],
+  rows:[['先卖','品牌家电、家具、数码'],['再送','亲友、邻居群'],['再捐','社区捐赠箱、公益机构'],['最后扔','大件需预约清运'],['别堆','占地成本高于卖价'],['留证','大件售出后拍照留存']],
+  note:'正确顺序是先卖、再送、最后扔。多数人反过来，结果花钱把东西运到楼下扔掉。'}
+]},
+{id:'upcycle',en:'Upcycling',g:'居家装修',icon:'🪑',name:'旧物改造与捐赠',type:'tables',sub:'值得改造的前提是"结构还好"。板式家具一旦受潮膨胀，改造只是延后丢弃。',sections:[
+ {title:'哪些值得改',head:['旧物','可行性'],
+  rows:[['实木家具','打磨上漆能再用十年'],['玻璃瓶罐','收纳、花瓶、灯罩'],['旧棉衣','抹布、宠物垫'],['木托盘','置物架、花架'],['旧窗帘','收纳袋、防尘罩'],['刨花板家具','不建议，拆就散']],
+  note:'改造前先晃一晃、抬一抬。结构松散的家具，翻新只是给它化了个妆。'},
+ {title:'工具与材料',head:['项目','要点'],
+  rows:[['砂纸','120 / 240 / 400 目，逐步细'],['木蜡油','比清漆环保，需定期补'],['水性漆','气味小，干燥快'],['底漆','封闭旧漆与污渍'],['夹具','固定与压合'],['防护','口罩、护目镜、手套']],
+  note:'旧家具翻新最容易被跳过的一步是除油除蜡。不脱脂就上漆，半年必起皮。'},
+ {title:'改造流程',head:['步骤','做法'],
+  rows:[['清洁','除油除蜡，温水加中性清洁剂'],['修补','木器腻子填缝，干后打磨'],['打磨','顺纹打磨，别横着磨'],['底漆','薄涂一遍，干后轻磨'],['面漆','两到三遍，每遍薄涂'],['养护','48 小时后再使用']],
+  note:'薄涂多遍永远好过一遍厚涂。厚涂会流挂起皱，还得全部磨掉重来。'},
+ {title:'捐赠渠道',head:['渠道','要点'],
+  rows:[['社区捐赠箱','最方便，注意是否正规'],['公益平台','可上门收，需预约'],['闲置互赠','邻里群、二手平台免费送'],['旧衣回收','按重量，留意去向'],['家电','以旧换新或正规回收'],['不适合捐','破损、污渍、过期']],
+  note:'捐赠前洗晒干净，能穿能用再捐。把垃圾交给公益机构，是另一种浪费。'},
+ {title:'安全与环保',head:['风险','做法'],
+  rows:[['老漆','1990 年前的可能含铅，别干磨'],['粉尘','湿磨或戴口罩，室内通风'],['溶剂','远离火源，不倒下水道'],['废漆','送有害废物回收点'],['儿童家具','只用环保水性漆'],['通风','上漆后通风一周再进屋']],
+  note:'翻新老家具别用砂纸干磨旧漆。含铅漆的粉尘，比漆本身危险得多。'}
+]},
+{id:'homecam',en:'Home Cameras',g:'数字与编码',icon:'📹',name:'家庭摄像头与隐私',type:'tables',sub:'大量家用摄像头被入侵，原因都是默认密码没改。这一步花两分钟，能挡掉绝大多数。',sections:[
+ {title:'该装在哪',head:['位置','说明'],
+  rows:[['入户门外','最有用，能拍到访客与快递'],['客厅','看宠物与老人，避免正对沙发'],['婴儿房','不放床边 1 米内'],['院子车位','注意别拍到邻居家'],['不要装','卫生间、卧室、更衣区'],['公共走廊','可能侵犯邻居隐私']],
+  note:'摄像头最该装的地方是门外，不是卧室。拍得到别人的地方，都可能有法律风险。'},
+ {title:'隐私设置',head:['项目','做法'],
+  rows:[['初始密码','必须改，弱密码是被入侵主因'],['固件','开启自动更新'],['云存储','优先端到端加密或本地存储'],['共享','按人开权限，别用通用账号'],['访客模式','临时授权，用完撤销'],['物理遮挡','不用时盖上镜头']],
+  note:'不需要人脸识别、不需要云回看的场景，把这两个功能关掉更省心。'},
+ {title:'存储方案',head:['方案','特点'],
+  rows:[['云存储','省事，按月付费，看隐私条款'],['内存卡','便宜，卡坏了就没了'],['NVR 硬盘','容量大，本地最安全'],['循环覆盖','一般保留 7–30 天'],['关键片段','手动导出留存'],['断网','本地继续录，云存中断']],
+  note:'真正需要留存的只有关键片段。指望云存半年，成本比一块硬盘高得多。'},
+ {title:'网络隔离',head:['项目','做法'],
+  rows:[['独立网络','摄像头放访客或 IoT 网段'],['关闭端口映射','不要在公网直接暴露'],['关闭 UPnP','减少自动开洞'],['远程访问','用 VPN，比端口映射安全'],['账号','不要复用同一密码'],['设备列表','定期检查有无陌生设备']],
+  note:'把摄像头放进访客网络，一台被攻破也进不了你的电脑和 NAS。'},
+ {title:'法律与邻里',head:['问题','做法'],
+  rows:[['拍摄范围','不越界到邻居门窗内'],['录音','很多地区未经同意录音不合法'],['告知','门口贴"监控区域"提示'],['邻居反对','调整角度，而不是硬扛'],['公共区域','安装前问物业'],['证据用途','只用于自身安全，不随意公开']],
+  note:'镜头对准邻居家门，即使没拍进室内也可能被认定侵犯隐私。角度往下压 15 度常常就能解决。'}
+]},
+{id:'travelcam',en:'Travel Camera Kit',g:'生活日常',icon:'📷',name:'旅行摄影装备',type:'tables',sub:'装备越重，拍得越少。旅行摄影的第一原则是：你愿意带出门的那台，才是最好的那台。',sections:[
+ {title:'按行程选装备',head:['行程','装备'],
+  rows:[['城市','手机加一机一镜就够'],['徒步','轻量微单加定焦，别带三脚架'],['海边','防水壳或防水相机'],['极寒','电池保温，备两块'],['自驾','广角加长焦，可带无人机'],['带娃','手机为主，别背大包']],
+  note:'出发前把计划带的器材装一次包，背十分钟再决定。背不动的，最后都留在酒店。'},
+ {title:'镜头选择',head:['焦段','用途'],
+  rows:[['16–35 mm','建筑、风光、室内'],['24–70 mm','最通用，一镜走天下'],['70–200 mm','压缩感、人文抓拍'],['35 mm 定焦','轻便，适合街拍'],['50 mm 定焦','大光圈，夜景人像'],['只带一支','选 24–70 或 35 定']],
+  note:'只带一支镜头时选标准变焦。它不惊艳，但什么都能拍。'},
+ {title:'电池与存储',head:['项目','做法'],
+  rows:[['电池','每天两块，冷天三块'],['充电','多口充电器加充电宝'],['存储卡','两张 64G 比一张 128G 安全'],['每日备份','回酒店导到手机或硬盘'],['低温','电池贴身放，用时再装'],['格式','出发前格式化，别中途格']],
+  note:'存储卡宁多张小容量，不要一张大容量。卡坏了，整趟行程的照片就都没了。'},
+ {title:'配件取舍',head:['配件','建议'],
+  rows:[['备用电池','必带'],['擦镜布与气吹','必带'],['轻便三脚架','拍夜景与合影'],['CPL 偏振镜','压反光、加深天空'],['ND 减光镜','拍流水、慢门'],['闪光灯','除非专拍人，否则不带']],
+  note:'旅行中最常用的配件是擦镜布，最不常用的是闪光灯。'},
+ {title:'拍摄与整理',head:['项目','建议'],
+  rows:[['时间','日出后与日落前一小时'],['格式','RAW 加 JPEG，留后期空间'],['构图','先找前景，再放主体'],['人文','先问再拍，尤其拍人'],['后期','只调曝光与白平衡'],['整理','当天筛一遍，删废片']],
+  note:'旅行照片的价值在于当时的记忆，不在参数。过度后期反而抹掉了"当时就是那样"的感觉。'}
+]},
+{id:'neighbor',en:'Neighbour Noise',g:'生活日常',icon:'🔇',name:'邻里噪音与沟通',type:'tables',sub:'噪音纠纷里，"几点"和"多久"比"多响"更好举证。连续两周的记录表，比一段录音有用得多。',sections:[
+ {title:'噪音标准与时段',head:['时段 / 类型','参考'],
+  rows:[['白天','居住区一般不超过 55 dB'],['夜间 22:00–6:00','一般不超过 45 dB'],['装修施工','工作日 8:00–12:00、14:00–18:00'],['节假日','多数地区禁止有噪装修'],['乐器电视','以不干扰他人正常生活为界'],['宠物吠叫','持续吠叫可投诉']],
+  note:'各家墙体隔音差别很大，标准只是参考。真正能推动解决的是"持续"和"深夜"这两点。'},
+ {title:'沟通顺序',head:['步骤','做法'],
+  rows:[['第一次','当面或留纸条，只说事实，不指责'],['第二次','带点小礼物上门，多数到此为止'],['仍不改','找物业，要求书面记录'],['持续','居委会或社区调解'],['深夜扰民','报警，要求出警记录'],['长期无解','环保部门测噪，或起诉']],
+  note:'第一次沟通的目标是"让对方知道"，不是"让对方认错"。带着情绪去，往往直接升级成对抗。'},
+ {title:'取证方法',head:['方式','要点'],
+  rows:[['记录表','日期、时间、持续时长、噪音类型'],['录音录像','带时间水印，连环境一起拍'],['第三方','物业上门见证并签字'],['测噪','环保或第三方机构出报告'],['身体影响','就医记录，证明因果关系'],['群证','其他邻居的书面说明']],
+  note:'单次录音证明力很弱。连续两周的记录表，才是调解和起诉时最有用的东西。'},
+ {title:'自己家的噪音',head:['部位','做法'],
+  rows:[['地面','铺地毯或软垫，尤其儿童活动区'],['家具','椅子脚贴毡垫'],['家电','洗衣机、空调加减震垫'],['时间','晚 10 点后不用洗衣机、吸尘器'],['宠物','训练减少吠叫，白天给玩具'],['装修','提前贴告示，留联系方式']],
+  note:'装修前在电梯里贴一张告示并留电话，能消掉大部分投诉。邻居反感的往往不是噪音，是"没人打招呼"。'},
+ {title:'特殊情况',head:['情况','做法'],
+  rows:[['楼上漏水','先拍照，再请物业关阀，损失留证'],['宠物吠叫','先沟通，再物业，最后报警'],['群租扰民','向物业与街道举报'],['夜间经营','查是否有营业资质'],['住户精神异常','联系社区与家属，别自行对峙'],['长期纠纷','调解结果书面化']],
+  note:'漏水纠纷的关键是及时固定证据。等水干了再谈赔偿，责任很难划清。'}
+]},
+{id:'powerbill',en:'Electricity Bill',g:'钱与账',icon:'⚡',name:'家庭电费与峰谷电价',type:'tables',sub:'租房先问清水电是民用价还是商用价。商电贵近一倍，一年差出一台冰箱。',sections:[
+ {title:'电费怎么算',head:['类型','说明'],
+  rows:[['阶梯电价','按月用量分三档，第三档最贵'],['峰谷电价','自愿申请，夜间便宜'],['合表用户','按统一价，无阶梯'],['一户一表','最常见'],['商水商电','租房常见，贵近一倍'],['基本电费','部分容量制用户有']],
+  note:'看电费单先找"单价"和"阶梯档位"。单价 1 元以上，基本就是商电。'},
+ {title:'峰谷电价划不划算',head:['情况','判断'],
+  rows:[['适合','有电动车、电热水器、夜间洗衣'],['不适合','白天家里有人、用电集中在傍晚'],['谷段','多为 22:00–6:00'],['峰段','多为 8:00–22:00'],['价差','各地不同，谷段约为峰段一半'],['申请','营业厅或 App，多数免费']],
+  note:'峰谷电价不是"一定省"。夜间用电占比不到三成才值得申请，否则反而更贵。'},
+ {title:'耗电大户排序',head:['设备','说明'],
+  rows:[['空调','夏季第一大户'],['电热水器','保温也在耗电'],['冰箱','全年不停机'],['电暖器','冬季第一大户'],['烘干机','单次 2–3 度'],['待机功耗','全家合计每月几十度']],
+  note:'待机功耗全家加起来每月几十度，比多数人想的多。一个带开关的插排就能省下来。'},
+ {title:'省电的实招',head:['做法','效果'],
+  rows:[['空调设 26–27 ℃','每高 1 ℃ 省约 7%'],['换 LED 灯','客厅一年省几十度'],['拔掉待机','尤其机顶盒与电视'],['冰箱别塞满','留出风道更省电'],['洗衣机满载洗','比多次半载省水省电'],['"节电器"','无效，纯智商税']],
+  note:'真正的省电只有三条路：少用、高效、错峰。任何号称"不改变使用习惯就能省电"的产品都不可信。'},
+ {title:'停电与缴费',head:['场景','做法'],
+  rows:[['查余额','网上国网 App、支付宝'],['欠费停电','缴费后一般 30 分钟内恢复'],['计划停电','关注社区公告'],['突发停电','先查自家总闸与邻居'],['自备电源','小 UPS 给路由与光猫'],['报修','95598']],
+  note:'给路由和光猫配一个小 UPS，停电时网络还能撑一两个小时，居家办公最实用。'}
+]},
+{id:'petfirstaid',en:'Pet First Aid',g:'生活日常',icon:'🐈',name:'宠物常见病与急救',type:'tables',sub:'公猫尿闭是急症中的急症，超过 24 小时就可能肾衰。频繁蹲猫砂盆却无尿，立刻去医院。',sections:[
+ {title:'必须立刻就医的信号',head:['症状','说明'],
+  rows:[['呼吸困难','张嘴呼吸、舌头发紫'],['公猫尿不出','24 小时可致命'],['持续呕吐腹泻','超过 24 小时或带血'],['抽搐','首次发作必须查因'],['腹部膨大','胃扭转，狗尤其危险'],['误食药物异物','带上包装一起去']],
+  note:'宠物不会"装病"。出现上面任何一条，都不要等到明天。'},
+ {title:'家庭急救基础',head:['情况','做法'],
+  rows:[['出血','干净纱布加压 5 分钟，别频繁掀开看'],['中毒','不要催吐，带包装就医'],['中暑','移至阴凉，凉水浸湿腋下与腹股沟'],['窒息','小型犬可做胸部按压，别盲目掏'],['骨折','平板固定，别拉直'],['烧伤','凉水冲 10 分钟，别涂牙膏']],
+  note:'绝大多数情况下"不要催吐"是对的。催吐可能造成二次灼伤，腐蚀性物质尤其危险。'},
+ {title:'常备药与禁忌',head:['类别','说明'],
+  rows:[['可用（遵医嘱）','益生菌、生理盐水、碘伏'],['绝对禁用','布洛芬、对乙酰氨基酚'],['慎用','感冒药、止泻药'],['驱虫','按体重，猫狗分开'],['剂量','按体重算，不按"半片"'],['储存','避光干燥，人宠分开']],
+  note:'对乙酰氨基酚（扑热息痛）对猫是致命的，一片就可能致死。家里有猫，这类药必须锁起来。'},
+ {title:'常见小病处理',head:['问题','处理'],
+  rows:[['耳螨','黑色分泌物，洗耳加用药'],['猫癣','荧光灯初筛，持续用药 4 周'],['软便','先禁食 6–12 小时，注意补水'],['呕吐毛球','增加梳毛与化毛'],['眼部分泌物','生理盐水轻擦，别用棉签捅'],['跳蚤','环境同步处理才有效']],
+  note:'猫癣治疗最常失败的原因是"看起来好了就停药"。必须用满 4 周，否则一定复发。'},
+ {title:'就医准备',head:['项目','做法'],
+  rows:[['带','疫苗本、既往病历、正在吃的药'],['拍','呕吐物、粪便、异常姿势的照片'],['说','什么时候开始、频次、有无变化'],['称重','体重是给药依据'],['问','诊断依据、替代方案、总费用'],['记','用药方法和复诊时间']],
+  note:'把症状拍成 10 秒视频，比描述十分钟有用。医生看不到发作过程，只能靠猜。'}
+]},
+{id:'kidsmoney',en:'Pocket Money',g:'关系与文化',icon:'🪙',name:'孩子零花钱与财商',type:'tables',sub:'零花钱的意义不是"给钱"，是"给决策权"。给得太晚，孩子就没有练习犯错的机会。',sections:[
+ {title:'什么时候开始给',head:['年龄','做法'],
+  rows:[['3–4 岁','认识钱币，用游戏'],['5–6 岁','固定少量，按周给'],['7–9 岁','按周给，开始记账'],['10–12 岁','按月给，自己规划'],['13 岁以上','含部分必需开支，学预算'],['高中','学记账与简单理财']],
+  note:'越早开始，金额越小，学费越低。等到高中才给，第一次犯错可能就是几千块。'},
+ {title:'给多少',head:['原则','做法'],
+  rows:[['基准','同龄人中位数即可'],['金额','随年龄递增，别一次给太多'],['固定','按约定时间发，不因情绪变动'],['不与成绩挂钩','避免把学习变成交易'],['不与家务全挂钩','基础家务是家庭成员义务'],['额外劳动','可另给报酬']],
+  note:'"做家务给钱"要区分"自己的事"和"额外帮忙"。前者是义务，后者才谈报酬。'},
+ {title:'怎么教花钱',head:['方法','说明'],
+  rows:[['三分法','花、存、捐，各一份'],['记账','简单表格，周末一起看'],['等待','想要的东西攒钱买'],['比价','同样的东西不同价'],['机会成本','买了这个就不能买那个'],['犯错','花光了不补，让他自己扛']],
+  note:'孩子乱花钱最好的老师是"花光了"。家长补上，等于把最有效的一课取消。'},
+ {title:'卡与手机支付',head:['阶段','做法'],
+  rows:[['小学','现金为主，建立"钱会变少"的感知'],['初中','可办限额的亲子卡'],['额度','按周零花钱设定'],['提醒','每笔消费通知家长'],['手机支付','绑限额卡，不绑大额卡'],['游戏充值','关闭免密，设单笔上限']],
+  note:'手机支付让"钱变少"变得不可见。先用现金建立感知，再过渡到卡，顺序反了很难补。'},
+ {title:'财商进阶',head:['概念','怎么讲'],
+  rows:[['利息','用储蓄账户演示复利'],['投资','用指数基金讲"共同持有公司"'],['风险','高收益必然高风险'],['骗局','"稳赚不赔"一律是骗'],['劳动','收入来自创造价值'],['公益','捐一部分，理解分配']],
+  note:'教孩子识别骗局，比教他挑基金重要得多。第一课就是"稳赚不赔"这四个字不存在。'}
 ]},
 
 /* ---------- 专业计量 ---------- */
@@ -5675,7 +5879,7 @@ function aboutPanel(){
   return '<div class="panel"><h2>ℹ️ About & Changelog</h2><p class="sub">Version, stack, licences — and what we refuse to build.</p>' +
   card('About', '<div class="kv">' +
     '<dt>Name</dt><dd>Life Converter · All-in-One Handbook</dd>' +
-    '<dt>Version</dt><dd>V6.2 (2026-10-28)</dd>' +
+    '<dt>Version</dt><dd>V6.5 (2026-10-28)</dd>' +
     '<dt>Form</dt><dd>Single-page app + PWA, installable</dd>' +
     '<dt>Modules</dt><dd>142 across 10 groups, 75 reference cards</dd>' +
     '<dt>Data</dt><dd>All calculations on-device, no upload</dd>' +
@@ -5702,6 +5906,9 @@ function aboutPanel(){
     ['V4.5','Waterproofing, cabinetry, network and gas cards; every calculator can export its result as a card; recently used modules surface at the top of the sidebar; swap buttons on the Combo Board'],
     ['V4.6','Appliance buying, storage planning, contract & payment, and checkup numbers cards; value boxes accept sums like 12*8; every reference card exports to Excel or copies as a table; history exports to Excel; Alt+↑/↓ jumps between modules'],
     ['V4.7','Gift money, exercise burn, laundry care and underfloor heating cards; the Combo Board takes formula rows (x*0.13); filter box on every reference card; copy all units at once'],
+    ['V6.5','Neighbour noise and mediation, household electricity bills, pet first aid, and pocket money cards'],
+    ['V6.4','Used books and resale, upcycling and donation, home cameras and privacy, and travel camera kit cards'],
+    ['V6.3','Renovation payment stages, photo and video backup, lift safety, and e-bike battery safety cards'],
     ['V6.2','Rental viewings and contracts, credit cards and credit scores, appliance warranties, and phone migration cards'],
     ['V6.1','Child-proofing, home Wi-Fi, pet boarding and travel, and a moving plan cards'],
     ['V6.0','Living alone and strangers at the door, medicine expiry and first-aid kits, car insurance, and appliance cleaning cards'],
@@ -5776,9 +5983,9 @@ function aboutPanelZH(){
   return '<div class="panel"><h2>ℹ️ 关于与更新日志</h2><p class="sub">版本、技术、许可，以及我们坚决不做的事。</p>' +
   card('关于', '<div class="kv">' +
     '<dt>名称</dt><dd>生活换算 · 全能手册</dd>' +
-    '<dt>版本</dt><dd>V6.2（2026-10-28）</dd>' +
+    '<dt>版本</dt><dd>V6.5（2026-10-28）</dd>' +
     '<dt>形态</dt><dd>单页应用 + PWA，可安装到桌面</dd>' +
-    '<dt>模块</dt><dd>189 个，10 个分组，122 张速查表</dd>' +
+    '<dt>模块</dt><dd>201 个，10 个分组，134 张速查表</dd>' +
     '<dt>数据</dt><dd>全部本地计算，不上传</dd>' +
   '</div>') +
   card('更新日志', tbl(['版本','主要变化'],[
@@ -5796,6 +6003,9 @@ function aboutPanelZH(){
     ['V3.2','中英界面、无障碍与键盘操作、安装引导、意见反馈'],
     ['V3.3','全部模块标题与说明英译、单位模块注释英译'],
     ['V3.4','表格模块（扳手/管钳/螺栓/钻头/床品/螺纹）表头与注释英译'],
+    ['V6.5','新增邻里噪音与沟通、家庭电费与峰谷电价、宠物常见病与急救、孩子零花钱与财商 4 张速查表'],
+    ['V6.4','新增二手书与旧物交易、旧物改造与捐赠、家庭摄像头与隐私、旅行摄影装备 4 张速查表'],
+    ['V6.3','新增家装付款节点、家庭照片与视频备份、电梯安全与被困应对、电动车电池安全 4 张速查表'],
     ['V6.2','新增租房看房与签约、信用卡与征信管理、家电保修与延保、手机换机数据迁移 4 张速查表'],
     ['V6.1','新增儿童房安全改造、家庭 Wi-Fi 组网、宠物寄养与出行、搬家前后全流程 4 张速查表'],
     ['V6.0','新增独居安全与访客应对、药品有效期与家庭急救箱、汽车保险怎么买、家电清洗服务值不值 4 张速查表'],
@@ -8259,7 +8469,7 @@ function updateStatic(){
   const brandrow = document.querySelector('.brandrow');
   if(brandrow && brandrow.childNodes[0]) brandrow.childNodes[0].textContent = t('生活换算','Life Conversion');
   const brand = document.querySelector('.brand > span');
-  if(brand) brand.textContent = t('全能手册 · 本地离线版 v6.2', 'All-in-One Handbook · v6.2');
+  if(brand) brand.textContent = t('全能手册 · 本地离线版 v6.5', 'All-in-One Handbook · v6.5');
   const bl = document.getElementById('backlink');
   if(bl) bl.textContent = t('← 返回工具箱','← Back to toolbox');
   const side = document.querySelector('.side');
@@ -8416,7 +8626,19 @@ const SUB_EN_MORE = {
  "rentview": "View a flat twice: daylight for the light, evening for the noise and the stairwell. One visit is why most people regret their choice within a week.",
  "creditcard": "Paying to “repair your credit score” is always a scam. A genuine late payment sits there for five years; the only thing you control is not adding another.",
  "warranty": "A three-year warranty on major components is a legal right, not a favour. Say so when you book the repair.",
- "phonemove": "WeChat history is not part of a system backup. Use WeChat's own chat migration. Once the old phone is gone, so is the conversation."
+ "phonemove": "WeChat history is not part of a system backup. Use WeChat's own chat migration. Once the old phone is gone, so is the conversation.",
+ "payplan": "The deposit percentage tells you how the contractor's cash flow looks. Anyone demanding 60% up front has moved all the risk onto you.",
+ "photobackup": "RAID is not a backup. It survives a dead disk, not a wrong delete, ransomware or a fire. The standard is three copies, one off-site.",
+ "elevator": "A lift car is not airtight — it has vents and you will not suffocate. The real danger is forcing the doors or climbing out.",
+ "ebikebatt": "An e-bike fire becomes lethal smoke in 90 seconds. Charging in the stairwell does not make it convenient; it turns your only exit into a chimney.",
+ "usedbook": "Book prices follow one rule: the ones you might need later hold value, the ones everyone was reading at the time do not.",
+ "upcycle": "Worth restoring only if the structure is sound. Once chipboard has swollen with damp, refinishing just delays the tip.",
+ "homecam": "Almost every hacked home camera was still on its default password. Two minutes of setup blocks the overwhelming majority.",
+ "travelcam": "The heavier the bag, the fewer the photos. The best travel camera is the one you are still willing to carry on day four.",
+ "neighbor": "In a noise dispute, “when” and “how long” are easier to prove than “how loud”. A two-week log beats a single recording every time.",
+ "powerbill": "Ask first whether the flat is on domestic or commercial tariffs. Commercial power costs nearly double — a fridge's worth over a year.",
+ "petfirstaid": "A blocked male cat is the emergency of emergencies: 24 hours can mean kidney failure. Straining in the litter tray with no urine means go now.",
+ "kidsmoney": "Pocket money is not about giving money; it is about handing over decisions. Start too late and the child never gets to practise getting it wrong."
 };
 Object.assign(SUB_EN, SUB_EN_MORE);
 const NOTE_EN = {"length": "Chinese: 1 chi = 1/3 m, 1 li = 500 m, 1 zhang = 10 chi. Imperial: 1 inch = 25.4 mm by definition.", "area": "1 mu ≈ 666.67 m² = 60 square zhang; 1 mu = 10 fen = 100 li. 1 hectare = 15 mu.", "volume": "1 oil barrel (bbl) = 42 US gallons ≈ 158.99 L. Chinese: 1 shi = 10 dou = 100 L.", "mass": "Mainland 1 jin = 500 g; Taiwan 1 jin = 600 g; HK 1 jin ≈ 604.79 g. 1 liang = 10 qian = 50 g.", "speed": "1 knot = 1 nautical mile per hour ≈ 1.852 km/h. Mach is approximate at sea level (340.3 m/s).", "pressure": "Tyre pressure: 2.5 bar = 250 kPa ≈ 36.3 psi. Pipeline: 1 MPa ≈ 10 bar ≈ 145 psi.", "power": "Two horsepower standards: metric PS = 735.5 W (CN/EU), imperial hp = 745.7 W (US). Car specs usually mean PS.", "energy": "Food labels: 1 kcal = 4.184 kJ. Chinese nutrition tables use kJ — divide by 4.184. 1 kWh = 1 unit of electricity.", "data": "Windows and RAM use 1024; drive makers use 1000. That is why a 1TB drive shows about 931GB — nobody cheated you.", "flow": "1 barrel per day ≈ 0.00662 m³/h ≈ 158.99 L/day. 1 m³/h ≈ 151 bpd.", "angle": "One turn = 360° = 2π rad = 400 grad = 6400 mils (military).", "duration": "Month is averaged at 30.44 days, year at 365.25. For exact months use the date difference tool.", "force": "1 kgf = 9.80665 N. Ratings on slings and anchors are often in kgf or kN.", "density": "Crude oil API gravity: API = 141.5/SG − 131.5. Higher API means lighter oil; 32°API ≈ 0.865 g/cm³."};
@@ -8988,6 +9210,90 @@ const TABLE_EN_MORE = {
  {"title": "Checks after migrating", "head": ["Item", "Point"], "rows": [["Contacts and SMS", "Spot-check a few"], ["Photos", "Count matches — check the last 30 days"], ["WeChat", "Chats and files present"], ["Banking and payments", "Log in again and verify"], ["Door access, car key", "Rebind"], ["Two-factor auth", "Move it to the new number before anything else"]], "note": "Two-factor is tied to the old number or device. Sell the old phone first and you can lock yourself out of your own accounts."},
  {"title": "Dealing with the old phone", "head": ["Step", "Practice"], "rows": [["Sign out", "Apple, Google or manufacturer account — otherwise it is activation-locked"], ["Factory reset", "Fill it with junk files, then reset again"], ["Remove cards", "SIM and storage card"], ["Check before selling", "IMEI clean and activation lock cleared"], ["Valuation", "Official trade-in, second-hand platform, subsidy"], ["Keep as spare", "Alarm clock, camera, car navigation"]], "note": "One factory reset is not enough. Encrypt first, or fill the storage with junk and reset again, so the data cannot be recovered."},
  {"title": "Setting up the new phone", "head": ["Item", "Advice"], "rows": [["Turn off ad personalisation", "Cuts cross-app tracking"], ["App permissions", "Location and contacts only where needed"], ["Auto-update", "Security updates only"], ["Battery", "Avoid sitting at 100%; an 80% cap is kinder"], ["Fraud protection", "Turn on caller ID and spam blocking"], ["Backup", "Enable automatic cloud backup"]], "note": "Set permissions and backup in the first week. Configuring them after something goes wrong is always too late."}
+],
+"payplan": [
+ {"title": "Standard payment schedule", "head": ["Stage", "Share"], "rows": [["On signing", "30%, never above 40%"], ["After electrical and plumbing acceptance", "30%"], ["After tiling and carpentry", "25%"], ["After painting", "10%"], ["Final handover", "5%"], ["Retention", "3–5%, paid three months after moving in"]], "note": "Keep money at the back and you keep leverage. Pay too much early and you are relying on goodwill."},
+ {"title": "What to accept at each stage", "head": ["Stage", "Checks"], "rows": [["Electrical and plumbing", "Pressure test at 0.8 MPa for 30 minutes with no drop; photograph everything"], ["Tiling and carpentry", "Hollow-tile rate, floor level, ceiling frame spacing"], ["Painting", "Flatness, straight corners, no runs"], ["Fitting", "Cabinet, sanitaryware and hardware positions and operation"], ["Handover", "Water and power on, 48-hour ponding test"], ["Retention", "Pay the balance only after defects are fixed"]], "note": "Accept, then pay. Paying first and fixing later is where renovations lose control."},
+ {"title": "Clauses to nail down", "head": ["Clause", "Wording"], "rows": [["Total price", "Fixed price, variations capped at 5%"], ["Programme", "Start and finish dates with a delay penalty"], ["Materials", "Full brand and model; “equivalent grade” refused"], ["Changes", "Valid only with a written signature"], ["Penalty", "0.1–0.3% per day"], ["Warranty", "5 years for electrical and plumbing, 2 for the rest"]], "note": "“Equivalent grade substitution” is the biggest hole. Put models in the contract and check every delivery against them."},
+ {"title": "Controlling variations", "head": ["Item", "How to prevent it"], "rows": [["Rewiring", "The usual blowout; demand a point plan and unit prices first"], ["Levelling and waterproofing", "Write down exactly how area is measured"], ["Demolition", "Load-bearing walls and debris removal listed separately"], ["Ceiling features", "Per linear metre or per square metre — state which"], ["Tile wastage", "Agree a wastage rate of 5–8%"], ["Management fee", "Percentage or lump sum"]], "note": "Work billed as “as built” typically settles at 1.5× the estimate. Get the point plan and unit prices before signing."},
+ {"title": "If it goes wrong", "head": ["Step", "Practice"], "rows": [["Evidence", "Contract, quotation, chat logs, photos and video of the site"], ["In writing first", "Send the rectification request by message or email and keep the timestamp"], ["Platform complaint", "The renovation platform, then 12315"], ["Trade association", "Mediation through the home-renovation association"], ["Within warranty", "Written notice; if ignored, repair and claim the cost"], ["Litigation", "Small-claims court for modest sums"]], "note": "Verbal promises count for nothing. Every change, surcharge and complaint belongs in a message or a contract annex."}
+],
+"photobackup": [
+ {"title": "The 3-2-1 rule", "head": ["Requirement", "Practice"], "rows": [["Three copies", "Phone plus local plus cloud"], ["Two media", "Drive plus cloud, or drive plus optical"], ["One off-site", "Another city, or the cloud"], ["Annual check", "Open ten random photos and confirm they load"], ["Replace drives", "Consider retiring a mechanical drive at five years"], ["Never phone-only", "Lose the phone, lose everything"]], "note": "A backup you have never tested is not a backup. One check a year beats a second drive."},
+ {"title": "Choosing cloud storage", "head": ["Option", "Trade-off"], "rows": [["Phone maker's cloud", "Easiest; restores automatically on a new phone"], ["Consumer cloud drive", "Large capacity; watch throttling and scanning"], ["Object storage", "Cheap and durable, but you manage it"], ["NAS", "Upfront cost, cheapest long run"], ["Encryption", "Encrypt sensitive photos before uploading"], ["Two providers", "Important material in at least two places"]], "note": "One provider means every memory depends on one company. Two providers, or one cloud plus one local drive."},
+ {"title": "Organising and naming", "head": ["Point", "Practice"], "rows": [["Folders", "Year / month / event — never by device"], ["Naming", "2026-10-28_event_sequence"], ["Deduplication", "Hash-based tools; do not delete by hand"], ["Selection", "Pick 100 a year for a printed album"], ["Face grouping", "Makes family photos findable"], ["Metadata", "Keep EXIF — time and place live there"]], "note": "The problem with photos is not capacity, it is finding anything. Year folders outlive every tagging system."},
+ {"title": "Long-term storage", "head": ["Medium / format", "Point"], "rows": [["Mechanical drive", "Power it up yearly; idle drives seize"], ["SSD", "Can lose data unpowered; not for cold storage"], ["Optical", "M-DISC lasts decades; needs a writer"], ["Format", "Keep originals; avoid repeated transcoding"], ["Migration", "Move everything to new media every 3–5 years"], ["Handover", "Leave a note saying where the data lives"]], "note": "Power up cold-storage drives at least once a year. A drive that has sat unplugged for years fails without warning."},
+ {"title": "Sharing and inheritance", "head": ["Scenario", "Practice"], "rows": [["Shared albums", "Read-only shares for parents; stops duplicate uploads"], ["Family account", "One account holds the storage, members sign in separately"], ["Passwords", "In a password manager, with one family member told"], ["Digital legacy", "Most platforms allow a legacy contact"], ["Physical copy", "Print the important ones and keep them at your parents'"], ["Privacy", "Private photos encrypted separately"]], "note": "One person knowing the account is the biggest risk to a digital legacy. At least one family member should know where it is and how to get in."}
+],
+"elevator": [
+ {"title": "Basic rules", "head": ["Situation", "Practice"], "rows": [["Entering and leaving", "Let people out first; do not lean on the doors"], ["Overload", "The last person steps out; do not squeeze in"], ["Children", "Hold hands; never let them ride alone"], ["Pets", "Carry them or shorten the lead so it cannot trail outside"], ["Moving things", "Carry long items upright; do not jam the doors"], ["Fire or earthquake", "Never take the lift"]], "note": "Door sensors have blind spots, and leads and thin poles are what get caught. Shorten the dog's lead every time."},
+ {"title": "If you are trapped", "head": ["Order", "Action"], "rows": [["First", "Press the alarm or intercom; state the building and how many people"], ["Second", "Call the property office and the local lift hotline"], ["Third", "Call the fire service and say people are trapped"], ["Never", "Do not force the doors or climb out through the ceiling"], ["While waiting", "Stand against the wall, save energy, do not jump"], ["If someone is unwell", "Say so first and ask for priority"]], "note": "The car has vents and you will not run out of air. Trapping is a safety action, not a worsening fault — waiting is the safe choice."},
+ {"title": "Warning signs", "head": ["Symptom", "Likely cause"], "rows": [["Doors judder or stick", "Door operator or guide rails"], ["Noise or vibration", "Guide rails or ropes"], ["Stops off level", "Needs recalibration"], ["Buttons unresponsive", "Control board"], ["Flickering light", "Wiring"], ["Smell of burning", "Stop using it and call for repair"]], "note": "Noise, vibration and poor levelling need reporting the same day. Left alone, a small fault becomes a trapped passenger."},
+ {"title": "If someone else is trapped", "head": ["Step", "Action"], "rows": [["Confirm", "How many people, is anyone unwell"], ["Reassure", "Tell them the car is not airtight"], ["Call", "Property office and maintenance line at the same time"], ["Do not", "Never try to force the doors from outside"], ["Record", "Photograph the lift number and the time"], ["Stay", "Wait until the technician arrives"]], "note": "The lift number is inside the car or above the door. Quoting it when you call saves ten minutes."},
+ {"title": "Home and private lifts", "head": ["Item", "Point"], "rows": [["Capacity", "Home lifts are typically around 320 kg"], ["Servicing", "At least every 15 days"], ["Inspection", "Follow local special-equipment rules"], ["Power failure", "Confirm automatic levelling and a backup supply"], ["For elderly users", "Handrail, large buttons, voice announcement"], ["Do not skip servicing", "The saving does not cover one rescue"]], "note": "Servicing is the first thing a private lift owner drops. Incomplete records put all liability on the owner after an incident."}
+],
+"ebikebatt": [
+ {"title": "Why they catch fire", "head": ["Cause", "Explanation"], "rows": [["Charging indoors", "Stairwells and living rooms are the main locations"], ["Cheap charger", "Unstable voltage, no protection"], ["Modified pack", "Overstated capacity, missing BMS"], ["Overcharging", "Left on all night"], ["Ageing cells", "Swelling, rising internal resistance"], ["Impact damage", "Internal short circuit"]], "note": "The same pack burning outdoors is an incident; burning in a stairwell is a disaster. Location decides the outcome."},
+ {"title": "Charging properly", "head": ["Point", "Practice"], "rows": [["Where", "Outdoors or a dedicated charging shed; never indoors"], ["How long", "6–8 hours, unplug when full"], ["Temperature", "0–35 °C; not outdoors in winter"], ["Charger", "Original only, never shared"], ["Order", "Battery first, then mains; reverse when unplugging"], ["Surroundings", "Nothing flammable nearby while charging"]], "note": "Lithium cells have no memory effect, so topping up is fine. Overcharging and heat are what actually age them."},
+ {"title": "Signs the pack is finished", "head": ["Sign", "Action"], "rows": [["Swollen casing", "Stop using and stop charging immediately"], ["Half the range", "Serious capacity loss"], ["Charges unusually fast", "Possible internal short"], ["Noticeably hot", "Rising internal resistance"], ["Strange smell", "Electrolyte leak"], ["Over three years old", "Consider replacing"]], "note": "A swollen pack must not be charged and must not stay in the flat. Take it to a recycling point; do not open it."},
+ {"title": "Buying", "head": ["Item", "Point"], "rows": [["Certification", "3C mark and a proper invoice"], ["Chemistry", "LFP tolerates heat better; NMC stores more per kilo"], ["BMS", "Overcharge, over-discharge and short-circuit protection"], ["Water resistance", "IPX4 or better"], ["Capacity", "Match your commute; bigger is not safer"], ["Modification", "No add-ons, no rewiring, no paralleling packs"]], "note": "A cheap pack saves money on cells and the protection board — exactly the two things that decide whether it burns."},
+ {"title": "If it catches fire", "head": ["Step", "Action"], "rows": [["First", "Cut the power, get away, call for help"], ["Extinguish", "Dry powder or water mist, then plenty of water to cool"], ["Do not", "Never pick up a burning pack by hand"], ["Smoke", "Leave low; the smoke kills before the flame"], ["Stairwell fire", "Do not run down through smoke; go back and seal the door"], ["Afterwards", "Recycle professionally; never reuse"]], "note": "Lithium fires reignite. Keep cooling and watching after the flames are out — it is not over when it looks out."}
+],
+"usedbook": [
+ {"title": "What holds value", "head": ["Type", "Note"], "rows": [["Textbooks", "Sell best at term start; edition matters"], ["Out of print", "The biggest premium"], ["Signed copies", "You must be able to prove provenance"], ["Boxed sets", "About 30% more than singles"], ["Children's picture books", "Buyers are picky about condition"], ["Bestsellers", "Depreciate fastest; often bought by weight"]], "note": "Before listing, search the sold prices for the same title. That is the market; your asking price is only a wish."},
+ {"title": "Choosing a channel", "head": ["Channel", "Trade-off"], "rows": [["Buy-back platform", "Easy, but often around 10% of cover price"], ["Second-hand bookshop", "Pays well for out-of-print titles"], ["Selling direct", "Best price; costs you photos and messages"], ["By weight", "Worst rate, only for clearing out"], ["Bundles", "Same-topic lots move faster"], ["Local groups", "No postage, and buyers collect"]], "note": "Selling to a platform buys convenience with the price difference. That difference is your time, priced honestly."},
+ {"title": "Describing condition", "head": ["Grade", "Standard"], "rows": [["As new", "Sealed or only opened"], ["Very good", "No notes, no creased corners"], ["Good", "Light highlighting or pencil marks"], ["Fair", "Visible wear, yellowed pages"], ["Photos", "Cover, spine, colophon, close-up of any flaw"], ["Honesty", "State flaws and returns drop"]], "note": "Photographing the flaws actually sells faster. Vague listings generate the most refund disputes."},
+ {"title": "Postage and packing", "head": ["Item", "Practice"], "rows": [["Postage", "Printed-matter rate is cheapest, priced by weight"], ["Packing", "Bag plus bubble wrap; water is the enemy"], ["Weight", "300–600 g per book; combine multiple"], ["Cash on delivery", "Often refused; avoid"], ["Insurance", "Worth it above 100 CNY"], ["Corners", "Protect hardback corners"]], "note": "Books die of damp and bent corners. One sealed bag and a layer of bubble wrap removes most after-sales problems."},
+ {"title": "Order of disposal for anything old", "head": ["Order", "What"], "rows": [["Sell first", "Branded appliances, furniture, gadgets"], ["Then give away", "Friends, neighbours"], ["Then donate", "Community bins, charities"], ["Throw last", "Bulky waste needs booking"], ["Do not hoard", "Storage costs more than the resale value"], ["Keep proof", "Photograph large items once sold"]], "note": "Sell, give, donate, then bin. Most people reverse it and end up paying to carry things downstairs."}
+],
+"upcycle": [
+ {"title": "What is worth restoring", "head": ["Item", "Feasibility"], "rows": [["Solid wood furniture", "Sand and refinish; another ten years"], ["Glass jars", "Storage, vases, lampshades"], ["Old cotton clothing", "Rags, pet bedding"], ["Wooden pallets", "Shelving, plant stands"], ["Old curtains", "Storage bags, dust covers"], ["Chipboard furniture", "Not worth it; it falls apart"]], "note": "Wobble it and lift it before you start. Loose joints mean you are dressing up a piece that is already failing."},
+ {"title": "Tools and materials", "head": ["Item", "Point"], "rows": [["Sandpaper", "120 / 240 / 400 grit, in stages"], ["Hard wax oil", "Greener than varnish; needs renewing"], ["Water-based paint", "Low smell, fast drying"], ["Primer", "Seals old finish and stains"], ["Clamps", "Holding and gluing"], ["Protection", "Mask, goggles, gloves"]], "note": "The step people skip is degreasing. Paint over old wax and it will peel within six months."},
+ {"title": "The process", "head": ["Step", "Practice"], "rows": [["Clean", "Degrease with warm water and neutral cleaner"], ["Repair", "Wood filler, sand when dry"], ["Sand", "With the grain, never across it"], ["Primer", "One thin coat, light sand"], ["Topcoat", "Two or three thin coats"], ["Cure", "Wait 48 hours before use"]], "note": "Several thin coats always beat one thick one. Thick coats sag and wrinkle, and you sand it all off again."},
+ {"title": "Where to donate", "head": ["Channel", "Point"], "rows": [["Community bin", "Easiest; check it is legitimate"], ["Charity platform", "Can collect, by appointment"], ["Free giving", "Neighbour groups and listings"], ["Textile recycling", "By weight; know where it goes"], ["Appliances", "Trade-in or authorised recycling"], ["Not donatable", "Torn, stained, expired"]], "note": "Wash it and make sure it still works before donating. Handing rubbish to a charity is just another form of waste."},
+ {"title": "Safety and environment", "head": ["Risk", "Practice"], "rows": [["Old paint", "Pre-1990 may contain lead; never dry-sand"], ["Dust", "Wet-sand or wear a mask; ventilate"], ["Solvents", "Away from flame, never down the drain"], ["Waste paint", "Hazardous-waste point"], ["Children's furniture", "Water-based paint only"], ["Ventilation", "Air the room for a week"]], "note": "Never dry-sand old paint. Lead-laden dust is far more dangerous than the paint itself."}
+],
+"homecam": [
+ {"title": "Where to put it", "head": ["Position", "Note"], "rows": [["Outside the front door", "Most useful; catches visitors and parcels"], ["Living room", "Pets and elderly relatives; avoid facing the sofa"], ["Nursery", "Not within a metre of the cot"], ["Garden or parking space", "Check it does not film the neighbours"], ["Never", "Bathroom, bedroom, changing areas"], ["Shared corridor", "May breach neighbours' privacy"]], "note": "The camera that earns its place is outside the door, not in the bedroom. Anything filming other people carries legal risk."},
+ {"title": "Privacy settings", "head": ["Item", "Practice"], "rows": [["Default password", "Change it; weak passwords are the main way in"], ["Firmware", "Turn on automatic updates"], ["Cloud storage", "Prefer end-to-end encryption or local storage"], ["Sharing", "Per-person permissions, never one shared login"], ["Guest access", "Temporary, and revoke it after"], ["Physical cover", "Close the lens when not in use"]], "note": "If you do not need face recognition or cloud playback, switch both off. Fewer features, fewer ways in."},
+ {"title": "Storage options", "head": ["Option", "Trade-off"], "rows": [["Cloud", "Simple, monthly fee; read the privacy terms"], ["Memory card", "Cheap, and dies with the card"], ["NVR drive", "Large capacity, safest locally"], ["Loop recording", "Usually 7–30 days"], ["Key clips", "Export and keep manually"], ["Network down", "Local keeps recording; cloud stops"]], "note": "You only need to keep the key clips. Paying for six months of cloud costs far more than a hard drive."},
+ {"title": "Network isolation", "head": ["Item", "Practice"], "rows": [["Separate network", "Put cameras on the guest or IoT SSID"], ["Port forwarding", "Never expose the camera directly to the internet"], ["UPnP", "Turn it off; it opens holes automatically"], ["Remote access", "Use a VPN rather than port forwarding"], ["Accounts", "No password reuse"], ["Device list", "Check regularly for unknown devices"]], "note": "On the guest network, one compromised camera still cannot reach your laptop or NAS."},
+ {"title": "Law and neighbours", "head": ["Issue", "Practice"], "rows": [["Field of view", "Must not reach into a neighbour's door or window"], ["Audio", "Recording conversations without consent is illegal in many places"], ["Notice", "Put a “CCTV in operation” sign by the door"], ["Objections", "Adjust the angle rather than argue"], ["Shared areas", "Ask the property office before installing"], ["Evidence", "For your own safety, not for publishing"]], "note": "A lens pointing at a neighbour's door can count as a privacy breach even without filming inside. Tilting it down 15 degrees usually settles it."}
+],
+"travelcam": [
+ {"title": "Match kit to trip", "head": ["Trip", "Kit"], "rows": [["City break", "Phone plus one body, one lens"], ["Hiking", "Light mirrorless and a prime; leave the tripod"], ["Coast", "Waterproof housing or an action camera"], ["Extreme cold", "Keep batteries warm; carry two spare"], ["Road trip", "Wide plus tele; a drone if allowed"], ["With children", "Phone first; do not carry a big bag"]], "note": "Pack the bag once and wear it for ten minutes before you commit. Whatever you cannot carry stays in the hotel."},
+ {"title": "Lens choice", "head": ["Focal length", "Use"], "rows": [["16–35 mm", "Architecture, landscape, interiors"], ["24–70 mm", "The all-rounder"], ["70–200 mm", "Compression, candid portraits"], ["35 mm prime", "Light, ideal for street"], ["50 mm prime", "Fast aperture, night portraits"], ["One lens only", "A 24–70 or a 35 prime"]], "note": "With a single lens, take the standard zoom. It is never spectacular, but it never misses."},
+ {"title": "Power and cards", "head": ["Item", "Practice"], "rows": [["Batteries", "Two a day; three in the cold"], ["Charging", "Multi-port charger plus a power bank"], ["Cards", "Two 64 GB beats one 128 GB"], ["Daily backup", "Offload to phone or drive at the hotel"], ["Cold weather", "Keep batteries in an inside pocket"], ["Formatting", "Format before you leave, never mid-trip"]], "note": "Choose several small cards over one big one. When a card dies, you lose the whole trip's photographs."},
+ {"title": "What to carry", "head": ["Item", "Verdict"], "rows": [["Spare battery", "Essential"], ["Lens cloth and blower", "Essential"], ["Light tripod", "Night shots and group photos"], ["CPL filter", "Cuts glare, deepens sky"], ["ND filter", "Long exposures and water"], ["Flash", "Leave it unless you shoot portraits"]], "note": "The most-used accessory on a trip is a lens cloth. The least-used is a flash."},
+ {"title": "Shooting and sorting", "head": ["Item", "Advice"], "rows": [["Time of day", "The hour after sunrise and before sunset"], ["Format", "RAW plus JPEG for latitude"], ["Composition", "Find the foreground, then place the subject"], ["People", "Ask first, especially portraits"], ["Editing", "Exposure and white balance only"], ["Sorting", "Cull the same evening; delete the failures"]], "note": "Travel photos are worth what they remind you of, not their settings. Over-editing erases the “this is how it actually looked”."}
+],
+"neighbor": [
+ {"title": "Noise limits and hours", "head": ["Period / type", "Reference"], "rows": [["Daytime", "Residential areas usually under 55 dB"], ["Night, 22:00–6:00", "Usually under 45 dB"], ["Building work", "Weekdays 8:00–12:00 and 14:00–18:00"], ["Public holidays", "Noisy work is banned in most areas"], ["Instruments and TV", "The line is “does not disturb normal living”"], ["Barking", "Sustained barking is complainable"]], "note": "Wall insulation varies wildly, so the standard is only a reference. What actually moves a case is “sustained” and “late at night”."},
+ {"title": "Order of approach", "head": ["Step", "Practice"], "rows": [["First", "Face to face or a note; state facts, do not accuse"], ["Second", "Knock again with a small gift; most cases end here"], ["Still no change", "Go to the property office and ask for it in writing"], ["Ongoing", "Residents' committee or community mediation"], ["Late-night disturbance", "Call the police and ask for an incident record"], ["Unresolved", "Environmental testing, or court"]], "note": "The first conversation aims at “they know”, not “they admit fault”. Arriving angry turns it into a standoff immediately."},
+ {"title": "Building evidence", "head": ["Method", "Point"], "rows": [["Log", "Date, time, duration, type of noise"], ["Audio and video", "With a time stamp, and film the surroundings too"], ["Third party", "Property staff witness and sign"], ["Measurement", "Environmental or accredited body report"], ["Health impact", "Medical records to show causation"], ["Other neighbours", "Written statements from them"]], "note": "One recording proves very little. Two weeks of logged entries is what mediation and court actually use."},
+ {"title": "Your own noise", "head": ["Point", "Practice"], "rows": [["Floor", "Rugs and mats, especially under play areas"], ["Furniture", "Felt pads on chair legs"], ["Appliances", "Anti-vibration mats under washer and air-con"], ["Hours", "No washer or vacuum after 22:00"], ["Pets", "Train against barking; leave toys out by day"], ["Renovation", "Post a notice in advance with your number"]], "note": "A notice in the lift with your phone number removes most complaints. What annoys neighbours is usually not the noise but the silence beforehand."},
+ {"title": "Special cases", "head": ["Situation", "Practice"], "rows": [["Leak from above", "Photograph first, ask the property office to shut the valve, document the damage"], ["Barking dog", "Talk, then the property office, then the police"], ["Overcrowded rental", "Report to the property office and the street office"], ["Late-night business", "Check whether it holds a licence"], ["A resident with mental illness", "Involve the community and family; do not confront alone"], ["Long-running dispute", "Put the mediated outcome in writing"]], "note": "In a leak dispute, securing evidence early decides everything. Once it dries, liability is very hard to establish."}
+],
+"powerbill": [
+ {"title": "How the bill works", "head": ["Type", "Note"], "rows": [["Tiered tariff", "Three blocks by monthly use; the third is the dearest"], ["Time-of-use tariff", "Optional; cheap at night"], ["Shared meter", "One flat rate, no tiers"], ["One meter per household", "The usual case"], ["Commercial rates", "Common in rentals, nearly double"], ["Capacity charge", "Applies to some contract users"]], "note": "On the bill, look for the unit price and the tier. A unit price above one yuan is almost always commercial."},
+ {"title": "Is time-of-use worth it", "head": ["Case", "Verdict"], "rows": [["Worth it", "EV, electric water heater, laundry at night"], ["Not worth it", "Someone home all day, use peaks in the evening"], ["Off-peak", "Usually 22:00–6:00"], ["Peak", "Usually 8:00–22:00"], ["Spread", "Varies; off-peak is often about half"], ["Applying", "Office or app, usually free"]], "note": "Time-of-use is not automatically cheaper. Unless a third of your use is at night, it costs you more."},
+ {"title": "Biggest consumers", "head": ["Appliance", "Note"], "rows": [["Air conditioning", "The largest summer load"], ["Water heater", "Costs money even on standby"], ["Fridge", "Runs all year"], ["Space heater", "The largest winter load"], ["Tumble dryer", "2–3 kWh per cycle"], ["Standby draw", "Tens of kWh a month for a whole home"]], "note": "Standby draw totals tens of kWh a month — more than most people assume. One switched socket strip removes much of it."},
+ {"title": "What actually saves", "head": ["Action", "Effect"], "rows": [["Set air-con to 26–27 °C", "About 7% per degree"], ["Switch to LED", "Tens of kWh a year in a living room"], ["Unplug standby", "Set-top boxes especially"], ["Do not overfill the fridge", "Airflow matters"], ["Full loads only", "Cheaper than several half loads"], ["“Power savers”", "Useless; pure snake oil"]], "note": "There are only three real routes: use less, use more efficiently, use at cheaper times. Anything claiming savings with no change in behaviour is not real."},
+ {"title": "Outages and payment", "head": ["Situation", "Practice"], "rows": [["Check balance", "Utility app or payment platform"], ["Cut off for arrears", "Usually restored within 30 minutes of payment"], ["Planned outage", "Watch community notices"], ["Sudden outage", "Check your own main breaker, then neighbours"], ["Backup", "Small UPS for router and modem"], ["Report a fault", "The national utility hotline"]], "note": "A small UPS on the router and modem keeps the internet alive for an hour or two — the most useful thing in a blackout if you work from home."}
+],
+"petfirstaid": [
+ {"title": "Go to the vet now", "head": ["Symptom", "Why"], "rows": [["Laboured breathing", "Open-mouth breathing, blue tongue"], ["Male cat cannot urinate", "Can be fatal within 24 hours"], ["Vomiting or diarrhoea", "Beyond 24 hours, or with blood"], ["Seizure", "First episode must be investigated"], ["Distended abdomen", "Bloat, especially dangerous in dogs"], ["Ate medicine or an object", "Bring the packaging with you"]], "note": "Pets do not fake illness. If any of these appear, do not wait until tomorrow."},
+ {"title": "First aid basics", "head": ["Situation", "Practice"], "rows": [["Bleeding", "Pressure with clean gauze for 5 minutes; do not keep lifting it"], ["Poisoning", "Do not induce vomiting; bring the packaging"], ["Heatstroke", "Shade, cool water on armpits and groin"], ["Choking", "Chest compressions for small dogs; do not blindly reach in"], ["Fracture", "Immobilise on a board; do not straighten"], ["Burn", "Cool water for 10 minutes; no toothpaste"]], "note": "“Do not induce vomiting” is right in almost every case. It can cause a second burn, especially with corrosives."},
+ {"title": "Medicines and poisons", "head": ["Category", "Note"], "rows": [["Usable, on vet advice", "Probiotics, saline, povidone-iodine"], ["Never", "Ibuprofen, paracetamol"], ["Use with caution", "Cold remedies, anti-diarrhoeals"], ["Parasite control", "By weight, dog and cat products differ"], ["Dosing", "Per kilogram, never “half a tablet”"], ["Storage", "Dark and dry, away from human medicine"]], "note": "Paracetamol is lethal to cats — one tablet can kill. In a cat household it belongs in a locked drawer."},
+ {"title": "Small common problems", "head": ["Problem", "Handling"], "rows": [["Ear mites", "Black debris; clean and treat"], ["Ringworm", "Wood's lamp to screen, treat for 4 weeks"], ["Loose stools", "Fast 6–12 hours, keep water available"], ["Hairballs", "More brushing and a hairball remedy"], ["Eye discharge", "Wipe with saline; no cotton buds"], ["Fleas", "Treat the environment too or it fails"]], "note": "Ringworm treatment most often fails because people stop when it looks clear. Four full weeks, or it comes back."},
+ {"title": "Preparing for the vet", "head": ["Item", "Practice"], "rows": [["Bring", "Vaccination booklet, history, current medication"], ["Photograph", "Vomit, stools, abnormal posture"], ["Describe", "When it started, how often, what changed"], ["Weight", "Dosing depends on it"], ["Ask", "Basis for the diagnosis, alternatives, total cost"], ["Record", "How to give the medicine, when to return"]], "note": "A ten-second video of the episode beats ten minutes of description. The vet cannot see what happened at home."}
+],
+"kidsmoney": [
+ {"title": "When to start", "head": ["Age", "Practice"], "rows": [["3–4", "Learn the coins through play"], ["5–6", "A small fixed amount, weekly"], ["7–9", "Weekly, and start a simple record"], ["10–12", "Monthly; they plan it"], ["13+", "Includes some essentials; learn budgeting"], ["Secondary school", "Bookkeeping and basic money skills"]], "note": "Starting earlier with smaller sums is far cheaper tuition. Start at 16 and the first mistake may cost thousands."},
+ {"title": "How much", "head": ["Principle", "Practice"], "rows": [["Benchmark", "The median among their peers"], ["Amount", "Rises with age; never a windfall"], ["Fixed", "Paid on the agreed day, not on your mood"], ["Not tied to grades", "Stops learning becoming a transaction"], ["Not all chores", "Basic chores are a family duty"], ["Extra work", "Can be paid separately"]], "note": "Distinguish “your own jobs” from “extra help”. The first is duty; only the second is paid."},
+ {"title": "Teaching them to spend", "head": ["Method", "Note"], "rows": [["Three jars", "Spend, save, give"], ["Record", "A simple table, reviewed weekly"], ["Waiting", "Save up for what they want"], ["Comparing", "The same thing has different prices"], ["Opportunity cost", "Buy this and you cannot buy that"], ["Mistakes", "Run out and do not top it up"]], "note": "The best teacher for overspending is running out. Topping it up cancels the one lesson that works."},
+ {"title": "Cards and mobile payment", "head": ["Stage", "Practice"], "rows": [["Primary school", "Cash, so “money runs out” is visible"], ["Secondary school", "A limited parent-linked card"], ["Limit", "Set to the weekly allowance"], ["Alerts", "Notify the parent of every purchase"], ["Mobile payment", "Link the limited card, never the main one"], ["In-game purchases", "Disable one-tap pay; set a per-transaction cap"]], "note": "Mobile payment makes money invisible. Build the feeling with cash first, then move to a card — reversing the order is hard to fix."},
+ {"title": "Beyond the basics", "head": ["Concept", "How to explain it"], "rows": [["Interest", "A savings account demonstrating compounding"], ["Investing", "An index fund as “owning a piece of companies”"], ["Risk", "Higher return always means higher risk"], ["Scams", "“Guaranteed profit” is always a scam"], ["Work", "Income comes from creating value"], ["Giving", "Donate a share; understand allocation"]], "note": "Teaching a child to spot a scam matters far more than teaching them to pick a fund. Lesson one: “guaranteed profit” does not exist."}
 ]
 };
 Object.assign(TABLE_EN, TABLE_EN_MORE);
@@ -9123,7 +9429,7 @@ function initInstall(){
 const FEEDBACK_EMAIL = '';
 function feedbackPanel(){
   const ua = navigator.userAgent || '';
-  const tpl = t('【生活换算反馈】\n版本：V6.2\n页面：','【Life Conversion Feedback】\nVersion: V6.2\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
+  const tpl = t('【生活换算反馈】\n版本：V6.5\n页面：','【Life Conversion Feedback】\nVersion: V6.5\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
     t('\n\n问题描述：\n1. 我在做什么：\n2. 期望结果：\n3. 实际结果：\n4. 是否可复现：\n','\n\nIssue description:\n1. What I was doing:\n2. Expected result:\n3. Actual result:\n4. Reproducible:\n');
   const subj = t('生活换算反馈','Life Conversion Feedback');
   const mail = FEEDBACK_EMAIL
