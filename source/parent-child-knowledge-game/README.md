@@ -133,10 +133,10 @@ _capture/index.html        线上页面原始留档，用于 diff 比对
 游戏挂在主站 `https://dq7866.online/games/knowledge/`，由主仓库的构建脚本处理：
 
 ```
-node scripts/post-build-game.js      同步前端 + 注入子路径配置（必须在 hexo 之前）
+node build-scripts/post-build-game.js      同步前端 + 注入子路径配置（必须在 hexo 之前）
 → hexo generate                     处理已注入的文件 → public/
-→ node scripts/post-build-assets.js  复制 forest 音频
-→ node scripts/post-build-worker.js  生成 public/_worker.js（题库内联）
+→ node build-scripts/post-build-assets.js  复制 forest 音频
+→ node build-scripts/post-build-worker.js  生成 public/_worker.js（题库内联）
 ```
 
 关键点：

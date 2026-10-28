@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "node scripts/post-build-game.js && hexo generate && node scripts/post-build-assets.js && node scripts/post-build-worker.js",
+    "build": "node build-scripts/post-build-game.js && hexo generate && node build-scripts/post-build-assets.js && node build-scripts/post-build-worker.js",
     "clean": "hexo clean",
     "deploy": "hexo deploy",
     "publish": "git add -A && git commit -m \"update\" && git push origin HEAD:source",
