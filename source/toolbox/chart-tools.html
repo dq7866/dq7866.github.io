@@ -3,584 +3,227 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>图表生成工具 · 柱状/折线/饼图/雷达图 ｜ 免费在线工具箱</title>
-<meta name="description" content="在线图表生成工具：柱状图、折线图、组合图（柱线混合+双Y轴）、饼图、雷达图，多系列数量自定义，轴标题、轴范围、网格线、刻度角度全面可配，一键下载 PNG/SVG 或复制到剪贴板。纯浏览器渲染。">
+<title>图表工坊 · 16 种图表在线生成（柱状/折线/饼图/双轴/热力）｜ 免费工具箱</title>
+<meta name="description" content="免费在线图表工坊：柱状图、条形图、堆叠柱、折线图、面积图、组合图（柱线混排+双Y轴）、散点图、气泡图、饼图、环形图、玫瑰图、雷达图、漏斗图、仪表盘、热力图、瀑布图，共16种。表格直接粘贴数据，标题/配色/坐标轴/网格/刻度/标签全可调，导出 PNG、SVG 矢量、可编辑 HTML、工程文件。纯浏览器本地渲染。">
 <meta name="theme-color" content="#ff4d00">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ff4d00'/><text y='72' x='50' font-size='60' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>工</text></svg>">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="assets/css/app.css">
 <script>(function(){try{var t=localStorage.getItem('tbx-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}else{if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
 <style>
-/* ===== 设计系统变量 · 暖中性纸质风格 ===== */
-:root {
-  --bg: #faf6f0;
-  --bg-2: #f3ede3;
-  --surface: #fffdf8;
-  --surface-2: #faf6f0;
-  --text: #2b2520;
-  --text-2: #6b5e52;
-  --muted: #9a8e80;
-  --line: #e8dfd1;
-  --line-2: #f0e8db;
-  --accent: #ff4d00;
-  --accent-2: #fff0e8;
-  --accent-ink: #fff;
-  --ok: #10b981;
-  --danger: #ef4444;
-  --warn: #f59e0b;
-  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(60,40,10,.06);
-  --shadow-lg: 0 8px 32px rgba(60,40,10,.12);
-  --radius: 12px;
-  --radius-sm: 8px;
-  --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace;
+:root{
+  --bg:#faf6f0; --bg-2:#f2ece2; --surface:#fffdf8; --surface-2:#f8f2e8;
+  --text:#2b2520; --text-2:#6b5e52; --muted:#9a8e80; --line:#e8dfd1; --line-2:#f1e9dd;
+  --accent:#ff4d00; --accent-2:#fff0e8; --accent-ink:#fff;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 4px 16px rgba(60,40,10,.06);
+  --shadow-lg:0 10px 34px rgba(60,40,10,.14);
+  --radius:12px; --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
 }
-[data-theme="dark"] {
-  --bg: #1a1612;
-  --bg-2: #241e18;
-  --surface: #2a231c;
-  --surface-2: #332a21;
-  --text: #f0e8dc;
-  --text-2: #c5b9a8;
-  --muted: #8a7d6d;
-  --line: #3d3328;
-  --line-2: #332a21;
-  --accent: #ff6b2d;
-  --accent-2: #3a2418;
-  --accent-ink: #fff;
-  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,.4);
+[data-theme="dark"]{
+  --bg:#1a1612; --bg-2:#221c16; --surface:#2a231c; --surface-2:#241e18;
+  --text:#f0e8dc; --text-2:#c5b9a8; --muted:#8a7d6d; --line:#3d3328; --line-2:#332a21;
+  --accent:#ff6b2d; --accent-2:#3a2418; --accent-ink:#fff;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+  --shadow-lg:0 10px 34px rgba(0,0,0,.45);
 }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.55;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
-.field[hidden] { display: none !important; }
-/* 系列设置行 */
-.series-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
-.series-row input[type="color"] { width: 28px; height: 28px; padding: 2px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); cursor: pointer; flex: 0 0 auto; }
-.series-row input[type="text"] { flex: 1; min-width: 0; }
-.series-row select { flex: 0 0 auto; width: auto; }
-/* 系列数量步进器 */
-.stepper { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-.stepper label { font-size: 12.5px; color: var(--text-2); font-weight: 600; }
-.stepper button { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--text); font-size: 15px; line-height: 1; cursor: pointer; }
-.stepper button:hover { border-color: var(--accent); color: var(--accent); }
-.stepper b { min-width: 20px; text-align: center; font-size: 14px; }
-/* 轴设置两列小字段 */
-.axis-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.fmini { display: flex; flex-direction: column; gap: 3px; font-size: 11.5px; color: var(--text-2); font-weight: 600; }
-.fmini input, .fmini select { font-weight: 400; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--text);
-  background: var(--bg);
-  -webkit-font-smoothing: antialiased;
-}
-a { color: inherit; text-decoration: none; }
-button { font-family: inherit; cursor: pointer; }
-input, select, textarea { font-family: inherit; font-size: inherit; }
+/* ===== 顶部工具条 ===== */
+.cs-bar{display:flex;align-items:center;gap:14px;padding:10px 18px;background:var(--surface);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.cs-crumb{display:flex;align-items:baseline;gap:10px;min-width:0}
+.cs-crumb b{font-size:16px;letter-spacing:-.01em}
+.cs-crumb span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.cs-actions .btn{padding:7px 14px;font-size:13px;border-radius:9px}
 
-/* ===== Topbar ===== */
-.topbar {
-  position: sticky; top: 0; z-index: 100;
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
-  backdrop-filter: blur(12px);
-}
-.topbar-inner {
-  max-width: 1200px; margin: 0 auto;
-  min-height: 56px; padding: 0 20px;
-  display: flex; align-items: center; gap: 16px;
-}
-.brand {
-  display: flex; align-items: center; gap: 10px;
-  font-weight: 700; font-size: 16px;
-}
-.brand .mark {
-  width: 32px; height: 32px; border-radius: 8px;
-  background: var(--accent); color: #fff;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; font-weight: 800;
-}
-.brand .tag {
-  font-size: 11px; font-weight: 500;
-  color: var(--muted); margin-left: 4px;
-  letter-spacing: .5px;
-}
-.spacer { flex: 1; }
-.topnav {
-  display: flex; align-items: center; gap: 2px;
-  overflow-x: auto; scrollbar-width: none;
-}
-.topnav::-webkit-scrollbar { display: none; }
-.topnav a {
-  padding: 6px 12px; border-radius: 6px;
-  font-size: 13.5px; color: var(--text-2);
-  white-space: nowrap; transition: all .15s;
-}
-.topnav a:hover { color: var(--text); background: var(--bg-2); }
-.topnav a.active { color: var(--accent); background: var(--accent-2); font-weight: 600; }
+/* 导出菜单 */
+.menu{position:relative}
+.menu>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.menu>summary::-webkit-details-marker{display:none}
+.menu>summary::after{content:"▾";font-size:10px;opacity:.8}
+.menu[open]>summary{background:var(--accent-2);border-color:var(--accent);color:var(--accent)}
+.menu-body{position:absolute;right:0;top:calc(100% + 8px);width:290px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);padding:8px;z-index:120;max-height:70vh;overflow:auto}
+.menu-body button{display:flex;flex-direction:column;gap:1px;width:100%;text-align:left;padding:8px 10px;border:0;background:transparent;border-radius:9px;cursor:pointer;color:var(--text)}
+.menu-body button:hover{background:var(--accent-2)}
+.menu-body button b{font-size:13px;font-weight:600}
+.menu-body button em{font-style:normal;font-size:11.5px;color:var(--muted)}
+.menu-body button.star{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.menu-body button.star b{color:var(--accent)}
 
-/* ===== Wrap ===== */
-.wrap {
-  max-width: 1200px; margin: 0 auto;
-  padding: 0 20px 60px;
-}
+/* 图表类型条 */
+.typebar{display:flex;gap:4px;padding:7px 14px;background:var(--surface);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.typebar::-webkit-scrollbar{height:0}
+.tp{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border:1px solid transparent;background:transparent;border-radius:9px;color:var(--text-2);font-size:12.5px;white-space:nowrap;cursor:pointer;transition:.14s}
+.tp svg{width:16px;height:16px;opacity:.75;flex:0 0 auto}
+.tp:hover{background:var(--bg-2);color:var(--text)}
+.tp.on{background:var(--accent-2);border-color:color-mix(in srgb,var(--accent) 34%,transparent);color:var(--accent);font-weight:600}
+.tp.on svg{opacity:1}
 
-/* ===== Panel ===== */
-.panel {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 20px;
-  box-shadow: var(--shadow);
-}
-.panel + .panel { margin-top: 20px; }
-.panel-head {
-  display: flex; align-items: center; gap: 10px;
-  margin-bottom: 16px;
-}
-.panel-head h2 {
-  font-size: 17px; font-weight: 700;
-  color: var(--text);
-}
-.num {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-width: 28px; height: 24px; padding: 0 8px;
-  background: var(--accent-2); color: var(--accent);
-  font-size: 11.5px; font-weight: 700;
-  border-radius: 6px; letter-spacing: .5px;
-}
+/* ===== 三栏工作台 ===== */
+.studio{display:grid;grid-template-columns:340px minmax(0,1fr) 352px;height:calc(100vh - 196px);min-height:620px;background:var(--surface)}
+.rail{overflow-y:auto;overflow-x:hidden;padding:14px 14px 48px;background:var(--surface)}
+.rail.left{border-right:1px solid var(--line)}
+.rail.right{border-left:1px solid var(--line);background:var(--surface-2)}
+.rail::-webkit-scrollbar{width:9px}
+.rail::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px;border:2px solid transparent;background-clip:content-box}
 
-/* ===== Tabs ===== */
-.tabs {
-  display: flex; gap: 4px; flex-wrap: wrap;
-  background: var(--bg-2);
-  padding: 4px; border-radius: 10px;
-}
-.tab {
-  flex: 1; min-width: 100px;
-  padding: 8px 14px;
-  border: none; background: transparent;
-  color: var(--text-2);
-  font-size: 13.5px; font-weight: 500;
-  border-radius: 7px;
-  transition: all .15s;
-}
-.tab:hover { color: var(--text); }
-.tab.active {
-  background: var(--surface);
-  color: var(--accent);
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0,0,0,.06);
-}
+.railhead{display:flex;align-items:center;gap:8px;margin:2px 0 10px}
+.railhead h2{font-size:13px;font-weight:700;letter-spacing:.02em}
+.railhead .sub{font-size:11.5px;color:var(--muted)}
+.tabs-mini{margin-left:auto;display:flex;background:var(--bg-2);border-radius:8px;padding:2px}
+.tm{border:0;background:transparent;padding:4px 10px;border-radius:6px;font-size:12px;color:var(--text-2);cursor:pointer}
+.tm.on{background:var(--surface);color:var(--accent);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.06)}
 
-/* ===== Field & Row ===== */
-.field { margin-bottom: 16px; }
-.field:last-child { margin-bottom: 0; }
-.field label {
-  display: block;
-  font-size: 13px; font-weight: 600;
-  color: var(--text-2);
-  margin-bottom: 6px;
-}
-.field input[type="text"],
-.field input[type="number"],
-.field select,
-.field textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-  color: var(--text);
-  font-size: 14px;
-  transition: all .15s;
-  outline: none;
-}
-.field input:focus,
-.field select:focus,
-.field textarea:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(255,77,0,.1);
-  background: var(--surface);
-}
-.hint {
-  font-size: 12px; color: var(--muted);
-  margin-top: 6px; line-height: 1.5;
-}
-.row {
-  display: flex; gap: 10px; align-items: center;
-}
-.row .field { flex: 1; margin-bottom: 0; }
+/* 数据表格 */
+.dt-wrap{border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:46vh;background:var(--surface)}
+table.dt{width:100%;border-collapse:separate;border-spacing:0;font-size:12.5px}
+table.dt th{position:sticky;top:0;z-index:2;background:var(--surface-2);border-bottom:1px solid var(--line);padding:0}
+table.dt th input{width:100%;border:0;background:transparent;padding:7px 8px;font:inherit;font-size:11.5px;font-weight:700;color:var(--muted);text-align:left;outline:none}
+table.dt th input:focus{background:var(--accent-2);color:var(--accent)}
+table.dt td{border-bottom:1px solid var(--line-2);padding:0}
+table.dt tr:last-child td{border-bottom:0}
+table.dt td input{width:100%;border:0;background:transparent;padding:6px 8px;font:inherit;color:var(--text);outline:none}
+table.dt td.num input{text-align:right;font-variant-numeric:tabular-nums}
+table.dt td input:focus{background:var(--accent-2);box-shadow:inset 0 0 0 1px var(--accent)}
+table.dt .th-narrow{width:26px;text-align:center;background:var(--surface-2)}
+.rowdel{border:0;background:transparent;color:var(--muted);font-size:15px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:4px}
+.rowdel:hover{color:#e11d48;background:#ffe4e6}
+.empty-cell{text-align:center;color:var(--muted);font-size:12px;padding:18px 8px!important}
 
-/* ===== Buttons ===== */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  gap: 6px;
-  padding: 9px 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text);
-  font-size: 13.5px; font-weight: 500;
-  transition: all .15s;
-  white-space: nowrap;
-}
-.btn:hover { border-color: var(--accent); color: var(--accent); }
-.btn:active { transform: translateY(1px); }
-.btn.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-ink);
-}
-.btn.primary:hover { opacity: .92; color: #fff; }
-.btn.ghost {
-  background: transparent;
-  border-color: var(--line);
-  color: var(--text-2);
-  padding: 7px 12px;
-  font-size: 12.5px;
-}
-.btn.ghost:hover {
-  background: var(--accent-2);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.btn.danger {
-  color: var(--danger);
-  border-color: rgba(239,68,68,.3);
-}
-.btn.danger:hover {
-  background: rgba(239,68,68,.08);
-  border-color: var(--danger);
-  color: var(--danger);
-}
-.btn-row {
-  display: flex; gap: 10px; align-items: center;
-  margin-top: 16px;
-  flex-wrap: wrap;
-}
+.rowbtns{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.mini{border:1px solid var(--line);background:var(--surface);color:var(--text-2);border-radius:7px;padding:5px 10px;font-size:12px;cursor:pointer;transition:.14s}
+.mini:hover{border-color:var(--accent);color:var(--accent)}
+.mini.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.mini.danger:hover{background:#ffe4e6;border-color:#fda4af;color:#be123c}
 
-/* ===== Segmented Control ===== */
-.seg {
-  display: inline-flex;
-  background: var(--bg-2);
-  border-radius: 7px;
-  padding: 2px;
-}
-.seg button {
-  padding: 5px 12px;
-  font-size: 12.5px;
-  border: none;
-  background: transparent;
-  color: var(--text-2);
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all .15s;
-  font-weight: 500;
-}
-.seg button.active {
-  background: var(--surface);
-  color: var(--accent);
-  font-weight: 600;
-  box-shadow: 0 1px 2px rgba(0,0,0,.05);
-}
+.ta{width:100%;min-height:220px;max-height:46vh;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:var(--mono);font-size:12px;line-height:1.75;background:var(--surface);color:var(--text);outline:none}
+.ta:focus{border-color:var(--accent)}
 
-/* ===== Footer ===== */
-.site {
-  text-align: center;
-  padding: 30px 20px;
-  color: var(--muted);
-  font-size: 12.5px;
-}
-.site a { color: var(--text-2); }
-.site a:hover { color: var(--accent); }
+.statrow{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:9px}
+.statrow b{color:var(--text);font-weight:600}
 
-/* ===== Utility ===== */
-.hidden { display: none !important; }
+.hint{font-size:11.5px;color:var(--muted);margin-top:7px;line-height:1.65}
+.hint code{background:var(--bg-2);padding:1px 4px;border-radius:4px;font-size:11px}
 
-/* ===== 图表工具专属样式 ===== */
-.chart-layout {
-  display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 20px;
-  align-items: start;
-}
+/* 示例胶囊 */
+.preset-chips{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.chip{display:flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid var(--line);background:var(--surface);border-radius:8px;font-size:12px;color:var(--text-2);cursor:pointer;text-align:left;transition:.14s}
+.chip svg{width:14px;height:14px;opacity:.6;flex:0 0 auto}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-2)}
+.chip:hover svg{opacity:1}
 
-.chart-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+/* 画布区 */
+.stage{position:relative;overflow:auto;display:flex;align-items:center;justify-content:center;padding:26px;background-color:var(--bg-2);background-image:radial-gradient(color-mix(in srgb,var(--text) 13%,transparent) 1px,transparent 0);background-size:18px 18px}
+.stage canvas{display:block;background-color:#fff;border-radius:4px;box-shadow:var(--shadow-lg);
+  background-image:linear-gradient(45deg,#f1ebe1 25%,transparent 25%,transparent 75%,#f1ebe1 75%),linear-gradient(45deg,#f1ebe1 25%,transparent 25%,transparent 75%,#f1ebe1 75%);
+  background-size:16px 16px;background-position:0 0,8px 8px}
+.stage-foot{position:absolute;left:14px;bottom:12px;display:flex;gap:14px;font-size:11.5px;color:var(--muted);background:color-mix(in srgb,var(--surface) 82%,transparent);padding:4px 10px;border-radius:20px;backdrop-filter:blur(6px);pointer-events:none}
+/* 拖拽导入 */
+.stage::after{content:"松手导入 .csv / .json";position:absolute;inset:10px;display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:var(--accent);border:2px dashed var(--accent);border-radius:14px;
+  background:color-mix(in srgb,var(--accent-2) 88%,transparent);opacity:0;transform:scale(.99);transition:opacity .16s,transform .16s;pointer-events:none}
+.stage.dragging::after{opacity:1;transform:scale(1)}
 
-.chart-preview-wrap {
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  overflow: auto;
-}
+/* 设计面板手风琴 */
+.sec{border:1px solid var(--line);border-radius:11px;background:var(--surface);margin-bottom:9px;overflow:hidden}
+.sec>summary{list-style:none;cursor:pointer;padding:9px 12px;font-size:12.5px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px;user-select:none}
+.sec>summary::-webkit-details-marker{display:none}
+.sec>summary::before{content:"";width:5px;height:5px;border-right:1.6px solid var(--muted);border-bottom:1.6px solid var(--muted);transform:rotate(-45deg);transition:.16s;flex:0 0 auto}
+.sec[open]>summary::before{transform:rotate(45deg);margin-top:-2px}
+.sec>summary .tagline{margin-left:auto;font-weight:400;font-size:11px;color:var(--muted)}
+.sec .body{padding:2px 12px 12px;display:flex;flex-direction:column;gap:9px}
+.sec[hidden]{display:none}
 
-.chart-preview-wrap canvas {
-  max-width: 100%;
-  height: auto;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.06);
-}
+.fl{display:flex;flex-direction:column;gap:4px;font-size:11.5px;font-weight:600;color:var(--muted)}
+.inp,.fl input,.fl select{font-family:inherit;font-size:13px;font-weight:400;padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);outline:none;width:100%}
+.inp:focus,.fl input:focus,.fl select:focus{border-color:var(--accent)}
+select.inp{cursor:pointer}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.ckrow{display:flex;flex-wrap:wrap;gap:6px 14px}
+.ckrow label{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text-2);cursor:pointer;font-weight:500}
+.ckrow input{accent-color:var(--accent);cursor:pointer}
+.rangerow{display:flex;align-items:center;gap:8px}
+.rangerow input[type=range]{flex:1;accent-color:var(--accent);height:4px}
+.rangerow output{font-size:11.5px;color:var(--text-2);min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
 
-.chart-data-textarea {
-  width: 100%;
-  min-height: 180px;
-  font-family: var(--mono);
-  font-size: 12.5px;
-  line-height: 1.6;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-  color: var(--text);
-  resize: vertical;
-  tab-size: 2;
-  box-sizing: border-box;
-  outline: none;
-  transition: all .15s;
-}
-.chart-data-textarea:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.12);
-  background: var(--surface);
-}
+/* 配色 */
+.palgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pal{display:flex;align-items:center;gap:2px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);cursor:pointer;font-size:11.5px;color:var(--text-2);transition:.14s}
+.pal i{width:9px;height:16px;border-radius:2px;display:block}
+.pal span{margin-left:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pal:hover{border-color:var(--accent)}
+.pal.on{border-color:var(--accent);background:var(--accent-2);color:var(--accent);font-weight:600}
 
-.color-palettes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 6px;
-}
-.palette-btn {
-  width: 36px;
-  height: 24px;
-  border: 2px solid var(--line);
-  border-radius: 4px;
-  cursor: pointer;
-  padding: 0;
-  position: relative;
-  overflow: hidden;
-  transition: all .15s;
-}
-.palette-btn:hover {
-  border-color: var(--accent);
-  transform: scale(1.08);
-}
-.palette-btn.active {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-2);
-}
-.palette-btn .palette-stripe {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-}
+/* 背景按钮 */
+.bgbtns{display:flex;gap:5px;flex-wrap:wrap}
+.bgbtns .mini{padding:5px 9px}
+.bgbtns input[type=color]{width:34px;height:30px;padding:2px;border:1px solid var(--line);border-radius:7px;background:var(--surface);cursor:pointer}
 
-.chart-size-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-.chart-size-row input {
-  text-align: center;
-}
-.chart-size-row .x-sep {
-  color: var(--muted);
-  font-weight: 600;
-}
+/* 系列行 */
+.srow{display:flex;gap:5px;align-items:center;margin-bottom:5px}
+.srow .cpick{width:26px;height:28px;padding:2px;border:1px solid var(--line);border-radius:6px;background:var(--surface);cursor:pointer;flex:0 0 auto}
+.srow .sname{flex:1;min-width:0;border:1px solid var(--line);border-radius:7px;padding:5px 8px;font-size:12.5px;background:var(--surface);color:var(--text);outline:none}
+.srow .sname:focus{border-color:var(--accent)}
+.srow select{border:1px solid var(--line);border-radius:7px;padding:5px 4px;font-size:12px;background:var(--surface);color:var(--text-2);outline:none;flex:0 0 auto}
 
-.checkbox-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 6px;
-}
-.checkbox-row label {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 13px;
-  color: var(--text-2);
-  cursor: pointer;
-  font-weight: 500;
-  margin: 0;
-}
-.checkbox-row input {
-  margin: 0;
-  cursor: pointer;
-  accent-color: var(--accent);
-}
+/* 提示条 */
+.notebar{font-size:11.5px;color:var(--text-2);background:var(--bg-2);border-left:2px solid var(--accent);border-radius:0 7px 7px 0;padding:7px 10px;line-height:1.65}
 
-.bg-options {
-  display: flex;
-  gap: 8px;
-  margin-top: 6px;
-}
-.bg-btn {
-  flex: 1;
-  padding: 6px 10px;
-  font-size: 12.5px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--text-2);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all .15s;
-  font-weight: 500;
-}
-.bg-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.bg-btn.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
+/* toast */
+#toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,14px);background:rgba(30,24,18,.94);color:#fff;font-size:13px;padding:9px 18px;border-radius:22px;opacity:0;pointer-events:none;transition:.22s;z-index:300;max-width:90vw;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
 
-.chart-type-tabs {
-  display: flex;
-  gap: 2px;
-  background: var(--bg-2);
-  padding: 3px;
-  border-radius: 8px;
-  margin-bottom: 4px;
+/* 响应式 */
+@media (max-width:1240px){
+  .studio{grid-template-columns:1fr;height:auto;min-height:0}
+  .rail{overflow:visible;padding-bottom:20px}
+  .rail.left{border-right:0;border-bottom:1px solid var(--line)}
+  .rail.right{border-left:0;border-top:1px solid var(--line)}
+  .stage{order:-1;min-height:440px;padding:18px 12px}
+  .dt-wrap,.ta{max-height:none}
+  .preset-chips{grid-template-columns:1fr 1fr 1fr}
 }
-.chart-type-tab {
-  flex: 1;
-  padding: 7px 6px;
-  font-size: 12.5px;
-  border: none;
-  background: transparent;
-  color: var(--text-2);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all .15s;
-  font-weight: 500;
-  text-align: center;
-}
-.chart-type-tab:hover { color: var(--text); }
-.chart-type-tab.active {
-  background: var(--surface);
-  color: var(--accent);
-  font-weight: 600;
-  box-shadow: 0 1px 2px rgba(0,0,0,.05);
-}
-
-.example-btns {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-.example-btns button {
-  padding: 4px 10px;
-  font-size: 12px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--text-2);
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all .15s;
-  font-weight: 500;
-}
-.example-btns button:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-2);
-}
-
-.chart-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 14px;
-  flex-wrap: wrap;
-}
-.chart-actions .btn {
-  flex: 1;
-  min-width: 120px;
-}
-
-.data-stat {
-  margin-top: 6px;
-  font-size: 12px;
-  color: var(--muted);
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-.data-stat b { color: var(--text); font-weight: 600; }
-
-/* ===== Responsive ===== */
-@media (max-width: 900px) {
-  .chart-layout {
-    grid-template-columns: 1fr;
-  }
-  .chart-sidebar { order: 2; }
-  .chart-preview-panel { order: 1; }
-}
-
-@media (max-width: 768px) {
-  .topbar-inner { padding: 0 14px; }
-  .wrap { padding: 0 14px 40px; }
-  .panel { padding: 16px; }
-  .tabs { flex-direction: column; }
-  .tab { width: 100%; }
-  .topnav { display: none; }
-  .chart-preview-wrap { padding: 12px; min-height: 300px; }
+@media (max-width:720px){
+  .cs-bar{padding:8px 12px;gap:8px}
+  .cs-crumb span{display:none}
+  .typebar{padding:6px 10px}
+  .tp span{display:none}
+  .tp{padding:7px 9px}
+  .tp.on span{display:inline}
+  .menu-body{width:min(290px,86vw)}
+  .stage{min-height:320px;padding:12px 8px}
+  .preset-chips{grid-template-columns:1fr 1fr}
+  .g2{grid-template-columns:1fr 1fr}
 }
 </style>
 <link rel="canonical" href="https://dq7866.online/toolbox/chart-tools.html">
 <link rel="apple-touch-icon" href="assets/icon-192.png">
-<meta name="keywords" content="在线图表,柱状图生成,折线图生成,饼图生成,雷达图,图表导出PNG,数据可视化">
-<meta name="author" content="知作坊">
+<meta name="keywords" content="在线图表,图表生成器,柱状图,折线图,双轴图,组合图,饼图,环形图,雷达图,漏斗图,仪表盘,热力图,瀑布图,气泡图,导出SVG,可编辑图表">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="免费工具箱">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:title" content="图表生成工具 · 柱状/折线/饼图/雷达图 ｜ 免费在线工具箱">
-<meta property="og:description" content="在线图表生成工具：快速生成柱状图、折线图、饼图、雷达图，自定义标题、数据系列、配色主题与画布尺寸，一键下载 PNG 或复制到剪贴板。纯浏览器渲染。">
+<meta property="og:title" content="图表工坊 · 16 种图表在线生成 ｜ 免费工具箱">
+<meta property="og:description" content="16 种图表免费在线生成，数据表格直接粘贴，参数可视化调节，导出 PNG / SVG / 可编辑 HTML。">
 <meta property="og:url" content="https://dq7866.online/toolbox/chart-tools.html">
 <meta property="og:image" content="https://dq7866.online/toolbox/assets/og-image.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="图表生成工具 · 柱状/折线/饼图/雷达图 ｜ 免费在线工具箱">
-<meta name="twitter:description" content="在线图表生成工具：快速生成柱状图、折线图、饼图、雷达图，自定义标题、数据系列、配色主题与画布尺寸，一键下载 PNG 或复制到剪贴板。纯浏览器渲染。">
-<meta name="twitter:image" content="https://dq7866.online/toolbox/assets/og-image.png">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "图表生成工具 · 柱状/折线/饼图/雷达图",
+  "name": "图表工坊 · 16 种图表在线生成",
   "url": "https://dq7866.online/toolbox/chart-tools.html",
-  "description": "在线图表生成工具：柱状图、折线图、组合图（柱线混合+双Y轴）、饼图、雷达图，多系列数量自定义，轴标题、轴范围、网格线、刻度角度全面可配，一键下载 PNG/SVG。纯浏览器渲染。",
+  "description": "免费在线图表工具：柱状图、条形图、堆叠柱、折线图、面积图、组合图（双Y轴）、散点图、气泡图、饼图、环形图、玫瑰图、雷达图、漏斗图、仪表盘、热力图、瀑布图，可导出 PNG / SVG / 可编辑 HTML。",
   "inLanguage": "zh-CN",
   "isAccessibleForFree": true,
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Any (browser)",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "CNY"
-  },
-  "isPartOf": {
-    "@type": "WebSite",
-    "name": "免费工具箱",
-    "url": "https://dq7866.online/toolbox/",
-    "inLanguage": "zh-CN"
-  }
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" },
+  "isPartOf": { "@type": "WebSite", "name": "免费工具箱", "url": "https://dq7866.online/toolbox/", "inLanguage": "zh-CN" }
 }
 </script>
 </head>
@@ -628,219 +271,286 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
   </div>
 </header>
 
-<main class="wrap" style="padding-top:26px">
-  <section class="panel">
-    <div class="panel-head"><span class="num">CHART</span><h2>快速图表生成工具</h2></div>
-    <p class="hint" style="margin-top:0;margin-bottom:16px">在线快速生成柱状图、折线图、组合图（柱线混合、双Y轴）、饼图/环形图、雷达图。系列数量自定义，支持轴标题、轴范围、网格线、刻度与标签角度等完整设置，一键下载 PNG/SVG 或复制到剪贴板。所有绘制均在本地浏览器完成，数据不上传。</p>
-
-    <div class="chart-layout">
-      <!-- 左侧：配置面板 -->
-      <div class="chart-sidebar">
-
-        <!-- 图表类型 -->
-        <div class="field">
-          <label>图表类型</label>
-          <div class="chart-type-tabs" id="chartTypeTabs">
-            <button class="chart-type-tab active" data-type="bar">柱状图</button>
-            <button class="chart-type-tab" data-type="line">折线图</button>
-            <button class="chart-type-tab" data-type="combo">组合图</button>
-            <button class="chart-type-tab" data-type="pie">饼图</button>
-            <button class="chart-type-tab" data-type="radar">雷达图</button>
-          </div>
-        </div>
-
-        <!-- 数据输入 -->
-        <div class="field">
-          <label>数据输入 <span class="hint" style="font-weight:400">（每行 标签,数值）</span></label>
-          <textarea class="chart-data-textarea" id="chartData" spellcheck="false" placeholder="一月,120&#10;二月,200&#10;三月,150&#10;四月,300"></textarea>
-          <div class="data-stat">
-            <span>数据点：<b id="dataCount">0</b></span>
-            <span>系列：<b id="seriesCount">0</b></span>
-          </div>
-          <div class="stepper">
-            <label>系列数量</label>
-            <button type="button" id="seriesMinus" title="减少一条曲线">−</button>
-            <b id="seriesNum">1</b>
-            <button type="button" id="seriesPlus" title="增加一条曲线">＋</button>
-            <span class="hint" style="font-size:11.5px">自动增删数据列（1-10）</span>
-          </div>
-          <div class="example-btns">
-            <button type="button" id="loadExample1">示例：单系列</button>
-            <button type="button" id="loadExample2">示例：多系列</button>
-            <button type="button" id="loadExample3">示例：饼图</button>
-            <button type="button" id="loadExample4">示例：组合双轴</button>
-          </div>
-        </div>
-
-        <!-- 标题设置 -->
-        <div class="field">
-          <label>标题设置</label>
-          <input type="text" id="chartTitle" placeholder="主标题（留空隐藏）" value="销售数据统计" style="margin-bottom:8px">
-          <input type="text" id="chartSubtitle" placeholder="副标题（可选）" style="margin-bottom:8px">
-          <div class="axis-grid2">
-            <label class="fmini">字号
-              <select id="titleSize">
-                <option value="14">14px</option>
-                <option value="16">16px</option>
-                <option value="18" selected>18px</option>
-                <option value="20">20px</option>
-                <option value="24">24px</option>
-              </select>
-            </label>
-          </div>
-        </div>
-
-        <!-- 颜色主题 -->
-        <div class="field">
-          <label>颜色主题</label>
-          <div class="color-palettes" id="colorPalettes"></div>
-        </div>
-
-        <!-- 系列设置 -->
-        <div class="field" id="seriesOptions" hidden>
-          <label>系列设置 <span class="hint" style="font-weight:400">（颜色 / 名称，组合图可逐系列选图形，双轴可归轴）</span></label>
-          <div id="seriesSettings"></div>
-        </div>
-
-        <!-- 轴设置 -->
-        <div class="field" id="axisOptions" hidden>
-          <label>轴设置</label>
-          <div class="axis-grid2">
-            <label class="fmini">X 轴名称<input type="text" id="xTitle" placeholder="可选"></label>
-            <label class="fmini">左轴（Y）名称<input type="text" id="yTitle" placeholder="可选"></label>
-            <label class="fmini">左轴最小值<input type="number" id="yMin" placeholder="自动"></label>
-            <label class="fmini">左轴最大值<input type="number" id="yMax" placeholder="自动"></label>
-          </div>
-          <div class="checkbox-row" style="margin-top:8px">
-            <label><input type="checkbox" id="dualAxis"> 启用右侧第二轴</label>
-          </div>
-          <div id="y2Row" hidden>
-            <div class="axis-grid2" style="margin-top:6px">
-              <label class="fmini">右轴名称<input type="text" id="y2Title" placeholder="可选"></label>
-              <span></span>
-              <label class="fmini">右轴最小值<input type="number" id="y2Min" placeholder="自动"></label>
-              <label class="fmini">右轴最大值<input type="number" id="y2Max" placeholder="自动"></label>
-            </div>
-            <div class="hint" style="font-size:11.5px;margin-top:4px">启用后在「系列设置」里为每条曲线指定左轴 / 右轴。</div>
-          </div>
-        </div>
-
-        <!-- 网格与刻度 -->
-        <div class="field" id="gridOptions" hidden>
-          <label>网格与刻度</label>
-          <div class="checkbox-row">
-            <label><input type="checkbox" id="gridH" checked> 横向网格</label>
-            <label><input type="checkbox" id="gridV"> 纵向网格</label>
-          </div>
-          <div class="checkbox-row" style="margin-top:4px">
-            <label><input type="checkbox" id="showXLabels" checked> X 轴标签</label>
-            <label><input type="checkbox" id="showYTicks" checked> Y 轴刻度值</label>
-          </div>
-          <div class="axis-grid2" style="margin-top:8px">
-            <label class="fmini">X 轴标签角度
-              <select id="xRotate">
-                <option value="auto" selected>自动</option>
-                <option value="0">水平</option>
-                <option value="-45">倾斜 45°</option>
-                <option value="-90">垂直 90°</option>
-              </select>
-            </label>
-            <label class="fmini">Y 轴刻度数
-              <select id="yTickCount">
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5" selected>5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-              </select>
-            </label>
-          </div>
-        </div>
-
-        <!-- 图表尺寸 -->
-        <div class="field">
-          <label>图表尺寸</label>
-          <div class="chart-size-row">
-            <input type="number" id="chartWidth" value="800" min="200" max="2000" step="10">
-            <span class="x-sep">×</span>
-            <input type="number" id="chartHeight" value="500" min="200" max="2000" step="10">
-            <span style="color:var(--muted);font-size:12px">px</span>
-          </div>
-          <div class="example-btns" style="margin-top:6px">
-            <button type="button" data-size="600x400">600×400</button>
-            <button type="button" data-size="800x500">800×500</button>
-            <button type="button" data-size="1024x600">1024×600</button>
-            <button type="button" data-size="1200x800">1200×800</button>
-          </div>
-        </div>
-
-        <!-- 背景颜色 -->
-        <div class="field">
-          <label>背景颜色</label>
-          <div class="bg-options" id="bgOptions">
-            <button class="bg-btn active" data-bg="white">白色</button>
-            <button class="bg-btn" data-bg="transparent">透明</button>
-            <button class="bg-btn" data-bg="paper">纸质</button>
-          </div>
-        </div>
-
-        <!-- 显示选项 -->
-        <div class="field">
-          <label>显示选项</label>
-          <div class="checkbox-row">
-            <label><input type="checkbox" id="showLegend" checked> 图例</label>
-            <label><input type="checkbox" id="showLabels" checked> 数据标签</label>
-          </div>
-          <div class="axis-grid2" style="margin-top:8px">
-            <label class="fmini">图例位置
-              <select id="legendPos">
-                <option value="top" selected>顶部</option>
-                <option value="bottom">底部</option>
-              </select>
-            </label>
-          </div>
-        </div>
-
-        <!-- 饼图特殊选项 -->
-        <div class="field" id="pieOptions">
-          <label>饼图选项</label>
-          <div class="checkbox-row">
-            <label><input type="checkbox" id="doughnutMode"> 环形图</label>
-            <label><input type="checkbox" id="showPercent" checked> 百分比</label>
-          </div>
-        </div>
-
+<div class="cs-bar">
+  <div class="cs-crumb"><b>图表工坊</b><span>16 种图表 · 全参数可视化调节 · 导出可编辑文件</span></div>
+  <div class="cs-actions">
+    <button class="btn" id="importBtn" type="button">导入数据 / 工程</button>
+    <input type="file" id="importFile" accept=".json,.csv,.txt" hidden>
+    <details class="menu" id="exportMenu">
+      <summary class="btn primary">导出 / 分享</summary>
+      <div class="menu-body">
+        <button type="button" data-exp="png2"><b>PNG 图片 · 2× 高清</b><em>公众号 / PPT 首选</em></button>
+        <button type="button" data-exp="png1"><b>PNG 图片 · 1× 原始</b><em>网页直接用</em></button>
+        <button type="button" data-exp="png3"><b>PNG 图片 · 3× 超清</b><em>印刷 / 大屏</em></button>
+        <button type="button" data-exp="svg"><b>SVG 矢量图</b><em>AI / Figma / PPT 里继续改</em></button>
+        <button type="button" data-exp="html" class="star"><b>可编辑 HTML 文件 ★</b><em>对方打开也能改数据、换类型、再导出</em></button>
+        <button type="button" data-exp="json"><b>工程文件 .json</b><em>保存配置，下次拖回来继续</em></button>
+        <button type="button" data-exp="csv"><b>数据 CSV</b><em>Excel 可直接打开</em></button>
+        <button type="button" data-exp="copy"><b>复制图片</b><em>直接粘贴到聊天窗口</em></button>
+        <button type="button" data-exp="link"><b>复制分享链接</b><em>图表配置随链接一起带走</em></button>
       </div>
+    </details>
+  </div>
+</div>
+<div class="typebar" id="typeBar"></div>
 
-      <!-- 右侧：预览 -->
-      <div class="chart-preview-panel">
-        <div class="chart-preview-wrap" id="chartPreviewWrap">
-          <canvas id="chartCanvas" width="800" height="500"></canvas>
-        </div>
-
-        <div class="chart-actions">
-          <button class="btn primary" id="downloadPng">下载 PNG</button>
-          <button class="btn" id="downloadSvg">下载 SVG</button>
-          <button class="btn" id="copyImage">复制图片</button>
-        </div>
-
-        <div class="tool-note" style="margin-top:14px;padding:10px 14px;background:var(--bg-2);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;font-size:12.5px;color:var(--muted)">
-          <b>提示：</b>数据格式为 <code>标签,系列1,系列2,…</code>，首行为系列名称，如 <code>月份,销售额,利润</code>；用「系列数量」按钮可自动增删曲线列。组合图可在「系列设置」里逐系列选择柱/线/面积并指定左轴或右轴；轴名称、范围、网格、刻度角度均可在左侧面板配置。修改后图表实时更新，PNG/SVG 导出效果一致。
-        </div>
+<main class="studio">
+  <!-- ========== 左栏：数据 ========== -->
+  <aside class="rail left">
+    <div class="railhead">
+      <h2>数据</h2>
+      <div class="tabs-mini" id="dataTabs">
+        <button class="tm on" data-tab="table" type="button">表格</button>
+        <button class="tm" data-tab="text" type="button">文本</button>
       </div>
     </div>
 
+    <div id="paneTable">
+      <div class="dt-wrap"><table class="dt" id="dataTable"></table></div>
+      <div class="rowbtns">
+        <button class="mini" id="addRow" type="button">＋ 行</button>
+        <button class="mini" id="addCol" type="button">＋ 列</button>
+        <button class="mini" id="delRow" type="button">− 行</button>
+        <button class="mini" id="delCol" type="button">− 列</button>
+        <button class="mini danger" id="clearData" type="button">清空</button>
+      </div>
+      <p class="hint">可直接从 Excel / WPS / 网页表格复制，<b>点表格后 Ctrl+V 粘贴</b>；首行自动识别为系列名称。</p>
+    </div>
+
+    <div id="paneText" hidden>
+      <textarea class="ta" id="dataText" spellcheck="false" placeholder="月份,销售额,利润&#10;1月,320,86&#10;2月,350,95"></textarea>
+      <p class="hint">每行一条记录：<code>标签,系列1,系列2…</code>，逗号 / Tab / 分号都可以。首行是系列名。</p>
+    </div>
+
+    <div class="statrow">
+      <span>数据点 <b id="statPts">0</b></span>
+      <span>系列 <b id="statSeries">0</b></span>
+      <span>类型 <b id="statType">柱状图</b></span>
+    </div>
+
+    <div class="railhead" style="margin-top:16px">
+      <h2>示例库</h2><span class="sub">一键套用</span>
+    </div>
+    <div class="preset-chips" id="presetChips"></div>
+
+    <p class="hint" style="margin-top:14px">所有数据只在你的浏览器里计算，不上传、不联网、不追踪。可以放心贴公司数据。</p>
+  </aside>
+
+  <!-- ========== 中间：画布 ========== -->
+  <section class="stage" id="stage">
+    <canvas id="cv" width="960" height="560"></canvas>
+    <div class="stage-foot"><span id="stageSize">960 × 560</span><span>拖入 .csv / .json 也可导入</span></div>
   </section>
 
-  <footer class="site">免费工具箱 · 图表生成 · 纯前端本地处理</footer>
+  <!-- ========== 右栏：设计 ========== -->
+  <aside class="rail right">
+
+    <details class="sec" open>
+      <summary>标题与画布 <span class="tagline">文字 · 尺寸</span></summary>
+      <div class="body">
+        <label class="fl">主标题<input class="inp" id="ttl" type="text" placeholder="留空则不显示"></label>
+        <label class="fl">副标题<input class="inp" id="sub" type="text" placeholder="补充说明，可选"></label>
+        <div class="g2">
+          <label class="fl">标题字号
+            <select class="inp" id="ttlSize">
+              <option value="14">14 px</option><option value="16">16 px</option>
+              <option value="18">18 px</option><option value="20">20 px</option>
+              <option value="24">24 px</option><option value="28">28 px</option><option value="34">34 px</option>
+            </select>
+          </label>
+          <label class="fl">标题对齐
+            <select class="inp" id="ttlAlign">
+              <option value="left">左对齐</option><option value="center" selected>居中</option><option value="right">右对齐</option>
+            </select>
+          </label>
+        </div>
+        <div class="g2">
+          <label class="fl">宽度 px<input class="inp" id="w" type="number" min="240" max="2400" step="10" value="960"></label>
+          <label class="fl">高度 px<input class="inp" id="h" type="number" min="200" max="2000" step="10" value="560"></label>
+        </div>
+        <div class="rowbtns" id="sizeBtns">
+          <button class="mini" type="button" data-size="800x500">800×500</button>
+          <button class="mini" type="button" data-size="1000x600">1000×600</button>
+          <button class="mini" type="button" data-size="1200x720">1200×720</button>
+          <button class="mini" type="button" data-size="1080x1080">1:1</button>
+          <button class="mini" type="button" data-size="1080x1920">9:16</button>
+        </div>
+        <div class="fl" style="margin-top:2px">背景</div>
+        <div class="bgbtns" id="bgBtns">
+          <button class="mini on" type="button" data-bg="white">白色</button>
+          <button class="mini" type="button" data-bg="transparent">透明</button>
+          <button class="mini" type="button" data-bg="paper">纸感</button>
+          <button class="mini" type="button" data-bg="dark">深色</button>
+          <input type="color" id="bgColor" value="#ffffff" title="自定义背景色">
+        </div>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>配色主题 <span class="tagline">10 套</span></summary>
+      <div class="body">
+        <div class="palgrid" id="palGrid"></div>
+        <p class="hint">选主题会覆盖单系列自定义颜色；想微调某一条，在下方「系列」里单独改色。</p>
+      </div>
+    </details>
+
+    <details class="sec" open>
+      <summary>系列 <span class="tagline">颜色 · 名称 · 类型</span></summary>
+      <div class="body">
+        <div id="seriesBox"></div>
+        <p class="hint" id="comboHint" hidden>组合图：每条可选 柱 / 线 / 面，并可归左轴或右轴。</p>
+      </div>
+    </details>
+
+    <details class="sec" id="axisSec" open>
+      <summary>坐标轴 <span class="tagline">名称 · 范围 · 双轴</span></summary>
+      <div class="body">
+        <div class="g2">
+          <label class="fl">X 轴名称<input class="inp" id="xTitle" type="text" placeholder="可选"></label>
+          <label class="fl">左轴名称<input class="inp" id="yTitle" type="text" placeholder="可选"></label>
+          <label class="fl">左轴最小<input class="inp" id="yMin" type="number" placeholder="自动"></label>
+          <label class="fl">左轴最大<input class="inp" id="yMax" type="number" placeholder="自动"></label>
+        </div>
+        <div class="ckrow"><label><input type="checkbox" id="dualAxis"> 启用右侧第二轴</label></div>
+        <div id="y2Row" hidden>
+          <div class="g2">
+            <label class="fl">右轴名称<input class="inp" id="y2Title" type="text" placeholder="可选"></label>
+            <span></span>
+            <label class="fl">右轴最小<input class="inp" id="y2Min" type="number" placeholder="自动"></label>
+            <label class="fl">右轴最大<input class="inp" id="y2Max" type="number" placeholder="自动"></label>
+          </div>
+        </div>
+        <div class="ckrow">
+          <label><input type="checkbox" id="showXLabels" checked> 分类标签</label>
+          <label><input type="checkbox" id="showYTicks" checked> 刻度值</label>
+          <label><input type="checkbox" id="axisShow" checked> 轴线</label>
+        </div>
+        <div class="g2">
+          <label class="fl">标签角度
+            <select class="inp" id="xRotate">
+              <option value="auto" selected>自动</option><option value="0">水平</option>
+              <option value="-45">倾斜 45°</option><option value="-90">垂直 90°</option>
+            </select>
+          </label>
+          <label class="fl">刻度数
+            <select class="inp" id="tickCount">
+              <option value="3">3</option><option value="4">4</option><option value="5" selected>5</option>
+              <option value="6">6</option><option value="7">7</option><option value="8">8</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </details>
+
+    <details class="sec" id="gridSec">
+      <summary>网格线 <span class="tagline">横向 · 纵向 · 虚线</span></summary>
+      <div class="body">
+        <div class="ckrow">
+          <label><input type="checkbox" id="gridH" checked> 横向网格</label>
+          <label><input type="checkbox" id="gridV"> 纵向网格</label>
+          <label><input type="checkbox" id="gridDash"> 虚线</label>
+        </div>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>数据标签 <span class="tagline">位置 · 小数 · 单位</span></summary>
+      <div class="body">
+        <div class="ckrow"><label><input type="checkbox" id="showLabels" checked> 显示数值</label></div>
+        <div class="g2">
+          <label class="fl" id="labelPosRow">标签位置
+            <select class="inp" id="labelPos">
+              <option value="auto" selected>自动</option>
+              <option value="inside">柱内 / 线上</option>
+            </select>
+          </label>
+          <label class="fl">小数位
+            <select class="inp" id="decimals">
+              <option value="auto" selected>智能</option><option value="0">整数</option>
+              <option value="1">1 位</option><option value="2">2 位</option>
+            </select>
+          </label>
+        </div>
+        <div class="g2">
+          <label class="fl">数值前缀<input class="inp" id="unitPre" type="text" placeholder="如 ¥" maxlength="4"></label>
+          <label class="fl">数值后缀<input class="inp" id="unitSuf" type="text" placeholder="如 万 / %" maxlength="4"></label>
+        </div>
+        <p class="hint">前缀后缀同时作用于刻度与标签，例如填「万」后 320 显示为 320万。</p>
+      </div>
+    </details>
+
+    <details class="sec" id="lineSec">
+      <summary>线条与柱 <span class="tagline">粗细 · 平滑 · 圆角</span></summary>
+      <div class="body">
+        <div class="rangerow"><span class="fl" style="flex:0 0 56px">线宽</span><input type="range" id="lineWidth" min="1" max="6" step="0.5" value="2.5"><output id="lineWidthOut">2.5</output></div>
+        <div class="rangerow"><span class="fl" style="flex:0 0 56px">柱圆角</span><input type="range" id="barRadius" min="0" max="12" step="1" value="3"><output id="barRadiusOut">3</output></div>
+        <div class="rangerow"><span class="fl" style="flex:0 0 56px">柱宽度</span><input type="range" id="barRatio" min="0.2" max="0.95" step="0.01" value="0.68"><output id="barRatioOut">68%</output></div>
+        <div class="ckrow">
+          <label><input type="checkbox" id="smooth"> 平滑曲线</label>
+          <label><input type="checkbox" id="symbol" checked> 数据点</label>
+          <label><input type="checkbox" id="areaFill"> 折线填充</label>
+          <label><input type="checkbox" id="gradient"> 柱体渐变</label>
+        </div>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>图例 <span class="tagline">位置</span></summary>
+      <div class="body">
+        <div class="ckrow"><label><input type="checkbox" id="showLegend" checked> 显示图例</label></div>
+        <label class="fl">位置
+          <select class="inp" id="legendPos">
+            <option value="top" selected>顶部</option>
+            <option value="bottom">底部</option>
+            <option value="right">右侧</option>
+          </select>
+        </label>
+      </div>
+    </details>
+
+    <details class="sec" id="pieSec" hidden>
+      <summary>饼图 / 环形 <span class="tagline">内径 · 标签</span></summary>
+      <div class="body">
+        <div class="rangerow" id="pieInnerRow"><span class="fl" style="flex:0 0 56px">内径</span><input type="range" id="pieInner" min="0" max="0.8" step="0.02" value="0.58"><output id="pieInnerOut">58%</output></div>
+        <label class="fl">标签内容
+          <select class="inp" id="pieLabelMode">
+            <option value="percent" selected>百分比</option>
+            <option value="value">数值</option>
+            <option value="both">数值 + 百分比</option>
+            <option value="none">不显示</option>
+          </select>
+        </label>
+        <div class="ckrow">
+          <label><input type="checkbox" id="pieName"> 标签带名称</label>
+          <label><input type="checkbox" id="pieCenter" checked> 圆心显示总计</label>
+        </div>
+      </div>
+    </details>
+
+    <details class="sec" id="gaugeSec" hidden>
+      <summary>仪表盘 <span class="tagline">量程</span></summary>
+      <div class="body">
+        <label class="fl">最大值<input class="inp" id="gaugeMax" type="number" placeholder="留空自动"></label>
+        <p class="hint">数据取第一行第一列的数值，分类名作为指标名。</p>
+      </div>
+    </details>
+
+    <p class="hint" style="margin-top:12px;line-height:1.75">
+      导出 <b>SVG</b> 可在 Illustrator / Figma / PPT 里逐元素改；导出 <b>可编辑 HTML</b> 发给同事，对方双击就能改数据、换图表类型并重新下载。<br>
+      纯前端渲染，图片与数据都不经过服务器。
+    </p>
+  </aside>
 </main>
+
+<div id="toast"></div>
 
 <script src="assets/js/pwa.js"></script>
 <script src="assets/js/enhance.js" defer></script>
 <script src="assets/js/prefs.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/theme-colors.js"></script>
+<script src="assets/js/chart-core.js"></script>
 <script src="assets/js/chart-tools.js"></script>
-<script src="/gate.js" defer></script></body>
+<script src="/gate.js" defer></script>
+</body>
 </html>
