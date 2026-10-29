@@ -649,7 +649,7 @@ async function step3(){
 
       window.__errLog = [{ m:'TEST_ERR: canvas unavailable', at:'units.html:1' }];
       const fb = window.feedbackPanel();
-      if(fb.indexOf('V8.8') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V8.8 与最近错误信息');
+      if(fb.indexOf('V8.9') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V8.9 与最近错误信息');
       else bad('反馈模板版本或错误位缺失');
 
       /* 数据新鲜度角标：时效模块渲染 chkbar */
@@ -660,6 +660,35 @@ async function step3(){
         if(bar && /2026-10/.test(bar.textContent)) ok('时效模块显示「数据核对」角标（currency）');
         else bad('currency 未显示核对角标');
       } else bad('导航里找不到 currency');
+
+      /* 时效复核提醒：月差计算 + 逾期标红（临时改 chk 再渲染，测完恢复） */
+      if(typeof window.chkMonths === 'function'){
+        const now = new Date();
+        const exp = (now.getFullYear() - 2020) * 12 + (now.getMonth() + 1) - 1;
+        if(window.chkMonths('2020-01') === exp) ok(`chkMonths 月差计算正确（2020-01 → ${exp}）`);
+        else bad('chkMonths 月差计算错误');
+        if(window.chkMonths('bad-input') === 0) ok('chkMonths 非法输入返回 0');
+        else bad('chkMonths 非法输入未兜底');
+      } else bad('chkMonths 未定义');
+      const navCur2 = doc.querySelector('.nitem[data-id="currency"]');
+      if(navCur2){
+        const setChk = doc.createElement('script');
+        setChk.textContent = 'CATS.find(c=>c.id==="currency").chk="2024-01";';
+        doc.body.appendChild(setChk);
+        navCur2.click();
+        const sbar = doc.querySelector('#main .chkbar.stale');
+        if(sbar && /已 \d+ 个月未核对/.test(sbar.textContent)) ok('逾期角标标红（.stale）并提示「已 N 个月未核对」');
+        else bad('逾期角标未标红或缺月数提示');
+        const st = (typeof window.aboutStats === 'function') ? window.aboutStats() : null;
+        if(st && st.stale >= 1) ok(`关于页统计逾期模块数（stale=${st.stale}）`);
+        else bad('aboutStats 未统计逾期数');
+        const restore = doc.createElement('script');
+        restore.textContent = 'CATS.find(c=>c.id==="currency").chk="2026-10";';
+        doc.body.appendChild(restore);
+        navCur2.click();
+        if(!doc.querySelector('#main .chkbar.stale')) ok('恢复 2026-10 后角标不再标红');
+        else bad('恢复核对月份后仍标红');
+      }
 
       /* 拼音首字母搜索：jd → 家电选购，sn → 收纳，dy → 打印中心 */
       if(typeof window.pyIndex === 'function'){

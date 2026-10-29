@@ -232,6 +232,7 @@ ul.plain li{margin:3px 0}
 .secshare{float:right;margin-left:8px;border:0;background:none;color:var(--muted);font-size:13px;cursor:pointer;opacity:.5;padding:0 2px;line-height:1.5}
 .secshare:hover{opacity:1;color:var(--accent)}
 .chkbar{font-size:12px;color:var(--muted);background:var(--card);border:1px dashed var(--line);border-radius:8px;padding:7px 12px;margin:0 0 12px;line-height:1.6}
+.chkbar.stale{color:#a94438;border-color:#c9705f;background:color-mix(in srgb,#a94438 6%,var(--card))}
 .card.sectflash{animation:sectflash 1.1s ease-out}
 @keyframes sectflash{0%{box-shadow:0 0 0 2px var(--accent)}100%{box-shadow:0 0 0 2px transparent}}
 /* 打印整册：封面与目录 */
@@ -359,7 +360,7 @@ table.tbl tbody tr{cursor:copy}
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div class="app">
   <aside class="side" aria-label="模块导航">
-    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v8.8</span></div>
+    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v8.9</span></div>
     <a class="backlink" id="backlink" href="index.html" style="display:none">← 返回工具箱</a>
     <input id="q" class="search" placeholder="搜模块：亩 / 鞋码 / 扳手 / 汇率…       也能直接算：10 km to mi / 12*8">
     <div id="qc" class="qc" role="status" aria-live="polite"></div>
@@ -6658,7 +6659,7 @@ function bookCover(ids){
     '<p class="sub" style="margin:4pt 0 0">' + gname + t(' 速查册',' quick-reference booklet') + '</p>' +
     '<div class="bcline"></div>' +
     '<div class="bcmeta">' + t(n + ' 个模块 · ' + rows + ' 条对照','' + n + ' modules · ' + rows + ' entries') + '<br>' +
-    ds + t(' 生成 · 本地离线版 V8.6',' · offline edition V8.6') + '</div></div>';
+    ds + t(' 生成 · 本地离线版 V8.9',' · offline edition V8.9') + '</div></div>';
 }
 function bookToc(ids){
   const items = ids.map((id, k)=>{
@@ -6875,8 +6876,17 @@ function helpPanel(){
   '<p class="note">All module titles, inputs, outputs, tables and notes are translated. Lunar calendar terms, solar terms, zodiac stems/branches and RMB financial numerals stay in Chinese by design.</p></div>';
 }
 
+/* 核对月份距当前的月数：'YYYY-MM' → 整数；解析失败返回 0 */
+function chkMonths(chk){
+  try{
+    const m = /^(\d{4})-(\d{2})$/.exec(chk);
+    if(!m) return 0;
+    const d = new Date();
+    return (d.getFullYear() - (+m[1])) * 12 + (d.getMonth() + 1) - (+m[2]);
+  }catch(e){ return 0; }
+}
 function aboutStats(){
-  const st = { mods:0, groups:0, tables:0, rows:0, chks:0, oldest:'' };
+  const st = { mods:0, groups:0, tables:0, rows:0, chks:0, oldest:'', stale:0 };
   try{
     st.mods = CATS.length;
     const gs = new Set();
@@ -6885,6 +6895,7 @@ function aboutStats(){
       if(c.chk){
         st.chks++;
         if(!st.oldest || c.chk < st.oldest) st.oldest = c.chk;
+        if(chkMonths(c.chk) >= 18) st.stale++;
       }
       if(c.type === 'tables' && c.sections && c.sections.length){
         st.tables++;
@@ -6901,34 +6912,14 @@ function aboutPanel(){
   return '<div class="panel"><h2>ℹ️ About & Changelog</h2><p class="sub">Version, stack, licences — and what we refuse to build.</p>' +
   card('About', '<div class="kv">' +
     '<dt>Name</dt><dd>Life Converter · All-in-One Handbook</dd>' +
-    '<dt>Version</dt><dd>V8.8 (2026-10-29)</dd>' +
+    '<dt>Version</dt><dd>V8.9 (2026-10-29)</dd>' +
     '<dt>Form</dt><dd>Single-page app + PWA, installable</dd>' +
     '<dt>Modules</dt><dd>' + st.mods + ' across ' + st.groups + ' groups — ' + st.tables + ' reference cards, ' + st.rows.toLocaleString('en-US') + ' rows</dd>' +
-    '<dt>Freshness</dt><dd>' + st.chks + ' price / policy cards carry a checked-on date (earliest ' + st.oldest + ')</dd>' +
+    '<dt>Freshness</dt><dd>' + st.chks + ' price / policy cards carry a checked-on date (earliest ' + st.oldest + ')' + (st.stale ? ' · ' + st.stale + ' overdue for review' : '') + '</dd>' +
     '<dt>Data</dt><dd>All calculations on-device, no upload</dd>' +
   '</div><div class="rowline" style="margin-top:10px"><button class="btn ghost" id="tourAgain">Show the getting-started card again</button></div>') +
   card('Changelog', tbl(['Version','Highlights'],[
-    ['V1.0','25 modules: units, time, currency, sizes, kinship, encoding'],
-    ['V2.0','Hardware, home, digital, health; scenario-based grouping'],
-    ['V2.3','Lunar calendar, live rates, pins, linear custom formulas'],
-    ['V2.4','Batch convert, history, tiered pricing, power functions'],
-    ['V2.5','Collapsible groups, history reuse, search jump, Excel export'],
-    ['V2.6','Favorites, copy result, unit filter'],
-    ['V2.7','Unit suggestions, share links, dark mode, slope/insurance/coupons/pets/fonts'],
-    ['V2.8','26 engineering unit classes, acoustics, tire pressure, early repayment'],
-    ['V2.9','Material hardness, thread specs, units grouped by system'],
-    ['V3.0','PWA install, Ctrl+K search'],
-    ['V3.1','Resizable sidebar, help center, changelog'],
-    ['V3.2','Bilingual UI, accessibility and keyboard support, install prompt, feedback'],
-    ['V3.3','English titles and summaries for every module; unit notes translated'],
-    ['V3.4','English headers and notes for table modules (wrench, pipe, bolt, drill, bedding, threads)'],
-    ['V3.5–3.9','Calculator copy fully translated; currency base switching; scientific calculator; screen ruler, level and protractor; 16 new hardware cards'],
-    ['V4.0–4.2','Home and lifestyle cards from hinges to plants; A4 print card per module and a printable booklet'],
-    ['V4.3','Quick conversion straight from the search box; Module Manager to hide and pin; 5 new cards (moving, locks, curtains, mattress, pets)'],
-    ['V4.4','Wiring, plumbing, tile layout and old-house renovation cards; Combo Board for 4–6 go-to conversions on one screen; save any conversion as a shareable PNG card'],
-    ['V4.5','Waterproofing, cabinetry, network and gas cards; every calculator can export its result as a card; recently used modules surface at the top of the sidebar; swap buttons on the Combo Board'],
-    ['V4.6','Appliance buying, storage planning, contract & payment, and checkup numbers cards; value boxes accept sums like 12*8; every reference card exports to Excel or copies as a table; history exports to Excel; Alt+↑/↓ jumps between modules'],
-    ['V4.7','Gift money, exercise burn, laundry care and underfloor heating cards; the Combo Board takes formula rows (x*0.13); filter box on every reference card; copy all units at once'],
+    ['V8.9','Freshness warnings: check badges now count the months since the last review (12+ nudges a review, 18+ turns the bar red), and the About page counts overdue cards'],
     ['V8.8','Freshness badges: 33 price / policy / rate modules carry a "data checked 2026-10" notice, and the About page tracks how many are marked and when the oldest check was'],
     ['V8.7','Pinyin-initial search (type jd to reach the appliance module) and deep-linked sections: #m=id&s=n jumps straight to a section, the chip rail keeps the URL current, and every section card has a copy-link button'],
     ['V8.6','Section navigation for long cards (138 of 170 table modules get a tappable chip rail that follows scrolling) and one-tap group booklets in the Print Center with a cover and a two-column contents page'],
@@ -6963,7 +6954,28 @@ function aboutPanel(){
     ['V5.2','Nutrition and portions, baby care, household budget, and insurance basics cards'],
     ['V5.1','Renovation inspection, parking and traffic rules, coins and collectibles, and sleep cards'],
     ['V5.0','Switch & socket points, home medicine, wedding planning and dinner-party portions cards; formula rows can reference other rows (r1*1.06); the Print Center picks whole groups at once'],
-    ['V4.8','Renting & deposits, coffee & tea, car running costs, utility tier cards; formula rows take a second variable y; one click sends any conversion to the Combo Board; the history panel gets a filter box']
+    ['V4.8','Renting & deposits, coffee & tea, car running costs, utility tier cards; formula rows take a second variable y; one click sends any conversion to the Combo Board; the history panel gets a filter box'],
+    ['V4.7','Gift money, exercise burn, laundry care and underfloor heating cards; the Combo Board takes formula rows (x*0.13); filter box on every reference card; copy all units at once'],
+    ['V4.6','Appliance buying, storage planning, contract & payment, and checkup numbers cards; value boxes accept sums like 12*8; every reference card exports to Excel or copies as a table; history exports to Excel; Alt+↑/↓ jumps between modules'],
+    ['V4.5','Waterproofing, cabinetry, network and gas cards; every calculator can export its result as a card; recently used modules surface at the top of the sidebar; swap buttons on the Combo Board'],
+    ['V4.4','Wiring, plumbing, tile layout and old-house renovation cards; Combo Board for 4–6 go-to conversions on one screen; save any conversion as a shareable PNG card'],
+    ['V4.3','Quick conversion straight from the search box; Module Manager to hide and pin; 5 new cards (moving, locks, curtains, mattress, pets)'],
+    ['V4.0–4.2','Home and lifestyle cards from hinges to plants; A4 print card per module and a printable booklet'],
+    ['V3.5–3.9','Calculator copy fully translated; currency base switching; scientific calculator; screen ruler, level and protractor; 16 new hardware cards'],
+    ['V3.4','English headers and notes for table modules (wrench, pipe, bolt, drill, bedding, threads)'],
+    ['V3.3','English titles and summaries for every module; unit notes translated'],
+    ['V3.2','Bilingual UI, accessibility and keyboard support, install prompt, feedback'],
+    ['V3.1','Resizable sidebar, help center, changelog'],
+    ['V3.0','PWA install, Ctrl+K search'],
+    ['V2.9','Material hardness, thread specs, units grouped by system'],
+    ['V2.8','26 engineering unit classes, acoustics, tire pressure, early repayment'],
+    ['V2.7','Unit suggestions, share links, dark mode, slope/insurance/coupons/pets/fonts'],
+    ['V2.6','Favorites, copy result, unit filter'],
+    ['V2.5','Collapsible groups, history reuse, search jump, Excel export'],
+    ['V2.4','Batch convert, history, tiered pricing, power functions'],
+    ['V2.3','Lunar calendar, live rates, pins, linear custom formulas'],
+    ['V2.0','Hardware, home, digital, health; scenario-based grouping'],
+    ['V1.0','25 modules: units, time, currency, sizes, kinship, encoding'],
   ])) +
   card('Third party', '<ul class="plain">' +
     '<li>Lunar calendar: <b>solarlunar</b> (ISC), inlined, no network.</li>' +
@@ -7029,27 +7041,14 @@ function aboutPanelZH(){
   return '<div class="panel"><h2>ℹ️ 关于与更新日志</h2><p class="sub">版本、技术、许可，以及我们坚决不做的事。</p>' +
   card('关于', '<div class="kv">' +
     '<dt>名称</dt><dd>生活换算 · 全能手册</dd>' +
-    '<dt>版本</dt><dd>V8.8（2026-10-29）</dd>' +
+    '<dt>版本</dt><dd>V8.9（2026-10-29）</dd>' +
     '<dt>形态</dt><dd>单页应用 + PWA，可安装到桌面</dd>' +
     '<dt>模块</dt><dd>' + st.mods + ' 个，' + st.groups + ' 个分组，' + st.tables + ' 张速查表、' + st.rows.toLocaleString('zh-CN') + ' 条对照</dd>' +
-    '<dt>数据核对</dt><dd>' + st.chks + ' 个价格 / 政策类模块带核对角标（最早 ' + st.oldest + '）</dd>' +
+    '<dt>数据核对</dt><dd>' + st.chks + ' 个价格 / 政策类模块带核对角标（最早 ' + st.oldest + '）' + (st.stale ? '，其中 ' + st.stale + ' 个已逾期建议复核' : '') + '</dd>' +
     '<dt>数据</dt><dd>全部本地计算，不上传</dd>' +
   '</div><div class="rowline" style="margin-top:10px"><button class="btn ghost" id="tourAgain">再看一次新手提示</button></div>') +
   card('更新日志', tbl(['版本','主要变化'],[
-    ['V1.0','25 个模块：物理单位、时间、货币、尺码、称谓、编码'],
-    ['V2.0','五金、家装、数字生活、健康，分类改为场景化'],
-    ['V2.3','农历/节气、实时汇率、常用置顶、自定义线性公式'],
-    ['V2.4','批量换算、换算历史、阶梯计价、幂函数'],
-    ['V2.5','分组折叠、历史复用、搜索直达、导出 Excel'],
-    ['V2.6','收藏夹、结果复制、单位筛选'],
-    ['V2.7','单位联想、分享链接、深浅色、坡度/五险/凑单/宠物/字号'],
-    ['V2.8','专业单位 26 类、声学光学、胎压、提前还款'],
-    ['V2.9','材料硬度、螺纹规格、单位按制式分组'],
-    ['V3.0','PWA 安装、Ctrl+K 快捷搜索'],
-    ['V3.1','侧栏宽度可调与收起、帮助中心、更新日志'],
-    ['V3.2','中英界面、无障碍与键盘操作、安装引导、意见反馈'],
-    ['V3.3','全部模块标题与说明英译、单位模块注释英译'],
-    ['V3.4','表格模块（扳手/管钳/螺栓/钻头/床品/螺纹）表头与注释英译'],
+    ['V8.9','时效复核提醒：核对角标自动计算距上次核对的月数（满 12 个月提示建议复核，满 18 个月提示条标红警示），关于页统计逾期未复核模块数'],
     ['V8.8','数据新鲜度角标：33 个价格 / 政策 / 费率类模块顶部显示「数据核对 2026-10」提示条，关于页统计已标注模块数与最早核对月份'],
     ['V8.7','拼音首字母搜索（输 jd 直达家电选购、dy 直达打印中心）＋小节深链：#m=模块&s=序号 直达第几节，点小节胶囊地址栏同步更新，每个小节卡带「🔗 复制本节链接」按钮'],
     ['V8.6','长表页内小节导航：138/170 个表格模块顶部出现可点的小节胶囊，点击直达、滚动跟随高亮，可与页内筛选联动；打印中心新增「按分组一键整册」：带封面和两栏目录，一次装订成册'],
@@ -7098,7 +7097,21 @@ function aboutPanelZH(){
     ['V3.8','新增 6 个五金速查模块：O型圈与密封圈、垫圈与弹垫、水管几分管、轴承型号、三角带与链条、电焊条'],
     ['V3.7','汇率基准切换与行排序、科学计算器、屏幕测量（尺子/量角器/水平仪）、结果文本分享与语音播报'],
     ['V3.6','全单位对照显示换算系数、时间加减、分数↔小数互转；新增交付前自检脚本 verify.js'],
-    ['V3.5','计算器内部文案全量英译（贷款/个税/养老金/BMI 等 60+ 模块）、生肖干支节气英文名、修复 3 处 JS 语法错误']
+    ['V3.5','计算器内部文案全量英译（贷款/个税/养老金/BMI 等 60+ 模块）、生肖干支节气英文名、修复 3 处 JS 语法错误'],
+    ['V3.4','表格模块（扳手/管钳/螺栓/钻头/床品/螺纹）表头与注释英译'],
+    ['V3.3','全部模块标题与说明英译、单位模块注释英译'],
+    ['V3.2','中英界面、无障碍与键盘操作、安装引导、意见反馈'],
+    ['V3.1','侧栏宽度可调与收起、帮助中心、更新日志'],
+    ['V3.0','PWA 安装、Ctrl+K 快捷搜索'],
+    ['V2.9','材料硬度、螺纹规格、单位按制式分组'],
+    ['V2.8','专业单位 26 类、声学光学、胎压、提前还款'],
+    ['V2.7','单位联想、分享链接、深浅色、坡度/五险/凑单/宠物/字号'],
+    ['V2.6','收藏夹、结果复制、单位筛选'],
+    ['V2.5','分组折叠、历史复用、搜索直达、导出 Excel'],
+    ['V2.4','批量换算、换算历史、阶梯计价、幂函数'],
+    ['V2.3','农历/节气、实时汇率、常用置顶、自定义线性公式'],
+    ['V2.0','五金、家装、数字生活、健康，分类改为场景化'],
+    ['V1.0','25 个模块：物理单位、时间、货币、尺码、称谓、编码'],
   ])) +
   card('第三方与许可', '<ul class="plain">' +
     '<li>农历算法与数据：<b>solarlunar</b>（ISC 许可），已内联，无外部请求。</li>' +
@@ -9725,7 +9738,7 @@ function updateStatic(){
   const brandrow = document.querySelector('.brandrow');
   if(brandrow && brandrow.childNodes[0]) brandrow.childNodes[0].textContent = t('生活换算','Life Conversion');
   const brand = document.querySelector('.brand > span');
-  if(brand) brand.textContent = t('全能手册 · 本地离线版 v8.8', 'All-in-One Handbook · v8.8');
+  if(brand) brand.textContent = t('全能手册 · 本地离线版 v8.9', 'All-in-One Handbook · v8.9');
   const bl = document.getElementById('backlink');
   if(bl) bl.textContent = t('← 返回工具箱','← Back to toolbox');
   const side = document.querySelector('.side');
@@ -11022,7 +11035,7 @@ function initInstall(){
 const FEEDBACK_EMAIL = '';
 function feedbackPanel(){
   const ua = navigator.userAgent || '';
-  const tpl = t('【生活换算反馈】\n版本：V8.8\n页面：','【Life Conversion Feedback】\nVersion: V8.8\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
+  const tpl = t('【生活换算反馈】\n版本：V8.9\n页面：','【Life Conversion Feedback】\nVersion: V8.9\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
     (window.__errLog && window.__errLog.length
       ? t('\n最近错误：','\nLast error: ') + window.__errLog[0].m + t('（',' (') + (window.__errLog[0].at || '') + '）'
       : '') +
@@ -11316,11 +11329,14 @@ function render(){
     case 'tables':   main.innerHTML = tablesPanel(c); if(c.bind) window[c.bind](); bindTables(c); break;
     default:         main.innerHTML = aboutPanel();
   }
-  /* 数据新鲜度角标：价格 / 政策 / 费率类模块显示最近核对月份 */
+  /* 数据新鲜度角标：价格 / 政策 / 费率类模块显示最近核对月份；超 12 个月提示复核，超 18 个月标红警示 */
   if(c.chk){
+    const age = chkMonths(c.chk);
+    let zh = '数据核对：' + c.chk + ' · 价格 / 政策 / 费率会随时间变化，重要决策前请以官方最新口径为准';
+    let en = 'Data checked ' + c.chk + ' · prices and policies drift — confirm with official sources before big decisions';
+    if(age >= 12){ zh += ' · 已 ' + age + ' 个月未核对，建议复核'; en += ' · ' + age + ' months since check — review advised'; }
     main.insertAdjacentHTML('afterbegin',
-      '<div class="chkbar">🕒 ' + t('数据核对：' + c.chk + ' · 价格 / 政策 / 费率会随时间变化，重要决策前请以官方最新口径为准',
-                                  'Data checked ' + c.chk + ' · prices and policies drift — confirm with official sources before big decisions') + '</div>');
+      '<div class="chkbar' + (age >= 18 ? ' stale' : '') + '">🕒 ' + t(zh, en) + '</div>');
   }
   if(isEN()){
     main.insertAdjacentHTML('afterbegin', '<div class="langnote">English UI · RMB formal numerals and lunar month names stay in Chinese by design</div>');
