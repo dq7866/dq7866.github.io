@@ -32,6 +32,7 @@ skip_render:
   - 'games/**'
   - 'symbolpass/**'
   - 'toolbox/**'
+  - '生活换算-全能手册/**'
   - 'edu/**'
   - 'zanan/**'
   - 'forest/**'
