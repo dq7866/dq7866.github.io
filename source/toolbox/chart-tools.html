@@ -63,7 +63,33 @@ button{font-family:inherit}
 .tp.on svg{opacity:1}
 
 /* ===== 三栏工作台 ===== */
-.studio{display:grid;grid-template-columns:340px minmax(0,1fr) 352px;height:calc(100vh - 196px);min-height:620px;background:var(--surface)}
+.studio{display:grid;grid-template-columns:var(--lw,340px) 7px minmax(0,1fr) 7px var(--rw,352px);height:calc(100vh - 196px);min-height:620px;background:var(--surface)}
+.studio > .rail.left{grid-column:1;grid-row:1}
+.studio > #splitL{grid-column:2;grid-row:1}
+.studio > .stage{grid-column:3;grid-row:1}
+.studio > #splitR{grid-column:4;grid-row:1}
+.studio > .rail.right{grid-column:5;grid-row:1}
+/* 栏宽拖拽分隔条 */
+.split{position:relative;width:7px;cursor:col-resize;z-index:4;touch-action:none}
+.split::before{content:"";position:absolute;top:0;bottom:0;left:3px;width:1.5px;background:var(--line);transition:background .12s,width .12s}
+.split:hover::before,.split.act::before{background:var(--accent);width:2.5px}
+.split.act{background:color-mix(in srgb,var(--accent-2) 55%,transparent)}
+.studio.hideL{--lw:0px}
+.studio.hideL .rail.left,.studio.hideL #splitL{display:none}
+.studio.hideR{--rw:0px}
+.studio.hideR .rail.right,.studio.hideR #splitR{display:none}
+/* 整页全屏：工作台自适应占满剩余高度 */
+html:fullscreen{overflow:auto}
+html:fullscreen body{display:flex;flex-direction:column;min-height:100vh;margin:0}
+html:fullscreen body > header,
+html:fullscreen body > .cs-bar,
+html:fullscreen body > .typebar{flex:0 0 auto}
+html:fullscreen body > .studio{flex:1 1 auto;height:auto;min-height:0}
+html:fullscreen body > .site-footer{display:none}
+/* 显隐开关按钮 */
+.cs-actions .btn.tgl{padding:6px 11px}
+.cs-actions .btn.tgl.on{border-color:var(--accent);color:var(--accent);background:var(--accent-2)}
+.bar-sep{width:1px;height:20px;background:var(--line);margin:0 2px}
 .rail{overflow-y:auto;overflow-x:hidden;padding:14px 14px 48px;background:var(--surface)}
 .rail.left{border-right:1px solid var(--line)}
 .rail.right{border-left:1px solid var(--line);background:var(--surface-2)}
@@ -139,9 +165,6 @@ table.dt .th-narrow{width:26px;text-align:center;background:var(--surface-2)}
   background:color-mix(in srgb,var(--surface) 96%,transparent);border:1px solid var(--line);border-radius:8px;
   box-shadow:var(--shadow-lg);pointer-events:none;white-space:nowrap;z-index:6}
 #tip.on{display:block}
-.stage:fullscreen{padding:34px;background:#141110}
-.stage:fullscreen canvas{max-width:calc(100% - 20px);max-height:calc(100vh - 90px);width:auto !important;box-shadow:0 10px 44px rgba(0,0,0,.5)}
-.stage:fullscreen #fsBtn{top:18px;right:18px}
 /* 表格行高亮（与图表联动） */
 table.dt tbody tr.hl{background:var(--accent-2) !important;outline:1.5px solid var(--accent);outline-offset:-1.5px}
 table.dt tbody tr{transition:background .12s}
@@ -199,6 +222,10 @@ select.inp{cursor:pointer}
 /* 响应式 */
 @media (max-width:1240px){
   .studio{grid-template-columns:1fr;height:auto;min-height:0}
+  .studio > *{grid-column:auto;grid-row:auto}
+  .split{display:none}
+  .cs-actions .btn.tgl,.bar-sep{display:none}
+  .studio.hideL .rail.left,.studio.hideR .rail.right{display:block}
   .rail{overflow:visible;padding-bottom:20px}
   .rail.left{border-right:0;border-bottom:1px solid var(--line)}
   .rail.right{border-left:0;border-top:1px solid var(--line)}
@@ -293,6 +320,9 @@ select.inp{cursor:pointer}
 <div class="cs-bar">
   <div class="cs-crumb"><b>图表工坊</b><span>16 种图表 · 全参数可视化调节 · 导出可编辑文件</span></div>
   <div class="cs-actions">
+    <button class="btn tgl" id="tglLeft" type="button" title="显示 / 隐藏左侧数据栏">◧ 数据</button>
+    <button class="btn tgl" id="tglRight" type="button" title="显示 / 隐藏右侧设置栏">⚙ 设置</button>
+    <span class="bar-sep"></span>
     <button class="btn" id="importBtn" type="button">导入数据 / 工程</button>
     <input type="file" id="importFile" accept=".json,.csv,.txt" hidden>
     <details class="menu" id="exportMenu">
@@ -313,7 +343,7 @@ select.inp{cursor:pointer}
 </div>
 <div class="typebar" id="typeBar"></div>
 
-<main class="studio">
+<main class="studio" id="studio">
   <!-- ========== 左栏：数据 ========== -->
   <aside class="rail left">
     <div class="railhead">
@@ -355,17 +385,23 @@ select.inp{cursor:pointer}
     <p class="hint" style="margin-top:14px">所有数据只在你的浏览器里计算，不上传、不联网、不追踪。可以放心贴公司数据。</p>
   </aside>
 
+  <!-- 分隔条：左右栏宽度可拖拽（双击复位） -->
+  <div class="split" id="splitL" title="拖拽调整左栏宽度 · 双击复位"></div>
+
   <!-- ========== 中间：画布 ========== -->
   <section class="stage" id="stage">
     <canvas id="cv" width="960" height="560"></canvas>
     <div class="stage-foot"><span id="stageSize">960 × 560</span><span>拖入 .csv / .json 也可导入</span></div>
-    <button id="fsBtn" type="button" title="全屏显示图表区" aria-label="全屏显示">
+    <button id="fsBtn" type="button" title="全屏工作台" aria-label="全屏工作台">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
         <path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/>
       </svg>
     </button>
     <div id="tip"></div>
   </section>
+
+  <!-- 分隔条 -->
+  <div class="split" id="splitR" title="拖拽调整右栏宽度 · 双击复位"></div>
 
   <!-- ========== 右栏：设计 ========== -->
   <aside class="rail right">

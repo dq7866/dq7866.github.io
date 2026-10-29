@@ -475,19 +475,88 @@
       if (f) importFile(f);
       this.value = "";
     });
-    /* 全屏显示 */
+    /* 全屏工作台（整页进入全屏，全部工具仍可用） */
     $("#fsBtn").addEventListener("click", function () {
       try {
         if (document.fullscreenElement) document.exitFullscreen();
-        else if ($("#stage").requestFullscreen) $("#stage").requestFullscreen();
+        else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
         else toast("当前浏览器不支持全屏 API");
       } catch (err) { toast("全屏请求失败"); }
     });
     document.addEventListener("fullscreenchange", function () {
       var on = !!document.fullscreenElement;
       $("#fsBtn").classList.toggle("on", on);
-      $("#fsBtn").title = on ? "退出全屏" : "全屏显示图表区";
+      $("#fsBtn").title = on ? "退出全屏工作台" : "全屏工作台";
     });
+
+    /* 左右栏宽度拖拽 + 显隐（记忆到 localStorage） */
+    (function () {
+      var studio = $("#studio");
+      if (!studio) return;
+      var LW = 340, RW = 352, MIN = 240, MAX = 560;
+      try {
+        var saved = JSON.parse(localStorage.getItem("zhzChartLayout") || "{}");
+        if (saved.lw >= MIN && saved.lw <= MAX) LW = saved.lw;
+        if (saved.rw >= MIN && saved.rw <= MAX) RW = saved.rw;
+        if (saved.hl) studio.classList.add("hideL");
+        if (saved.hr) studio.classList.add("hideR");
+      } catch (err) {}
+      function apply() {
+        studio.style.setProperty("--lw", LW + "px");
+        studio.style.setProperty("--rw", RW + "px");
+      }
+      function save() {
+        try { localStorage.setItem("zhzChartLayout", JSON.stringify({ lw: LW, rw: RW, hl: studio.classList.contains("hideL"), hr: studio.classList.contains("hideR") })); } catch (err) {}
+      }
+      function syncTgl() {
+        var l = $("#tglLeft"), r = $("#tglRight");
+        if (l) l.classList.toggle("on", !studio.classList.contains("hideL"));
+        if (r) r.classList.toggle("on", !studio.classList.contains("hideR"));
+      }
+      apply(); syncTgl();
+      function bindSplit(split, isLeft) {
+        split.addEventListener("pointerdown", function (e) {
+          e.preventDefault();
+          try { split.setPointerCapture(e.pointerId); } catch (err) {}
+          split.classList.add("act");
+          var sx = e.clientX, sw = isLeft ? LW : RW;
+          function mv(ev) {
+            var d = (ev.clientX - sx) * (isLeft ? 1 : -1);
+            var v = Math.min(MAX, Math.max(MIN, sw + d));
+            if (isLeft) LW = v; else RW = v;
+            apply();
+          }
+          function up() {
+            split.classList.remove("act");
+            split.removeEventListener("pointermove", mv);
+            split.removeEventListener("pointerup", up);
+            split.removeEventListener("pointercancel", up);
+            save();
+          }
+          split.addEventListener("pointermove", mv);
+          split.addEventListener("pointerup", up);
+          split.addEventListener("pointercancel", up);
+        });
+        split.addEventListener("dblclick", function () { if (isLeft) LW = 340; else RW = 352; apply(); save(); });
+      }
+      var sl = $("#splitL"), sr = $("#splitR");
+      if (sl) bindSplit(sl, true);
+      if (sr) bindSplit(sr, false);
+      function bindTgl(id, cls, defW) {
+        var b = $(id); if (!b) return;
+        b.addEventListener("click", function () {
+          studio.classList.toggle(cls);
+          if (!studio.classList.contains(cls)) {
+            if (cls === "hideL" && LW < MIN) LW = defW;
+            if (cls === "hideR" && RW < MIN) RW = defW;
+            apply();
+          }
+          syncTgl(); save();
+        });
+      }
+      bindTgl("#tglLeft", "hideL", 340);
+      bindTgl("#tglRight", "hideR", 352);
+    })();
 
     /* ---------------- 图 ↔ 表 ↔ 属性 交互联动 ---------------- */
     (function () {
