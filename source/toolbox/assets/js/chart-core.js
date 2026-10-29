@@ -108,11 +108,21 @@ function makeCore() {
     if (Number.isInteger(v)) return String(v);
     return trimFixed(v, 2);
   }
-  function tickText(v, st) { return autoNum(v) + (st.unitSuf || ""); }
+  function groupNum(s) {
+    return String(s).replace(/^(-?)(\d+)(\.\d+)?$/, function (m, sign, int, dec) {
+      return sign + int.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (dec || "");
+    });
+  }
+  function tickText(v, st) {
+    var body = st.thousands ? groupNum(trimFixed(v, Number.isInteger(v) ? 0 : 1)) : autoNum(v);
+    return body + (st.unitSuf || "");
+  }
   function numText(v, st) {
     var d = st.decimals, body;
     if (d === 0 || d === 1 || d === 2 || d === 3) body = (d === 0 ? String(Math.round(v)) : Number(v).toFixed(d));
+    else if (st.thousands) body = trimFixed(v, Number.isInteger(v) ? 0 : (Math.abs(v) >= 100 ? 1 : 2));
     else body = autoNum(v);
+    if (st.thousands) body = groupNum(body);
     return (st.unitPre || "") + body + (st.unitSuf || "");
   }
   function pctText(v) { return trimFixed(v * 100, 1) + "%"; }
@@ -183,6 +193,7 @@ function makeCore() {
     if (!idxs.length) return [0, 1];
     var n = data.labels.length;
     if (st.type === "stacked") {
+      if (st.pctStack) return [0, 100];
       var pos = 0, neg = 0;
       for (var k = 0; k < n; k++) {
         var sp = 0, sn = 0;
@@ -430,20 +441,29 @@ function makeCore() {
       });
     }
 
-    /* 堆叠柱 */
+    /* 堆叠柱（可切换百分比堆叠：按列归一为 100%） */
     if (mode === "stacked") {
       var accPos = new Array(n).fill(0), accNeg = new Array(n).fill(0);
+      var colTot = new Array(n).fill(0);
+      if (st.pctStack) {
+        data.series.forEach(function (vals) {
+          vals.forEach(function (v, i) { if (v > 0) colTot[i] += v; });
+        });
+      }
       data.series.forEach(function (vals, si) {
         var sc = axisOf(st, si) === "R" && scR ? scR : scL;
         var color = colorOf(st, si);
-        vals.forEach(function (v, i) {
+        vals.forEach(function (v0, i) {
+          var v = (st.pctStack && colTot[i] > 0) ? (v0 / colTot[i]) * 100 : v0;
           var base = v >= 0 ? accPos[i] : accNeg[i];
           var topv = base + v;
           var y0 = yOf(base, sc), y1 = yOf(topv, sc);
           var x = plot.x + i * bandW + (bandW - groupW) / 2;
-          P.push({ k: "rect", x: x, y: Math.min(y0, y1), w: groupW, h: Math.max(1, Math.abs(y1 - y0)), r: Math.min(radius, 4), fill: barFill(color), grad: barGrad(color), m: { li: i, si: si, v: v } });
-          if (labelOn && Math.abs(y1 - y0) > 15 && groupW > 26)
-            T(LB, x + groupW / 2, (y0 + y1) / 2, numText(v, st), fs - 1, "#ffffff", { align: "middle", base: "middle" });
+          P.push({ k: "rect", x: x, y: Math.min(y0, y1), w: groupW, h: Math.max(1, Math.abs(y1 - y0)), r: Math.min(radius, 4), fill: barFill(color), grad: barGrad(color), m: { li: i, si: si, v: v0 } });
+          if (labelOn && Math.abs(y1 - y0) > 15 && groupW > 26) {
+            var lab = st.pctStack ? (trimFixed(v, 1) + "%") : numText(v0, st);
+            T(LB, x + groupW / 2, (y0 + y1) / 2, lab, fs - 1, "#ffffff", { align: "middle", base: "middle" });
+          }
           if (v >= 0) accPos[i] = topv; else accNeg[i] = topv;
         });
       });
@@ -959,7 +979,7 @@ function makeCore() {
     symbolSize: 5,
     barRadius: 3, barRatio: 0.68, gradient: false,
     pieInner: 0.58, pieLabelMode: "percent", pieName: false, pieCenter: false,
-    gaugeMax: "", radarLevels: 5, seriesCfg: []
+    gaugeMax: "", radarLevels: 5, seriesCfg: [], pctStack: false, thousands: false
   };
   function norm(st) {
     var o = {}, k;

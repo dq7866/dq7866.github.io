@@ -63,7 +63,7 @@ button{font-family:inherit}
 .tp.on svg{opacity:1}
 
 /* ===== 三栏工作台 ===== */
-.studio{display:grid;grid-template-columns:var(--lw,340px) 7px minmax(0,1fr) 7px var(--rw,352px);height:calc(100vh - 196px);min-height:620px;background:var(--surface)}
+.studio{display:grid;grid-template-columns:var(--lw,340px) 7px minmax(0,1fr) 7px var(--rw,352px);height:calc(100vh - 284px);min-height:560px;background:var(--surface)}
 .studio > .rail.left{grid-column:1;grid-row:1}
 .studio > #splitL{grid-column:2;grid-row:1}
 .studio > .stage{grid-column:3;grid-row:1}
@@ -144,10 +144,22 @@ table.dt .th-narrow{width:26px;text-align:center;background:var(--surface-2)}
 .chip.on svg{opacity:1}
 
 /* 画布区 */
-.stage{position:relative;overflow:auto;display:flex;align-items:center;justify-content:center;padding:26px;background-color:var(--bg-2);background-image:radial-gradient(color-mix(in srgb,var(--text) 13%,transparent) 1px,transparent 0);background-size:18px 18px}
-.stage canvas{display:block;background-color:#fff;border-radius:4px;box-shadow:var(--shadow-lg);
+.stage{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:26px;background-color:var(--bg-2);background-image:radial-gradient(color-mix(in srgb,var(--text) 13%,transparent) 1px,transparent 0);background-size:18px 18px}
+.stage canvas{display:block;background-color:#fff;border-radius:4px;box-shadow:var(--shadow-lg);max-width:none;
+  transform-origin:center center;will-change:transform;transition:transform .09s ease-out;cursor:default;
   background-image:linear-gradient(45deg,#f1ebe1 25%,transparent 25%,transparent 75%,#f1ebe1 75%),linear-gradient(45deg,#f1ebe1 25%,transparent 25%,transparent 75%,#f1ebe1 75%);
   background-size:16px 16px;background-position:0 0,8px 8px}
+.stage.zoomed canvas{cursor:grab}
+.stage.panning canvas{cursor:grabbing;transition:none}
+/* 缩放工具条 */
+.zoombar{position:absolute;right:12px;bottom:12px;display:flex;align-items:center;gap:1px;padding:3px;
+  background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:10px;
+  box-shadow:var(--shadow);backdrop-filter:blur(6px);z-index:5}
+.zoombar button{border:0;background:transparent;color:var(--text-2);font-size:13px;line-height:1;padding:6px 9px;
+  border-radius:7px;cursor:pointer;transition:.12s;font-weight:600}
+.zoombar button:hover{background:var(--accent-2);color:var(--accent)}
+#zPct{min-width:52px;font-variant-numeric:tabular-nums;font-size:12px;font-weight:600}
+.empty-hint{position:absolute;color:var(--muted);font-size:13px;letter-spacing:.02em;pointer-events:none}
 .stage-foot{position:absolute;left:14px;bottom:12px;display:flex;gap:14px;font-size:11.5px;color:var(--muted);background:color-mix(in srgb,var(--surface) 82%,transparent);padding:4px 10px;border-radius:20px;backdrop-filter:blur(6px);pointer-events:none}
 /* 拖拽导入 */
 .stage::after{content:"松手导入 .csv / .json";position:absolute;inset:10px;display:flex;align-items:center;justify-content:center;
@@ -207,6 +219,32 @@ select.inp{cursor:pointer}
 
 /* 系列行 */
 .srow{display:flex;gap:5px;align-items:center;margin-bottom:5px}
+.srow.off .sname,.srow.off .cpick{opacity:.42}
+.srow .seye{flex:0 0 auto;width:20px;height:28px;border:1px solid transparent;background:transparent;color:var(--accent);
+  font-size:13px;line-height:1;cursor:pointer;border-radius:6px;padding:0;transition:.12s}
+.srow .seye:hover{background:var(--accent-2);border-color:var(--line)}
+.srow.off .seye{color:var(--muted)}
+/* 帮助浮层 */
+.modal{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:rgba(24,20,17,.5);backdrop-filter:blur(3px)}
+.modal[hidden]{display:none}
+.modal-card{width:min(560px,94vw);max-height:86vh;overflow:auto;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow-lg);padding:18px 20px 16px}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.modal-head b{font-size:15px}
+.modal-head button{border:1px solid var(--line);background:var(--surface);color:var(--text-2);width:28px;height:28px;
+  border-radius:8px;cursor:pointer;font-size:13px}
+.modal-head button:hover{border-color:var(--accent);color:var(--accent)}
+.kb-grid{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;align-items:center;font-size:12.5px;color:var(--text-2)}
+.kb-grid > div{white-space:nowrap;display:flex;gap:3px;align-items:center}
+kbd{display:inline-block;min-width:20px;text-align:center;padding:2px 5px;font-size:11px;line-height:1.5;
+  font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--text);background:var(--surface-2);
+  border:1px solid var(--line);border-bottom-width:2px;border-radius:5px}
+.kb-tips{margin:14px 0 0;padding-left:18px;font-size:12.5px;line-height:1.85;color:var(--text-2)}
+.kb-tips b{color:var(--text)}
+.cs-actions .btn.ico{padding:6px 10px;font-size:14px;line-height:1.15;min-width:34px}
+.cs-actions .btn.ico:disabled{opacity:.38;cursor:not-allowed}
+.cs-actions .btn.ico:disabled:hover{border-color:var(--line);color:var(--text-2);background:var(--surface)}
 .srow .cpick{width:26px;height:28px;padding:2px;border:1px solid var(--line);border-radius:6px;background:var(--surface);cursor:pointer;flex:0 0 auto}
 .srow .sname{flex:1;min-width:0;border:1px solid var(--line);border-radius:7px;padding:5px 8px;font-size:12.5px;background:var(--surface);color:var(--text);outline:none}
 .srow .sname:focus{border-color:var(--accent)}
@@ -320,6 +358,9 @@ select.inp{cursor:pointer}
 <div class="cs-bar">
   <div class="cs-crumb"><b>图表工坊</b><span>16 种图表 · 全参数可视化调节 · 导出可编辑文件</span></div>
   <div class="cs-actions">
+    <button class="btn ico" id="undoBtn" type="button" title="撤销 (Ctrl+Z)" disabled>↶</button>
+    <button class="btn ico" id="redoBtn" type="button" title="重做 (Ctrl+Shift+Z)" disabled>↷</button>
+    <span class="bar-sep"></span>
     <button class="btn tgl" id="tglLeft" type="button" title="显示 / 隐藏左侧数据栏">◧ 数据</button>
     <button class="btn tgl" id="tglRight" type="button" title="显示 / 隐藏右侧设置栏">⚙ 设置</button>
     <span class="bar-sep"></span>
@@ -339,11 +380,12 @@ select.inp{cursor:pointer}
         <button type="button" data-exp="link"><b>复制分享链接</b><em>图表配置随链接一起带走</em></button>
       </div>
     </details>
+    <button class="btn ico" id="helpBtn" type="button" title="快捷键与使用技巧 (?)">?</button>
   </div>
 </div>
 <div class="typebar" id="typeBar"></div>
 
-<main class="studio" id="studio">
+<main class="studio" id="studio" data-no-prefs>
   <!-- ========== 左栏：数据 ========== -->
   <aside class="rail left">
     <div class="railhead">
@@ -361,6 +403,7 @@ select.inp{cursor:pointer}
         <button class="mini" id="addCol" type="button">＋ 列</button>
         <button class="mini" id="delRow" type="button">− 行</button>
         <button class="mini" id="delCol" type="button">− 列</button>
+        <button class="mini" id="transposeBtn" type="button" title="行列互换：适合把宽表转成竖表">⇄ 转置</button>
         <button class="mini danger" id="clearData" type="button">清空</button>
       </div>
       <p class="hint">可直接从 Excel / WPS / 网页表格复制，<b>点表格后 Ctrl+V 粘贴</b>；首行自动识别为系列名称。</p>
@@ -390,8 +433,15 @@ select.inp{cursor:pointer}
 
   <!-- ========== 中间：画布 ========== -->
   <section class="stage" id="stage">
-    <canvas id="cv" width="960" height="560"></canvas>
-    <div class="stage-foot"><span id="stageSize">960 × 560</span><span>拖入 .csv / .json 也可导入</span></div>
+    <canvas id="cv" width="960" height="560" aria-label="图表预览区"></canvas>
+    <div class="empty-hint" id="emptyHint" hidden>粘贴或输入数据后自动出图</div>
+    <div class="stage-foot"><span id="stageSize">960 × 560</span><span>滚轮缩放 · 放大后拖拽平移 · 双击复位</span></div>
+    <div class="zoombar" id="zoomBar">
+      <button id="zOut" type="button" title="缩小（-）">−</button>
+      <button id="zPct" type="button" title="恢复 100%（1）">100%</button>
+      <button id="zIn" type="button" title="放大（+）">＋</button>
+      <button id="zFit" type="button" title="适应窗口（0）">适应</button>
+    </div>
     <button id="fsBtn" type="button" title="全屏工作台" aria-label="全屏工作台">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
         <path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/>
@@ -459,7 +509,9 @@ select.inp{cursor:pointer}
       <summary>系列 <span class="tagline">颜色 · 名称 · 类型</span></summary>
       <div class="body">
         <div id="seriesBox"></div>
+        <div class="ckrow" id="stackOpts" hidden><label><input type="checkbox" id="pctStack"> 百分比堆叠（按列归一 100%）</label></div>
         <p class="hint" id="comboHint" hidden>组合图：每条可选 柱 / 线 / 面，并可归左轴或右轴。</p>
+        <p class="hint">点左侧 ● 可临时隐藏某条系列（数据不动，随时点回来）。</p>
       </div>
     </details>
 
@@ -517,7 +569,8 @@ select.inp{cursor:pointer}
     <details class="sec">
       <summary>数据标签 <span class="tagline">位置 · 小数 · 单位</span></summary>
       <div class="body">
-        <div class="ckrow"><label><input type="checkbox" id="showLabels" checked> 显示数值</label></div>
+        <div class="ckrow"><label><input type="checkbox" id="showLabels" checked> 显示数值</label>
+          <label><input type="checkbox" id="thousands"> 千分位（1,200）</label></div>
         <div class="g2">
           <label class="fl" id="labelPosRow">标签位置
             <select class="inp" id="labelPos">
@@ -605,6 +658,31 @@ select.inp{cursor:pointer}
 </main>
 
 <div id="toast"></div>
+
+<!-- 快捷键帮助 -->
+<div class="modal" id="helpModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-label="快捷键与使用技巧">
+    <div class="modal-head"><b>快捷键与使用技巧</b><button id="helpClose" type="button" aria-label="关闭">✕</button></div>
+    <div class="modal-body">
+      <div class="kb-grid">
+        <div><kbd>Ctrl</kbd> + <kbd>Z</kbd></div><span>撤销上一步（保留 80 步）</span>
+        <div><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd></div><span>重做</span>
+        <div><kbd>Ctrl</kbd> + <kbd>S</kbd></div><span>直接导出 2× PNG</span>
+        <div><kbd>+</kbd> / <kbd>-</kbd></div><span>放大 / 缩小画布</span>
+        <div><kbd>0</kbd> / <kbd>1</kbd></div><span>适应窗口 / 恢复 100%</span>
+        <div><kbd>?</kbd></div><span>打开本帮助</span>
+        <div><kbd>Esc</kbd></div><span>退出全屏 / 关闭浮层</span>
+      </div>
+      <ul class="kb-tips">
+        <li><b>鼠标</b>：滚轮缩放画布，放大后按住拖拽平移，双击复位。</li>
+        <li><b>系列</b>：点 ● 临时隐藏某条；散点/折线每行可选 点 / 线 / 曲，混搭也行。</li>
+        <li><b>联动</b>：悬停图上元素看数值，表格对应行会同步高亮；反过来也行。</li>
+        <li><b>数据</b>：直接粘贴 Excel 区域，或拖入 .csv / .json 文件；「转置」把横表转竖表。</li>
+        <li><b>自动保存</b>：编辑内容存在本机浏览器，下次打开自动接着改。</li>
+      </ul>
+    </div>
+  </div>
+</div>
 
 <script src="assets/js/pwa.js"></script>
 <script src="assets/js/enhance.js" defer></script>

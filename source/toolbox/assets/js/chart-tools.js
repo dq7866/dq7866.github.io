@@ -24,11 +24,16 @@
     barRadius: 3, barRatio: 0.68, gradient: false,
     pieInner: 0.58, pieLabelMode: "percent", pieName: false, pieCenter: true,
     gaugeMax: "", radarLevels: 5,
+    pctStack: false, thousands: false,
     seriesCfg: []
   };
+  var DEFAULT_STATE = JSON.parse(JSON.stringify(state));
 
   var DATA_TEXT = "月份,销售额,利润\n1月,320,86\n2月,350,95\n3月,410,120\n4月,390,88\n5月,460,150\n6月,520,180";
-  var lastModel = null, lastData = null;
+  var lastModel = null, lastData = null, lastState = null, lastSizeKey = "";
+  /* 画布视图：缩放 / 平移 */
+  var view = { z: 1, x: 0, y: 0, manual: false };
+  var panning = null;
 
   /* ---------------- 图表类型 ---------------- */
   var TYPES = [
@@ -146,41 +151,74 @@
   }
 
   /* ---------------- 渲染 ---------------- */
+  /* 隐藏系列：在绘制前过滤，并为其固定当前配色，保证其余系列颜色不跳变 */
+  function visibleSeries(data) {
+    var vis = [];
+    for (var i = 0; i < data.series.length; i++) {
+      if (state.seriesCfg[i] && state.seriesCfg[i].hide) continue;
+      vis.push(i);
+    }
+    if (vis.length === data.series.length) return { data: data, state: state };
+    var st2 = {};
+    for (var k in state) st2[k] = state[k];
+    st2.seriesCfg = vis.map(function (oi) {
+      var src = state.seriesCfg[oi] || {}, c = {};
+      for (var q in src) c[q] = src[q];
+      c.color = c.color || palOf(oi);
+      return c;
+    });
+    return {
+      data: {
+        labels: data.labels,
+        names: vis.map(function (i) { return data.names[i]; }),
+        series: vis.map(function (i) { return data.series[i]; }),
+        hasHeader: data.hasHeader, map: vis
+      }, state: st2
+    };
+  }
+
   function draw() {
-    var data = core.parseCSV(DATA_TEXT);
-    ensureSeriesCfg(data.series.length);
-    var model = core.buildModel(state, data);
-    lastModel = model; lastData = data;
+    var raw = core.parseCSV(DATA_TEXT);
+    ensureSeriesCfg(raw.series.length);
+    var vw = visibleSeries(raw), data = vw.data, st = vw.state;
+    var model = core.buildModel(st, data);
+    lastModel = model; lastData = data; lastState = st;
     var cv = $("#cv");
     var dpr = Math.min(2, window.devicePixelRatio || 1);
     cv.width = Math.round(model.W * dpr);
     cv.height = Math.round(model.H * dpr);
     cv.style.width = model.W + "px";
-    cv.style.maxWidth = "100%";
     cv.style.height = "auto";
     var ctx = cv.getContext("2d");
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    core.paint(ctx, model, state);
+    core.paint(ctx, model, st);
     $("#statPts").textContent = data.labels.length;
-    $("#statSeries").textContent = data.series.length;
+    $("#statSeries").textContent = data.series.length + (data.map ? " / " + raw.series.length : "");
     var tn = "";
     for (var ti = 0; ti < TYPES.length; ti++) if (TYPES[ti].id === state.type) tn = TYPES[ti].name;
     $("#statType").textContent = tn || state.type;
-    $("#stageSize").textContent = model.W + " × " + model.H;
-    renderSeriesBox(data);
+    $("#stageSize").textContent = model.W + " × " + model.H + (state.pctStack && state.type === "stacked" ? " · 100%堆叠" : "");
+    var eh = $("#emptyHint"); if (eh) eh.hidden = data.labels.length > 0;
+    renderSeriesBox(raw);
+    /* 画布尺寸变化时自动适应窗口（数据变化不动用户的缩放） */
+    var key = model.W + "x" + model.H;
+    if (key !== lastSizeKey) { lastSizeKey = key; fitZoom(); }
+    commit();
   }
 
   function renderSeriesBox(data) {
     var box = $("#seriesBox");
     if (!box) return;
-    var sig = data.names.join("|") + "#" + data.series.length + "#" + state.type + "#" + state.dualAxis;
+    var hideSig = data.series.map(function (_, i) { return state.seriesCfg[i] && state.seriesCfg[i].hide ? "1" : "0"; }).join("");
+    var sig = data.names.join("|") + "#" + data.series.length + "#" + state.type + "#" + state.dualAxis + "#" + hideSig;
     if (box.dataset.sig === sig) { return; }
     box.dataset.sig = sig;
     var html = "";
     data.names.forEach(function (nm, i) {
       var c = state.seriesCfg[i] || {};
       var color = c.color || palOf(i);
-      html += '<div class="srow">' +
+      html += '<div class="srow' + (c.hide ? " off" : "") + '">' +
+        '<button type="button" class="seye" data-si="' + i + '" title="' + (c.hide ? "已隐藏，点击显示" : "点击隐藏该系列") + '" aria-pressed="' + (c.hide ? "false" : "true") + '">' + (c.hide ? "○" : "●") + '</button>' +
         '<input type="color" class="cpick" data-si="' + i + '" value="' + color + '" title="系列颜色">' +
         '<input type="text" class="sname" data-si="' + i + '" value="' + esc(nm) + '" maxlength="14" title="系列名称">' +
         (state.type === "combo" ? '<select class="stype" data-si="' + i + '"><option value="bar"' + (c.type !== "line" && c.type !== "area" ? " selected" : "") + '>柱</option><option value="line"' + (c.type === "line" ? " selected" : "") + '>线</option><option value="area"' + (c.type === "area" ? " selected" : "") + '>面</option></select>' : "") +
@@ -196,6 +234,92 @@
   function palOf(i) {
     var p = core.PALETTES[state.palette] || core.PALETTES[0];
     return i < p.colors.length ? p.colors[i] : "#2563eb";
+  }
+
+  /* ---------------- 撤销 / 重做 / 自动保存草稿 ---------------- */
+  var HIST = { stack: [], redo: [], cur: "" };
+  function snap() { return JSON.stringify({ s: state, d: DATA_TEXT }); }
+  function syncHistBtns() {
+    var u = $("#undoBtn"), r = $("#redoBtn");
+    if (u) { u.disabled = !HIST.stack.length; u.title = "撤销 (Ctrl+Z)" + (HIST.stack.length ? " · 还有 " + HIST.stack.length + " 步" : ""); }
+    if (r) { r.disabled = !HIST.redo.length; r.title = "重做 (Ctrl+Shift+Z)"; }
+  }
+  var commit = debounce(function () {
+    var s = snap();
+    if (s === HIST.cur) return;
+    if (HIST.cur) { HIST.stack.push(HIST.cur); if (HIST.stack.length > 80) HIST.stack.shift(); }
+    HIST.cur = s; HIST.redo.length = 0;
+    syncHistBtns(); saveDraft();
+  }, 420);
+
+  function saveDraft() {
+    try { localStorage.setItem("zhzChartDraft", JSON.stringify({ s: state, d: DATA_TEXT, t: Date.now() })); } catch (e) {}
+  }
+  function restoreDraft() {
+    if (location.hash.indexOf("#s=") === 0) return false;
+    if (/[?&](ex|t)=/.test(location.search)) return false;
+    try {
+      var raw = localStorage.getItem("zhzChartDraft");
+      if (!raw) return false;
+      var o = JSON.parse(raw);
+      if (!o || !o.s || !o.s.type) return false;
+      state = o.s;
+      for (var k in DEFAULT_STATE) if (!(k in state)) state[k] = DEFAULT_STATE[k];
+      if (o.d != null) DATA_TEXT = o.d;
+      grid = gridFromText(DATA_TEXT);
+      return true;
+    } catch (e) { return false; }
+  }
+  function applySnap(str) {
+    var o;
+    try { o = JSON.parse(str); } catch (e) { return; }
+    if (!o || !o.s) return;
+    state = o.s;
+    for (var k in DEFAULT_STATE) if (!(k in state)) state[k] = DEFAULT_STATE[k];
+    DATA_TEXT = o.d != null ? o.d : DATA_TEXT;
+    grid = gridFromText(DATA_TEXT);
+    $("#dataText").value = DATA_TEXT;
+    $("#seriesBox").dataset.sig = "";
+    if (window.__chartApp) window.__chartApp.state = state;
+    renderTable(); syncUI(); syncVisibility(); draw();
+    HIST.cur = snap(); syncHistBtns();
+  }
+  function doUndo() {
+    if (!HIST.stack.length) { toast("没有可撤销的操作"); return; }
+    HIST.redo.push(HIST.cur);
+    var s = HIST.stack.pop();
+    applySnap(s);
+    toast("已撤销");
+  }
+  function doRedo() {
+    if (!HIST.redo.length) { toast("没有可重做的操作"); return; }
+    HIST.stack.push(HIST.cur);
+    var s = HIST.redo.pop();
+    applySnap(s);
+    toast("已重做");
+  }
+
+  /* ---------------- 画布缩放 / 平移 ---------------- */
+  function applyView() {
+    var cv = $("#cv"); if (!cv) return;
+    cv.style.transform = "translate(" + view.x + "px," + view.y + "px) scale(" + view.z + ")";
+    var p = $("#zPct"); if (p) p.textContent = Math.round(view.z * 100) + "%";
+    var st = $("#stage"); if (st) st.classList.toggle("zoomed", view.z > 1.001);
+  }
+  function setZoom(z) {
+    view.z = Math.max(0.2, Math.min(5, z));
+    view.manual = true;
+    if (view.z <= 1.001) { view.x = 0; view.y = 0; }
+    applyView();
+  }
+  function fitZoom() {
+    if (!lastModel) return;
+    var st = $("#stage"); if (!st) return;
+    var w = st.clientWidth || 800, h = st.clientHeight || 500;
+    var z = Math.min((w - 64) / lastModel.W, (h - 96) / lastModel.H);
+    view.x = 0; view.y = 0; view.manual = false;
+    view.z = Math.max(0.2, Math.min(2, z));
+    applyView();
   }
 
   /* ---------------- 界面构建 ---------------- */
@@ -245,6 +369,8 @@
     $("#barRadius").value = state.barRadius; $("#barRadiusOut").textContent = state.barRadius;
     $("#barRatio").value = state.barRatio; $("#barRatioOut").textContent = Math.round(state.barRatio * 100) + "%";
     $("#pieInner").value = state.pieInner; $("#pieInnerOut").textContent = Math.round(state.pieInner * 100) + "%";
+    var ps = $("#pctStack"); if (ps) ps.checked = !!state.pctStack;
+    var th = $("#thousands"); if (th) th.checked = !!state.thousands;
   }
   function syncVisibility() {
     var isCart = CART.indexOf(state.type) >= 0;
@@ -258,6 +384,7 @@
     $("#comboHint").hidden = state.type !== "combo";
     $("#pieInnerRow").hidden = state.type === "rose" ? false : (state.type !== "donut" && state.type !== "pie");
     $("#labelPosRow").hidden = !isCart;
+    var so = $("#stackOpts"); if (so) so.hidden = state.type !== "stacked";
   }
 
   /* ---------------- 事件绑定 ---------------- */
@@ -326,8 +453,28 @@
       grid.header.pop(); grid.rows.forEach(function (r) { r.pop(); });
       renderTable(); syncFromGrid();
     });
-    $("#clearData").addEventListener("click", function () {
-      grid.rows = []; renderTable(); syncFromGrid(); toast("已清空数据");
+    /* 行列转置：首列变为表头，表头变为首列 */
+    $("#transposeBtn").addEventListener("click", function () {
+      if (!grid.rows.length) { toast("没有可转置的数据"); return; }
+      var all = [grid.header.slice()].concat(grid.rows.map(function (r) { return r.slice(); }));
+      var w = all[0].length, h = all.length;
+      if (w > 14) { toast("列数过多，转置后会超过 14 列"); return; }
+      var out = [];
+      for (var c = 0; c < w; c++) {
+        var row = [];
+        for (var r = 0; r < h; r++) row.push(all[r][c] == null ? "" : all[r][c]);
+        out.push(row);
+      }
+      /* 转置后首行当表头：第一格若是数字则自动补“项目” */
+      if (out.length && /^[-\d.%¥$€\s]+$/.test(String(out[0][0] || ""))) out[0][0] = "项目";
+      grid = { header: out[0].slice(), rows: out.slice(1) };
+      var nc = grid.header.length;
+      if (nc < 2) grid.header.push("数值");
+      renderTable(); syncFromGrid();
+      $("#seriesBox").dataset.sig = "";
+      toast("已转置为 " + grid.rows.length + " 行 × " + (grid.header.length - 1) + " 系列");
+    });
+    $("#clearData").addEventListener("click", function () {      grid.rows = []; renderTable(); syncFromGrid(); toast("已清空数据");
     });
 
     /* 文本模式 */
@@ -413,6 +560,16 @@
       }
     });
 
+    sb.addEventListener("click", function (e) {
+      var b = e.target.closest(".seye"); if (!b) return;
+      var si = +b.dataset.si;
+      var c = state.seriesCfg[si] || (state.seriesCfg[si] = {});
+      c.hide = !c.hide;
+      $("#seriesBox").dataset.sig = "";
+      draw();
+      toast(c.hide ? "已隐藏第 " + (si + 1) + " 个系列" : "已显示第 " + (si + 1) + " 个系列");
+    });
+
     /* 轴 / 网格 / 刻度 */
     bindChk("#dualAxis", "dualAxis", true);
     bindChk("#showXLabels", "showXLabels");
@@ -426,6 +583,7 @@
 
     /* 标签 */
     bindChk("#showLabels", "showLabels");
+    bindChk("#thousands", "thousands");
     $("#labelPos").addEventListener("change", function () { state.labelPos = this.value; draw(); });
     $("#decimals").addEventListener("change", function () { state.decimals = this.value === "auto" ? "auto" : +this.value; draw(); });
 
@@ -438,6 +596,8 @@
     bindChk("#symbol", "symbol");
     bindChk("#areaFill", "areaFill");
     bindChk("#gradient", "gradient");
+    var pctEl = $("#pctStack");
+    if (pctEl) pctEl.addEventListener("change", function () { state.pctStack = this.checked; draw(); });
 
     /* 图例 */
     bindChk("#showLegend", "showLegend");
@@ -487,6 +647,7 @@
       var on = !!document.fullscreenElement;
       $("#fsBtn").classList.toggle("on", on);
       $("#fsBtn").title = on ? "退出全屏工作台" : "全屏工作台";
+      if (!view.manual) setTimeout(fitZoom, 120);
     });
 
     /* 左右栏宽度拖拽 + 显隐（记忆到 localStorage） */
@@ -629,24 +790,29 @@
         if (d === 0 || d === 1 || d === 2 || d === 3) return (state.unitPre || "") + n.toFixed(d) + (state.unitSuf || "");
         return (state.unitPre || "") + (Math.abs(n) >= 1000 ? n.toLocaleString("zh-CN") : String(Math.round(n * 100) / 100)) + (state.unitSuf || "");
       }
-      function showTip(mx, my, text) {
+      function showTip(clientX, clientY, text) {
         if (!tip) return;
+        var sr = stage.getBoundingClientRect();
         tip.textContent = text;
-        tip.style.left = Math.min(Math.max(8, cv.offsetLeft + mx + 14), stage.clientWidth - tip.offsetWidth - 10) + "px";
-        tip.style.top = Math.max(8, cv.offsetTop + my - 34) + "px";
+        tip.style.left = Math.min(Math.max(8, clientX - sr.left + 14), stage.clientWidth - tip.offsetWidth - 10) + "px";
+        tip.style.top = Math.max(8, clientY - sr.top - 34) + "px";
         tip.classList.add("on");
       }
       function hideTip() { if (tip) tip.classList.remove("on"); }
+      function modelToClient(mx, my) {
+        var r = cv.getBoundingClientRect();
+        return [r.left + (mx / lastModel.W) * r.width, r.top + (my / lastModel.H) * r.height];
+      }
 
       /* 画布悬停 → 提示 + 表格行高亮 */
       cv.addEventListener("mousemove", function (e) {
-        if (!lastModel) return;
+        if (!lastModel || panning) return;
         var xy = modelXY(e);
         var p = hitTest(xy[0], xy[1]);
         clearRowHl();
         if (p) {
           cv.style.cursor = "pointer";
-          showTip(xy[0], xy[1], tipText(p));
+          showTip(e.clientX, e.clientY, tipText(p));
           if (p.m.li != null) {
             var tr = rowEl(p.m.li);
             if (tr) { tr.classList.add("hl"); curLi = p.m.li; }
@@ -667,13 +833,85 @@
           state._hl = li; draw();
           var prim = null;
           for (var i = 0; i < lastModel.P.length; i++) if (lastModel.P[i].m && lastModel.P[i].m.li === li) { prim = lastModel.P[i]; break; }
-          if (prim) { var c = primCenter(prim); showTip(c[0], c[1], tipText(prim)); }
+          if (prim) { var c = primCenter(prim), cc = modelToClient(c[0], c[1]); showTip(cc[0], cc[1], tipText(prim)); }
         });
         table.addEventListener("mouseleave", function () {
           if (state._hl == null) return;
           state._hl = null; draw(); hideTip();
         });
       }
+    })();
+
+    /* ---------------- 缩放 / 平移 / 撤销 / 快捷键 ---------------- */
+    (function () {
+      var stage = $("#stage"), cv = $("#cv");
+      if (!stage || !cv) return;
+
+      function bind(id, fn) { var el = $(id); if (el) el.addEventListener("click", fn); }
+      bind("#zIn", function () { setZoom(view.z * 1.25); });
+      bind("#zOut", function () { setZoom(view.z / 1.25); });
+      bind("#zFit", function () { fitZoom(); });
+      bind("#zPct", function () { setZoom(1); });
+
+      stage.addEventListener("wheel", function (e) {
+        if (e.target.closest(".zoombar")) return;
+        e.preventDefault();
+        var f = Math.exp(-e.deltaY * 0.0016);
+        setZoom(view.z * f);
+      }, { passive: false });
+
+      cv.addEventListener("pointerdown", function (e) {
+        if (view.z <= 1.001) return;
+        if (e.button !== 0 && e.button !== 1) return;
+        panning = { sx: e.clientX, sy: e.clientY, ox: view.x, oy: view.y };
+        try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+        stage.classList.add("panning");
+        $("#tip") && $("#tip").classList.remove("on");
+      });
+      cv.addEventListener("pointermove", function (e) {
+        if (!panning) return;
+        view.x = panning.ox + (e.clientX - panning.sx);
+        view.y = panning.oy + (e.clientY - panning.sy);
+        applyView();
+      });
+      function endPan() { if (!panning) return; panning = null; stage.classList.remove("panning"); }
+      cv.addEventListener("pointerup", endPan);
+      cv.addEventListener("pointercancel", endPan);
+      cv.addEventListener("dblclick", function () { if (view.z > 1.001) setZoom(1); else fitZoom(); });
+
+      bind("#undoBtn", doUndo);
+      bind("#redoBtn", doRedo);
+
+      /* 帮助浮层 */
+      var modal = $("#helpModal");
+      function openHelp() { if (modal) { modal.hidden = false; } }
+      function closeHelp() { if (modal) { modal.hidden = true; } }
+      bind("#helpBtn", openHelp);
+      bind("#helpClose", closeHelp);
+      if (modal) modal.addEventListener("click", function (e) { if (e.target === modal) closeHelp(); });
+
+      document.addEventListener("keydown", function (e) {
+        var tag = (e.target && e.target.tagName) || "";
+        var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(tag) || (e.target && e.target.isContentEditable);
+        var mod = e.ctrlKey || e.metaKey;
+
+        if (e.key === "Escape") { closeHelp(); if (document.fullscreenElement) document.exitFullscreen(); return; }
+
+        if (mod && (e.key === "z" || e.key === "Z")) {
+          e.preventDefault();
+          if (e.shiftKey) doRedo(); else doUndo();
+          return;
+        }
+        if (mod && (e.key === "y" || e.key === "Y")) { e.preventDefault(); doRedo(); return; }
+        if (mod && (e.key === "s" || e.key === "S")) { e.preventDefault(); exportPNG(2); toast("已导出 2× PNG"); return; }
+        if (typing) return;
+
+        if (e.key === "+" || e.key === "=") { e.preventDefault(); setZoom(view.z * 1.25); }
+        else if (e.key === "-" || e.key === "_") { e.preventDefault(); setZoom(view.z / 1.25); }
+        else if (e.key === "0") { e.preventDefault(); fitZoom(); }
+        else if (e.key === "1") { e.preventDefault(); setZoom(1); }
+        else if (e.key === "?") { e.preventDefault(); openHelp(); }
+      });
     })();
 
     bindDropZone();
@@ -1013,18 +1251,27 @@
   function init() {
     if (!core) { console.error("chart core 未加载"); return; }
     buildTypeBar(); buildPalettes(); buildPresets();
+    var restored = restoreDraft();
     $("#dataText").value = DATA_TEXT;
     renderTable();
     bindAll();
     syncUI(); syncVisibility(); draw();
+    /* 初始状态作为撤销基线，避免首次编辑被吞掉 */
+    HIST.cur = snap(); syncHistBtns();
+    applyView();
     applyDeepLink();
-    setTimeout(draw, 150);
+    setTimeout(function () { draw(); applyView(); }, 150);
+    if (restored) setTimeout(function () { toast("已恢复上次编辑的图表 · Ctrl+Z 可回退"); }, 700);
     window.__chartApp = {
       state: state, core: core, draw: draw, applyPreset: applyPreset,
       getData: function () { return DATA_TEXT; },
       setData: function (t) { DATA_TEXT = t; grid = gridFromText(t); $("#dataText").value = t; renderTable(); draw(); },
       exportPNG: exportPNG, exportSVG: exportSVG, exportHTML: exportHTML,
-      exportJSON: exportJSON, exportCSV: exportCSV, applyProject: applyProject
+      exportJSON: exportJSON, exportCSV: exportCSV, applyProject: applyProject,
+      undo: doUndo, redo: doRedo, setZoom: setZoom, fitZoom: fitZoom,
+      getView: function () { return { z: view.z, x: view.x, y: view.y }; },
+      getState: function () { return state; },
+      getHist: function () { return { u: HIST.stack.length, r: HIST.redo.length }; }
     };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
