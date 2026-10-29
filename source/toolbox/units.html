@@ -56,6 +56,9 @@ body{
 .nsec.collapsed .ngroup-body{display:none}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .langnote{font-size:11.5px;color:var(--muted);background:var(--accent-soft);border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin-bottom:12px}
+.jdbar{font-size:12.5px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:4px 0 12px;line-height:1.6}
+.jdbar a{color:var(--accent);font-weight:700;text-decoration:none}
+.jdbar .jdnote{font-size:11px;color:var(--muted)}
 .skip{position:absolute;left:-9999px;top:8px;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 14px;z-index:999;font-size:13px}
 .skip:focus{left:8px}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
@@ -324,7 +327,7 @@ table.tbl tbody tr{cursor:copy}
   .out,.allrow b,.kv dd,.kv dt,code{color:#000!important}
   code{background:#f2f2f2!important}
   tr:nth-child(even) td{background:#fafafa!important}
-  .snapout,#rowToast,.pci,.updbar,.tourcard,.sectoc,.secshare,.chkbar{display:none!important}
+  .snapout,#rowToast,.pci,.updbar,.tourcard,.sectoc,.secshare,.chkbar,.jdbar{display:none!important}
   table.tbl tbody tr{cursor:auto}
   a{color:#000!important;text-decoration:none!important}
   tr,li{break-inside:avoid}
@@ -363,7 +366,7 @@ table.tbl tbody tr{cursor:copy}
 <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <div class="app">
   <aside class="side" aria-label="模块导航">
-    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v9.0</span></div>
+    <div class="brand"><div class="brandrow">生活换算<button class="sidecollapse" id="sideToggle" title="收起侧栏">«</button></div><span>全能手册 · 本地离线版 v9.1</span></div>
     <a class="backlink" id="backlink" href="index.html" style="display:none">← 返回工具箱</a>
     <input id="q" class="search" placeholder="搜模块：亩 / 鞋码 / 扳手 / 汇率…       也能直接算：10 km to mi / 12*8">
     <div id="qc" class="qc" role="status" aria-live="polite"></div>
@@ -6662,7 +6665,7 @@ function bookCover(ids){
     '<p class="sub" style="margin:4pt 0 0">' + gname + t(' 速查册',' quick-reference booklet') + '</p>' +
     '<div class="bcline"></div>' +
     '<div class="bcmeta">' + t(n + ' 个模块 · ' + rows + ' 条对照','' + n + ' modules · ' + rows + ' entries') + '<br>' +
-    ds + t(' 生成 · 本地离线版 V9.0',' · offline edition V9.0') + '</div></div>';
+    ds + t(' 生成 · 本地离线版 V9.1',' · offline edition V9.1') + '</div></div>';
 }
 function bookToc(ids){
   const items = ids.map((id, k)=>{
@@ -6915,7 +6918,7 @@ function aboutPanel(){
   return '<div class="panel"><h2>ℹ️ About & Changelog</h2><p class="sub">Version, stack, licences — and what we refuse to build.</p>' +
   card('About', '<div class="kv">' +
     '<dt>Name</dt><dd>Life Converter · All-in-One Handbook</dd>' +
-    '<dt>Version</dt><dd>V9.0 (2026-10-29)</dd>' +
+    '<dt>Version</dt><dd>V9.1 (2026-10-29)</dd>' +
     '<dt>Form</dt><dd>Single-page app + PWA, installable</dd>' +
     '<dt>Modules</dt><dd>' + st.mods + ' across ' + st.groups + ' groups — ' + st.tables + ' reference cards, ' + st.rows.toLocaleString('en-US') + ' rows</dd>' +
     '<dt>Freshness</dt><dd>' + st.chks + ' price / policy cards carry a checked-on date (earliest ' + st.oldest + ')' + (st.stale ? ' · ' + st.stale + ' overdue for review' : '') + '</dd>' +
@@ -6923,6 +6926,7 @@ function aboutPanel(){
   '</div><div class="rowline" style="margin-top:10px"><button class="btn ghost" id="tourAgain">Show the getting-started card again</button></div>') +
   card('☕ Buy the author a coffee', '<div class="spcard"><div class="sptxt"><p style="margin:0 0 6px">This handbook is <b>completely free, ad-free and tracker-free</b> — everything runs on your own device.</p><p class="mini" style="margin:0;line-height:1.8">If it saved you time, scan the QR (WeChat / Alipay) to buy the author a coffee — it keeps the data fresh and the modules coming.</p></div><img src="sponsor-qr.png" alt="WeChat / Alipay QR code" loading="lazy"></div>') +
   card('Changelog', tbl(['Version','Highlights'],[
+    ['V9.1','JD affiliate bar: appliance, car-buying and phone modules get a "compare live prices on JD" link (clearly labelled, hidden in print), supporting the site when you buy through it'],
     ['V9.0','Support the author: a "buy me a coffee" card now lives on the About page — thanks for the fuel'],
     ['V8.9','Freshness warnings: check badges now count the months since the last review (12+ nudges a review, 18+ turns the bar red), and the About page counts overdue cards'],
     ['V8.8','Freshness badges: 33 price / policy / rate modules carry a "data checked 2026-10" notice, and the About page tracks how many are marked and when the oldest check was'],
@@ -7046,7 +7050,7 @@ function aboutPanelZH(){
   return '<div class="panel"><h2>ℹ️ 关于与更新日志</h2><p class="sub">版本、技术、许可，以及我们坚决不做的事。</p>' +
   card('关于', '<div class="kv">' +
     '<dt>名称</dt><dd>生活换算 · 全能手册</dd>' +
-    '<dt>版本</dt><dd>V9.0（2026-10-29）</dd>' +
+    '<dt>版本</dt><dd>V9.1（2026-10-29）</dd>' +
     '<dt>形态</dt><dd>单页应用 + PWA，可安装到桌面</dd>' +
     '<dt>模块</dt><dd>' + st.mods + ' 个，' + st.groups + ' 个分组，' + st.tables + ' 张速查表、' + st.rows.toLocaleString('zh-CN') + ' 条对照</dd>' +
     '<dt>数据核对</dt><dd>' + st.chks + ' 个价格 / 政策类模块带核对角标（最早 ' + st.oldest + '）' + (st.stale ? '，其中 ' + st.stale + ' 个已逾期建议复核' : '') + '</dd>' +
@@ -7054,6 +7058,7 @@ function aboutPanelZH(){
   '</div><div class="rowline" style="margin-top:10px"><button class="btn ghost" id="tourAgain">再看一次新手提示</button></div>') +
   card('☕ 请作者喝杯咖啡', '<div class="spcard"><div class="sptxt"><p style="margin:0 0 6px">这本手册<b>完全免费、无广告、无追踪</b>，所有数据与计算都在你自己的设备上。</p><p class="mini" style="margin:0;line-height:1.8">如果它帮你省了时间，欢迎扫码请作者喝一杯——你的支持就是按时核对数据、持续新增模块的动力。</p></div><img src="sponsor-qr.png" alt="微信 / 支付宝收款码" loading="lazy"></div>') +
   card('更新日志', tbl(['版本','主要变化'],[
+    ['V9.1','京东联盟导购：家电选购、买车、手机参数三个模块底部新增「查京东实时价」链接（明确标注推广、打印自动隐藏），从这里下单可以支持本站'],
     ['V9.0','赞赏入口：关于页新增「请作者喝杯咖啡」，收下你的咖啡，继续免费更新'],
     ['V8.9','时效复核提醒：核对角标自动计算距上次核对的月数（满 12 个月提示建议复核，满 18 个月提示条标红警示），关于页统计逾期未复核模块数'],
     ['V8.8','数据新鲜度角标：33 个价格 / 政策 / 费率类模块顶部显示「数据核对 2026-10」提示条，关于页统计已标注模块数与最早核对月份'],
@@ -9727,6 +9732,19 @@ const GROUP_EN = {
 function isEN(){ return LANG === 'en'; }
 function nm(c){ return isEN() && c.en ? c.en : c.name; }
 function t(zh, en){ return isEN() ? en : zh; }
+/* ---------- 京东联盟导购 ----------
+   推客：jd_wUdoVhNvmZws（联盟 ID 2038772877）
+   用法：在京东联盟后台（union.jd.com → 推广管理 → 链接转换）把商品/搜索页
+   转成 u.jd.com 短链，填到下方 url；url 为空时回退到京东搜索页（暂无佣金）。 */
+const JD_LINKS = {
+  appbuy: { kw: '家电', url: '' },
+  carbuy: { kw: '汽车用品', url: '' },
+  phone:  { kw: '手机', url: '' }
+};
+function jdUrl(id){
+  const c = JD_LINKS[id] || {};
+  return c.url || ('https://search.jd.com/Search?keyword=' + encodeURIComponent(c.kw || '') + '&enc=utf-8');
+}
 function applyTheme(t2){
   if(t2) document.documentElement.setAttribute('data-theme', t2);
   else document.documentElement.removeAttribute('data-theme');
@@ -9745,7 +9763,7 @@ function updateStatic(){
   const brandrow = document.querySelector('.brandrow');
   if(brandrow && brandrow.childNodes[0]) brandrow.childNodes[0].textContent = t('生活换算','Life Conversion');
   const brand = document.querySelector('.brand > span');
-  if(brand) brand.textContent = t('全能手册 · 本地离线版 v9.0', 'All-in-One Handbook · v9.0');
+  if(brand) brand.textContent = t('全能手册 · 本地离线版 v9.1', 'All-in-One Handbook · v9.1');
   const bl = document.getElementById('backlink');
   if(bl) bl.textContent = t('← 返回工具箱','← Back to toolbox');
   const side = document.querySelector('.side');
@@ -11042,7 +11060,7 @@ function initInstall(){
 const FEEDBACK_EMAIL = '';
 function feedbackPanel(){
   const ua = navigator.userAgent || '';
-  const tpl = t('【生活换算反馈】\n版本：V9.0\n页面：','【Life Conversion Feedback】\nVersion: V9.0\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
+  const tpl = t('【生活换算反馈】\n版本：V9.1\n页面：','【Life Conversion Feedback】\nVersion: V9.1\nPage: ')+ (location.href || '') + t('\n浏览器：','\nBrowser: ') + ua +
     (window.__errLog && window.__errLog.length
       ? t('\n最近错误：','\nLast error: ') + window.__errLog[0].m + t('（',' (') + (window.__errLog[0].at || '') + '）'
       : '') +
@@ -11344,6 +11362,13 @@ function render(){
     if(age >= 12){ zh += ' · 已 ' + age + ' 个月未核对，建议复核'; en += ' · ' + age + ' months since check — review advised'; }
     main.insertAdjacentHTML('afterbegin',
       '<div class="chkbar' + (age >= 18 ? ' stale' : '') + '">🕒 ' + t(zh, en) + '</div>');
+  }
+  /* 京东联盟导购条：导购型模块底部显示查价链接 */
+  if(JD_LINKS[c.id]){
+    main.insertAdjacentHTML('beforeend',
+      '<div class="jdbar">🛒 ' + t('数据供参考，同款比价：','Figures for reference — compare live prices: ') +
+      '<a href="' + jdUrl(c.id) + '" target="_blank" rel="nofollow sponsored noopener">' + t('查京东实时价 →','JD.com →') + '</a>' +
+      '<span class="jdnote"> ' + t('（联盟推广链接，点开购买可支持本站）','(affiliate link)') + '</span></div>');
   }
   if(isEN()){
     main.insertAdjacentHTML('afterbegin', '<div class="langnote">English UI · RMB formal numerals and lunar month names stay in Chinese by design</div>');

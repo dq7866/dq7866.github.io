@@ -649,7 +649,7 @@ async function step3(){
 
       window.__errLog = [{ m:'TEST_ERR: canvas unavailable', at:'units.html:1' }];
       const fb = window.feedbackPanel();
-      if(fb.indexOf('V9.0') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V9.0 与最近错误信息');
+      if(fb.indexOf('V9.1') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V9.1 与最近错误信息');
       else bad('反馈模板版本或错误位缺失');
 
       /* 数据新鲜度角标：时效模块渲染 chkbar */
@@ -670,6 +670,15 @@ async function step3(){
         if(sp && spImg && /sponsor-qr\.png/.test(spImg.getAttribute('src')) && sp.textContent.length > 20) ok('关于页赞赏卡片就位（文案 + 收款码图）');
         else bad('关于页赞赏卡片缺失或不完整');
       } else bad('导航里找不到 about');
+
+      /* 京东联盟导购条：appbuy 模块渲染查价链接 */
+      const navJd = doc.querySelector('.nitem[data-id="appbuy"]');
+      if(navJd){
+        navJd.click();
+        const jb = doc.querySelector('#main .jdbar a');
+        if(jb && /(u\.jd\.com|search\.jd\.com)/.test(jb.getAttribute('href')) && /rel/.test(jb.outerHTML) && jb.rel.indexOf('nofollow') >= 0) ok('京东导购条就位（appbuy，链接带 nofollow）');
+        else bad('京东导购条缺失或链接异常');
+      } else bad('导航里找不到 appbuy');
 
       /* 时效复核提醒：月差计算 + 逾期标红（临时改 chk 再渲染，测完恢复） */
       if(typeof window.chkMonths === 'function'){
@@ -695,7 +704,10 @@ async function step3(){
         const restore = doc.createElement('script');
         restore.textContent = 'CATS.find(c=>c.id==="currency").chk="2026-10";';
         doc.body.appendChild(restore);
-        navCur2.click();
+        /* 注意：第一次点击后 recent 首位变化会触发 buildNav 重建导航，
+           旧节点脱离 DOM 后事件委托失效，必须重新查询再点 */
+        const navCur3 = doc.querySelector('.nitem[data-id="currency"]');
+        (navCur3 || navCur2).click();
         if(!doc.querySelector('#main .chkbar.stale')) ok('恢复 2026-10 后角标不再标红');
         else bad('恢复核对月份后仍标红');
       }
