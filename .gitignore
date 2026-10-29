@@ -51,3 +51,6 @@ cloudflare/room-worker/tmp/
 
 # 本地测试产物
 tmp/
+
+# 本地备份文件
+*.bak

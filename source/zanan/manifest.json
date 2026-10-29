@@ -1,15 +1,20 @@
 {
-  "name": "\u6e23\u7537\u884c\u5929\u4e0b",
-  "short_name": "\u6e23\u7537\u884c\u5929\u4e0b",
+  "name": "\u5fc3\u52a8\u72c2\u6f6e",
+  "short_name": "\u5fc3\u52a8\u72c2\u6f6e",
   "description": "AI \u5168\u8eab\u6570\u5b57\u4eba\u00b7 3D \u5272\u8349\u5192\u9669\uff1a7 \u7ae0\u5267\u60c5\u3001 14 \u4f4d Boss\u3001 87 \u4e2a\u6210\u5c31\u3001\u591a\u7ed3\u5c40",
   "start_url": "./index.html",
   "scope": "./",
+  "id": "./index.html",
   "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "categories": ["games", "entertainment"],
   "orientation": "portrait",
   "background_color": "#1a0f1e",
   "theme_color": "#ff4d9e",
   "lang": "zh-CN",
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ]
 }

@@ -4,10 +4,24 @@
 <meta charset="UTF-8">
 <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport">
 <meta content="yes" name="apple-mobile-web-app-capable">
-<title>渣男行天下 · 手机版Demo v2</title>
+<meta content="yes" name="mobile-web-app-capable">
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no,email=no,address=no" name="format-detection">
+<meta content="《心动狂潮》纯网页 3D 恋爱割草冒险：7 章讨债主线、8 位女主、14 位 Boss、多结局；免安装、免登录、离线可玩。" name="description">
+<meta content="心动狂潮 · 打穿七章讨债局" property="og:title">
+<meta content="纯网页 3D 恋爱割草冒险：7 章讨债主线、8 位女主、14 位 Boss、多结局；免安装、免登录、离线可玩。" property="og:description">
+<meta content="website" property="og:type">
+<meta content="zh_CN" property="og:locale">
+<meta content="./og.png" property="og:image">
+<meta content="1200" property="og:image:width">
+<meta content="624" property="og:image:height">
+<meta content="心动狂潮" name="apple-mobile-web-app-title">
+<title>心动狂潮 · 打穿七章讨债局</title>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+/* v69：层级令牌（原先 5 处 z-index:60 靠 DOM 顺序规避，现改为显式分层） */
+:root{--z-modal:60;--z-share:66;--z-toast-a:62;--z-toast-b:63;--z-toast-c:64;--z-card:70;--z-tip:82}
 html,body{width:100%;height:100%;overflow:hidden;background:#0a0512;touch-action:none;
   font-family:"PingFang SC","Microsoft YaHei",sans-serif;user-select:none;-webkit-user-select:none}
 canvas{display:block}
@@ -22,8 +36,8 @@ canvas{display:block}
 #scumBar{flex:.7}
 #scumBar>div{background:linear-gradient(90deg,#b5179e,#7209b7);width:0%}
 #lvl{color:#ffd60a;font-weight:bold;font-size:15px;text-shadow:0 0 8px #ff9e00}
-#waveInfo{color:#e0c3fc;font-size:11px;text-align:right;min-width:64px}
-#envInfo{color:#ffe9a8;font-size:11px;white-space:nowrap;
+#waveInfo{color:#e0c3fc;font-size:12px;text-align:right;min-width:64px}
+#envInfo{color:#ffe9a8;font-size:12px;white-space:nowrap;
   text-shadow:0 0 8px rgba(255,214,10,.35)}
 /* v53：男主动作状态徽章（环境信息下方的小胶囊） */
 #actState{display:none;position:fixed;top:calc(env(safe-area-inset-top) + 66px);left:10px;z-index:7;
@@ -41,6 +55,10 @@ canvas{display:block}
   background:rgba(40,10,50,.6);font-size:22px;display:flex;align-items:center;justify-content:center}
 #dashBtn{border-color:#4cc9f0;color:#4cc9f0;bottom:110px;position:fixed}
 #dashBtn.cd{opacity:.3}
+/* 常驻打赏入口（游戏内 ❤ 按钮，任何时候都能打开打赏页） */
+#tipBtn{border-color:rgba(255,143,163,.75);color:#ff8fb8;font-size:20px}
+#tipBtn.pulse{animation:tipBtnPulse 2.4s ease-in-out infinite}
+@keyframes tipBtnPulse{0%,100%{box-shadow:0 0 0 rgba(247,37,133,0)}50%{box-shadow:0 0 20px rgba(247,37,133,.85)}}
 /* ---- 成就弹窗 ---- */
 #achToast{position:fixed;top:calc(env(safe-area-inset-top) + 120px);left:50%;transform:translateX(-50%) translateY(-16px);
   z-index:18;background:linear-gradient(160deg,rgba(60,30,10,.96),rgba(90,50,15,.96));border:1px solid #ffd60a;
@@ -65,7 +83,7 @@ canvas{display:block}
 .cx.lock,.ax.lock{opacity:.42;filter:grayscale(.7)}
 .cx .ci,.ax .ai{font-size:19px}
 .cx .cn,.ax .an2{color:#ff8fa3;font-size:13px;font-weight:bold}
-.cx .cd,.ax .ad2{color:#c9a7eb;font-size:10.5px;line-height:1.5}
+.cx .cd,.ax .ad2{color:#c9a7eb;font-size:11.5px;line-height:1.5}
 .cx .ck{color:#ffd60a;font-size:12px}
 /* 徽章墙 */
 #achList{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px}
@@ -78,7 +96,7 @@ canvas{display:block}
 .badge .bn{color:#ffe3f1;font-size:11px;font-weight:bold;line-height:1.3;margin-bottom:3px}
 #dropToast .dax{color:#9ad0ff;font-size:11.5px;line-height:1.6;margin-top:6px}
 #dropToast .drf{color:#ffd60a;font-size:12px;font-weight:bold;margin-top:4px}
-.badge .br{font-size:9.5px;letter-spacing:1px}
+.badge .br{font-size:10.5px;letter-spacing:1px}
 .badgeProg{grid-column:1/-1;text-align:center;color:#c9a7eb;font-size:12px;padding:9px 0 3px;letter-spacing:1px}
 /* ---- 套装行 ---- */
 .setRow{display:flex;align-items:center;gap:9px;padding:9px 11px;margin:5px 0;border-radius:12px;
@@ -109,7 +127,7 @@ canvas{display:block}
   text-shadow:0 0 6px #000;transition:none}
 .dmg.crit{color:#ff4d6d;font-size:19px}
 /* ---- 升级面板 ---- */
-#modal{position:fixed;inset:0;background:rgba(10,3,20,.88);display:none;z-index:60;
+#modal{position:fixed;inset:0;background:rgba(10,3,20,.88);display:none;z-index:var(--z-modal);
   flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}
 #modal h2{color:#ffd60a;text-shadow:0 0 16px #f72585;font-size:19px;letter-spacing:3px;margin-bottom:4px}
 #cards{display:flex;flex-direction:column;gap:10px;width:100%;max-width:420px}
@@ -147,8 +165,19 @@ canvas{display:block}
   background:radial-gradient(ellipse at center,#1a0b2e,#05020a);padding:20px;overflow-y:auto;
   -webkit-overflow-scrolling:touch}
 #overlay .box{text-align:center;max-width:440px;width:100%;margin:auto;padding:6px 0}
-#overlay h1{font-size:40px;color:#ff4d9e;text-shadow:0 0 26px #f72585,0 0 50px #7209b7;letter-spacing:6px}
+/* 《心动狂潮》主标题：渐变心跳字 + 标语 */
+#overlay h1{font-size:40px;letter-spacing:6px;
+  background:linear-gradient(100deg,#ff8fb8 0%,#ff4d9e 34%,#ffd60a 66%,#ff8fb8 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 16px rgba(247,37,133,.8)) drop-shadow(0 0 38px rgba(114,9,183,.65));
+  animation:hdBeat 2.6s ease-in-out infinite}
+@keyframes hdBeat{0%,100%{transform:scale(1)}14%{transform:scale(1.045)}28%{transform:scale(1)}42%{transform:scale(1.028)}}
+#overlay .tagline{margin:6px 0 2px;font-size:12.5px;letter-spacing:4px;color:#ffd0e2}
+#overlay .tagline b{color:#ffd60a}
 #overlay p{color:#c9a7eb;font-size:13px;margin:14px 0 20px;line-height:1.9}
+#tipEntry{display:block;margin:12px auto 0;padding:8px 20px;border-radius:20px;font-size:12.5px;letter-spacing:2px;
+  color:#ffd9ec;border:1px dashed rgba(255,143,163,.6);background:rgba(247,37,133,.12)}
+#tipEntry b{color:#ffd60a}
 #dailyBar{margin:0 0 16px}
 #dailyBar .dm{display:inline-block;text-align:left;padding:9px 14px;border-radius:12px;
   background:linear-gradient(135deg,rgba(76,201,240,.14),rgba(114,9,183,.22));
@@ -197,7 +226,7 @@ canvas{display:block}
 #shareBtn{display:none;margin:16px auto 0;padding:11px 34px;font-size:14px;letter-spacing:3px;
   color:#fff;border:2px solid #4cc9f0;border-radius:32px;
   background:linear-gradient(135deg,rgba(76,201,240,.24),rgba(114,9,183,.4));box-shadow:0 0 18px rgba(76,201,240,.5)}
-#shareOv{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;
+#shareOv{position:fixed;inset:0;z-index:var(--z-share);display:none;align-items:center;justify-content:center;
   background:rgba(5,2,10,.88);flex-direction:column;padding:16px;overflow:auto}
 #shareOv .shBox{text-align:center;max-width:88vw}
 #shareOv img{max-width:100%;max-height:74vh;border-radius:16px;box-shadow:0 0 40px rgba(247,37,133,.5)}
@@ -222,10 +251,10 @@ canvas{display:block}
 @keyframes tutPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.7) drop-shadow(0 0 14px #ffd60a)}}
 #tip{position:fixed;top:32%;width:100%;text-align:center;font-size:16px;color:#fff;z-index:8;
   text-shadow:0 0 12px #f72585;pointer-events:none;opacity:0;transition:opacity .35s;letter-spacing:2px}
-#muteBtn{position:fixed;bottom:calc(env(safe-area-inset-bottom)+10px);right:10px;z-index:11;width:40px;height:40px;border-radius:50%;
+#muteBtn{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 10px);right:10px;z-index:11;width:40px;height:40px;border-radius:50%;
   border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.4);color:#fff;font-size:16px}
 /* v52：全屏按钮（叠在静音键上，统一 40px 圆形系统键） */
-#fsBtn{position:fixed;bottom:calc(env(safe-area-inset-bottom)+58px);right:10px;z-index:11;width:40px;height:40px;border-radius:50%;
+#fsBtn{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 58px);right:10px;z-index:11;width:40px;height:40px;border-radius:50%;
   border:1px solid rgba(255,255,255,.34);background:rgba(0,0,0,.46);color:#fff;font-size:17px;line-height:1;
   display:flex;align-items:center;justify-content:center;padding:0;-webkit-tap-highlight-color:transparent;
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:transform .16s,border-color .2s,background .2s}
@@ -235,7 +264,7 @@ canvas{display:block}
   box-shadow:0 0 14px rgba(255,214,10,.34)}
 #fsBtn.on .fsIco{transform:translateY(-1px) rotate(180deg)}
 /* 全屏态下隐藏状态栏偏移、放大安全边距，游戏画面吃满屏幕 */
-#fsTip{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom)+112px);transform:translateX(-50%) translateY(8px);
+#fsTip{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 112px);transform:translateX(-50%) translateY(8px);
   z-index:12;padding:7px 14px;border-radius:10px;font-size:12px;letter-spacing:1px;color:#fff;
   background:rgba(18,12,34,.92);border:1px solid rgba(255,214,10,.4);white-space:nowrap;
   opacity:0;pointer-events:none;transition:opacity .24s,transform .24s cubic-bezier(.16,.84,.34,1)}
@@ -243,13 +272,13 @@ canvas{display:block}
 /* ---- 剧情对话 ---- */
 #dlg{position:fixed;inset:0;z-index:25;display:none;align-items:flex-end;justify-content:center;
   background:linear-gradient(transparent 55%,rgba(10,3,20,.75))}
-#dlgBox{width:100%;max-width:480px;margin-bottom:calc(env(safe-area-inset-bottom)+14px);
+#dlgBox{width:100%;max-width:480px;margin-bottom:calc(env(safe-area-inset-bottom) + 14px);
   background:linear-gradient(160deg,rgba(43,15,58,.97),rgba(74,18,89,.97));
   border:1px solid #ff8fa3;border-radius:18px 18px 0 0;padding:16px 18px}
 #dlgName{color:#ffd60a;font-size:15px;font-weight:bold;margin-bottom:6px;text-shadow:0 0 8px #ff9e00}
 #dlgBody{display:flex;gap:14px;align-items:flex-start}
-#dlgFaceWrap{flex:0 0 118px;text-align:center}
-#dlgFace{width:118px;height:118px;border-radius:16px;border:0;box-shadow:0 6px 22px rgba(247,37,133,.42);
+#dlgFaceWrap{flex:0 0 142px;text-align:center}
+#dlgFace{width:142px;height:142px;border-radius:16px;border:0;box-shadow:0 6px 22px rgba(247,37,133,.42);
   animation:faceBreath 3.2s ease-in-out infinite}
 @keyframes faceBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
 #dlgFaceTag{font-size:11px;color:#ffd60a;margin-top:5px;letter-spacing:2px}
@@ -259,8 +288,8 @@ canvas{display:block}
   border:1px solid #f72585;background:rgba(114,9,183,.35);line-height:1.5}
 #dlgChoices button:active{background:rgba(247,37,133,.5)}
 #dlgChoices .tag{color:#9df;color:#8ecae6;font-size:11px}
-#mates{position:fixed;top:calc(env(safe-area-inset-top)+52px);left:12px;z-index:10;display:flex;gap:5px;pointer-events:none}
-.mate{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;
+#mates{position:fixed;top:calc(env(safe-area-inset-top) + 100px);left:12px;z-index:10;display:flex;flex-wrap:wrap;gap:6px;max-width:246px;pointer-events:none}
+.mate{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;
   background:rgba(0,0,0,.5);overflow:hidden}
 .mate img{display:block}
 .mate.atk{animation:mateAtk .5s ease}
@@ -322,7 +351,7 @@ canvas{display:block}
 #lt{font-size:15px;font-weight:bold;margin-bottom:10px;letter-spacing:2px;color:#8a3a5a}
 #lb{font-size:13.5px;line-height:2;font-family:Georgia,serif}
 /* ---- 好感度 ---- */
-#affPanel{position:fixed;top:calc(env(safe-area-inset-top)+96px);left:12px;z-index:10;pointer-events:none;
+#affPanel{position:fixed;top:calc(env(safe-area-inset-top) + 224px);left:12px;z-index:10;pointer-events:none;
   display:flex;flex-direction:column;gap:5px}
 .aff{display:flex;align-items:center;gap:5px;font-size:11px;color:#ffe3f1;background:rgba(0,0,0,.45);
   padding:3px 8px;border-radius:10px;border:1px solid rgba(255,143,163,.35)}
@@ -331,9 +360,30 @@ canvas{display:block}
 .aff .h{color:#ffd60a;font-size:11px}
 #banner{position:fixed;top:26%;left:0;right:0;text-align:center;z-index:12;pointer-events:none;
   opacity:0;transform:translateY(-14px);transition:opacity .6s,transform .6s}
-#chapterName{font-size:26px;font-weight:bold;color:#ffd60a;letter-spacing:6px;
+#chapterName{display:inline-block;padding:5px 22px 6px;border-radius:24px;font-size:24px;font-weight:bold;color:#ffd60a;letter-spacing:6px;
+  background:linear-gradient(100deg,rgba(247,37,133,.45),rgba(114,9,183,.55));
+  border:1px solid rgba(255,214,10,.55);box-shadow:0 0 22px rgba(247,37,133,.5);
   text-shadow:0 0 20px #f72585,0 0 40px #7209b7}
 #chapterDesc{font-size:13px;color:#ffd9ec;letter-spacing:3px;margin-top:8px;text-shadow:0 0 10px #000}
+/* ---- v71：章节过场对白（讨债人 x 本章女主）· 左下字幕条，可点 ✕ 关闭，不阻断操作 ---- */
+#chTalk{position:fixed;left:12px;bottom:calc(env(safe-area-inset-bottom) + 208px);
+  transform:translateY(12px);width:min(58vw,308px);z-index:13;pointer-events:none;
+  opacity:0;transition:opacity .35s,transform .35s}
+#chTalk.show{opacity:1;transform:translateY(0)}
+#chTalk .ctCard{position:relative;pointer-events:auto;background:linear-gradient(180deg,rgba(20,6,34,.88),rgba(44,10,58,.92));
+  border:1px solid rgba(255,214,10,.42);border-radius:12px;padding:10px 13px 11px;
+  box-shadow:0 6px 22px rgba(0,0,0,.55)}
+#chTalk .ctRow{display:flex;gap:7px;font-size:12.5px;line-height:1.55;margin:0 0 7px}
+#chTalk .ctRow:last-child{margin-bottom:0}
+#chTalk .ctWho{flex:0 0 auto;font-weight:bold;letter-spacing:1px;color:#ffd60a;text-shadow:0 0 8px rgba(255,0,110,.5)}
+#chTalk .ctWho.her{color:#ff8fc8}
+#chTalk .ctLine{flex:1 1 auto;color:#fff}
+#chTalk .ctX{position:absolute;top:-9px;right:-6px;width:26px;height:26px;padding:0;border-radius:50%;
+  background:rgba(20,6,34,.92);border:1px solid rgba(255,214,10,.5);color:#ffd60a;font-size:12px;line-height:1;
+  display:flex;align-items:center;justify-content:center;cursor:pointer}
+#chTalk .ctX:active{background:rgba(255,214,10,.22)}
+@media (max-height:660px){#chTalk{bottom:calc(env(safe-area-inset-bottom) + 200px)}#chTalk .ctRow{font-size:11.5px}}
+@media (max-width:360px){#chTalk{left:8px;width:min(52vw,240px)}}
 /* ---- 模式选择（开始界面） ---- */
 #modeSel{display:flex;gap:8px;justify-content:center;margin:12px 0 4px;flex-wrap:wrap}
 .modeBtn{padding:9px 16px;border-radius:22px;font-size:12.5px;letter-spacing:1px;color:#c9a7eb;
@@ -475,7 +525,7 @@ canvas{display:block}
 #awakenHud .ahS{color:#ffd60a;font-weight:bold;margin-right:8px}
 #awakenHud .ahA{color:#e0c9ff}
 /* ---- 武器觉醒卡片 ---- */
-#awakenToast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.85);z-index:60;
+#awakenToast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.85);z-index:var(--z-toast-a);
   text-align:center;pointer-events:none;opacity:0;transition:opacity .4s,transform .4s;
   padding:24px 34px;border-radius:20px;
   background:linear-gradient(160deg,rgba(58,40,5,.97),rgba(114,9,183,.92));
@@ -487,7 +537,7 @@ canvas{display:block}
   text-shadow:0 0 18px rgba(212,175,55,.9)}
 #awakenToast .aw-d{font-size:12.5px;color:#e0c9ff}
 /* ---- 套装共鸣卡片 ---- */
-#setToast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.85);z-index:60;
+#setToast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.85);z-index:var(--z-toast-b);
   text-align:center;pointer-events:none;opacity:0;transition:opacity .4s,transform .4s;
   padding:22px 32px;border-radius:18px;
   background:linear-gradient(160deg,rgba(20,10,40,.97),rgba(60,20,90,.93));
@@ -496,7 +546,7 @@ canvas{display:block}
 #setToast .st-n{font-size:18px;font-weight:bold;color:#fff;margin:6px 0 5px;letter-spacing:2px}
 #setToast .st-d{font-size:12.5px;color:#ffd60a}
 /* ---- 约会场景卡 ---- */
-#dateToast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.85);z-index:60;
+#dateToast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.85);z-index:var(--z-toast-c);
   text-align:center;pointer-events:none;opacity:0;transition:opacity .5s,transform .5s;
   padding:24px 34px;border-radius:20px;
   background:linear-gradient(160deg,rgba(70,20,50,.96),rgba(120,30,80,.9));
@@ -547,7 +597,7 @@ canvas{display:block}
   animation:ckPulse 1.2s ease-in-out infinite}
 @keyframes ckPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 #checkinBox .cdi{display:block;font-size:15px;line-height:1.2}
-#checkinBox .cdp{display:block;font-size:9.5px;color:#ffd60a;margin-top:1px}
+#checkinBox .cdp{display:block;font-size:10.5px;color:#ffd60a;margin-top:1px}
 #checkinBtn{width:100%;padding:9px;border-radius:11px;font-size:13px;letter-spacing:2px;color:#fff;
   border:1px solid #4cc9f0;background:linear-gradient(135deg,rgba(76,201,240,.3),rgba(114,9,183,.5))}
 #checkinBtn:disabled{opacity:.45;border-color:#5a4a68;background:rgba(90,74,104,.2)}
@@ -656,7 +706,7 @@ canvas{display:block}
 #socBody .srow .rk{width:22px;text-align:center;font-weight:bold;color:#ffd60a;flex-shrink:0}
 #socBody .srow .nm{flex:1;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #socBody .srow .st{font-size:10px;color:#9ad0ff;flex-shrink:0}
-#socBody .srow .mut{font-size:9.5px;color:#ff8fa3;border:1px solid #ff8fa3;border-radius:8px;padding:1px 5px;flex-shrink:0}
+#socBody .srow .mut{font-size:10.5px;color:#ff8fa3;border:1px solid #ff8fa3;border-radius:8px;padding:1px 5px;flex-shrink:0}
 #socBody .socForm{display:flex;gap:6px;margin:6px 0}
 #socBody .socForm input{flex:1;min-width:0;background:rgba(0,0,0,.4);border:1px solid #4a3a6a;color:#fff;
   border-radius:8px;padding:6px 8px;font-size:11.5px}
@@ -667,7 +717,29 @@ canvas{display:block}
 #socBody .guildHead .gn{font-size:14px;color:#ffd60a;font-weight:bold}
 #socBody .guildHead .gd{font-size:10.5px;color:#c7b6ff;margin-top:3px;line-height:1.5}
 #socBody .sbtnRow{display:flex;gap:6px;margin-top:6px}
-</style>
+/* ---------- 成长打赏弹窗（按章节 · 自愿 · 不卡关） ---------- */
+#tipOv{display:none;position:fixed;inset:0;z-index:82;align-items:center;justify-content:center;
+  background:rgba(5,2,12,.92);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);padding:16px;overflow-y:auto}
+#tipOv .toBox{width:min(360px,92vw);max-height:92vh;overflow-y:auto;text-align:center;padding:20px 18px 16px;border-radius:20px;
+  background:linear-gradient(160deg,rgba(58,16,60,.98),rgba(24,10,44,.98));
+  border:1px solid rgba(255,214,10,.5);box-shadow:0 0 44px rgba(247,37,133,.42),inset 0 0 0 1px rgba(255,255,255,.05)}
+#tipOv .toTag{font-size:11px;letter-spacing:4px;color:#ffd60a}
+#tipOv .toCh{font-size:13px;letter-spacing:2px;color:#ff8fa3;margin-top:6px}
+#tipOv .toMsg{font-size:16px;line-height:1.85;font-weight:600;color:#fff;margin:12px 0 6px;
+  text-shadow:0 0 16px rgba(247,37,133,.6)}
+#tipOv .toSub{font-size:12px;line-height:1.7;color:#ffd9ec;margin-bottom:10px}
+#tipOv .toQr{display:block;width:min(238px,60vw);margin:0 auto 6px;padding:8px;border-radius:14px;background:#fff;
+  box-shadow:0 0 26px rgba(255,214,10,.35)}
+#tipOv .toQr.toQrMiss{background:rgba(255,255,255,.06);box-shadow:none}
+#tipOv .toQrNote{font-size:10.5px;line-height:1.5;color:#ffb3c8;margin-bottom:6px}
+#tipOv .toMny{font-size:12px;letter-spacing:1px;color:#ffd60a;margin-bottom:12px}
+#tipOv .toRow{display:flex;gap:9px}
+#tipOv .toRow button{flex:1;padding:11px 10px;border-radius:13px;font-size:13px;letter-spacing:1px;color:#fff;
+  border:1px solid rgba(255,143,163,.5);background:rgba(114,9,183,.3)}
+#tipOv .toRow button.toPaid{border-color:#ffd60a;font-weight:bold;
+  background:linear-gradient(135deg,rgba(247,37,133,.52),rgba(255,214,10,.34));
+  box-shadow:0 0 18px rgba(255,214,10,.4)}
+#tipOv .toNote{font-size:11px;line-height:1.5;color:#8a7aa8;margin-top:9px}
 
 #__boot{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:14px;
@@ -684,19 +756,104 @@ canvas{display:block}
 #__boot .be{max-width:80vw;text-align:center;font-size:13px;color:#ff9db5;line-height:1.7}
 #__boot .bk{margin-top:8px;padding:9px 22px;border:0;border-radius:20px;cursor:pointer;
   background:linear-gradient(90deg,#ff4d9e,#ff6b8a);color:#fff;font-size:14px;font-weight:700}
+/* ============ v69 商业级补强 ============ */
+/* ① 暂停 & 设置面板 */
+#pauseMenu{position:fixed;inset:0;z-index:var(--z-card);display:none;align-items:center;justify-content:center;
+  background:rgba(6,2,12,.9);padding:18px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+#pauseMenu .pmBox{width:min(360px,92vw);max-height:92vh;overflow-y:auto;padding:20px 18px 16px;border-radius:20px;
+  background:linear-gradient(160deg,rgba(58,16,60,.98),rgba(24,10,44,.98));
+  border:1px solid rgba(255,214,10,.5);box-shadow:0 0 40px rgba(247,37,133,.35)}
+#pauseMenu h2{color:#ffd60a;text-align:center;font-size:20px;letter-spacing:6px;margin-bottom:14px}
+#pauseMenu .pmRow{display:flex;align-items:center;gap:10px;margin:10px 0}
+#pauseMenu .pmK{width:46px;font-size:13px;color:#ff8fa3;letter-spacing:1px;flex:none}
+#pauseMenu input[type=range]{flex:1;height:5px;accent-color:#ff4d9e}
+#pauseMenu .pmV{width:32px;text-align:right;font-size:12px;color:#ffd60a;font-variant-numeric:tabular-nums;flex:none}
+#pauseMenu .pmSeg{display:flex;gap:6px;flex:1}
+#pauseMenu .pmSeg button{flex:1;padding:8px 4px;border-radius:10px;font-size:12px;color:#e8d5f0;
+  border:1px solid rgba(201,167,235,.35);background:rgba(114,9,183,.22)}
+#pauseMenu .pmSeg button.on{border-color:#ffd60a;color:#ffd60a;
+  background:linear-gradient(135deg,rgba(247,37,133,.4),rgba(255,214,10,.24))}
+#pauseMenu .pmBtn{display:block;width:100%;margin-top:10px;padding:12px;border-radius:13px;font-size:14px;
+  letter-spacing:2px;color:#fff;border:1px solid rgba(255,143,163,.5);background:rgba(114,9,183,.3)}
+#pauseMenu .pmBtn.warn{border-color:#ff4d6d;background:rgba(120,10,40,.4);color:#ff8fa3}
+#pauseMenu .pmNote{margin-top:12px;text-align:center;font-size:11px;line-height:1.6;color:#8a7aa8}
+/* ② 横屏提示：竖屏单手游戏在横屏下给出明确指引，避免静默错版 */
+#rotateHint{display:none;position:fixed;inset:0;z-index:9000;align-items:center;justify-content:center;
+  background:rgba(6,2,12,.96);pointer-events:none;text-align:center;color:#ffd0e2;padding:24px}
+#rotateHint .rh{font-size:44px;display:inline-block;animation:rhRot .9s ease-in-out infinite}
+@keyframes rhRot{0%,40%{transform:rotate(0)}70%,100%{transform:rotate(90deg)}}
+#rotateHint p{margin-top:12px;font-size:14px;line-height:1.7;color:#c9a7eb}
+@media (orientation:landscape) and (max-height:560px){#rotateHint{display:flex}}
+/* ③ 全屏态安全区（原先 .isFs/.fsTall 被 toggle 却没有对应样式，现补齐） */
+body.isFs #hud{padding-top:calc(env(safe-area-inset-top) + 4px)}
+body.fsTall #hud{padding-top:8px}
+body.isFs #btns{top:calc(env(safe-area-inset-top) + 52px)}
+body.fsTall #btns{top:calc(env(safe-area-inset-top) + 40px)}
+body.isFs #joy,body.fsTall #joy{bottom:calc(env(safe-area-inset-bottom) + 30px)}
+/* ④ 可访问性：尊重系统「减弱动效」偏好 */
+@media (prefers-reduced-motion:reduce){
+  #__boot .bl,#tipBtn.pulse,.card.fuse,#rotateHint .rh{animation:none!important}
+  .dmg,#pauseMenu,#codex{transition:none!important}
+}
+/* ⑤ 关键按钮最小触摸尺寸 44px（原先 40px 低于单手推荐下限） */
+#muteBtn,#fsBtn{min-width:44px;min-height:44px}
+/* ===== v73：本轮商业级补齐的样式（关于面板 / 存档迁移 / 新版本提示） ===== */
+/* 关于 · 隐私与打赏说明（合规知情入口） */
+#aboutOv{position:fixed;inset:0;z-index:calc(var(--z-tip) - 1);display:none;align-items:center;justify-content:center;background:rgba(10,4,16,.84);padding:18px}
+#aboutOv.on{display:flex}
+.abBox{width:100%;max-width:420px;max-height:82vh;overflow:auto;-webkit-overflow-scrolling:touch;background:linear-gradient(160deg,#2a1436,#160b20);border:1px solid rgba(255,77,158,.35);border-radius:16px;padding:16px 16px 14px;box-shadow:0 12px 40px rgba(0,0,0,.65)}
+.abTag{color:#ffd60a;font-size:12px;letter-spacing:2px;text-align:center;opacity:.9}
+.abH{color:#ff8fa3;font-size:19px;text-align:center;margin:6px 0 10px}
+.abBody{color:#e8dcf3;font-size:12.5px;line-height:1.78}
+.abBody p{margin:0 0 8px}
+.abBody b{color:#ffd60a}
+#aboutClose{display:block;width:100%;margin-top:6px;padding:11px 0;border:0;border-radius:12px;background:linear-gradient(90deg,#ff4d9e,#ff8fa3);color:#1a0f1e;font-size:14px;font-weight:700}
+#aboutRow{margin:8px 0 2px}
+#aboutBtn{width:100%;padding:10px 12px;border:1px solid #6b4b8a;border-radius:12px;background:#22102e;color:#d9c8ee;font-size:12.5px;min-height:44px}
+/* 存档迁移（换机 / 清缓存前备份） */
+#saveIO{margin:10px 0 6px;padding:10px 10px 8px;border:1px dashed #6b4b8a;border-radius:12px;background:#1d0f28}
+.svIOT{color:#ffd60a;font-size:12px;margin-bottom:6px}
+#saveIOTxt{width:100%;height:46px;resize:none;border-radius:8px;border:1px solid #4d3a63;background:#150a1e;color:#cfe9ff;font-size:10.5px;padding:6px;font-family:ui-monospace,Consolas,monospace;word-break:break-all}
+.svIORow{display:flex;gap:8px;margin-top:6px}
+.svIORow button{flex:1;padding:9px 0;border:0;border-radius:10px;background:#3a2350;color:#f0e6ff;font-size:12.5px;min-height:44px}
+/* 新版本就绪提示（仅版本更替后出现，不打断游玩） */
+#updBar{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 8px);transform:translateX(-50%);z-index:calc(var(--z-tip) + 2);display:none;align-items:center;gap:10px;padding:8px 10px 8px 14px;border-radius:14px;border:1px solid rgba(255,214,10,.4);background:rgba(26,15,30,.95);color:#ffe9a8;font-size:12.5px;box-shadow:0 6px 24px rgba(0,0,0,.6);max-width:92vw}
+#updBar.on{display:flex}
+#updGo{padding:6px 12px;border:0;border-radius:10px;background:linear-gradient(90deg,#ff4d9e,#ff8fa3);color:#1a0f1e;font-size:12.5px;font-weight:700;min-height:34px}
+#updNo{padding:2px 6px;border:0;background:transparent;color:#8a7aa8;font-size:13px;min-height:34px}
+</style>
 
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#ff4d9e">
-<script src="/ads.js" defer></script>
+<!-- 打赏设计：按成长阶段（章节）自愿打赏；全章开放、无门槛、不接真实支付、不写固定金额、不硬卡关，任何章节都能完整游玩 -->
 </head>
 <body>
 <div id="__boot"><div class="bl">💔</div>
-<div class="bt">渣男行天下</div>
+<div class="bt">心动狂潮</div>
 <div class="bb"><i id="__bootBar"></i></div>
 <div class="bp" id="__bootPct">0%</div>
 <div class="bs" id="__bootTip">正在聚集魅力…</div></div>
+
+<div id="rotateHint"><div><span class="rh">📱</span><p>本作是竖屏单手操作游戏<br>请把手机转回竖直方向继续游玩</p></div></div>
+
+<div id="pauseMenu" role="dialog" aria-modal="true" aria-label="暂停菜单"><div class="pmBox">
+  <h2>暂 停</h2>
+  <div class="pmRow"><span class="pmK">音乐</span><input type="range" id="pmMus" min="0" max="100" step="1" aria-label="音乐音量"><span class="pmV" id="pmMusV">70</span></div>
+  <div class="pmRow"><span class="pmK">音效</span><input type="range" id="pmSfx" min="0" max="100" step="1" aria-label="音效音量"><span class="pmV" id="pmSfxV">80</span></div>
+  <div class="pmRow"><span class="pmK">画质</span><div class="pmSeg" id="pmQual">
+    <button data-q="auto">自动</button><button data-q="2">高</button><button data-q="1">中</button><button data-q="0">低</button></div></div>
+  <div class="pmRow"><span class="pmK">震动</span><div class="pmSeg" id="pmVib">
+    <button data-v="1">开</button><button data-v="0">关</button></div></div>
+  <button class="pmBtn" id="pmResume">继续游戏</button>
+  <button class="pmBtn" id="pmRestart">重新开始本局</button>
+  <button class="pmBtn warn" id="pmHome">返回主菜单</button>
+  <button class="pmBtn" id="pmAbout">ℹ️ 关于 · 隐私与打赏</button>
+  <div class="pmNote">心动狂潮 · 版本 <span id="pmVer">—</span><br>打赏完全自愿、不卡关；设置与存档分别保存</div>
+</div></div>
 
 <div id="hud">
   <div id="xpTop"><div></div></div>
@@ -711,15 +868,17 @@ canvas{display:block}
     <div id="comboBox"><span class="cn">0 连杀</span></div>
   </div>
 </div>
+<div id="updBar" role="status" aria-live="polite"><span>✨ 新版本已就绪</span><button id="updGo">立刻刷新</button><button id="updNo" aria-label="忽略本次更新">✕</button></div>
 <div id="roomBar"><div class="rbTag"></div><div class="rbSub"></div></div>
 <div id="btns">
-  <button class="cbtn" id="pauseBtn">⏸</button>
-  <button class="cbtn" id="codexBtn">📖</button>
+  <button class="cbtn" id="pauseBtn" aria-label="暂停或继续" title="暂停 / 继续">⏸</button>
+  <button class="cbtn" id="codexBtn" aria-label="图鉴与存档">📖</button>
+  <button class="cbtn" id="tipBtn" title="打赏支持作者（金额凭心情）" aria-label="打赏支持作者">❤</button>
 </div>
-<div id="achToast"></div>
-<div id="codex">
+<div id="achToast" role="status" aria-live="polite"></div>
+<div id="codex" role="dialog" aria-modal="true" aria-label="江湖档案与存档迁移">
   <button id="codexClose">✕</button>
-  <h2>📖 江湖档案 <span style="font-size:11px;color:#8a7aa8;letter-spacing:0">v28</span></h2>
+  <h2>📖 江湖档案</h2>
   <div class="svGrid">
     <div class="svCell"><div class="v" id="svRealm">炼体·前期</div><div class="k">最高境界</div></div>
     <div class="svCell"><div class="v" id="svKills">0</div><div class="k">最高击杀</div></div>
@@ -761,32 +920,64 @@ canvas{display:block}
     <button class="ctab" data-f="love">情缘</button>
   </div>
   <div id="achList"></div>
+  <div id="saveIO">
+    <div class="svIOT">💾 存档迁移（换手机 / 清缓存前先备份）</div>
+    <textarea id="saveIOTxt" aria-label="存档码文本框" placeholder="导出后长按复制保存；导入时把存档码粘贴到这里"></textarea>
+    <div class="svIORow"><button id="saveExp">导出存档码</button><button id="saveImp">导入存档码</button></div>
+  </div>
   <button id="resetBtn">🗑️ 清空存档（不可恢复）</button>
 </div>
-<button class="cbtn" id="dashBtn">💨</button>
+<button class="cbtn" id="dashBtn" aria-label="冲刺闪避">💨</button>
 <div id="loverBtns"></div>
-<button id="muteBtn">🔊</button>
-<button id="fsBtn" title="全屏"><span class="fsIco">⛶</span></button>
+<button id="muteBtn" aria-label="静音开关">🔊</button>
+<button id="fsBtn" title="全屏" aria-label="全屏切换"><span class="fsIco">⛶</span></button>
 <div id="mates"></div>
 <div id="affPanel"></div>
 <div id="letter"><div id="letterBox"><div id="lt"></div><div id="lb"></div></div></div>
 <div id="banner"><div id="chapterName"></div><div id="chapterDesc"></div></div>
 <div id="joy"><div id="joyKnob"></div></div>
-<div id="tutorial"><div id="tutBox"><div id="tutStep"></div><div id="tutText"></div>
+<div id="tutorial" role="dialog" aria-modal="true" aria-label="新手引导"><div id="tutBox"><div id="tutStep"></div><div id="tutText"></div>
   <div id="tutDots"></div><button id="tutNext">知道了</button><button id="tutSkip">跳过引导</button></div></div>
-<div id="tip"></div>
+<div id="tip" role="status" aria-live="polite"></div>
 <div id="meetCard"></div>
-<div id="modal"><h2>✦ 渣男秘籍 · 三选一 ✦</h2><div id="cards"></div></div>
+<div id="tipOv" role="dialog" aria-modal="true" aria-label="打赏支持作者"><div class="toBox">
+  <div class="toTag">✦ 玩 得 很 好 ✦</div>
+  <div class="toCh" id="toCh"></div>
+  <div class="toMsg">玩的很棒，请打赏点作者的不易，愿玩的开心快乐</div>
+  <div class="toSub">这一路的笑与梗都是作者熬夜磨出来的，如果它让你开心过，扫码请作者喝杯咖啡吧 ☕</div>
+  <img alt="打赏码" class="toQr" id="toQr" src="assets/tipcode.png">
+  <div class="toQrNote" id="toQrNote">👉 请用 微信「扫一扫」扫上方收款码（微信 → 发现 → 扫一扫）；不打赏也能一路玩到底 ❤</div>
+  <div class="toMny">金额凭心情 · 多少都是心意；不打赏也能一路玩到底 ❤</div>
+  <div class="toRow">
+    <button class="toPaid" id="toPaid">我已打赏 ❤</button>
+    <button id="toLater">稍后再说</button>
+  </div>
+  <div class="toNote" id="toNote">已打赏的成长阶段不会再提示；每一章都可以重复游玩。</div>
+</div></div>
+<div id="aboutOv" role="dialog" aria-modal="true" aria-label="关于游戏 · 隐私与打赏说明"><div class="abBox">
+  <div class="abTag">✦ 关 于 本 作 ✦</div>
+  <div class="abH">心动狂潮 · 隐私与打赏说明</div>
+  <div class="abBody">
+    <p><b>这是什么</b>：一款纯网页 3D 恋爱割草冒险——7 章讨债主线、8 位女主、14 位 Boss、多种结局。免安装、免登录、离线可玩。</p>
+    <p><b>数据在哪</b>：进度、成就与打赏记录只保存在你这台设备的浏览器本地（键名 znxtx_save_v1 / znxtx_tips_v1）。不上传、不收集、无账号、无广告 SDK、无第三方请求。</p>
+    <p><b>怎么搬存档</b>：换手机或清理浏览器数据前，打开「📖 江湖档案 → 💾 存档迁移」导出存档码保存；换设备粘贴导入即可全部带来。</p>
+    <p><b>关于打赏</b>：完全自愿、金额凭心情、不接真实支付通道、绝不卡关；每一章都能完整游玩，打赏与否体验一致。</p>
+    <p><b>离线与更新</b>：安装到桌面后可离线游玩；有新版本会弹出「新版本已就绪」，点一下立刻刷新即用。</p>
+  </div>
+  <button id="aboutClose">知道啦，继续玩</button>
+</div></div>
+<div id="modal"><h2>✦ 心动秘籍 · 三选一 ✦</h2><div id="cards"></div></div>
 <div id="dlg"><div id="dlgBox">
   <div id="dlgName"></div>
-  <div id="dlgBody"><div id="dlgFaceWrap"><canvas height="172" id="dlgFace" width="172"></canvas><div id="dlgFaceTag"></div></div>
+  <div id="dlgBody"><div id="dlgFaceWrap"><canvas height="200" id="dlgFace" width="200"></canvas><div id="dlgFaceTag"></div></div>
   <div style="flex:1"><div id="dlgText"></div><div id="dlgAlign"></div><div id="dlgChoices"></div></div></div>
 </div></div>
 <div id="overlay"><div class="box">
-  <h1>渣男行天下</h1>
+  <h1>心动狂潮</h1>
+  <div class="tagline">♡ 八 段 心 动 · 七 章 狂 潮 · 一 路 到 底 ♡</div>
   <p>左侧摇杆移动 · 攻击全自动 · 💨 冲刺闪避<br>
-  击杀攒<b style="color:#ffd60a">渣男值</b>，满槽点渣值条释放<b style="color:#ff8fa3">「终极·修罗场」</b><br>
-  8 大奇招 + 被动，满级可<b style="color:#ffd60a">进化合体</b> · 撑过 10 分钟见证真结局</p>
+  击杀攒<b style="color:#ffd60a">心动值</b>，满槽点心动值条释放<b style="color:#ff8fa3">「终极·修罗场」</b><br>
+  8 大奇招 + 被动，满级可<b style="color:#ffd60a">进化合体</b> · 打穿七章讨债局，终章定「带谁走」</p>
   <div id="modeSel">
     <button class="modeBtn on" data-m="normal"><span class="mi">📖</span>常规闯关</button>
     <button class="modeBtn" data-m="endless"><span class="mi">👑</span>Boss 无尽</button>
@@ -823,11 +1014,13 @@ canvas{display:block}
     </div>
     <div id="shopBox"></div>
     <div id="fateBox"></div>
+    <div id="aboutRow"><button id="aboutBtn">ℹ️ 关于 · 隐私与打赏</button></div>
   </div>
-  <button id="startBtn">开 始 闯 关</button>
+  <button id="startBtn" aria-label="开始闯关">开 始 闯 关</button>
+  <button id="tipEntry">❤ 打赏支持作者 · <b>金额凭心情</b></button>
 </div></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js" async onerror="window.__WBCLOUD_FAIL__=1"></script>
+<!-- v73：已移除第三方 CDN 依赖（@tencent-ai/workbuddy-cloud-sdk@dev）。本作 100% 自包含、无外部请求、离线可用；如确需云端社交，请自备 SDK 并设 WBCFG.cloudOn=true -->
 
 <script>
 
@@ -844,7 +1037,7 @@ canvas{display:block}
   ];
   var TOT=0;for(var i=0;i<FILES.length;i++)TOT+=FILES[i].w;
   var done=0;
-  var TIPS=['正在整理西装…','给前任们群发消息…','练习道歉话术…','充值情商…','研究逃生路线…','准备登场…'];
+  var TIPS=['正在整理西装…','给前任们群发消息…','练习道歉话术…','恶补情商…','研究逃生路线…','准备登场…'];
   function put(p){
     var v=Math.min(99,Math.round(done/TOT*100));
     if(bar)bar.style.width=v+'%';
@@ -863,30 +1056,77 @@ canvas{display:block}
     var s=document.createElement('script');
     s.src=f.p;s.async=false;
     s.onload=function(){done+=f.w;put();};
-    s.onerror=function(){miss=f.p;fail('无法加载 '+f.p);};
+    s.onerror=function(){
+      // v69：弱网/瞬断自动重试一次（整页重载，保证脚本依赖顺序不被打破）
+      try{if(!sessionStorage.getItem('__bootRetry')){sessionStorage.setItem('__bootRetry','1');
+        fail('网络不稳定，正在自动重试…');setTimeout(function(){location.reload();},900);return;}}catch(e){}
+      miss=f.p;fail('无法加载 '+f.p);};
     document.head.appendChild(s);
   });
   // core.js 执行完毕 ⇒ 游戏已接管；等一帧确认就绪后撤掉引导层
   var iv=setInterval(function(){
     if(miss){clearInterval(iv);return;}
     try{
-      if(window.__GAME_READY__||document.getElementById('startBtn')){
+      if(window.__GAME_READY__||done>=TOT){   /* v69：原条件里的 startBtn 是静态节点，会让引导层在资源就绪前就被撤掉 */
         clearInterval(iv);done=TOT;put();
+        try{sessionStorage.removeItem('__bootRetry');}catch(e){}
         if(bar)bar.style.width='100%';if(pct)pct.textContent='100%';
         setTimeout(function(){if(boot&&boot.parentNode)boot.parentNode.removeChild(boot);},220);
       }
     }catch(e){}
   },60);
-  setTimeout(function(){if(boot&&boot.parentNode&&!miss){try{boot.style.opacity='0';boot.style.transition='opacity .3s';
-    setTimeout(function(){boot&&boot.parentNode&&boot.parentNode.removeChild(boot);},400);}catch(e){}}},12000);
+  // v69：弱网看门狗——只提示与自救，绝不无条件撤掉引导层（旧实现在 12s 后会露出半成品黑屏）
+  setTimeout(function(){
+    if(miss||!boot||!boot.parentNode)return;
+    var t=document.getElementById('__bootTip');
+    if(t)t.textContent='网络较慢，仍在加载资源…（'+Math.min(99,Math.round(done/TOT*100))+'%）';
+  },12000);
+  setTimeout(function(){
+    if(miss||!boot||!boot.parentNode||boot.querySelector('.bk'))return;
+    var d=document.createElement('div');d.className='be';
+    d.innerHTML='加载时间偏长，可能网络不稳定。<br>可继续等待，或点击下方按钮重试。';
+    boot.appendChild(d);
+    var b2=document.createElement('button');b2.className='bk';b2.textContent='重新加载';
+    b2.onclick=function(){try{location.reload();}catch(e){}};
+    boot.appendChild(b2);
+  },25000);
 })();
 
 </script>
 
 <script>
+/* v69：资源版本号 —— 同时作为 Service Worker 缓存名的一部分；发版时只改这里，老用户即可拿到新资源 */
+/* v73：补「新版本已就绪」提示条 —— 首次安装不打扰，只有真正的版本更替才提示，且不强行刷新、不打断游玩 */
+var APP_BUILD='20261024f';
+try{window.APP_BUILD=APP_BUILD;}catch(e){}
 if('serviceWorker' in navigator && location.protocol.indexOf('http')===0){
+  var __hadCtl=!!navigator.serviceWorker.controller;   // v73：首次安装为 false，不提示更新
+  window.__updShow=function(){
+    var b=document.getElementById('updBar');if(!b)return;
+    b.classList.add('on');b.style.display='flex';
+  };
   window.addEventListener('load',function(){
-    navigator.serviceWorker.register('sw.js').catch(function(){/* file:// 或不支持时静默降级 */});
+    navigator.serviceWorker.register('sw.js?b='+APP_BUILD).then(function(reg){
+      if(reg&&typeof reg.addEventListener==='function'){
+        /* A. 本次打开期间发现新版本 */
+        reg.addEventListener('updatefound',function(){
+          var nw=reg.installing;if(!nw)return;
+          nw.addEventListener('statechange',function(){
+            if(nw.state==='installed'&&navigator.serviceWorker.controller)window.__updShow();
+          });
+        });
+      }
+      /* B. 上一次访问留下的新版本已接管本页 */
+      if(__hadCtl){try{reg.update();}catch(e){}}
+    }).catch(function(){/* file:// 或不支持时静默降级 */});
+  });
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.addEventListener('controllerchange',function(){
+      if(__hadCtl)window.__updShow();
+    });
+    var go=document.getElementById('updGo'),no=document.getElementById('updNo');
+    if(go)go.onclick=function(){try{location.reload();}catch(e){}};
+    if(no)no.onclick=function(){var b=document.getElementById('updBar');if(b){b.classList.remove('on');b.style.display='none';}};
   });
 }
 </script>
