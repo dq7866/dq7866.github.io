@@ -1,4 +1,21 @@
-/* 知作坊 · 全站门卫 v1.5
+/* 知作坊 · 全站门卫 v1.6
+ * 原理：本页注入隐藏 iframe（门卫域 bridge.html），所有云端调用在 iframe 内完成；
+ * 本脚本只做 UI（Shadow DOM 隔离样式）与 postMessage 通信。
+ * 规则：免费 15 天 → 宽限 10 天（每次登录提醒打赏）→ 兑换码（100 次/码）。
+ * 计次单位：1 天 1 次（当天首次访问扣 1 次）。
+ *
+ * v1.6 密码登录修复（2026-10-29）
+ *   用户反馈：注册时填了密码，下次却只能验证码登录，密码通道形同虚设。
+ *   根因：已注册账号走验证码登录时，填的密码被静默丢弃（password: ""），
+ *   而老账号可能从未设置过密码；手机号账号又没有自助设密通道
+ *   （改密面板要求旧密码 → 没设过密码的用户死路）。
+ *   修复：
+ *   ① 点「获取验证码」时若已填密码，先静默试密码登录 —— 密码正确就免去一条短信；
+ *   ② 密码不对 → 照发验证码，但登录成功后明确提示「密码未生效，去管理面板设新密码」；
+ *   ③ 改密面板手机号账号改为「验证码设置新密码」通道（后端 /v1/reset 实测支持
+ *      phone_number，SDK 只是没封装，bridge.html 已补 gate:setpwd-start/submit）；
+ *   ④ 密码通道的报错文案说明「老账号可能没设过密码」，指路自助设置。
+ *   另：bridge 的会话恢复加了强制刷新重试（v1.6），偶发网络抖动不再表现为被登出。
  * 原理：本页注入隐藏 iframe（门卫域 bridge.html），所有云端调用在 iframe 内完成；
  * 本脚本只做 UI（Shadow DOM 隔离样式）与 postMessage 通信。
  * 规则：免费 15 天 → 宽限 10 天（每次登录提醒打赏）→ 兑换码（100 次/码）。
@@ -333,7 +350,7 @@
 
     var pwdField = $("zhz-pwdfield"), pwdEl = $("zhz-pwd");
     var newhint = $("zhz-newhint"), oldhint = $("zhz-oldhint");
-    var pending = null, timer = null;
+    var pending = null, timer = null, pwdMismatch = false;
 
     /* 密码框的提示随账号状态变化：新账号必须设密码 → 高亮并要求 */
     function refreshPwdHint() {
@@ -371,6 +388,24 @@
       if (!validAccount(acc)) { setMsg("zhz-err", "err", accountErr(acc)); return; }
       clearMsgs();
       var kind = kindOf(acc);
+      /* v1.6：已填密码就先静默试一次密码登录 —— 密码正确就不用收短信了。
+         失败则照发验证码，并记住「密码与账号不符」，登录成功后提醒去设新密码。 */
+      var pwdEarly = $("zhz-pwd").value;
+      if (pwdEarly && pwdEarly.length >= 6) {
+        var btn0 = this; btn0.disabled = true; btn0.textContent = "验证密码…";
+        var pm = { type: "gate:signin-password", password: pwdEarly };
+        if (kind === "phone") pm.phone = acc; else pm.email = acc;
+        var pr = await bridge(pm);
+        btn0.disabled = false;
+        if (pr && pr.type === "gate:signed-in" && pr.ok) {
+          if (kind === "phone") lsSet(LS_PHONE, acc);
+          pending = null; pwdMismatch = false;
+          setMsg("zhz-ok", "ok", "密码验证通过，已直接登录");
+          await finishLogin();
+          return;
+        }
+        pwdMismatch = true;
+      }
       var btn = this; btn.disabled = true; btn.textContent = "发送中…";
       var msg = { type: "gate:send-otp" };
       if (kind === "phone") msg.phone = acc; else msg.email = acc;
@@ -419,6 +454,12 @@
           setMsg("zhz-err", "err", (r1 && r1.message) || "验证码不正确"); return;
         }
         pending = null;
+        /* v1.6：密码与账号不符的提醒 —— 这正是「设了密码却只能验证码登录」的来源 */
+        if (pwdMismatch) {
+          setMsg("zhz-ok", "ok", "验证通过，正在进入…（注意：你填的密码与账号不符，此前可能没设置过密码；进入后请点右上角角标 →「修改密码」，用验证码设置新密码，以后就能免验证码登录）");
+          pwdMismatch = false;
+          await new Promise(function (r) { setTimeout(r, 4200); });
+        }
         await finishLogin();
         return;
       }
@@ -432,7 +473,7 @@
         var r2 = await bridge(m2);
         btnMain.disabled = false; btnMain.textContent = "登录 / 注册";
         if (!r2 || r2.type !== "gate:signed-in" || !r2.ok) {
-          setMsg("zhz-err", "err", (kind === "phone" ? "手机号" : "邮箱") + "或密码不正确。若还没设过密码，请点「获取验证码」用验证码登录。");
+          setMsg("zhz-err", "err", (kind === "phone" ? "手机号" : "邮箱") + "或密码不正确。老账号可能从未设置过密码：请点「获取验证码」用验证码登录，再在右上角管理面板「修改密码」里用验证码设置新密码。");
           return;
         }
         if (kind === "phone") lsSet(LS_PHONE, acc);
@@ -531,11 +572,12 @@
 
   /* ---------- 修改密码（已登录用户） ----------
      两条通道，进卡片时按账号类型自动选（gate:whoami 探测）：
-       ① 有邮箱 → 验证码（平台 resetPasswordForEmail）。这是「先重新验证身份」的正路，
+       ① 有邮箱 → 邮箱验证码（平台 resetPasswordForEmail）。这是「先重新验证身份」的正路，
           验证的是「你收得到这个账号的邮件」，不需要旧密码。
-       ② 无邮箱（手机号注册）→ 旧密码（平台 resetPasswordForOld）。
-          平台没有暴露「手机验证码改密」这条通道，旧密码是这类账号唯一能自助的方式。
-     两条都走 SDK，不自己拼 fetch。改完会话由 SDK 重建，不掉线。 */
+       ② 无邮箱（手机号注册）→ 手机验证码（v1.6 新增：平台 /v1/reset 实测接受
+          phone_number + verification_token，bridge 已补 gate:setpwd-start/submit）。
+          没设过密码的老账号从此可以自助设置，不再需要找站长。
+     两条都走后端认证接口，改完用新密码重建会话，不掉线。 */
   var pwdLayer = null;
   function showPwdCard() {
     if (pwdLayer) return;
@@ -555,16 +597,18 @@
         '<div class="ok" id="zhz-pokmsg"></div>' +
       '</div>' +
 
-      /* —— 模式 B：手机号账号，平台无手机验证码改密，用当前密码确认身份 —— */
+      /* —— 模式 B：手机号账号，短信验证码设置/重置密码（v1.6，无需旧密码） —— */
       '<div id="zhz-mode-old" class="hidden">' +
-        '<p class="lead">你的账号是<b>手机号注册</b>的，平台还没有开放手机验证码改密。<br>为确认是本人操作，请输入<b>当前密码</b>，再设置新密码。</p>' +
-        '<div class="field"><input id="zhz-op0" type="password" maxlength="32" autocomplete="current-password" placeholder="当前密码"></div>' +
+        '<p class="lead">你的账号是<b>手机号注册</b>的。点「获取验证码」，输入收到的短信验证码，即可<b>设置新密码</b>。<br><span style="color:#a89f96;font-size:12px">不需要旧密码；以前没设过密码的账号也用这条通道。</span></p>' +
+        '<div class="field"><input id="zhz-pphone" type="text" maxlength="11" inputmode="numeric" autocomplete="tel" placeholder="注册手机号（11 位）"></div>' +
+        '<div class="field row"><input id="zhz-pccode" type="text" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="验证码"><button id="zhz-pcsend" class="btn-code" type="button">获取验证码</button></div>' +
+        '<div class="hint tiny" id="zhz-ptarget2">确认手机号后点「获取验证码」。</div>' +
         '<div class="field"><input id="zhz-np1o" type="password" maxlength="32" autocomplete="new-password" placeholder="新密码（6-32 位）"></div>' +
         '<div class="field"><input id="zhz-np2o" type="password" maxlength="32" autocomplete="new-password" placeholder="再输一次新密码"></div>' +
         '<div class="err" id="zhz-perr2"></div>' +
-        '<button id="zhz-pok2" class="btn-main" type="button">确认修改</button>' +
+        '<button id="zhz-pok2" class="btn-main" type="button">确认设置</button>' +
         '<div class="ok" id="zhz-pokmsg2"></div>' +
-        '<div class="hint tiny">注册时没设过密码、或忘记当前密码？微信联系站长 ' + WECHAT_ID + ' 处理。</div>' +
+        '<div class="hint tiny">设置成功后，下次登录直接输手机号 + 密码即可，不再需要验证码。</div>' +
       '</div>' +
 
       '<div class="err" id="zhz-perr0"></div>' +
@@ -577,6 +621,9 @@
     function perr2(t) { $("zhz-perr2").textContent = t || ""; }    /* 模式 B 的错误区 */
     function perr0(t) { $("zhz-perr0").textContent = t || ""; }    /* 通用（探测失败等） */
     function pnote(t, color) { var n = $("zhz-ptarget"); n.textContent = t || ""; n.style.color = color || ""; }
+    function pnote2(t, color) { var n = $("zhz-ptarget2"); n.textContent = t || ""; n.style.color = color || ""; }
+    /* 手机号预填上次登录用的号码（lsGet / LS_PHONE / RE_PHONE 在外层作用域） */
+    try { var _lp = lsGet(LS_PHONE); if (_lp && RE_PHONE.test(_lp)) $("zhz-pphone").value = _lp; } catch (e) {}
 
     var pTimer = null, sent = false;
     function countdown(btn) {
@@ -644,24 +691,48 @@
       done("zhz-pokmsg");
     };
 
-    /* —— 模式 B：当前密码 + 新密码 —— */
-    $("zhz-pok2").onclick = async function () {
-      var op = $("zhz-op0").value;
-      var p1 = $("zhz-np1o").value, p2 = $("zhz-np2o").value;
-      if (!op) { perr2("请输入当前密码"); return; }
-      if (p1.length < 6 || p1.length > 32) { perr2("新密码请用 6-32 位字符"); return; }
-      if (p1 !== p2) { perr2("两次输入的新密码不一致"); return; }
-      if (p1 === op) { perr2("新密码不能与当前密码相同"); return; }
-      perr2("");
-      var btn = this; btn.disabled = true; btn.textContent = "提交中…";
-      var r = await bridge({ type: "gate:reset-old", oldPassword: op, newPassword: p1 }, 25000);
-      btn.disabled = false; btn.textContent = "确认修改";
-      if (!r || r.type !== "gate:reset-old" || !r.ok) {
-        if (r && r.reason === "bad_old_password") perr2("当前密码不正确");
-        else if (r && r.reason === "unauthenticated") perr2("登录状态已失效，请刷新页面重新登录");
-        else perr2((r && r.message) || "密码修改失败，请稍后再试");
+    /* —— 模式 B ①：发短信验证码（PASSWORD_RESET 通道，后端先校验账号存在） —— */
+    var sentB = false;
+    $("zhz-pcsend").onclick = async function () {
+      perr2(""); sentB = false;
+      var ph = $("zhz-pphone").value.replace(/\D/g, "");
+      if (!RE_PHONE.test(ph)) { perr2("请输入正确的 11 位手机号"); return; }
+      var btn = this; btn.disabled = true; btn.textContent = "发送中…";
+      var r = await bridge({ type: "gate:setpwd-start", phone: ph }, 25000);
+      if (!r || r.type !== "gate:setpwd-start" || !r.ok) {
+        btn.disabled = false; btn.textContent = "获取验证码";
+        if (r && r.reason === "no_account") perr2("该手机号还没有注册过账号");
+        else perr2((r && r.message) || "验证码发送失败，请稍后再试");
         return;
       }
+      sentB = true;
+      pnote2("验证码已发送到该手机号，请查收短信。重新获取会让旧验证码失效。", "#0a8f4c");
+      countdown(btn);
+      try { $("zhz-pccode").focus(); } catch (e) {}
+    };
+
+    /* —— 模式 B ②：验证码 + 新密码（设置成功后 bridge 会用新密码重建会话） —— */
+    $("zhz-pok2").onclick = async function () {
+      var ph = $("zhz-pphone").value.replace(/\D/g, "");
+      var code = $("zhz-pccode").value.trim();
+      var p1 = $("zhz-np1o").value, p2 = $("zhz-np2o").value;
+      if (!RE_PHONE.test(ph)) { perr2("请输入正确的 11 位手机号"); return; }
+      if (!sentB) { perr2("请先点「获取验证码」"); return; }
+      if (!code) { perr2("请输入收到的验证码"); return; }
+      if (p1.length < 6 || p1.length > 32) { perr2("新密码请用 6-32 位字符"); return; }
+      if (p1 !== p2) { perr2("两次输入的新密码不一致"); return; }
+      perr2("");
+      var btn = this; btn.disabled = true; btn.textContent = "提交中…";
+      var r = await bridge({ type: "gate:setpwd-submit", phone: ph, token: code, password: p1 }, 25000);
+      btn.disabled = false; btn.textContent = "确认设置";
+      if (!r || r.type !== "gate:setpwd-submit" || !r.ok) {
+        if (r && r.reason === "no_challenge") { sentB = false; perr2("请先点「获取验证码」"); }
+        else if (r && r.reason === "bad_token") perr2("验证码不正确或已过期");
+        else perr2((r && r.message) || "密码设置失败，请稍后再试");
+        return;
+      }
+      sentB = false;
+      pnote2("密码已设置成功。下次登录直接输手机号 + 新密码即可。", "#0a8f4c");
       done("zhz-pokmsg2");
     };
 
@@ -672,7 +743,7 @@
         if (e.key === "Enter") { e.preventDefault(); $("zhz-pok").click(); }
       });
     });
-    ["zhz-op0", "zhz-np1o", "zhz-np2o"].forEach(function (id) {
+    ["zhz-pphone", "zhz-pccode", "zhz-np1o", "zhz-np2o"].forEach(function (id) {
       $(id).addEventListener("keydown", function (e) {
         if (e.key === "Enter") { e.preventDefault(); $("zhz-pok2").click(); }
       });
