@@ -1,6 +1,7 @@
-/* 图表生成工具 · 纯前端 Canvas 实现
- * 柱状图 / 折线图 / 饼图(环形图) / 雷达图
- * 无外部依赖，纯 Canvas 2D API 绘制
+/* 图表生成工具 v2 · 纯前端 Canvas/SVG 双渲染
+ * 柱状图 / 折线图 / 组合图(柱线混合) / 饼图(环形) / 雷达图
+ * 多系列自定义数量 · 双Y轴 · 轴/标题/网格/刻度全面可配置
+ * 无外部依赖。架构：数据解析 → 布局模型 → 图元列表 → Canvas / SVG 双渲染（输出一致）
  */
 (function () {
   "use strict";
@@ -8,7 +9,6 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 
-  /* ---------------- 工具函数 ---------------- */
   function debounce(fn, delay) {
     let timer = null;
     return function (...args) {
@@ -28,1361 +28,1110 @@
     { name: "温暖调", colors: ["#ea580c", "#f97316", "#fb923c", "#fdba74", "#fed7aa", "#ffedd5"] },
     { name: "彩虹色", colors: ["#ef4444", "#f59e0b", "#eab308", "#22c55e", "#3b82f6", "#8b5cf6"] },
   ];
-
+  // 多系列专用：色相均匀分布的高对比基色（超过主题色数量时回退到这里）
+  const SERIES_FALLBACK = ["#2563eb", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#06b6d4", "#ec4899", "#84cc16", "#f97316", "#14b8a6"];
   let currentPalette = 0;
 
   function getPaletteColor(index) {
     const palette = colorPalettes[currentPalette].colors;
     return palette[index % palette.length];
   }
+  function getSeriesColor(index) {
+    const palette = colorPalettes[currentPalette].colors;
+    // 系列多于主题色时使用高对比基色，避免相邻系列颜色过于接近
+    if (index < palette.length) return palette[index];
+    return SERIES_FALLBACK[index % SERIES_FALLBACK.length];
+  }
 
   function hexToRgba(hex, alpha) {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    return `rgba(${r},${g},${b},${alpha})`;
   }
 
-  function buildPaletteButtons() {
-    const container = $("#colorPalettes");
-    container.innerHTML = "";
-    colorPalettes.forEach((palette, idx) => {
-      const btn = document.createElement("button");
-      btn.className = "palette-btn" + (idx === currentPalette ? " active" : "");
-      btn.title = palette.name;
-      btn.dataset.idx = idx;
-      // Create color stripes
-      const stripeCount = Math.min(4, palette.colors.length);
-      for (let i = 0; i < stripeCount; i++) {
-        const stripe = document.createElement("div");
-        stripe.className = "palette-stripe";
-        stripe.style.left = (i * (100 / stripeCount)) + "%";
-        stripe.style.width = (100 / stripeCount) + "%";
-        stripe.style.background = palette.colors[i];
-        btn.appendChild(stripe);
-      }
-      btn.onclick = () => {
-        currentPalette = idx;
-        $$(".palette-btn").forEach((b, i) => b.classList.toggle("active", i === idx));
-        renderChart();
-      };
-      container.appendChild(btn);
-    });
-  }
-
-  /* ---------------- 数据解析 ---------------- */
-  function parseData(text) {
-    const lines = text.trim().split(/\r?\n/).filter(l => l.trim() !== "");
-    if (lines.length === 0) return { labels: [], series: [], seriesNames: [] };
-
-    // 检测是否有多系列（首行第一个为非数字，后面都是数字或名称）
-    const firstLine = lines[0].split(/[,，\t]/).map(s => s.trim());
-    const hasHeader = firstLine.length > 1 && isNaN(parseFloat(firstLine[1]));
-
-    let labels = [];
-    let series = [];
-    let seriesNames = [];
-
-    if (hasHeader && firstLine.length > 2) {
-      // 多系列：首行为系列名称
-      seriesNames = firstLine.slice(1);
-      const numSeries = seriesNames.length;
-      for (let i = 0; i < numSeries; i++) series.push([]);
-
-      for (let i = 1; i < lines.length; i++) {
-        const parts = lines[i].split(/[,，\t]/).map(s => s.trim());
-        if (parts.length < 2) continue;
-        labels.push(parts[0]);
-        for (let j = 0; j < numSeries; j++) {
-          const val = parseFloat(parts[j + 1]);
-          series[j].push(isNaN(val) ? 0 : val);
-        }
-      }
-    } else {
-      // 单系列
-      seriesNames = ["数值"];
-      series.push([]);
-      for (const line of lines) {
-        const parts = line.split(/[,，\t]/).map(s => s.trim());
-        if (parts.length < 2) continue;
-        labels.push(parts[0]);
-        const val = parseFloat(parts[1]);
-        series[0].push(isNaN(val) ? 0 : val);
-      }
-    }
-
-    return { labels, series, seriesNames };
-  }
-
-  /* ---------------- 状态 ---------------- */
+  /* ---------------- 全局配置状态 ---------------- */
   const state = {
-    chartType: "bar",
+    chartType: "bar",            // bar | line | combo | pie | radar
     title: "销售数据统计",
+    subtitle: "",
+    titleSize: 18,
     width: 800,
     height: 500,
     bg: "white",
     showLegend: true,
-    showLabels: true,
-    showGrid: true,
-    doughnutMode: false,
-    showPercent: true,
+    legendPos: "top",            // top | bottom
+    showLabels: true,            // 数据标签（点/柱上的数值）
+    // 网格与刻度
+    gridH: true,
+    gridV: false,
+    showXLabels: true,           // X 轴分类标签
+    showYTicks: true,            // Y 轴刻度值
+    xRotate: "auto",             // auto | 0 | -45 | -90
+    yTickCount: 5,
+    // 轴设置
+    xTitle: "",
+    yTitle: "",
+    y2Title: "",
+    yMin: "", yMax: "",
+    y2Min: "", y2Max: "",
+    dualAxis: false,
+    // 饼图
+    pieDoughnut: false,
+    piePercent: true,
   };
 
-  /* ---------------- 背景色获取 ---------------- */
-  function getBgColor() {
-    switch (state.bg) {
-      case "white": return "#ffffff";
-      case "paper": return "#faf6f0";
-      case "transparent": return null;
-      default: return "#ffffff";
-    }
+  // 每个系列的配置：{ color: 覆盖色或'', axis: 'L'|'R', stype: 'bar'|'line'|'area' }
+  const seriesCfg = [];
+  function axisOf(i) { return (seriesCfg[i] && seriesCfg[i].axis) || "L"; }
+  function stypeOf(i) { return (seriesCfg[i] && seriesCfg[i].stype) || "bar"; }
+  function colorOf(i) {
+    const c = seriesCfg[i] && seriesCfg[i].color;
+    return c || getSeriesColor(i);
+  }
+  function ensureCfg(count) {
+    while (seriesCfg.length < count) seriesCfg.push({ color: "", axis: "L", stype: "bar" });
+    seriesCfg.length = count;
+    if (!state.dualAxis) seriesCfg.forEach(c => (c.axis = "L"));
   }
 
-  function getTextColor() {
-    return "#2b2520";
+  /* ---------------- 文本测量（Canvas/SVG 共用估算，保证两端布局一致） ---------------- */
+  function estW(s, fs) {
+    let w = 0;
+    for (const ch of String(s)) w += ch.charCodeAt(0) > 255 ? fs : fs * 0.62;
+    return w;
   }
-
-  function getGridColor() {
-    return "rgba(43, 37, 32, 0.1)";
+  function fmtTick(v) {
+    if (Math.abs(v) >= 1e8) return (v / 1e8).toFixed(2).replace(/\.?0+$/, "") + "亿";
+    if (Math.abs(v) >= 1e5) return (v / 1e4).toFixed(2).replace(/\.?0+$/, "") + "万";
+    if (Math.abs(v) >= 1000) return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return String(Math.round(v * 100) / 100);
   }
-
-  function getAxisColor() {
-    return "rgba(43, 37, 32, 0.3)";
+  function fmtVal(v) {
+    if (Math.abs(v) >= 1e8) return (v / 1e8).toFixed(2).replace(/\.?0+$/, "") + "亿";
+    if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(2).replace(/\.?0+$/, "") + "M";
+    if (Math.abs(v) >= 10000) return (v / 1000).toFixed(1).replace(/\.0$/, "") + "K";
+    if (Math.abs(v) >= 1000) return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return String(Math.round(v * 100) / 100);
   }
+  function trunc(s, n) { s = String(s); return s.length > n ? s.slice(0, n - 1) + "…" : s; }
 
-  /* ---------------- 柱状图 ---------------- */
-  function drawBarChart(ctx, data, w, h) {
-    const { labels, series, seriesNames } = data;
-    if (labels.length === 0 || series.length === 0) return;
+  /* ---------------- 数据解析 ---------------- */
+  function splitLine(line) { return line.split(/[,，\t]/).map(s => s.trim()); }
 
-    const padding = { top: 70, right: 30, bottom: 80, left: 60 };
-    const chartW = w - padding.left - padding.right;
-    const chartH = h - padding.top - padding.bottom;
+  function parseData(text) {
+    const lines = text.replace(/\r/g, "").split("\n").filter(l => l.trim() !== "");
+    if (!lines.length) return { labels: [], series: [], seriesNames: [], hasHeader: false };
 
-    // 计算最大值和刻度
-    let maxVal = 0;
-    for (const s of series) {
-      for (const v of s) if (v > maxVal) maxVal = v;
+    const first = splitLine(lines[0]);
+    const valueCells = first.slice(1);
+    // 首行所有"值列"都是非数字 → 视为表头
+    let hasHeader = first.length >= 2 && valueCells.length > 0 && valueCells.every(c => c === "" || isNaN(Number(c)));
+
+    let headerNames = null;
+    let dataLines = lines;
+    if (hasHeader) {
+      headerNames = first.slice(1);
+      dataLines = lines.slice(1);
     }
-    if (maxVal <= 0) maxVal = 1;
-    // 美化最大值
-    const niceMax = niceNumber(maxVal, true);
-    const tickCount = 5;
-    const tickStep = niceMax / tickCount;
 
-    // 绘制网格和Y轴刻度
-    if (state.showGrid) {
-      ctx.strokeStyle = getGridColor();
-      ctx.lineWidth = 1;
-      ctx.fillStyle = getTextColor();
-      ctx.font = "12px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-      ctx.textAlign = "right";
-      ctx.textBaseline = "middle";
-
-      for (let i = 0; i <= tickCount; i++) {
-        const y = padding.top + chartH - (i / tickCount) * chartH;
-        const val = tickStep * i;
-        // 网格线
-        ctx.beginPath();
-        ctx.moveTo(padding.left, y);
-        ctx.lineTo(padding.left + chartW, y);
-        ctx.stroke();
-        // Y轴标签
-        ctx.fillText(formatNumber(val), padding.left - 10, y);
+    const labels = [];
+    const cols = [];
+    dataLines.forEach(line => {
+      const parts = splitLine(line);
+      labels.push(parts[0]);
+      for (let i = 1; i < parts.length; i++) {
+        const v = Number(parts[i]);
+        if (!cols[i - 1]) cols[i - 1] = [];
+        cols[i - 1].push(isNaN(v) ? 0 : v);
       }
-    }
-
-    // X轴
-    ctx.strokeStyle = getAxisColor();
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(padding.left, padding.top + chartH);
-    ctx.lineTo(padding.left + chartW, padding.top + chartH);
-    ctx.stroke();
-
-    // Y轴
-    ctx.beginPath();
-    ctx.moveTo(padding.left, padding.top);
-    ctx.lineTo(padding.left, padding.top + chartH);
-    ctx.stroke();
-
-    // 计算柱子位置
-    const numBars = labels.length;
-    const numSeries = series.length;
-    const groupWidth = chartW / numBars;
-    const barGap = 4;
-    const barWidth = Math.min(40, (groupWidth - barGap * (numSeries + 1)) / numSeries);
-    const groupInnerWidth = barWidth * numSeries + barGap * (numSeries - 1);
-
-    // 绘制柱子
-    for (let i = 0; i < numBars; i++) {
-      const groupX = padding.left + groupWidth * i + groupWidth / 2;
-      const startX = groupX - groupInnerWidth / 2;
-
-      for (let s = 0; s < numSeries; s++) {
-        const val = series[s][i];
-        const barH = (val / niceMax) * chartH;
-        const x = startX + s * (barWidth + barGap);
-        const y = padding.top + chartH - barH;
-        const color = getPaletteColor(s);
-
-        // 柱子渐变
-        const gradient = ctx.createLinearGradient(x, y, x, y + barH);
-        gradient.addColorStop(0, color);
-        gradient.addColorStop(1, hexToRgba(color, 0.7));
-
-        ctx.fillStyle = gradient;
-        roundRect(ctx, x, y, barWidth, barH, 4);
-        ctx.fill();
-
-        // 数据标签
-        if (state.showLabels && barH > 20) {
-          ctx.fillStyle = getTextColor();
-          ctx.font = "11px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "bottom";
-          ctx.fillText(formatNumber(val), x + barWidth / 2, y - 4);
-        }
-      }
-
-      // X轴标签
-      ctx.fillStyle = getTextColor();
-      ctx.font = "12px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      const labelX = groupX;
-      const labelY = padding.top + chartH + 10;
-
-      // 标签过多时旋转
-      if (labels.length > 10) {
-        ctx.save();
-        ctx.translate(labelX, labelY);
-        ctx.rotate(-Math.PI / 4);
-        ctx.textAlign = "right";
-        ctx.textBaseline = "middle";
-        ctx.fillText(truncate(labels[i], 8), 0, 0);
-        ctx.restore();
-      } else {
-        ctx.fillText(truncate(labels[i], 10), labelX, labelY);
-      }
-    }
-
-    // 图例
-    if (state.showLegend && seriesNames.length > 1) {
-      drawLegend(ctx, seriesNames, w, padding.top);
-    }
-  }
-
-  /* ---------------- 折线图 ---------------- */
-  function drawLineChart(ctx, data, w, h) {
-    const { labels, series, seriesNames } = data;
-    if (labels.length === 0 || series.length === 0) return;
-
-    const padding = { top: 70, right: 30, bottom: 80, left: 60 };
-    const chartW = w - padding.left - padding.right;
-    const chartH = h - padding.top - padding.bottom;
-
-    // 计算最大值
-    let maxVal = 0;
-    for (const s of series) {
-      for (const v of s) if (v > maxVal) maxVal = v;
-    }
-    if (maxVal <= 0) maxVal = 1;
-    const niceMax = niceNumber(maxVal, true);
-    const tickCount = 5;
-    const tickStep = niceMax / tickCount;
-
-    // 网格和Y轴刻度
-    if (state.showGrid) {
-      ctx.strokeStyle = getGridColor();
-      ctx.lineWidth = 1;
-      ctx.fillStyle = getTextColor();
-      ctx.font = "12px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-      ctx.textAlign = "right";
-      ctx.textBaseline = "middle";
-
-      for (let i = 0; i <= tickCount; i++) {
-        const y = padding.top + chartH - (i / tickCount) * chartH;
-        const val = tickStep * i;
-        ctx.beginPath();
-        ctx.moveTo(padding.left, y);
-        ctx.lineTo(padding.left + chartW, y);
-        ctx.stroke();
-        ctx.fillText(formatNumber(val), padding.left - 10, y);
-      }
-    }
-
-    // X轴
-    ctx.strokeStyle = getAxisColor();
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(padding.left, padding.top + chartH);
-    ctx.lineTo(padding.left + chartW, padding.top + chartH);
-    ctx.stroke();
-
-    // Y轴
-    ctx.beginPath();
-    ctx.moveTo(padding.left, padding.top);
-    ctx.lineTo(padding.left, padding.top + chartH);
-    ctx.stroke();
-
-    // 计算点位置
-    const numPoints = labels.length;
-    const stepX = chartW / (numPoints - 1 || 1);
-
-    // 绘制折线和区域
-    for (let s = 0; s < series.length; s++) {
-      const color = getPaletteColor(s);
-      const points = [];
-
-      for (let i = 0; i < numPoints; i++) {
-        const x = padding.left + stepX * i;
-        const y = padding.top + chartH - (series[s][i] / niceMax) * chartH;
-        points.push({ x, y });
-      }
-
-      // 区域填充
-      ctx.fillStyle = hexToRgba(color, 0.12);
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, padding.top + chartH);
-      for (const p of points) ctx.lineTo(p.x, p.y);
-      ctx.lineTo(points[points.length - 1].x, padding.top + chartH);
-      ctx.closePath();
-      ctx.fill();
-
-      // 折线
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2.5;
-      ctx.lineJoin = "round";
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, points[0].y);
-      for (let i = 1; i < points.length; i++) {
-        // 平滑曲线
-        const prev = points[i - 1];
-        const curr = points[i];
-        const cpx = (prev.x + curr.x) / 2;
-        ctx.bezierCurveTo(cpx, prev.y, cpx, curr.y, curr.x, curr.y);
-      }
-      ctx.stroke();
-
-      // 数据点
-      for (let i = 0; i < points.length; i++) {
-        const p = points[i];
-        ctx.fillStyle = "#fff";
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        // 数据标签
-        if (state.showLabels) {
-          ctx.fillStyle = getTextColor();
-          ctx.font = "11px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "bottom";
-          ctx.fillText(formatNumber(series[s][i]), p.x, p.y - 10);
-        }
-      }
-    }
-
-    // X轴标签
-    ctx.fillStyle = getTextColor();
-    ctx.font = "12px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
-
-    for (let i = 0; i < numPoints; i++) {
-      const x = padding.left + stepX * i;
-      const y = padding.top + chartH + 10;
-
-      if (labels.length > 12) {
-        // 标签过多，只显示部分
-        if (i % Math.ceil(labels.length / 8) !== 0 && i !== labels.length - 1) continue;
-      }
-
-      if (labels.length > 10) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(-Math.PI / 4);
-        ctx.textAlign = "right";
-        ctx.textBaseline = "middle";
-        ctx.fillText(truncate(labels[i], 8), 0, 0);
-        ctx.restore();
-      } else {
-        ctx.fillText(truncate(labels[i], 10), x, y);
-      }
-    }
-
-    // 图例
-    if (state.showLegend && seriesNames.length > 1) {
-      drawLegend(ctx, seriesNames, w, padding.top);
-    }
-  }
-
-  /* ---------------- 饼图/环形图 ---------------- */
-  function drawPieChart(ctx, data, w, h) {
-    const { labels, series } = data;
-    if (labels.length === 0 || series.length === 0) return;
-
-    const values = series[0];
-    const total = values.reduce((a, b) => a + b, 0);
-    if (total <= 0) return;
-
-    const padding = { top: 70, right: 30, bottom: 40, left: 30 };
-    const chartAreaW = w - padding.left - padding.right;
-    const chartAreaH = h - padding.top - padding.bottom;
-
-    // 图例区域
-    let legendW = 0;
-    if (state.showLegend) {
-      legendW = 180;
-    }
-
-    const pieAreaW = chartAreaW - legendW;
-    const centerX = padding.left + pieAreaW / 2;
-    const centerY = padding.top + chartAreaH / 2;
-    const radius = Math.min(pieAreaW, chartAreaH) / 2 - 10;
-    const innerRadius = state.doughnutMode ? radius * 0.55 : 0;
-
-    // 绘制扇形
-    let startAngle = -Math.PI / 2; // 从顶部开始
-
-    for (let i = 0; i < labels.length; i++) {
-      const sliceAngle = (values[i] / total) * Math.PI * 2;
-      const endAngle = startAngle + sliceAngle;
-      const color = getPaletteColor(i);
-
-      // 扇形
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-      ctx.closePath();
-      ctx.fill();
-
-      // 环形图内部挖空
-      if (state.doughnutMode) {
-        ctx.fillStyle = getBgColor() || "#fff";
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, innerRadius, startAngle, endAngle);
-        ctx.closePath();
-        ctx.fill();
-      }
-
-      // 百分比标签
-      if (state.showPercent && sliceAngle > 0.15) {
-        const midAngle = startAngle + sliceAngle / 2;
-        const labelR = radius * 0.65;
-        const labelX = centerX + Math.cos(midAngle) * labelR;
-        const labelY = centerY + Math.sin(midAngle) * labelR;
-
-        const pct = ((values[i] / total) * 100).toFixed(1) + "%";
-        ctx.fillStyle = "#fff";
-        ctx.font = "bold 13px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(pct, labelX, labelY);
-      }
-
-      startAngle = endAngle;
-    }
-
-    // 环形图中心文字
-    if (state.doughnutMode) {
-      ctx.fillStyle = getTextColor();
-      ctx.font = "bold 18px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(formatNumber(total), centerX, centerY - 8);
-      ctx.font = "12px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-      ctx.fillStyle = "#6b5e52";
-      ctx.fillText("总计", centerX, centerY + 14);
-    }
-
-    // 图例
-    if (state.showLegend) {
-      const legendX = padding.left + pieAreaW + 20;
-      const legendY = padding.top + 20;
-      drawPieLegend(ctx, labels, values, total, legendX, legendY);
-    }
-  }
-
-  function drawPieLegend(ctx, labels, values, total, x, y) {
-    ctx.font = "12px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "middle";
-
-    const lineH = 24;
-    for (let i = 0; i < labels.length; i++) {
-      const ly = y + i * lineH;
-      const color = getPaletteColor(i);
-
-      // 颜色方块
-      ctx.fillStyle = color;
-      roundRect(ctx, x, ly - 6, 12, 12, 3);
-      ctx.fill();
-
-      // 标签
-      ctx.fillStyle = getTextColor();
-      const label = truncate(labels[i], 10);
-      ctx.fillText(label, x + 20, ly);
-
-      // 数值和百分比
-      ctx.fillStyle = "#6b5e52";
-      const pct = ((values[i] / total) * 100).toFixed(1) + "%";
-      ctx.textAlign = "right";
-      ctx.fillText(pct, x + 160, ly);
-      ctx.textAlign = "left";
-    }
-  }
-
-  /* ---------------- 雷达图 ---------------- */
-  function drawRadarChart(ctx, data, w, h) {
-    const { labels, series, seriesNames } = data;
-    if (labels.length < 3 || series.length === 0) return;
-
-    const padding = { top: 70, right: 30, bottom: 40, left: 30 };
-    const chartAreaW = w - padding.left - padding.right;
-    const chartAreaH = h - padding.top - padding.bottom;
-
-    const centerX = padding.left + chartAreaW / 2;
-    const centerY = padding.top + chartAreaH / 2;
-    const radius = Math.min(chartAreaW, chartAreaH) / 2 - 40;
-
-    const numAxes = labels.length;
-    const angleStep = (Math.PI * 2) / numAxes;
-    const startAngle = -Math.PI / 2;
-
-    // 计算最大值
-    let maxVal = 0;
-    for (const s of series) {
-      for (const v of s) if (v > maxVal) maxVal = v;
-    }
-    if (maxVal <= 0) maxVal = 1;
-    const niceMax = niceNumber(maxVal, true);
-    const levels = 5;
-
-    // 绘制网格多边形
-    if (state.showGrid) {
-      ctx.strokeStyle = getGridColor();
-      ctx.fillStyle = "rgba(43, 37, 32, 0.5)";
-      ctx.lineWidth = 1;
-
-      for (let level = 1; level <= levels; level++) {
-        const r = (radius * level) / levels;
-        ctx.beginPath();
-        for (let i = 0; i < numAxes; i++) {
-          const angle = startAngle + angleStep * i;
-          const x = centerX + Math.cos(angle) * r;
-          const y = centerY + Math.sin(angle) * r;
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.closePath();
-        ctx.stroke();
-
-        // 刻度值
-        if (state.showLabels) {
-          const val = (niceMax * level) / levels;
-          ctx.font = "10px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-          ctx.textAlign = "left";
-          ctx.textBaseline = "middle";
-          ctx.fillStyle = "#9a8e80";
-          ctx.fillText(formatNumber(val), centerX + 4, centerY - r);
-        }
-      }
-
-      // 轴线
-      for (let i = 0; i < numAxes; i++) {
-        const angle = startAngle + angleStep * i;
-        const x = centerX + Math.cos(angle) * radius;
-        const y = centerY + Math.sin(angle) * radius;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(x, y);
-        ctx.stroke();
-      }
-    }
-
-    // 绘制数据多边形
-    for (let s = 0; s < series.length; s++) {
-      const color = getPaletteColor(s);
-      const points = [];
-
-      for (let i = 0; i < numAxes; i++) {
-        const angle = startAngle + angleStep * i;
-        const val = series[s][i] || 0;
-        const r = (val / niceMax) * radius;
-        const x = centerX + Math.cos(angle) * r;
-        const y = centerY + Math.sin(angle) * r;
-        points.push({ x, y });
-      }
-
-      // 填充
-      ctx.fillStyle = hexToRgba(color, 0.25);
-      ctx.beginPath();
-      for (let i = 0; i < points.length; i++) {
-        if (i === 0) ctx.moveTo(points[i].x, points[i].y);
-        else ctx.lineTo(points[i].x, points[i].y);
-      }
-      ctx.closePath();
-      ctx.fill();
-
-      // 描边
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      for (let i = 0; i < points.length; i++) {
-        if (i === 0) ctx.moveTo(points[i].x, points[i].y);
-        else ctx.lineTo(points[i].x, points[i].y);
-      }
-      ctx.closePath();
-      ctx.stroke();
-
-      // 数据点
-      for (const p of points) {
-        ctx.fillStyle = "#fff";
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-      }
-    }
-
-    // 轴标签
-    ctx.fillStyle = getTextColor();
-    ctx.font = "12px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-
-    for (let i = 0; i < numAxes; i++) {
-      const angle = startAngle + angleStep * i;
-      const x = centerX + Math.cos(angle) * (radius + 20);
-      const y = centerY + Math.sin(angle) * (radius + 20);
-
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      // 根据位置调整对齐
-      const cosA = Math.cos(angle);
-      if (cosA > 0.3) ctx.textAlign = "left";
-      else if (cosA < -0.3) ctx.textAlign = "right";
-
-      ctx.fillText(truncate(labels[i], 8), x, y);
-    }
-
-    // 图例
-    if (state.showLegend && seriesNames.length > 1) {
-      drawLegend(ctx, seriesNames, w, padding.top);
-    }
-  }
-
-  /* ---------------- 图例绘制 ---------------- */
-  function drawLegend(ctx, seriesNames, w, topY) {
-    const legendY = topY - 30;
-    const itemGap = 16;
-    const boxW = 14;
-    const boxH = 10;
-
-    ctx.font = "12px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-    ctx.textBaseline = "middle";
-
-    // 计算总宽度
-    let totalW = 0;
-    const itemWidths = [];
-    for (const name of seriesNames) {
-      const textW = ctx.measureText(name).width;
-      const itemW = boxW + 6 + textW;
-      itemWidths.push(itemW);
-      totalW += itemW;
-    }
-    totalW += itemGap * (seriesNames.length - 1);
-
-    let x = (w - totalW) / 2;
-    const y = legendY;
-
-    for (let i = 0; i < seriesNames.length; i++) {
-      const color = getPaletteColor(i);
-      // 颜色方块
-      ctx.fillStyle = color;
-      roundRect(ctx, x, y - boxH / 2, boxW, boxH, 2);
-      ctx.fill();
-      // 文本
-      ctx.fillStyle = getTextColor();
-      ctx.textAlign = "left";
-      ctx.fillText(seriesNames[i], x + boxW + 6, y);
-
-      x += itemWidths[i] + itemGap;
-    }
-  }
-
-  /* ---------------- 标题绘制 ---------------- */
-  function drawTitle(ctx, title, w) {
-    if (!title) return;
-    ctx.fillStyle = getTextColor();
-    ctx.font = "bold 18px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
-    ctx.fillText(title, w / 2, 24);
-  }
-
-  /* ---------------- 辅助函数 ---------------- */
-  function roundRect(ctx, x, y, w, h, r) {
-    if (h < 0) { y += h; h = -h; }
-    r = Math.min(r, w / 2, h / 2);
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-  }
-
-  function niceNumber(value, round) {
-    const exponent = Math.floor(Math.log10(value));
-    const fraction = value / Math.pow(10, exponent);
-    let niceFraction;
-    if (round) {
-      if (fraction < 1.5) niceFraction = 1;
-      else if (fraction < 3) niceFraction = 2;
-      else if (fraction < 7) niceFraction = 5;
-      else niceFraction = 10;
+    });
+    const maxCols = cols.length;
+    const series = [];
+    for (let i = 0; i < maxCols; i++) series.push(cols[i] || labels.map(() => 0));
+
+    let seriesNames;
+    if (headerNames) {
+      seriesNames = series.map((_, i) => headerNames[i] || "系列" + (i + 1));
+    } else if (series.length === 1) {
+      seriesNames = ["数值"];
     } else {
-      if (fraction <= 1) niceFraction = 1;
-      else if (fraction <= 2) niceFraction = 2;
-      else if (fraction <= 5) niceFraction = 5;
-      else niceFraction = 10;
+      seriesNames = series.map((_, i) => (i === 0 ? "数值" : "系列" + (i + 1)));
     }
-    return niceFraction * Math.pow(10, exponent);
+    return { labels, series, seriesNames, hasHeader };
   }
 
-  function formatNumber(num) {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
-    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
-    if (num % 1 === 0) return num.toString();
-    return num.toFixed(1);
-  }
-
-  function truncate(str, maxLen) {
-    if (!str) return "";
-    if (str.length <= maxLen) return str;
-    return str.slice(0, maxLen) + "…";
-  }
-
-  /* ---------------- 主渲染函数 ---------------- */
-  function renderChart() {
-    const canvas = $("#chartCanvas");
-    if (!canvas) return;
-
-    const w = state.width;
-    const h = state.height;
-    canvas.width = w;
-    canvas.height = h;
-
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, w, h);
-
-    // 背景
-    const bgColor = getBgColor();
-    if (bgColor) {
-      ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, w, h);
-    }
-
-    // 解析数据
-    const dataText = $("#chartData").value;
-    const data = parseData(dataText);
-
-    // 更新统计
-    $("#dataCount").textContent = data.labels.length;
-    $("#seriesCount").textContent = data.series.length;
-
-    // 标题
-    drawTitle(ctx, state.title, w);
-
-    // 无数据提示
-    if (data.labels.length === 0 || data.series.length === 0) {
-      ctx.fillStyle = "#9a8e80";
-      ctx.font = "14px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("请输入数据（格式：标签,数值）", w / 2, h / 2);
+  /* ---------------- 数据列增删（系列数量步进器） ---------------- */
+  function rebuildDataColumns(target) {
+    const ta = $("#chartData");
+    const lines = ta.value.replace(/\r/g, "").split("\n").filter(l => l.trim() !== "");
+    if (!lines.length) {
+      // 空数据：生成示例骨架
+      const hdr = ["标签"];
+      for (let k = 0; k < target; k++) hdr.push(k === 0 ? "数值" : "系列" + (k + 1));
+      const rows = ["一月", "二月", "三月", "四月"].map(lab => [lab, 120, 200, 150, 240].slice(0, target + 1).join(","));
+      ta.value = [hdr.join(","), ...rows].join("\n");
+      renderChart();
       return;
     }
+    const parsed = parseData(ta.value);
+    const cur = Math.max(1, parsed.series.length);
+    if (target === cur) return;
+    const hasHdr = parsed.hasHeader;
 
-    // 根据类型绘制
-    switch (state.chartType) {
-      case "bar":
-        drawBarChart(ctx, data, w, h);
-        break;
-      case "line":
-        drawLineChart(ctx, data, w, h);
-        break;
-      case "pie":
-        drawPieChart(ctx, data, w, h);
-        break;
-      case "radar":
-        drawRadarChart(ctx, data, w, h);
-        break;
+    if (target > cur) {
+      const add = target - cur;
+      if (hasHdr) {
+        const hdr = splitLine(lines[0]);
+        for (let k = 0; k < add; k++) hdr.push("系列" + (cur + k + 1));
+        lines[0] = hdr.join(",");
+      } else {
+        const names = [];
+        for (let k = 0; k < target; k++) names.push(k === 0 ? "数值" : "系列" + (k + 1));
+        lines.unshift(["标签", ...names].join(","));
+      }
+      for (let r = hasHdr ? 1 : 0; r < lines.length; r++) {
+        const parts = splitLine(lines[r]);
+        const vals = parts.slice(1).map(Number).filter(v => !isNaN(v));
+        const base = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 50;
+        for (let k = 0; k < add; k++) {
+          parts.push(String(Math.max(1, Math.round(base * (0.78 + 0.22 * k + 0.06 * (r % 3))))));
+        }
+        lines[r] = parts.join(",");
+      }
+    } else {
+      if (hasHdr) {
+        const hdr = splitLine(lines[0]);
+        lines[0] = hdr.slice(0, target + 1).join(",");
+      }
+      const start = hasHdr ? 1 : 0;
+      for (let r = start; r < lines.length; r++) {
+        const parts = splitLine(lines[r]);
+        lines[r] = parts.slice(0, target + 1).join(",");
+      }
     }
+    ta.value = lines.join("\n");
+    renderChart();
   }
 
-  const debouncedRender = debounce(renderChart, 150);
-
-  /* ---------------- SVG 导出 ---------------- */
-  function canvasToSVG(canvas, data) {
-    const w = canvas.width;
-    const h = canvas.height;
-    const bgColor = getBgColor();
-
-    let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
-
-    if (bgColor) {
-      svg += `<rect width="${w}" height="${h}" fill="${bgColor}"/>`;
+  function writeSeriesName(index, newName) {
+    const ta = $("#chartData");
+    const lines = ta.value.replace(/\r/g, "").split("\n").filter(l => l.trim() !== "");
+    const parsed = parseData(ta.value);
+    let out;
+    if (parsed.hasHeader) {
+      const hdr = splitLine(lines[0]);
+      while (hdr.length < index + 2) hdr.push("系列" + hdr.length);
+      hdr[index + 1] = newName || "系列" + (index + 1);
+      lines[0] = hdr.join(",");
+      out = lines;
+    } else {
+      // 无表头：补一行表头再写名
+      const names = parsed.seriesNames.map((n, i) => (i === index ? (newName || "系列" + (index + 1)) : n));
+      out = [["标签", ...names].join(","), ...lines];
     }
+    ta.value = out.join("\n");
+    renderChart();
+  }
 
-    // 标题
+  /* ---------------- 坐标轴刻度计算 ---------------- */
+  function niceNum(x) {
+    if (x <= 0 || !isFinite(x)) return 1;
+    const e = Math.floor(Math.log10(x));
+    const f = x / Math.pow(10, e);
+    const nf = f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10;
+    return nf * Math.pow(10, e);
+  }
+  function niceScale(lo, hi, count, snap) {
+    if (!isFinite(lo) || !isFinite(hi) || hi <= lo) { lo = 0; hi = 1; }
+    if (hi === lo) hi = lo + 1;
+    const step = niceNum((hi - lo) / Math.max(2, count));
+    let min, max;
+    if (snap) {
+      min = Math.floor(lo / step) * step;
+      max = Math.ceil(hi / step) * step;
+      if (max === min) max = min + step;
+    } else { min = lo; max = hi; }
+    const ticks = [];
+    for (let v = min, guard = 0; v <= max + step * 1e-9 && guard < 200; v += step, guard++) {
+      ticks.push(Math.round(v * 1e6) / 1e6);
+    }
+    return { min, max, step, ticks };
+  }
+
+  function axisScaleFor(data, axis) {
+    const p = axis === "R" ? "y2" : "y";
+    const idxs = data.series.map((_, i) => i).filter(i => axisOf(i) === axis);
+    if (!idxs.length) return null;
+    let mx = -Infinity, mn = Infinity;
+    idxs.forEach(si => data.series[si].forEach(v => { if (v > mx) mx = v; if (v < mn) mn = v; }));
+    if (mx <= 0) mx = 1;
+    let lo = parseFloat(state[p + "Min"]);
+    let hi = parseFloat(state[p + "Max"]);
+    const hasLo = isFinite(lo), hasHi = isFinite(hi);
+    // 自动下界：数据有负值时向下扩展，避免曲线/柱体越出绘图区
+    if (!hasLo) lo = mn < 0 ? mn : 0;
+    if (!hasHi) hi = mx;
+    if (lo >= hi) { lo = mn < 0 ? mn : 0; hi = niceNum(mx); }
+    return niceScale(lo, hi, state.yTickCount, !(hasLo && hasHi));
+  }
+
+  function xRotAngle(nLabels) {
+    if (state.xRotate === "auto") return nLabels > 8 ? -45 : 0;
+    return parseInt(state.xRotate, 10) || 0;
+  }
+
+  /* ---------------- 图元构建 ---------------- */
+  // 图元：rect / line / circle / path(M,L,C,Z) / slice / text
+  const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif';
+
+  function buildModel(data) {
+    if (state.chartType === "pie") return buildPie(data);
+    if (state.chartType === "radar") return buildRadar(data);
+    return buildCartesian(data);
+  }
+
+  function legendItems(data) {
+    if (state.chartType === "pie") {
+      return data.labels.map((lab, i) => ({ label: trunc(lab, 10), color: colorOf(i) }));
+    }
+    if (data.series.length < 2) return [];
+    return data.seriesNames.map((n, i) => ({ label: trunc(n, 10), color: colorOf(i) }));
+  }
+
+  function drawTitles(P, W, top) {
+    let y = 16 + state.titleSize * 0.8;
     if (state.title) {
-      svg += `<text x="${w / 2}" y="40" text-anchor="middle" font-family="-apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="18" font-weight="bold" fill="${getTextColor()}">${escapeXml(state.title)}</text>`;
+      P.push({ k: "text", x: W / 2, y: y, text: trunc(state.title, 60), size: state.titleSize, weight: "600", align: "middle", base: "alphabetic", color: "#2b2520" });
+      y += 8;
     }
-
-    // 根据类型生成 SVG 内容（简化版）
-    if (data.labels.length > 0 && data.series.length > 0) {
-      switch (state.chartType) {
-        case "bar":
-          svg += barChartToSVG(data, w, h);
-          break;
-        case "line":
-          svg += lineChartToSVG(data, w, h);
-          break;
-        case "pie":
-          svg += pieChartToSVG(data, w, h);
-          break;
-        case "radar":
-          svg += radarChartToSVG(data, w, h);
-          break;
-      }
+    if (state.subtitle) {
+      y += 13;
+      P.push({ k: "text", x: W / 2, y: y, text: trunc(state.subtitle, 80), size: 12, weight: "400", align: "middle", base: "alphabetic", color: "#6b5e52" });
+      y += 6;
     }
-
-    svg += "</svg>";
-    return svg;
+    return y + 2; // 内容起始 y
   }
 
-  function escapeXml(str) {
-    return String(str).replace(/[<>&"']/g, c => ({
-      "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;"
-    }[c]));
+  function drawLegendTop(P, items, W, yStart) {
+    const fs = 12, sw = 14, gap = 18, itemGap = 16;
+    let total = 0;
+    items.forEach(it => (total += sw + 5 + estW(it.label, fs) + itemGap));
+    let x = Math.max(12, (W - total) / 2);
+    const y = yStart != null ? yStart : 8;
+    items.forEach(it => {
+      P.push({ k: "rect", x: x, y: y, w: sw, h: sw - 4, r: 3, fill: it.color });
+      P.push({ k: "text", x: x + sw + 5, y: y + fs - 2, text: it.label, size: fs, align: "start", base: "alphabetic", color: "#6b5e52" });
+      x += sw + 5 + estW(it.label, fs) + itemGap;
+    });
+    return y + fs + 12;
   }
 
-  function barChartToSVG(data, w, h) {
-    const { labels, series, seriesNames } = data;
-    const padding = { top: 70, right: 30, bottom: 80, left: 60 };
-    const chartW = w - padding.left - padding.right;
-    const chartH = h - padding.top - padding.bottom;
+  function buildCartesian(data) {
+    const W = state.width, H = state.height;
+    const dual = state.dualAxis;
+    const scL = axisScaleFor(data, "L");
+    const scR = dual ? axisScaleFor(data, "R") : null;
+    const items = legendItems(data);
+    const P = [];
 
-    let maxVal = 0;
-    for (const s of series) for (const v of s) if (v > maxVal) maxVal = v;
-    if (maxVal <= 0) maxVal = 1;
-    const niceMax = niceNumber(maxVal, true);
-    const tickCount = 5;
-    const tickStep = niceMax / tickCount;
+    // —— 标题 / 副标题 / 顶部图例 ——
+    let contentTop = 16;
+    if (state.title || state.subtitle) contentTop = drawTitles(P, W, contentTop);
+    if (state.showLegend && items.length && state.legendPos === "top") contentTop = drawLegendTop(P, items, W, contentTop);
 
-    let svg = "";
-    const gridColor = "rgba(43,37,32,0.1)";
-    const textColor = getTextColor();
-    const axisColor = "rgba(43,37,32,0.3)";
+    // —— 刻度标签宽度 → 左右留白 ——
+    const tickFs = 12;
+    const tickWL = scL && state.showYTicks ? Math.max(...scL.ticks.map(t => estW(fmtTick(t), tickFs))) : 0;
+    const tickWR = scR && state.showYTicks ? Math.max(...scR.ticks.map(t => estW(fmtTick(t), tickFs))) : 0;
+    const left = 14 + tickWL + (tickWL ? 12 : 6) + (state.yTitle ? 18 : 0);
+    const right = 16 + (scR ? tickWR + 12 + (state.y2Title ? 18 : 0) : 6);
 
-    // 网格
-    if (state.showGrid) {
-      for (let i = 0; i <= tickCount; i++) {
-        const y = padding.top + chartH - (i / tickCount) * chartH;
-        const val = tickStep * i;
-        svg += `<line x1="${padding.left}" y1="${y}" x2="${padding.left + chartW}" y2="${y}" stroke="${gridColor}" stroke-width="1"/>`;
-        svg += `<text x="${padding.left - 10}" y="${y + 4}" text-anchor="end" font-size="12" fill="${textColor}" font-family="sans-serif">${formatNumber(val)}</text>`;
-      }
+    const rot = xRotAngle(data.labels.length);
+    const maxLabW = Math.max(24, ...data.labels.map(l => estW(trunc(l, 12), 12)));
+    let bottom = 12 + (state.xTitle ? 20 : 0);
+    if (state.showXLabels) bottom += rot === -45 ? maxLabW * 0.71 + 12 : rot === -90 ? maxLabW + 8 : 20;
+    let bottomExtra = 0;
+    if (state.showLegend && items.length && state.legendPos === "bottom") bottomExtra = 24;
+
+    const top = contentTop;
+    const plot = {
+      x: left,
+      y: top,
+      w: Math.max(60, W - left - right),
+      h: Math.max(60, H - top - bottom - bottomExtra),
+    };
+
+    const valToY = (v, sc) => plot.y + plot.h - ((v - sc.min) / (sc.max - sc.min)) * plot.h;
+    const zeroY = sc => valToY(Math.min(Math.max(0, sc.min), sc.max), sc);
+
+    // —— 网格 ——
+    const gridColor = "#e8dfd1";
+    if (state.gridH) {
+      (scL ? scL.ticks : []).forEach(t => {
+        const y = valToY(t, scL);
+        P.push({ k: "line", x1: plot.x, y1: y, x2: plot.x + plot.w, y2: y, stroke: gridColor, w: 1 });
+      });
+      if (scR && dual) scR.ticks.forEach(t => { /* 右轴网格与左轴重合时只画横向一次（以左轴为准） */ });
     }
-
-    // 轴线
-    svg += `<line x1="${padding.left}" y1="${padding.top + chartH}" x2="${padding.left + chartW}" y2="${padding.top + chartH}" stroke="${axisColor}" stroke-width="1.5"/>`;
-    svg += `<line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${padding.top + chartH}" stroke="${axisColor}" stroke-width="1.5"/>`;
-
-    // 柱子
-    const numBars = labels.length;
-    const numSeries = series.length;
-    const groupWidth = chartW / numBars;
-    const barGap = 4;
-    const barWidth = Math.min(40, (groupWidth - barGap * (numSeries + 1)) / numSeries);
-    const groupInnerWidth = barWidth * numSeries + barGap * (numSeries - 1);
-
-    for (let i = 0; i < numBars; i++) {
-      const groupX = padding.left + groupWidth * i + groupWidth / 2;
-      const startX = groupX - groupInnerWidth / 2;
-
-      for (let s = 0; s < numSeries; s++) {
-        const val = series[s][i];
-        const barH = (val / niceMax) * chartH;
-        const x = startX + s * (barWidth + barGap);
-        const y = padding.top + chartH - barH;
-        const color = getPaletteColor(s);
-        svg += `<rect x="${x}" y="${y}" width="${barWidth}" height="${barH}" rx="4" fill="${color}" opacity="0.9"/>`;
-
-        if (state.showLabels && barH > 20) {
-          svg += `<text x="${x + barWidth / 2}" y="${y - 4}" text-anchor="middle" font-size="11" fill="${textColor}" font-family="sans-serif">${formatNumber(val)}</text>`;
+    const n = data.labels.length;
+    const anyBar = state.chartType === "bar" || (state.chartType === "combo" && data.series.some((_, i) => stypeOf(i) === "bar"));
+    if (state.gridV && n > 0) {
+      if (anyBar) {
+        for (let i = 1; i < n; i++) {
+          const x = plot.x + (i * plot.w) / n;
+          P.push({ k: "line", x1: x, y1: plot.y, x2: x, y2: plot.y + plot.h, stroke: gridColor, w: 1 });
+        }
+      } else {
+        for (let i = 0; i < n; i++) {
+          const x = n === 1 ? plot.x + plot.w / 2 : plot.x + (i * plot.w) / (n - 1);
+          P.push({ k: "line", x1: x, y1: plot.y, x2: x, y2: plot.y + plot.h, stroke: gridColor, w: 1 });
         }
       }
-
-      // X标签
-      svg += `<text x="${groupX}" y="${padding.top + chartH + 24}" text-anchor="middle" font-size="12" fill="${textColor}" font-family="sans-serif">${escapeXml(truncate(labels[i], 10))}</text>`;
     }
 
-    // 图例
-    if (state.showLegend && seriesNames.length > 1) {
-      svg += legendToSVG(seriesNames, w, padding.top);
+    // —— 轴线 ——
+    const axisColor = "#9a8e80";
+    P.push({ k: "line", x1: plot.x, y1: plot.y + plot.h, x2: plot.x + plot.w, y2: plot.y + plot.h, stroke: axisColor, w: 1 });
+    P.push({ k: "line", x1: plot.x, y1: plot.y, x2: plot.x, y2: plot.y + plot.h, stroke: axisColor, w: 1 });
+    if (scR && dual) {
+      P.push({ k: "line", x1: plot.x + plot.w, y1: plot.y, x2: plot.x + plot.w, y2: plot.y + plot.h, stroke: axisColor, w: 1 });
     }
 
-    return svg;
-  }
-
-  function lineChartToSVG(data, w, h) {
-    const { labels, series, seriesNames } = data;
-    const padding = { top: 70, right: 30, bottom: 80, left: 60 };
-    const chartW = w - padding.left - padding.right;
-    const chartH = h - padding.top - padding.bottom;
-
-    let maxVal = 0;
-    for (const s of series) for (const v of s) if (v > maxVal) maxVal = v;
-    if (maxVal <= 0) maxVal = 1;
-    const niceMax = niceNumber(maxVal, true);
-    const tickCount = 5;
-    const tickStep = niceMax / tickCount;
-
-    let svg = "";
-    const gridColor = "rgba(43,37,32,0.1)";
-    const textColor = getTextColor();
-    const axisColor = "rgba(43,37,32,0.3)";
-
-    if (state.showGrid) {
-      for (let i = 0; i <= tickCount; i++) {
-        const y = padding.top + chartH - (i / tickCount) * chartH;
-        svg += `<line x1="${padding.left}" y1="${y}" x2="${padding.left + chartW}" y2="${y}" stroke="${gridColor}" stroke-width="1"/>`;
-        svg += `<text x="${padding.left - 10}" y="${y + 4}" text-anchor="end" font-size="12" fill="${textColor}" font-family="sans-serif">${formatNumber(tickStep * i)}</text>`;
+    // —— X 分类标签 ——
+    if (state.showXLabels && n > 0) {
+      const stride = anyBar ? 1 : Math.max(1, Math.ceil(n / 12));
+      for (let i = 0; i < n; i += stride) {
+        const x = anyBar ? plot.x + (i + 0.5) * plot.w / n : (n === 1 ? plot.x + plot.w / 2 : plot.x + (i * plot.w) / (n - 1));
+        const y = plot.y + plot.h + 14;
+        if (rot === -45) {
+          P.push({ k: "text", x: x, y: y + 6, text: trunc(data.labels[i], 12), size: 12, align: "end", base: "middle", color: "#6b5e52", rot: -45 });
+        } else if (rot === -90) {
+          P.push({ k: "text", x: x, y: y + 4, text: trunc(data.labels[i], 12), size: 12, align: "end", base: "middle", color: "#6b5e52", rot: -90 });
+        } else {
+          P.push({ k: "text", x: x, y: y, text: trunc(data.labels[i], 12), size: 12, align: "middle", base: "alphabetic", color: "#6b5e52" });
+        }
       }
     }
 
-    svg += `<line x1="${padding.left}" y1="${padding.top + chartH}" x2="${padding.left + chartW}" y2="${padding.top + chartH}" stroke="${axisColor}" stroke-width="1.5"/>`;
-    svg += `<line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${padding.top + chartH}" stroke="${axisColor}" stroke-width="1.5"/>`;
+    // —— Y 刻度（左 / 右）——
+    if (scL && state.showYTicks) {
+      scL.ticks.forEach(t => {
+        const y = valToY(t, scL);
+        P.push({ k: "line", x1: plot.x - 4, y1: y, x2: plot.x, y2: y, stroke: axisColor, w: 1 });
+        P.push({ k: "text", x: plot.x - 8, y: y, text: fmtTick(t), size: tickFs, align: "end", base: "middle", color: "#9a8e80" });
+      });
+    }
+    if (scR && dual && state.showYTicks) {
+      scR.ticks.forEach(t => {
+        const y = valToY(t, scR);
+        P.push({ k: "line", x1: plot.x + plot.w, y1: y, x2: plot.x + plot.w + 4, y2: y, stroke: axisColor, w: 1 });
+        P.push({ k: "text", x: plot.x + plot.w + 8, y: y, text: fmtTick(t), size: tickFs, align: "start", base: "middle", color: "#9a8e80" });
+      });
+    }
 
-    const numPoints = labels.length;
-    const stepX = chartW / (numPoints - 1 || 1);
+    // —— 轴标题 ——
+    if (state.yTitle) {
+      P.push({ k: "text", x: 14, y: plot.y + plot.h / 2, text: trunc(state.yTitle, 16), size: 12, align: "middle", base: "middle", color: "#6b5e52", rot: -90 });
+    }
+    if (dual && state.y2Title) {
+      P.push({ k: "text", x: W - 14, y: plot.y + plot.h / 2, text: trunc(state.y2Title, 16), size: 12, align: "middle", base: "middle", color: "#6b5e52", rot: 90 });
+    }
+    if (state.xTitle) {
+      P.push({ k: "text", x: plot.x + plot.w / 2, y: H - bottom + 22, text: trunc(state.xTitle, 20), size: 12, align: "middle", base: "alphabetic", color: "#6b5e52" });
+    }
 
-    for (let s = 0; s < series.length; s++) {
-      const color = getPaletteColor(s);
-      const points = [];
-      for (let i = 0; i < numPoints; i++) {
-        points.push({
-          x: padding.left + stepX * i,
-          y: padding.top + chartH - (series[s][i] / niceMax) * chartH
+    // —— 数据系列 ——
+    // 绘制顺序：柱 → 面积 → 线（组内按索引稳定排序）
+    const barIdxs = [], areaIdxs = [], lineIdxs = [];
+    data.series.forEach((_, i) => {
+      const st = state.chartType === "bar" ? "bar" : state.chartType === "line" ? "line" : stypeOf(i);
+      if (st === "bar") barIdxs.push(i);
+      else if (st === "area") areaIdxs.push(i);
+      else lineIdxs.push(i);
+    });
+
+    const xpos = i => (anyBar || state.chartType === "combo"
+      ? plot.x + (i + 0.5) * plot.w / n
+      : (n === 1 ? plot.x + plot.w / 2 : plot.x + (i * plot.w) / (n - 1)));
+
+    // 柱
+    if (barIdxs.length && n > 0) {
+      const gw = plot.w / n;
+      const bw = Math.max(2, Math.min(48, (gw * 0.72 - 3 * (barIdxs.length - 1)) / barIdxs.length));
+      const groupW = bw * barIdxs.length + 3 * (barIdxs.length - 1);
+      barIdxs.forEach((si, bi) => {
+        const sc = axisOf(si) === "R" && scR ? scR : scL;
+        const color = colorOf(si);
+        data.series[si].forEach((v, i) => {
+          const x = plot.x + (i + 0.5) * gw - groupW / 2 + bi * (bw + 3);
+          const y = valToY(v, sc);
+          const y0 = zeroY(sc);
+          const yTop = Math.min(y, y0), hh = Math.max(1, Math.abs(y0 - y));
+          P.push({ k: "rect", x: x, y: yTop, w: bw, h: hh, r: Math.min(3, bw / 2), fill: color });
+          if (state.showLabels) {
+            P.push({ k: "text", x: x + bw / 2, y: y < y0 ? y - 5 : y + 12, text: fmtVal(v), size: 11, align: "middle", base: "alphabetic", color: "#6b5e52" });
+          }
+        });
+      });
+    }
+    // 面积
+    areaIdxs.forEach(si => {
+      const sc = axisOf(si) === "R" && scR ? scR : scL;
+      const color = colorOf(si);
+      const cmds = [];
+      data.series[si].forEach((v, i) => {
+        const x = xpos(i), y = valToY(v, sc);
+        if (i === 0) cmds.push({ c: "M", p: [x, y] });
+        else cmds.push({ c: "L", p: [x, y] });
+      });
+      cmds.push({ c: "L", p: [xpos(n - 1), zeroY(sc)] });
+      cmds.push({ c: "L", p: [xpos(0), zeroY(sc)] });
+      cmds.push({ c: "Z" });
+      P.push({ k: "path", cmds, fill: hexToRgba(color, 0.22), stroke: color, sw: 2 });
+      if (state.showLabels) {
+        data.series[si].forEach((v, i) => {
+          P.push({ k: "text", x: xpos(i), y: valToY(v, sc) - 6, text: fmtVal(v), size: 11, align: "middle", base: "alphabetic", color: "#6b5e52" });
         });
       }
-
-      // 区域
-      let areaPath = `M ${points[0].x} ${padding.top + chartH}`;
-      for (const p of points) areaPath += ` L ${p.x} ${p.y}`;
-      areaPath += ` L ${points[points.length - 1].x} ${padding.top + chartH} Z`;
-      svg += `<path d="${areaPath}" fill="${color}" opacity="0.12"/>`;
-
-      // 折线
-      let linePath = `M ${points[0].x} ${points[0].y}`;
-      for (let i = 1; i < points.length; i++) {
-        const prev = points[i - 1];
-        const curr = points[i];
-        const cpx = (prev.x + curr.x) / 2;
-        linePath += ` C ${cpx} ${prev.y}, ${cpx} ${curr.y}, ${curr.x} ${curr.y}`;
-      }
-      svg += `<path d="${linePath}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
-
-      // 数据点
-      for (let i = 0; i < points.length; i++) {
-        const p = points[i];
-        svg += `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#fff" stroke="${color}" stroke-width="2.5"/>`;
-        if (state.showLabels) {
-          svg += `<text x="${p.x}" y="${p.y - 10}" text-anchor="middle" font-size="11" fill="${textColor}" font-family="sans-serif">${formatNumber(series[s][i])}</text>`;
+    });
+    // 线
+    lineIdxs.forEach(si => {
+      const sc = axisOf(si) === "R" && scR ? scR : scL;
+      const color = colorOf(si);
+      const pts = data.series[si].map((v, i) => [xpos(i), valToY(v, sc)]);
+      // 面积底（同旧版折线的淡填充）
+      if (pts.length > 1) {
+        const fillCmds = [{ c: "M", p: pts[0] }];
+        for (let i = 1; i < pts.length; i++) {
+          const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+          const mx = (x0 + x1) / 2;
+          fillCmds.push({ c: "C", p: [mx, y0, mx, y1, x1, y1] });
         }
+        fillCmds.push({ c: "L", p: [pts[pts.length - 1][0], zeroY(sc)] });
+        fillCmds.push({ c: "L", p: [pts[0][0], zeroY(sc)] });
+        fillCmds.push({ c: "Z" });
+        P.push({ k: "path", cmds: fillCmds, fill: hexToRgba(color, 0.12) });
       }
+      const strokeCmds = [{ c: "M", p: pts[0] }];
+      for (let i = 1; i < pts.length; i++) {
+        const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+        const mx = (x0 + x1) / 2;
+        strokeCmds.push({ c: "C", p: [mx, y0, mx, y1, x1, y1] });
+      }
+      P.push({ k: "path", cmds: strokeCmds, stroke: color, sw: 2.5 });
+      pts.forEach(([x, y]) => P.push({ k: "circle", cx: x, cy: y, r: 3.5, fill: color }));
+      if (state.showLabels) {
+        pts.forEach(([x, y], i) => {
+          P.push({ k: "text", x: x, y: y - 8, text: fmtVal(data.series[si][i]), size: 11, align: "middle", base: "alphabetic", color: "#6b5e52" });
+        });
+      }
+    });
+
+    // —— 底部图例 ——
+    if (state.showLegend && items.length && state.legendPos === "bottom") {
+      const fs = 12, sw = 14, itemGap = 16;
+      let total = 0;
+      items.forEach(it => (total += sw + 5 + estW(it.label, fs) + itemGap));
+      let x = Math.max(12, (W - total) / 2);
+      const y = H - bottomExtra + 4;
+      items.forEach(it => {
+        P.push({ k: "rect", x: x, y: y, w: sw, h: sw - 4, r: 3, fill: it.color });
+        P.push({ k: "text", x: x + sw + 5, y: y + fs - 2, text: it.label, size: fs, align: "start", base: "alphabetic", color: "#6b5e52" });
+        x += sw + 5 + estW(it.label, fs) + itemGap;
+      });
     }
 
-    // X标签
-    for (let i = 0; i < numPoints; i++) {
-      const x = padding.left + stepX * i;
-      svg += `<text x="${x}" y="${padding.top + chartH + 24}" text-anchor="middle" font-size="12" fill="${textColor}" font-family="sans-serif">${escapeXml(truncate(labels[i], 10))}</text>`;
-    }
-
-    if (state.showLegend && seriesNames.length > 1) {
-      svg += legendToSVG(seriesNames, w, padding.top);
-    }
-
-    return svg;
+    return { P, W, H };
   }
 
-  function pieChartToSVG(data, w, h) {
-    const { labels, series } = data;
-    const values = series[0];
-    const total = values.reduce((a, b) => a + b, 0);
-    if (total <= 0) return "";
+  function buildPie(data) {
+    const W = state.width, H = state.height;
+    const P = [];
+    const items = legendItems(data);
+    let contentTop = 16;
+    if (state.title || state.subtitle) contentTop = drawTitles(P, W, contentTop);
+    const legendSide = false;
+    if (state.showLegend && items.length && state.legendPos === "top") contentTop = drawLegendTop(P, items, W, contentTop);
 
-    const padding = { top: 70, right: 30, bottom: 40, left: 30 };
-    const chartAreaW = w - padding.left - padding.right;
-    const chartAreaH = h - padding.top - padding.bottom;
-    const legendW = state.showLegend ? 180 : 0;
-    const pieAreaW = chartAreaW - legendW;
+    const bottomPad = state.showLegend && items.length && state.legendPos === "bottom" ? 30 : 20;
+    const vals = data.series[0] || [];
+    const total = vals.reduce((a, b) => a + Math.max(0, b), 0);
+    const cx = W / 2, cy = contentTop + (H - contentTop - bottomPad) / 2;
+    const r = Math.min(W, H - contentTop - bottomPad) * 0.36;
+    const ir = state.pieDoughnut ? r * 0.58 : 0;
 
-    const cx = padding.left + pieAreaW / 2;
-    const cy = padding.top + chartAreaH / 2;
-    const r = Math.min(pieAreaW, chartAreaH) / 2 - 10;
-    const innerR = state.doughnutMode ? r * 0.55 : 0;
-
-    let svg = "";
-    let startAngle = -Math.PI / 2;
-
-    for (let i = 0; i < labels.length; i++) {
-      const sliceAngle = (values[i] / total) * Math.PI * 2;
-      const endAngle = startAngle + sliceAngle;
-      const color = getPaletteColor(i);
-
-      const x1 = cx + Math.cos(startAngle) * r;
-      const y1 = cy + Math.sin(startAngle) * r;
-      const x2 = cx + Math.cos(endAngle) * r;
-      const y2 = cy + Math.sin(endAngle) * r;
-      const largeArc = sliceAngle > Math.PI ? 1 : 0;
-
-      if (state.doughnutMode) {
-        const ix1 = cx + Math.cos(startAngle) * innerR;
-        const iy1 = cy + Math.sin(startAngle) * innerR;
-        const ix2 = cx + Math.cos(endAngle) * innerR;
-        const iy2 = cy + Math.sin(endAngle) * innerR;
-        const path = `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} L ${ix2} ${iy2} A ${innerR} ${innerR} 0 ${largeArc} 0 ${ix1} ${iy1} Z`;
-        svg += `<path d="${path}" fill="${color}"/>`;
-      } else {
-        const path = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
-        svg += `<path d="${path}" fill="${color}"/>`;
-      }
-
-      // 百分比标签
-      if (state.showPercent && sliceAngle > 0.15) {
-        const midAngle = startAngle + sliceAngle / 2;
-        const labelR = r * 0.65;
-        const lx = cx + Math.cos(midAngle) * labelR;
-        const ly = cy + Math.sin(midAngle) * labelR;
-        const pct = ((values[i] / total) * 100).toFixed(1) + "%";
-        svg += `<text x="${lx}" y="${ly + 4}" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff" font-family="sans-serif">${pct}</text>`;
-      }
-
-      startAngle = endAngle;
+    let a0 = -Math.PI / 2;
+    if (total <= 0) {
+      P.push({ k: "circle", cx, cy, r, fill: "#e8dfd1" });
+    } else {
+      vals.forEach((v, i) => {
+        const frac = Math.max(0, v) / total;
+        if (frac <= 0) return;
+        const a1 = a0 + frac * Math.PI * 2;
+        const color = colorOf(i);
+        P.push({ k: "slice", cx, cy, r, ir, a0, a1, fill: color });
+        if (state.piePercent) {
+          const mid = (a0 + a1) / 2;
+          const lr = ir + (r - ir) * 0.62;
+          const lx = cx + Math.cos(mid) * lr, ly = cy + Math.sin(mid) * lr;
+          const pct = Math.round(frac * 1000) / 10;
+          P.push({ k: "text", x: lx, y: ly, text: pct + "%", size: 12, weight: "600", align: "middle", base: "middle", color: pct >= 30 ? "#fff" : "#2b2520" });
+        }
+        a0 = a1;
+      });
+    }
+    if (state.pieDoughnut) {
+      P.push({ k: "text", x: cx, y: cy - 4, text: fmtVal(total), size: 20, weight: "600", align: "middle", base: "middle", color: "#2b2520" });
+      P.push({ k: "text", x: cx, y: cy + 14, text: "总计", size: 11, align: "middle", base: "middle", color: "#9a8e80" });
     }
 
-    // 环形中心
-    if (state.doughnutMode) {
-      svg += `<text x="${cx}" y="${cy - 2}" text-anchor="middle" font-size="18" font-weight="bold" fill="${getTextColor()}" font-family="sans-serif">${formatNumber(total)}</text>`;
-      svg += `<text x="${cx}" y="${cy + 18}" text-anchor="middle" font-size="12" fill="#6b5e52" font-family="sans-serif">总计</text>`;
+    if (state.showLegend && items.length && state.legendPos === "bottom") {
+      const fs = 12, sw = 14, itemGap = 16;
+      let totalW = 0;
+      items.forEach(it => (totalW += sw + 5 + estW(it.label, fs) + itemGap));
+      let x = Math.max(12, (W - totalW) / 2);
+      const y = H - bottomPad + 8;
+      items.forEach(it => {
+        P.push({ k: "rect", x: x, y: y, w: sw, h: sw - 4, r: 3, fill: it.color });
+        P.push({ k: "text", x: x + sw + 5, y: y + fs - 2, text: it.label, size: fs, align: "start", base: "alphabetic", color: "#6b5e52" });
+        x += sw + 5 + estW(it.label, fs) + itemGap;
+      });
     }
-
-    // 图例
-    if (state.showLegend) {
-      const legendX = padding.left + pieAreaW + 20;
-      const legendY = padding.top + 20;
-      for (let i = 0; i < labels.length; i++) {
-        const ly = legendY + i * 24;
-        const color = getPaletteColor(i);
-        const pct = ((values[i] / total) * 100).toFixed(1) + "%";
-        svg += `<rect x="${legendX}" y="${ly - 6}" width="12" height="12" rx="3" fill="${color}"/>`;
-        svg += `<text x="${legendX + 20}" y="${ly + 4}" font-size="12" fill="${getTextColor()}" font-family="sans-serif">${escapeXml(truncate(labels[i], 10))}</text>`;
-        svg += `<text x="${legendX + 160}" y="${ly + 4}" text-anchor="end" font-size="12" fill="#6b5e52" font-family="sans-serif">${pct}</text>`;
-      }
-    }
-
-    return svg;
+    return { P, W, H };
   }
 
-  function radarChartToSVG(data, w, h) {
-    const { labels, series, seriesNames } = data;
-    if (labels.length < 3) return "";
+  function buildRadar(data) {
+    const W = state.width, H = state.height;
+    const P = [];
+    const items = legendItems(data);
+    let contentTop = 16;
+    if (state.title || state.subtitle) contentTop = drawTitles(P, W, contentTop);
+    if (state.showLegend && items.length && state.legendPos === "top") contentTop = drawLegendTop(P, items, W, contentTop);
 
-    const padding = { top: 70, right: 30, bottom: 40, left: 30 };
-    const chartAreaW = w - padding.left - padding.right;
-    const chartAreaH = h - padding.top - padding.bottom;
-    const cx = padding.left + chartAreaW / 2;
-    const cy = padding.top + chartAreaH / 2;
-    const r = Math.min(chartAreaW, chartAreaH) / 2 - 40;
+    const n = data.labels.length;
+    const cx = W / 2, cy = contentTop + (H - contentTop - (state.showLegend && items.length && state.legendPos === "bottom" ? 46 : 30)) / 2;
+    const r = Math.min(W / 2 - 70, (H - contentTop) / 2 - 40);
+    const mx = Math.max(1, ...data.series.flat());
 
-    const numAxes = labels.length;
-    const angleStep = (Math.PI * 2) / numAxes;
-    const startAngle = -Math.PI / 2;
-
-    let maxVal = 0;
-    for (const s of series) for (const v of s) if (v > maxVal) maxVal = v;
-    if (maxVal <= 0) maxVal = 1;
-    const niceMax = niceNumber(maxVal, true);
+    // 网格环（5 层）
     const levels = 5;
-    const textColor = getTextColor();
-    const gridColor = "rgba(43,37,32,0.1)";
-
-    let svg = "";
-
-    // 网格
-    if (state.showGrid) {
-      for (let level = 1; level <= levels; level++) {
-        const lr = (r * level) / levels;
-        let points = [];
-        for (let i = 0; i < numAxes; i++) {
-          const angle = startAngle + angleStep * i;
-          points.push(`${cx + Math.cos(angle) * lr},${cy + Math.sin(angle) * lr}`);
-        }
-        svg += `<polygon points="${points.join(" ")}" fill="none" stroke="${gridColor}" stroke-width="1"/>`;
+    for (let l = levels; l >= 1; l--) {
+      const rr = (r * l) / levels;
+      const cmds = [];
+      for (let i = 0; i < n; i++) {
+        const a = -Math.PI / 2 + (i * 2 * Math.PI) / n;
+        const x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
+        cmds.push(i === 0 ? { c: "M", p: [x, y] } : { c: "L", p: [x, y] });
       }
-
-      // 轴线
-      for (let i = 0; i < numAxes; i++) {
-        const angle = startAngle + angleStep * i;
-        const x = cx + Math.cos(angle) * r;
-        const y = cy + Math.sin(angle) * r;
-        svg += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="${gridColor}" stroke-width="1"/>`;
-      }
+      cmds.push({ c: "Z" });
+      P.push({ k: "path", cmds, stroke: "#e8dfd1", sw: 1, fill: l % 2 ? "#faf6f0" : "none" });
     }
-
+    // 轴线与标签
+    for (let i = 0; i < n; i++) {
+      const a = -Math.PI / 2 + (i * 2 * Math.PI) / n;
+      const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+      P.push({ k: "line", x1: cx, y1: cy, x2: x, y2: y, stroke: "#e8dfd1", w: 1 });
+      const lx = cx + Math.cos(a) * (r + 18), ly = cy + Math.sin(a) * (r + 16);
+      P.push({
+        k: "text", x: lx, y: ly, text: trunc(data.labels[i], 8), size: 12,
+        align: Math.abs(Math.cos(a)) < 0.3 ? "middle" : Math.cos(a) > 0 ? "start" : "end",
+        base: "middle", color: "#6b5e52",
+      });
+    }
     // 数据多边形
-    for (let s = 0; s < series.length; s++) {
-      const color = getPaletteColor(s);
-      const points = [];
-      for (let i = 0; i < numAxes; i++) {
-        const angle = startAngle + angleStep * i;
-        const val = series[s][i] || 0;
-        const pr = (val / niceMax) * r;
-        points.push(`${cx + Math.cos(angle) * pr},${cy + Math.sin(angle) * pr}`);
-      }
-      svg += `<polygon points="${points.join(" ")}" fill="${color}" opacity="0.25" stroke="${color}" stroke-width="2"/>`;
+    data.series.forEach((serie, si) => {
+      const color = colorOf(si);
+      const cmds = [];
+      serie.forEach((v, i) => {
+        const a = -Math.PI / 2 + (i * 2 * Math.PI) / n;
+        const rr = (Math.max(0, v) / mx) * r;
+        const x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
+        cmds.push(i === 0 ? { c: "M", p: [x, y] } : { c: "L", p: [x, y] });
+      });
+      cmds.push({ c: "Z" });
+      P.push({ k: "path", cmds, fill: hexToRgba(color, 0.18), stroke: color, sw: 2 });
+      serie.forEach((v, i) => {
+        const a = -Math.PI / 2 + (i * 2 * Math.PI) / n;
+        const rr = (Math.max(0, v) / mx) * r;
+        P.push({ k: "circle", cx: cx + Math.cos(a) * rr, cy: cy + Math.sin(a) * rr, r: 3, fill: color });
+      });
+    });
 
-      // 数据点
-      for (let i = 0; i < numAxes; i++) {
-        const angle = startAngle + angleStep * i;
-        const val = series[s][i] || 0;
-        const pr = (val / niceMax) * r;
-        const px = cx + Math.cos(angle) * pr;
-        const py = cy + Math.sin(angle) * pr;
-        svg += `<circle cx="${px}" cy="${py}" r="4" fill="#fff" stroke="${color}" stroke-width="2"/>`;
-      }
+    if (state.showLegend && items.length && state.legendPos === "bottom") {
+      const fs = 12, sw = 14, itemGap = 16;
+      let totalW = 0;
+      items.forEach(it => (totalW += sw + 5 + estW(it.label, fs) + itemGap));
+      let x = Math.max(12, (W - totalW) / 2);
+      const y = H - 30;
+      items.forEach(it => {
+        P.push({ k: "rect", x: x, y: y, w: sw, h: sw - 4, r: 3, fill: it.color });
+        P.push({ k: "text", x: x + sw + 5, y: y + fs - 2, text: it.label, size: fs, align: "start", base: "alphabetic", color: "#6b5e52" });
+        x += sw + 5 + estW(it.label, fs) + itemGap;
+      });
     }
-
-    // 轴标签
-    for (let i = 0; i < numAxes; i++) {
-      const angle = startAngle + angleStep * i;
-      const x = cx + Math.cos(angle) * (r + 20);
-      const y = cy + Math.sin(angle) * (r + 20);
-      let anchor = "middle";
-      const cosA = Math.cos(angle);
-      if (cosA > 0.3) anchor = "start";
-      else if (cosA < -0.3) anchor = "end";
-      svg += `<text x="${x}" y="${y + 4}" text-anchor="${anchor}" font-size="12" fill="${textColor}" font-family="sans-serif">${escapeXml(truncate(labels[i], 8))}</text>`;
-    }
-
-    if (state.showLegend && seriesNames.length > 1) {
-      svg += legendToSVG(seriesNames, w, padding.top);
-    }
-
-    return svg;
+    return { P, W, H };
   }
 
-  function legendToSVG(seriesNames, w, topY) {
-    const legendY = topY - 30;
-    const itemGap = 16;
-    const boxW = 14;
-    const boxH = 10;
+  /* ---------------- Canvas 渲染 ---------------- */
+  function paintCanvas(ctx, model) {
+    const { P, W, H } = model;
+    ctx.clearRect(0, 0, W, H);
+    drawBg(ctx, W, H);
+    ctx.font = `12px ${FONT}`;
+    P.forEach(p => {
+      ctx.save();
+      ctx.globalAlpha = p.op != null ? p.op : 1;
+      switch (p.k) {
+        case "rect": {
+          ctx.fillStyle = p.fill;
+          if (p.r) {
+            const r = Math.min(p.r, p.w / 2, p.h / 2);
+            ctx.beginPath();
+            ctx.moveTo(p.x + r, p.y);
+            ctx.arcTo(p.x + p.w, p.y, p.x + p.w, p.y + p.h, r);
+            ctx.arcTo(p.x + p.w, p.y + p.h, p.x, p.y + p.h, r);
+            ctx.arcTo(p.x, p.y + p.h, p.x, p.y, r);
+            ctx.arcTo(p.x, p.y, p.x + p.w, p.y, r);
+            ctx.closePath();
+            ctx.fill();
+          } else {
+            ctx.fillRect(p.x, p.y, p.w, p.h);
+          }
+          break;
+        }
+        case "line": {
+          ctx.strokeStyle = p.stroke; ctx.lineWidth = p.w || 1;
+          if (p.dash) ctx.setLineDash(p.dash);
+          ctx.beginPath(); ctx.moveTo(p.x1, p.y1); ctx.lineTo(p.x2, p.y2); ctx.stroke();
+          ctx.setLineDash([]);
+          break;
+        }
+        case "circle": {
+          ctx.beginPath(); ctx.arc(p.cx, p.cy, p.r, 0, Math.PI * 2);
+          if (p.fill) { ctx.fillStyle = p.fill; ctx.fill(); }
+          if (p.stroke) { ctx.strokeStyle = p.stroke; ctx.lineWidth = p.sw || 1; ctx.stroke(); }
+          break;
+        }
+        case "slice": {
+          ctx.beginPath();
+          if (p.ir > 0) {
+            ctx.arc(p.cx, p.cy, p.r, p.a0, p.a1);
+            ctx.arc(p.cx, p.cy, p.ir, p.a1, p.a0, true);
+            ctx.closePath();
+          } else {
+            ctx.moveTo(p.cx, p.cy);
+            ctx.arc(p.cx, p.cy, p.r, p.a0, p.a1);
+            ctx.closePath();
+          }
+          ctx.fillStyle = p.fill; ctx.fill();
+          break;
+        }
+        case "path": {
+          ctx.beginPath();
+          p.cmds.forEach(c => {
+            if (c.c === "M") ctx.moveTo(c.p[0], c.p[1]);
+            else if (c.c === "L") ctx.lineTo(c.p[0], c.p[1]);
+            else if (c.c === "C") ctx.bezierCurveTo(c.p[0], c.p[1], c.p[2], c.p[3], c.p[4], c.p[5]);
+            else if (c.c === "Z") ctx.closePath();
+          });
+          if (p.fill && p.fill !== "none") { ctx.fillStyle = p.fill; ctx.fill(); }
+          if (p.stroke) { ctx.strokeStyle = p.stroke; ctx.lineWidth = p.sw || 1; ctx.stroke(); }
+          break;
+        }
+        case "text": {
+          ctx.font = `${p.weight || "400"} ${p.size || 12}px ${FONT}`;
+          ctx.fillStyle = p.color || "#2b2520";
+          ctx.textAlign = p.align || "start";
+          ctx.textBaseline = p.base || "alphabetic";
+          if (p.rot) {
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rot * Math.PI) / 180);
+            ctx.fillText(p.text, 0, 0);
+          } else {
+            ctx.fillText(p.text, p.x, p.y);
+          }
+          break;
+        }
+      }
+      ctx.restore();
+    });
+  }
 
-    // 估算每项宽度
-    let totalW = 0;
-    const items = [];
-    for (let i = 0; i < seriesNames.length; i++) {
-      const textW = seriesNames[i].length * 12 + 10;
-      const itemW = boxW + 6 + textW;
-      items.push(itemW);
-      totalW += itemW;
+  function bgFill() {
+    if (state.bg === "transparent") return null;
+    if (state.bg === "paper") return { type: "grad", from: "#fffdf8", to: "#f3ede3" };
+    return { type: "solid", color: "#ffffff" };
+  }
+  function drawBg(ctx, W, H) {
+    const bf = bgFill();
+    if (!bf) return;
+    if (bf.type === "solid") { ctx.fillStyle = bf.color; ctx.fillRect(0, 0, W, H); }
+    else {
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, bf.from); g.addColorStop(1, bf.to);
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     }
-    totalW += itemGap * (seriesNames.length - 1);
+  }
 
-    let x = (w - totalW) / 2;
-    let svg = "";
-
-    for (let i = 0; i < seriesNames.length; i++) {
-      const color = getPaletteColor(i);
-      svg += `<rect x="${x}" y="${legendY - boxH / 2}" width="${boxW}" height="${boxH}" rx="2" fill="${color}"/>`;
-      svg += `<text x="${x + boxW + 6}" y="${legendY + 4}" font-size="12" fill="${getTextColor()}" font-family="sans-serif">${escapeXml(seriesNames[i])}</text>`;
-      x += items[i] + itemGap;
+  /* ---------------- SVG 渲染（与 Canvas 同模型） ---------------- */
+  function escXml(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function buildSVG(model) {
+    const { P, W, H } = model;
+    const out = [];
+    const bf = bgFill();
+    if (bf) {
+      if (bf.type === "solid") out.push(`<rect width="${W}" height="${H}" fill="${bf.color}"/>`);
+      else out.push(`<defs><linearGradient id="bgg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${bf.from}"/><stop offset="1" stop-color="${bf.to}"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#bgg)"/>`);
     }
+    P.forEach(p => {
+      const op = p.op != null ? ` opacity="${p.op}"` : "";
+      switch (p.k) {
+        case "rect":
+          out.push(`<rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}"${p.r ? ` rx="${Math.min(p.r, p.w / 2, p.h / 2)}"` : ""} fill="${p.fill}"${op}/>`);
+          break;
+        case "line":
+          out.push(`<line x1="${p.x1}" y1="${p.y1}" x2="${p.x2}" y2="${p.y2}" stroke="${p.stroke}" stroke-width="${p.w || 1}"${p.dash ? ` stroke-dasharray="${p.dash.join(" ")}"` : ""}${op}/>`);
+          break;
+        case "circle":
+          out.push(`<circle cx="${p.cx}" cy="${p.cy}" r="${p.r}"${p.fill ? ` fill="${p.fill}"` : ' fill="none"'}${p.stroke ? ` stroke="${p.stroke}" stroke-width="${p.sw || 1}"` : ""}${op}/>`);
+          break;
+        case "slice": {
+          const large = p.a1 - p.a0 > Math.PI ? 1 : 0;
+          const x0 = p.cx + Math.cos(p.a0) * p.r, y0 = p.cy + Math.sin(p.a0) * p.r;
+          const x1 = p.cx + Math.cos(p.a1) * p.r, y1 = p.cy + Math.sin(p.a1) * p.r;
+          let d;
+          if (p.ir > 0) {
+            const xi1 = p.cx + Math.cos(p.a1) * p.ir, yi1 = p.cy + Math.sin(p.a1) * p.ir;
+            const xi0 = p.cx + Math.cos(p.a0) * p.ir, yi0 = p.cy + Math.sin(p.a0) * p.ir;
+            d = `M ${x0} ${y0} A ${p.r} ${p.r} 0 ${large} 1 ${x1} ${y1} L ${xi1} ${yi1} A ${p.ir} ${p.ir} 0 ${large} 0 ${xi0} ${yi0} Z`;
+          } else {
+            d = `M ${p.cx} ${p.cy} L ${x0} ${y0} A ${p.r} ${p.r} 0 ${large} 1 ${x1} ${y1} Z`;
+          }
+          out.push(`<path d="${d}" fill="${p.fill}"${op}/>`);
+          break;
+        }
+        case "path": {
+          const d = p.cmds.map(c => c.c === "Z" ? "Z" : `${c.c} ${c.p.map(v => Math.round(v * 100) / 100).join(" ")}`).join(" ");
+          out.push(`<path d="${d}"${p.fill && p.fill !== "none" ? ` fill="${p.fill}"` : ' fill="none"'}${p.stroke ? ` stroke="${p.stroke}" stroke-width="${p.sw || 1}"` : ""}${op}/>`);
+          break;
+        }
+        case "text": {
+          const anchor = p.align === "middle" ? "middle" : p.align === "end" ? "end" : "start";
+          const base = p.base === "middle" ? "middle" : "alphabetic";
+          const tr = p.rot ? ` transform="rotate(${p.rot} ${p.x} ${p.y})"` : "";
+          out.push(`<text x="${p.x}" y="${p.y}" font-family='${FONT}' font-size="${p.size || 12}"${p.weight && p.weight !== "400" ? ` font-weight="${p.weight}"` : ""} fill="${p.color || "#2b2520"}" text-anchor="${anchor}" dominant-baseline="${base === "middle" ? "middle" : "auto"}"${tr}${op}>${escXml(p.text)}</text>`);
+          break;
+        }
+      }
+    });
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${out.join("")}</svg>`;
+  }
 
-    return svg;
+  /* ---------------- 系列设置面板 ---------------- */
+  function rebuildSeriesUI(data) {
+    const box = $("#seriesSettings");
+    if (!box) return;
+    const sig = data.seriesNames.join("¦") + "|" + data.series.length + "|" + state.chartType + "|" + state.dualAxis;
+    if (box.dataset.sig === sig) return;
+    box.dataset.sig = sig;
+    box.innerHTML = "";
+    const showAxis = state.dualAxis;
+    const showType = state.chartType === "combo";
+    data.seriesNames.forEach((name, i) => {
+      const row = document.createElement("div");
+      row.className = "series-row";
+      const color = colorOf(i);
+      row.innerHTML =
+        `<input type="color" value="${color}" data-si="${i}" data-act="color" title="系列颜色">` +
+        `<input type="text" value="${escXml(name)}" data-si="${i}" data-act="name" maxlength="12" title="系列名称">` +
+        (showType ? `<select data-si="${i}" data-act="stype" title="系列图形类型">
+          <option value="bar"${stypeOf(i) === "bar" ? " selected" : ""}>柱</option>
+          <option value="line"${stypeOf(i) === "line" ? " selected" : ""}>线</option>
+          <option value="area"${stypeOf(i) === "area" ? " selected" : ""}>面</option>
+        </select>` : "") +
+        (showAxis ? `<select data-si="${i}" data-act="axis" title="归属轴">
+          <option value="L"${axisOf(i) === "L" ? " selected" : ""}>左轴</option>
+          <option value="R"${axisOf(i) === "R" ? " selected" : ""}>右轴</option>
+        </select>` : "");
+      box.appendChild(row);
+    });
+    $("#seriesOptions").hidden = data.series.length === 0;
+  }
+
+  function bindSeriesUI() {
+    const box = $("#seriesSettings");
+    box.addEventListener("input", e => {
+      const t = e.target;
+      if (t.dataset.act === "color") {
+        seriesCfg[+t.dataset.si].color = t.value;
+        renderChart();
+      }
+    });
+    box.addEventListener("change", e => {
+      const t = e.target;
+      const si = +t.dataset.si;
+      if (t.dataset.act === "name") {
+        writeSeriesName(si, t.value.trim());
+      } else if (t.dataset.act === "axis") {
+        seriesCfg[si].axis = t.value;
+        renderChart();
+      } else if (t.dataset.act === "stype") {
+        seriesCfg[si].stype = t.value;
+        renderChart();
+      }
+    });
+  }
+
+  /* ---------------- 控件状态同步 ---------------- */
+  function syncControls() {
+    $$("#chartTypeTabs .chart-type-tab").forEach(b => b.classList.toggle("active", b.dataset.type === state.chartType));
+    $("#pieOptions").hidden = state.chartType !== "pie";
+    const cartesian = state.chartType === "bar" || state.chartType === "line" || state.chartType === "combo";
+    $("#axisOptions").hidden = !cartesian;
+    $("#gridOptions").hidden = !cartesian;
+    $("#dualAxis").checked = state.dualAxis;
+    $("#y2Row").hidden = !state.dualAxis;
+    $("#gridH").checked = state.gridH;
+    $("#gridV").checked = state.gridV;
+    $("#showXLabels").checked = state.showXLabels;
+    $("#showYTicks").checked = state.showYTicks;
+    $("#xRotate").value = state.xRotate;
+    $("#yTickCount").value = String(state.yTickCount);
+    $("#chartTitle").value = state.title;
+    $("#chartSubtitle").value = state.subtitle;
+    $("#titleSize").value = String(state.titleSize);
+    $("#showLegend").checked = state.showLegend;
+    $("#legendPos").value = state.legendPos;
+    $("#showLabels").checked = state.showLabels;
+    $("#xTitle").value = state.xTitle;
+    $("#yTitle").value = state.yTitle;
+    $("#y2Title").value = state.y2Title;
+    $("#yMin").value = state.yMin;
+    $("#yMax").value = state.yMax;
+    $("#y2Min").value = state.y2Min;
+    $("#y2Max").value = state.y2Max;
+    $$(".bg-btn").forEach(b => b.classList.toggle("active", b.dataset.bg === state.bg));
+    $$("#colorPalettes .palette-btn").forEach((b, i) => b.classList.toggle("active", i === currentPalette));
+  }
+
+  /* ---------------- 主渲染 ---------------- */
+  let canvasCtx = null;
+
+  function renderChart() {
+    const canvas = $("#chartCanvas");
+    const data = parseData($("#chartData").value);
+    ensureCfg(data.series.length);
+    canvas.width = state.width;
+    canvas.height = state.height;
+    canvas.style.maxWidth = "100%";
+    canvasCtx = canvas.getContext("2d");
+    const model = buildModel(data);
+    paintCanvas(canvasCtx, model);
+    model._data = data;
+
+    // 统计
+    $("#dataCount").textContent = data.labels.length;
+    $("#seriesCount").textContent = data.series.length;
+    const sn = $("#seriesNum");
+    if (sn) sn.textContent = Math.max(1, data.series.length);
+    rebuildSeriesUI(data);
+  }
+
+  /* ---------------- 导出 ---------------- */
+  function bgToSvgCss() {
+    if (state.bg === "transparent") return "transparent";
+    if (state.bg === "paper") return "#f3ede3";
+    return "#ffffff";
+  }
+  function download(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
+  }
+  function fileBase() {
+    return "chart-" + (state.title || "export").replace(/[\\/:*?"<>|\s]+/g, "-").slice(0, 30);
+  }
+
+  /* ---------------- 示例数据 ---------------- */
+  function loadExample(n) {
+    if (n === 1) {
+      $("#chartData").value = "一月,120\n二月,200\n三月,150\n四月,300\n五月,260";
+      state.chartType = "bar"; state.dualAxis = false;
+      state.title = "销售数据统计"; state.subtitle = "";
+      syncControls(); renderChart();
+    } else if (n === 2) {
+      $("#chartData").value = "月份,销售额,利润,成本\n一月,120,30,80\n二月,200,55,130\n三月,150,40,95\n四月,300,80,190\n五月,260,70,165";
+      state.chartType = "bar"; state.dualAxis = false;
+      syncControls(); renderChart();
+    } else if (n === 3) {
+      $("#chartData").value = "品类,占比\n食品,320\n日用品,180\n服饰,150\n数码,220\n其他,90";
+      state.chartType = "pie"; state.dualAxis = false;
+      syncControls(); renderChart();
+    } else if (n === 4) {
+      $("#chartData").value = "月份,销售额(万元),增长率(%)\n一月,320,0\n二月,350,9.4\n三月,410,17.1\n四月,390,-4.9\n五月,460,17.9\n六月,520,13.0";
+      state.chartType = "combo";
+      state.dualAxis = true;
+      ensureCfg(2);
+      seriesCfg[0] = { color: "", axis: "L", stype: "bar" };
+      seriesCfg[1] = { color: "", axis: "R", stype: "line" };
+      state.yTitle = "销售额";
+      state.y2Title = "增长率";
+      state.title = "销售额与增长率";
+      syncControls(); renderChart();
+    }
   }
 
   /* ---------------- 事件绑定 ---------------- */
-  function setupEvents() {
-    // 图表类型切换
-    $$("#chartTypeTabs .chart-type-tab").forEach((btn) => {
-      btn.onclick = () => {
-        $$("#chartTypeTabs .chart-type-tab").forEach((b) => b.classList.toggle("active", b === btn));
-        state.chartType = btn.dataset.type;
-        // 饼图选项显示
-        $("#pieOptions").style.display = state.chartType === "pie" ? "block" : "none";
-        renderChart();
-      };
+  function bind() {
+    // 图表类型
+    $("#chartTypeTabs").addEventListener("click", e => {
+      const b = e.target.closest(".chart-type-tab");
+      if (!b) return;
+      state.chartType = b.dataset.type;
+      if (state.chartType === "pie") state.dualAxis = false;
+      syncControls();
+      renderChart();
     });
 
     // 数据输入
-    $("#chartData").addEventListener("input", debouncedRender);
+    $("#chartData").addEventListener("input", debounce(renderChart, 350));
+    $("#loadExample1").addEventListener("click", () => loadExample(1));
+    $("#loadExample2").addEventListener("click", () => loadExample(2));
+    $("#loadExample3").addEventListener("click", () => loadExample(3));
+    $("#loadExample4").addEventListener("click", () => loadExample(4));
 
-    // 标题
-    $("#chartTitle").addEventListener("input", (e) => {
-      state.title = e.target.value;
-      debouncedRender();
+    // 系列数量步进器
+    $("#seriesMinus").addEventListener("click", () => {
+      const cur = Math.max(1, parseData($("#chartData").value).series.length);
+      if (cur > 1) rebuildDataColumns(cur - 1);
+    });
+    $("#seriesPlus").addEventListener("click", () => {
+      const cur = Math.max(1, parseData($("#chartData").value).series.length);
+      if (cur < 10) rebuildDataColumns(cur + 1);
+    });
+    bindSeriesUI();
+
+    // 标题设置
+    $("#chartTitle").addEventListener("input", debounce(e => { state.title = e.target.value; renderChart(); }, 300));
+    $("#chartSubtitle").addEventListener("input", debounce(e => { state.subtitle = e.target.value; renderChart(); }, 300));
+    $("#titleSize").addEventListener("change", e => { state.titleSize = +e.target.value || 18; renderChart(); });
+
+    // 颜色主题
+    const palBox = $("#colorPalettes");
+    colorPalettes.forEach((pal, i) => {
+      const btn = document.createElement("button");
+      btn.className = "palette-btn" + (i === currentPalette ? " active" : "");
+      btn.title = pal.name;
+      btn.innerHTML = `<span class="palette-stripe">${pal.colors.slice(0, 4).map(c => `<i style="background:${c}"></i>`).join("")}</span><span>${pal.name}</span>`;
+      btn.addEventListener("click", () => { currentPalette = i; seriesCfg.forEach(c => (c.color = "")); syncControls(); renderChart(); });
+      palBox.appendChild(btn);
     });
 
-    // 尺寸
-    $("#chartWidth").addEventListener("input", (e) => {
-      state.width = parseInt(e.target.value) || 800;
-      debouncedRender();
+    // 轴设置
+    $("#dualAxis").addEventListener("change", e => {
+      state.dualAxis = e.target.checked;
+      if (!state.dualAxis) seriesCfg.forEach(c => (c.axis = "L"));
+      syncControls();
+      renderChart();
     });
-    $("#chartHeight").addEventListener("input", (e) => {
-      state.height = parseInt(e.target.value) || 500;
-      debouncedRender();
+    [["xTitle", "xTitle"], ["yTitle", "yTitle"], ["y2Title", "y2Title"]].forEach(([id, key]) => {
+      $("#" + id).addEventListener("input", debounce(e => { state[key] = e.target.value; renderChart(); }, 300));
     });
-
-    // 尺寸预设
-    $$('[data-size]').forEach((btn) => {
-      btn.onclick = () => {
-        const [w, h] = btn.dataset.size.split("x").map(Number);
-        state.width = w;
-        state.height = h;
-        $("#chartWidth").value = w;
-        $("#chartHeight").value = h;
-        renderChart();
-      };
+    [["yMin", "yMin"], ["yMax", "yMax"], ["y2Min", "y2Min"], ["y2Max", "y2Max"]].forEach(([id, key]) => {
+      $("#" + id).addEventListener("input", debounce(e => { state[key] = e.target.value.trim(); renderChart(); }, 400));
     });
 
-    // 背景
-    $$("#bgOptions .bg-btn").forEach((btn) => {
-      btn.onclick = () => {
-        $$("#bgOptions .bg-btn").forEach((b) => b.classList.toggle("active", b === btn));
-        state.bg = btn.dataset.bg;
-        renderChart();
-      };
-    });
+    // 网格与刻度
+    $("#gridH").addEventListener("change", e => { state.gridH = e.target.checked; renderChart(); });
+    $("#gridV").addEventListener("change", e => { state.gridV = e.target.checked; renderChart(); });
+    $("#showXLabels").addEventListener("change", e => { state.showXLabels = e.target.checked; renderChart(); });
+    $("#showYTicks").addEventListener("change", e => { state.showYTicks = e.target.checked; renderChart(); });
+    $("#xRotate").addEventListener("change", e => { state.xRotate = e.target.value; renderChart(); });
+    $("#yTickCount").addEventListener("change", e => { state.yTickCount = Math.min(9, Math.max(2, +e.target.value || 5)); renderChart(); });
 
     // 显示选项
-    $("#showLegend").addEventListener("change", (e) => {
-      state.showLegend = e.target.checked;
+    $("#showLegend").addEventListener("change", e => { state.showLegend = e.target.checked; renderChart(); });
+    $("#legendPos").addEventListener("change", e => { state.legendPos = e.target.value; renderChart(); });
+    $("#showLabels").addEventListener("change", e => { state.showLabels = e.target.checked; renderChart(); });
+
+    // 尺寸与背景
+    $("#chartWidth").addEventListener("input", debounce(e => { state.width = Math.min(2400, Math.max(200, +e.target.value || 800)); renderChart(); }, 400));
+    $("#chartHeight").addEventListener("input", debounce(e => { state.height = Math.min(2400, Math.max(200, +e.target.value || 500)); renderChart(); }, 400));
+    $$(".example-btns [data-size]").forEach(b => b.addEventListener("click", () => {
+      const [w, h] = b.dataset.size.split("x").map(Number);
+      $("#chartWidth").value = w; $("#chartHeight").value = h;
+      state.width = w; state.height = h;
       renderChart();
-    });
-    $("#showLabels").addEventListener("change", (e) => {
-      state.showLabels = e.target.checked;
-      renderChart();
-    });
-    $("#showGrid").addEventListener("change", (e) => {
-      state.showGrid = e.target.checked;
+    }));
+    $("#bgOptions").addEventListener("click", e => {
+      const b = e.target.closest(".bg-btn");
+      if (!b) return;
+      state.bg = b.dataset.bg;
+      $$(".bg-btn").forEach(x => x.classList.toggle("active", x === b));
       renderChart();
     });
 
     // 饼图选项
-    $("#doughnutMode").addEventListener("change", (e) => {
-      state.doughnutMode = e.target.checked;
-      renderChart();
+    $("#doughnutMode").addEventListener("change", e => { state.pieDoughnut = e.target.checked; renderChart(); });
+    $("#showPercent").addEventListener("change", e => { state.piePercent = e.target.checked; renderChart(); });
+
+    // 导出
+    $("#downloadPng").addEventListener("click", () => {
+      $("#chartCanvas").toBlob(blob => download(blob, fileBase() + ".png"), "image/png");
     });
-    $("#showPercent").addEventListener("change", (e) => {
-      state.showPercent = e.target.checked;
-      renderChart();
-    });
-
-    // 示例数据
-    $("#loadExample1").onclick = () => {
-      $("#chartData").value = "一月,120\n二月,200\n三月,150\n四月,300\n五月,250\n六月,380";
-      renderChart();
-    };
-    $("#loadExample2").onclick = () => {
-      $("#chartData").value = "月份,销售额,利润\n一月,120,30\n二月,200,50\n三月,150,40\n四月,300,80\n五月,250,60\n六月,380,100";
-      renderChart();
-    };
-    $("#loadExample3").onclick = () => {
-      $("#chartData").value = "产品A,35\n产品B,25\n产品C,20\n产品D,12\n产品E,8";
-      renderChart();
-    };
-
-    // 下载 PNG
-    $("#downloadPng").onclick = () => {
-      const canvas = $("#chartCanvas");
-      const link = document.createElement("a");
-      link.download = "chart.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    };
-
-    // 下载 SVG
-    $("#downloadSvg").onclick = () => {
-      const canvas = $("#chartCanvas");
+    $("#downloadSvg").addEventListener("click", () => {
       const data = parseData($("#chartData").value);
-      const svg = canvasToSVG(canvas, data);
-      const blob = new Blob([svg], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.download = "chart.svg";
-      link.href = url;
-      link.click();
-      URL.revokeObjectURL(url);
-    };
-
-    // 复制图片
-    $("#copyImage").onclick = () => {
-      const canvas = $("#chartCanvas");
+      ensureCfg(data.series.length);
+      const model = buildModel(data);
+      download(new Blob([buildSVG(model)], { type: "image/svg+xml;charset=utf-8" }), fileBase() + ".svg");
+    });
+    $("#copyImage").addEventListener("click", async () => {
       const btn = $("#copyImage");
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          alert("复制失败");
-          return;
-        }
-        try {
-          navigator.clipboard.write([
-            new ClipboardItem({ "image/png": blob })
-          ]).then(() => {
-            const t = btn.textContent;
-            btn.textContent = "已复制";
-            setTimeout(() => (btn.textContent = t), 1500);
-          }).catch(() => {
-            alert("复制失败，请使用下载功能");
-          });
-        } catch (e) {
-          alert("当前浏览器不支持复制图片，请使用下载功能");
-        }
-      }, "image/png");
-    };
+      try {
+        const blob = await new Promise(r => $("#chartCanvas").toBlob(r, "image/png"));
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+        btn.textContent = "已复制 ✓";
+      } catch (err) {
+        btn.textContent = "复制失败";
+      }
+      setTimeout(() => (btn.textContent = "复制图片"), 1600);
+    });
   }
 
-  /* ---------------- 初始化 ---------------- */
+  /* ---------------- 启动 ---------------- */
   function init() {
-    buildPaletteButtons();
-    setupEvents();
-
-    // 默认数据
-    $("#chartData").value = "一月,120\n二月,200\n三月,150\n四月,300\n五月,250\n六月,380";
-
-    // 初始隐藏饼图选项
-    $("#pieOptions").style.display = "none";
-
+    bind();
+    syncControls();
+    // URL 参数：?t=类型 或 ?ex=示例编号（可分享的深链）
+    let deepLinked = false;
+    try {
+      const q = new URLSearchParams(location.search);
+      const ex = parseInt(q.get("ex"), 10);
+      if (ex >= 1 && ex <= 4) { loadExample(ex); deepLinked = true; }
+      else {
+      const t = q.get("t");
+      if (["bar", "line", "combo", "pie", "radar"].includes(t)) { state.chartType = t; deepLinked = true; }
+      if (deepLinked) {
+        // 深链同样需要默认数据
+        $("#chartData").value = "月份,销售额,利润\n一月,120,30\n二月,200,55\n三月,150,40\n四月,300,80";
+        ensureCfg(2);
+      }
+      }
+    } catch (e) {}
+    if (!deepLinked) {
+      // 默认给两系列示例，展示多系列能力
+      $("#chartData").value = "月份,销售额,利润\n一月,120,30\n二月,200,55\n三月,150,40\n四月,300,80";
+      ensureCfg(2);
+    }
+    syncControls();
     renderChart();
   }
-
-  init();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
 })();
