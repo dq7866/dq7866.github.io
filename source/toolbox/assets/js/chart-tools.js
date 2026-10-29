@@ -20,7 +20,7 @@
     gridH: true, gridV: false, gridDash: false,
     showXLabels: true, showYTicks: true, axisShow: true, xRotate: "auto", yTickCount: 5,
     xTitle: "", yTitle: "", y2Title: "", yMin: "", yMax: "", y2Min: "", y2Max: "", dualAxis: false,
-    lineWidth: 2.5, smooth: false, symbol: true, areaFill: false,
+    lineWidth: 2.5, smooth: false, symbol: true, areaFill: false, symbolSize: 5,
     barRadius: 3, barRatio: 0.68, gradient: false,
     pieInner: 0.58, pieLabelMode: "percent", pieName: false, pieCenter: true,
     gaugeMax: "", radarLevels: 5,
@@ -73,6 +73,7 @@
     { name: "流量面积", type: "area", data: "日期,PV,UV\n周一,3200,1200\n周二,3800,1450\n周三,3500,1380\n周四,4200,1620\n周五,4800,1850\n周六,5600,2300\n周日,5200,2150", patch: { title: "一周流量走势", subtitle: "单位：次 / 人", palette: 5, smooth: true } },
     { name: "双轴组合", type: "combo", data: "月份,销售额(万元),增长率(%)\n1月,320,0\n2月,350,9.4\n3月,410,17.1\n4月,390,-4.9\n5月,460,17.9\n6月,520,13.0", patch: { title: "销售额与增长率", subtitle: "柱：销售额（左轴） · 线：增长率（右轴）", palette: 0, dualAxis: true, yTitle: "销售额", y2Title: "增长率", seriesCfg: [{ type: "bar", axis: "L" }, { type: "line", axis: "R" }] } },
     { name: "身高体重", type: "scatter", data: "样本,身高,体重\nA,158,48\nB,163,52\nC,168,56\nD,172,62\nE,175,68\nF,178,72\nG,181,78\nH,185,84", patch: { title: "身高与体重分布", subtitle: "横轴：身高 cm · 纵轴：体重 kg", palette: 3, xTitle: "身高", yTitle: "体重", showLabels: false, legendPos: "top" } },
+    { name: "多系列散点", type: "scatter", data: "月份,推广投入,新客数,复购数\n1月,2.0,120,36\n2月,2.8,155,44\n3月,3.5,190,58\n4月,3.1,172,66\n5月,4.2,225,81\n6月,5.0,268,95", patch: { title: "推广投入与新客关系", subtitle: "首列＝横轴，多列为多系列；系列面板可切 点/线/曲", palette: 1, xTitle: "推广投入(万元)", yTitle: "人数", showLabels: false, legendPos: "top", seriesCfg: [{}, { kind: "point" }, { kind: "curve" }] } },
     { name: "城市气泡", type: "bubble", data: "城市,GDP(千亿),人口(百万),房价(万/㎡)\n北京,4.2,21.8,8.6\n上海,4.5,24.8,7.9\n深圳,3.4,17.6,7.2\n广州,3.0,18.8,4.1\n杭州,1.9,12.4,3.8\n成都,2.1,21.2,2.1\n武汉,1.9,13.7,1.9", patch: { title: "城市经济体量对比", subtitle: "气泡大小＝房价", palette: 4, xTitle: "GDP", yTitle: "人口", showLabels: false } },
     { name: "支出构成", type: "pie", data: "类别,金额\n住房,4200\n餐饮,1800\n交通,900\n购物,1200\n娱乐,700\n其他,600", patch: { title: "月度支出构成", subtitle: "单位：元", unitPre: "¥", palette: 0, legendPos: "right", pieLabelMode: "both" } },
     { name: "设备占比", type: "donut", data: "设备,占比\niOS,42\nAndroid,46\n桌面端,9\n其他,3", patch: { title: "访问设备占比", subtitle: "单位：%", unitSuf: "%", palette: 1, legendPos: "right", pieInner: 0.62 } },
@@ -183,6 +184,10 @@
         '<input type="color" class="cpick" data-si="' + i + '" value="' + color + '" title="系列颜色">' +
         '<input type="text" class="sname" data-si="' + i + '" value="' + esc(nm) + '" maxlength="14" title="系列名称">' +
         (state.type === "combo" ? '<select class="stype" data-si="' + i + '"><option value="bar"' + (c.type !== "line" && c.type !== "area" ? " selected" : "") + '>柱</option><option value="line"' + (c.type === "line" ? " selected" : "") + '>线</option><option value="area"' + (c.type === "area" ? " selected" : "") + '>面</option></select>' : "") +
+        ((state.type === "line" || (state.type === "scatter" && i > 0)) ? (function () {
+          var k = c.kind || (state.type === "scatter" ? "point" : "line");
+          return '<select class="skind" data-si="' + i + '" title="系列形态：点 / 折线 / 曲线"><option value="point"' + (k === "point" ? " selected" : "") + '>点</option><option value="line"' + (k === "line" ? " selected" : "") + '>线</option><option value="curve"' + (k === "curve" ? " selected" : "") + '>曲</option></select>';
+        })() : "") +
         (state.dualAxis ? '<select class="saxis" data-si="' + i + '"><option value="L"' + (c.axis !== "R" ? " selected" : "") + '>左</option><option value="R"' + (c.axis === "R" ? " selected" : "") + '>右</option></select>' : "") +
         "</div>";
     });
@@ -211,6 +216,11 @@
   }
   function syncUI() {
     $$("#typeBar .tp").forEach(function (b) { b.classList.toggle("on", b.dataset.type === state.type); });
+    /* 示例库与类型条双向联动：同类型的示例亮起 */
+    $$("#presetChips .chip").forEach(function (b) {
+      var p = PRESETS[+b.dataset.preset];
+      b.classList.toggle("on", !!p && p.type === state.type);
+    });
     $$("#bgBtns [data-bg]").forEach(function (b) { b.classList.toggle("on", b.dataset.bg === state.bg); });
     $$("#palGrid .pal").forEach(function (b, i) { b.classList.toggle("on", i === state.palette); });
     var map = {
@@ -231,6 +241,7 @@
     var chk = { "#showLegend": "showLegend", "#showLabels": "showLabels", "#gridH": "gridH", "#gridV": "gridV", "#gridDash": "gridDash", "#showXLabels": "showXLabels", "#showYTicks": "showYTicks", "#axisShow": "axisShow", "#dualAxis": "dualAxis", "#smooth": "smooth", "#symbol": "symbol", "#areaFill": "areaFill", "#gradient": "gradient", "#pieName": "pieName", "#pieCenter": "pieCenter" };
     Object.keys(chk).forEach(function (k) { var el = $(k); if (el) el.checked = !!state[chk[k]]; });
     $("#lineWidth").value = state.lineWidth; $("#lineWidthOut").textContent = state.lineWidth;
+    $("#symbolSize").value = state.symbolSize; $("#symbolSizeOut").textContent = state.symbolSize;
     $("#barRadius").value = state.barRadius; $("#barRadiusOut").textContent = state.barRadius;
     $("#barRatio").value = state.barRatio; $("#barRatioOut").textContent = Math.round(state.barRatio * 100) + "%";
     $("#pieInner").value = state.pieInner; $("#pieInnerOut").textContent = Math.round(state.pieInner * 100) + "%";
@@ -397,6 +408,8 @@
         (state.seriesCfg[si] || (state.seriesCfg[si] = {})).type = t.value; draw();
       } else if (t.classList.contains("saxis")) {
         (state.seriesCfg[si] || (state.seriesCfg[si] = {})).axis = t.value; draw();
+      } else if (t.classList.contains("skind")) {
+        (state.seriesCfg[si] || (state.seriesCfg[si] = {})).kind = t.value; draw();
       }
     });
 
@@ -418,6 +431,7 @@
 
     /* 线条 / 柱 */
     $("#lineWidth").addEventListener("input", function () { state.lineWidth = +this.value; $("#lineWidthOut").textContent = this.value; draw(); });
+    $("#symbolSize").addEventListener("input", function () { state.symbolSize = +this.value; $("#symbolSizeOut").textContent = this.value; draw(); });
     $("#barRadius").addEventListener("input", function () { state.barRadius = +this.value; $("#barRadiusOut").textContent = this.value; draw(); });
     $("#barRatio").addEventListener("input", function () { state.barRatio = +this.value; $("#barRatioOut").textContent = Math.round(this.value * 100) + "%"; draw(); });
     bindChk("#smooth", "smooth");
@@ -461,6 +475,138 @@
       if (f) importFile(f);
       this.value = "";
     });
+    /* 全屏显示 */
+    $("#fsBtn").addEventListener("click", function () {
+      try {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else if ($("#stage").requestFullscreen) $("#stage").requestFullscreen();
+        else toast("当前浏览器不支持全屏 API");
+      } catch (err) { toast("全屏请求失败"); }
+    });
+    document.addEventListener("fullscreenchange", function () {
+      var on = !!document.fullscreenElement;
+      $("#fsBtn").classList.toggle("on", on);
+      $("#fsBtn").title = on ? "退出全屏" : "全屏显示图表区";
+    });
+
+    /* ---------------- 图 ↔ 表 ↔ 属性 交互联动 ---------------- */
+    (function () {
+      var cv = $("#cv"), tip = $("#tip"), stage = $("#stage"), table = $("#dataTable");
+      if (!cv || !stage) return;
+      var curLi = null;
+
+      function modelXY(e) {
+        var r = cv.getBoundingClientRect();
+        return [(e.clientX - r.left) * (lastModel.W / r.width), (e.clientY - r.top) * (lastModel.H / r.height)];
+      }
+      function pathHit(p, x, y) {
+        var xs = [], ys = [];
+        p.cmds.forEach(function (c) {
+          if (c.c === "Z") return;
+          xs.push(c.p[0], c.p[2] != null ? c.p[2] : c.p[0], c.p[4] != null ? c.p[4] : c.p[0]);
+          ys.push(c.p[1], c.p[3] != null ? c.p[3] : c.p[1], c.p[5] != null ? c.p[5] : c.p[1]);
+        });
+        return x >= Math.min.apply(null, xs) - 4 && x <= Math.max.apply(null, xs) + 4 &&
+               y >= Math.min.apply(null, ys) - 4 && y <= Math.max.apply(null, ys) + 4;
+      }
+      function hitTest(x, y) {
+        if (!lastModel) return null;
+        for (var i = lastModel.P.length - 1; i >= 0; i--) {
+          var p = lastModel.P[i]; if (!p.m) continue;
+          if (p.k === "rect" && x >= p.x && x <= p.x + p.w && y >= p.y && y <= p.y + p.h) return p;
+          if (p.k === "circle") {
+            var dx = x - p.cx, dy = y - p.cy;
+            if (dx * dx + dy * dy <= (p.r + 4) * (p.r + 4)) return p;
+          }
+          if (p.k === "slice") {
+            var vx = x - p.cx, vy = y - p.cy, d = Math.sqrt(vx * vx + vy * vy);
+            if (d >= p.ir - 3 && d <= p.r + 3) {
+              var a = Math.atan2(vy, vx);
+              while (a < p.a0) a += Math.PI * 2;
+              if (a <= p.a1 + 0.02 || p.a1 - p.a0 > Math.PI * 1.98) return p;
+            }
+          }
+          if (p.k === "path" && p.m.li != null && pathHit(p, x, y)) return p;
+        }
+        return null;
+      }
+      function rowEl(li) { return table && table.tBodies[0] ? table.tBodies[0].rows[li] : null; }
+      function clearRowHl() {
+        if (curLi != null) { var tr = rowEl(curLi); if (tr) tr.classList.remove("hl"); curLi = null; }
+      }
+      function primCenter(p) {
+        if (p.k === "rect") return [p.x + p.w / 2, p.y + p.h / 2];
+        if (p.k === "circle") return [p.cx, p.cy];
+        if (p.k === "slice") { var m = (p.a0 + p.a1) / 2, r = (p.r + p.ir) / 2; return [p.cx + Math.cos(m) * r, p.cy + Math.sin(m) * r]; }
+        if (p.k === "path") {
+          var xs = [], ys = [];
+          p.cmds.forEach(function (c) { if (c.c !== "Z") { xs.push(c.p[0]); ys.push(c.p[1]); } });
+          return [(Math.min.apply(null, xs) + Math.max.apply(null, xs)) / 2, (Math.min.apply(null, ys) + Math.max.apply(null, ys)) / 2];
+        }
+        return [0, 0];
+      }
+      function tipText(p) {
+        var parts = [];
+        if (p.m.li != null && lastData && lastData.labels[p.m.li] != null) parts.push(lastData.labels[p.m.li]);
+        var sn = p.m.si != null && lastData && lastData.names[p.m.si] != null ? lastData.names[p.m.si] : "";
+        if (sn) parts.push(sn);
+        if (p.m.v != null) parts.push(numFmt(p.m.v));
+        return parts.join(" · ");
+      }
+      function numFmt(v) {
+        var n = +v;
+        if (!isFinite(n)) return String(v);
+        var d = state.decimals;
+        if (d === 0 || d === 1 || d === 2 || d === 3) return (state.unitPre || "") + n.toFixed(d) + (state.unitSuf || "");
+        return (state.unitPre || "") + (Math.abs(n) >= 1000 ? n.toLocaleString("zh-CN") : String(Math.round(n * 100) / 100)) + (state.unitSuf || "");
+      }
+      function showTip(mx, my, text) {
+        if (!tip) return;
+        tip.textContent = text;
+        tip.style.left = Math.min(Math.max(8, cv.offsetLeft + mx + 14), stage.clientWidth - tip.offsetWidth - 10) + "px";
+        tip.style.top = Math.max(8, cv.offsetTop + my - 34) + "px";
+        tip.classList.add("on");
+      }
+      function hideTip() { if (tip) tip.classList.remove("on"); }
+
+      /* 画布悬停 → 提示 + 表格行高亮 */
+      cv.addEventListener("mousemove", function (e) {
+        if (!lastModel) return;
+        var xy = modelXY(e);
+        var p = hitTest(xy[0], xy[1]);
+        clearRowHl();
+        if (p) {
+          cv.style.cursor = "pointer";
+          showTip(xy[0], xy[1], tipText(p));
+          if (p.m.li != null) {
+            var tr = rowEl(p.m.li);
+            if (tr) { tr.classList.add("hl"); curLi = p.m.li; }
+          }
+        } else {
+          cv.style.cursor = "";
+          hideTip();
+        }
+      });
+      cv.addEventListener("mouseleave", function () { clearRowHl(); hideTip(); cv.style.cursor = ""; });
+
+      /* 表格行悬停 → 图中对应元素高亮，其余淡化 */
+      if (table) {
+        table.addEventListener("mouseover", function (e) {
+          var tr = e.target.closest("tbody tr"); if (!tr || !lastModel) return;
+          var li = Array.prototype.indexOf.call(table.tBodies[0].rows, tr);
+          if (li < 0 || li === state._hl) return;
+          state._hl = li; draw();
+          var prim = null;
+          for (var i = 0; i < lastModel.P.length; i++) if (lastModel.P[i].m && lastModel.P[i].m.li === li) { prim = lastModel.P[i]; break; }
+          if (prim) { var c = primCenter(prim); showTip(c[0], c[1], tipText(prim)); }
+        });
+        table.addEventListener("mouseleave", function () {
+          if (state._hl == null) return;
+          state._hl = null; draw(); hideTip();
+        });
+      }
+    })();
+
     bindDropZone();
   }
 
@@ -547,6 +693,7 @@
   /* ---------------- 示例应用 ---------------- */
   function applyPreset(p) {
     if (!p) return;
+    state._hl = null;
     var base = {
       dualAxis: false, unitPre: "", unitSuf: "", xTitle: "", yTitle: "", y2Title: "",
       yMin: "", yMax: "", y2Min: "", y2Max: "", smooth: false, areaFill: false,
@@ -557,7 +704,7 @@
     Object.keys(base).forEach(function (k) { state[k] = base[k]; });
     state.type = p.type;
     if (p.patch) Object.keys(p.patch).forEach(function (k) { state[k] = p.patch[k]; });
-    state.seriesCfg = p.patch && p.patch.seriesCfg ? p.patch.seriesCfg.map(function (c) { return { type: c.type, axis: c.axis, color: c.color || "" }; }) : [];
+    state.seriesCfg = p.patch && p.patch.seriesCfg ? p.patch.seriesCfg.map(function (c) { return { type: c.type, axis: c.axis, color: c.color || "", kind: c.kind }; }) : [];
     DATA_TEXT = p.data;
     grid = gridFromText(DATA_TEXT);
     $("#dataText").value = DATA_TEXT;
@@ -568,8 +715,9 @@
 
   function applyProject(obj) {
     if (!obj || !obj.state) return;
+    state._hl = null;
     Object.keys(state).forEach(function (k) { if (obj.state[k] !== undefined && k !== "seriesCfg") state[k] = obj.state[k]; });
-    state.seriesCfg = (obj.state.seriesCfg || []).map(function (c) { return { type: c.type || "bar", axis: c.axis || "L", color: c.color || "" }; });
+    state.seriesCfg = (obj.state.seriesCfg || []).map(function (c) { return { type: c.type || "bar", axis: c.axis || "L", color: c.color || "", kind: c.kind }; });
     if (typeof obj.data === "string") {
       DATA_TEXT = obj.data; grid = gridFromText(DATA_TEXT);
       $("#dataText").value = DATA_TEXT; renderTable();

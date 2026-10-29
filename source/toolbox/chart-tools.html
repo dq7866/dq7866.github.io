@@ -114,6 +114,8 @@ table.dt .th-narrow{width:26px;text-align:center;background:var(--surface-2)}
 .chip svg{width:14px;height:14px;opacity:.6;flex:0 0 auto}
 .chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-2)}
 .chip:hover svg{opacity:1}
+.chip.on{border-color:var(--accent);color:var(--accent);background:var(--accent-2)}
+.chip.on svg{opacity:1}
 
 /* 画布区 */
 .stage{position:relative;overflow:auto;display:flex;align-items:center;justify-content:center;padding:26px;background-color:var(--bg-2);background-image:radial-gradient(color-mix(in srgb,var(--text) 13%,transparent) 1px,transparent 0);background-size:18px 18px}
@@ -126,6 +128,23 @@ table.dt .th-narrow{width:26px;text-align:center;background:var(--surface-2)}
   font-size:14px;font-weight:700;color:var(--accent);border:2px dashed var(--accent);border-radius:14px;
   background:color-mix(in srgb,var(--accent-2) 88%,transparent);opacity:0;transform:scale(.99);transition:opacity .16s,transform .16s;pointer-events:none}
 .stage.dragging::after{opacity:1;transform:scale(1)}
+/* 全屏按钮 / 悬停提示 / 全屏态 */
+#fsBtn{position:absolute;top:12px;right:12px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:9px;background:color-mix(in srgb,var(--surface) 88%,transparent);
+  color:var(--text-2);cursor:pointer;backdrop-filter:blur(6px);z-index:5;transition:all .15s}
+#fsBtn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-2)}
+#fsBtn svg{width:17px;height:17px}
+#fsBtn.on{border-color:var(--accent);color:var(--accent);background:var(--accent-2)}
+#tip{position:absolute;display:none;max-width:280px;padding:6px 10px;font-size:12px;line-height:1.5;color:var(--text);
+  background:color-mix(in srgb,var(--surface) 96%,transparent);border:1px solid var(--line);border-radius:8px;
+  box-shadow:var(--shadow-lg);pointer-events:none;white-space:nowrap;z-index:6}
+#tip.on{display:block}
+.stage:fullscreen{padding:34px;background:#141110}
+.stage:fullscreen canvas{max-width:calc(100% - 20px);max-height:calc(100vh - 90px);width:auto !important;box-shadow:0 10px 44px rgba(0,0,0,.5)}
+.stage:fullscreen #fsBtn{top:18px;right:18px}
+/* 表格行高亮（与图表联动） */
+table.dt tbody tr.hl{background:var(--accent-2) !important;outline:1.5px solid var(--accent);outline-offset:-1.5px}
+table.dt tbody tr{transition:background .12s}
 
 /* 设计面板手风琴 */
 .sec{border:1px solid var(--line);border-radius:11px;background:var(--surface);margin-bottom:9px;overflow:hidden}
@@ -340,6 +359,12 @@ select.inp{cursor:pointer}
   <section class="stage" id="stage">
     <canvas id="cv" width="960" height="560"></canvas>
     <div class="stage-foot"><span id="stageSize">960 × 560</span><span>拖入 .csv / .json 也可导入</span></div>
+    <button id="fsBtn" type="button" title="全屏显示图表区" aria-label="全屏显示">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/>
+      </svg>
+    </button>
+    <div id="tip"></div>
   </section>
 
   <!-- ========== 右栏：设计 ========== -->
@@ -483,6 +508,7 @@ select.inp{cursor:pointer}
       <summary>线条与柱 <span class="tagline">粗细 · 平滑 · 圆角</span></summary>
       <div class="body">
         <div class="rangerow"><span class="fl" style="flex:0 0 56px">线宽</span><input type="range" id="lineWidth" min="1" max="6" step="0.5" value="2.5"><output id="lineWidthOut">2.5</output></div>
+        <div class="rangerow"><span class="fl" style="flex:0 0 56px">顶点</span><input type="range" id="symbolSize" min="2" max="14" step="1" value="5"><output id="symbolSizeOut">5</output></div>
         <div class="rangerow"><span class="fl" style="flex:0 0 56px">柱圆角</span><input type="range" id="barRadius" min="0" max="12" step="1" value="3"><output id="barRadiusOut">3</output></div>
         <div class="rangerow"><span class="fl" style="flex:0 0 56px">柱宽度</span><input type="range" id="barRatio" min="0.2" max="0.95" step="0.01" value="0.68"><output id="barRatioOut">68%</output></div>
         <div class="ckrow">

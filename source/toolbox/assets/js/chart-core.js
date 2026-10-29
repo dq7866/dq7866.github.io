@@ -78,6 +78,12 @@ function makeCore() {
     return i < p.colors.length ? p.colors[i] : FALLBACK[i % FALLBACK.length];
   }
   function cfgOf(st, i) { return (st.seriesCfg || [])[i] || {}; }
+  /* 系列绘制形态：点 / 折线 / 曲线（散点图与折线图逐系列可选） */
+  function kindOf(st, si) {
+    var c = cfgOf(st, si);
+    if (c.kind === "point" || c.kind === "line" || c.kind === "curve") return c.kind;
+    return st.type === "scatter" ? "point" : "line";
+  }
   function axisOf(st, i) { return st.dualAxis && cfgOf(st, i).axis === "R" ? "R" : "L"; }
   function colorOf(st, i) { return cfgOf(st, i).color || palColor(st, i); }
 
@@ -417,7 +423,7 @@ function makeCore() {
         var x = plot.x + i * bandW + (bandW - groupW) / 2;
         var baseC = palColor(st, 0);
         var color = v >= 0 ? baseC : mixHex(hueShift(baseC, -140), baseC, 0.18);
-        P.push({ k: "rect", x: x, y: Math.min(y0, y1), w: groupW, h: Math.max(1, Math.abs(y1 - y0)), r: radius, fill: barFill(color), grad: barGrad(color) });
+        P.push({ k: "rect", x: x, y: Math.min(y0, y1), w: groupW, h: Math.max(1, Math.abs(y1 - y0)), r: radius, fill: barFill(color), grad: barGrad(color), m: { li: i, si: 0, v: v } });
         if (i < ser.length - 1) P.push({ k: "line", x1: x + groupW, y1: y1, x2: x + bandW, y2: y1, stroke: C.axis, w: 1, dash: [4, 4] });
         if (labelOn) T(LB, x + groupW / 2, (v >= 0 ? Math.min(y0, y1) : Math.max(y0, y1)) + (v >= 0 ? -6 : 14), numText(v, st), fs - 1, C.label, { align: "middle" });
         run = to;
@@ -435,7 +441,7 @@ function makeCore() {
           var topv = base + v;
           var y0 = yOf(base, sc), y1 = yOf(topv, sc);
           var x = plot.x + i * bandW + (bandW - groupW) / 2;
-          P.push({ k: "rect", x: x, y: Math.min(y0, y1), w: groupW, h: Math.max(1, Math.abs(y1 - y0)), r: Math.min(radius, 4), fill: barFill(color), grad: barGrad(color) });
+          P.push({ k: "rect", x: x, y: Math.min(y0, y1), w: groupW, h: Math.max(1, Math.abs(y1 - y0)), r: Math.min(radius, 4), fill: barFill(color), grad: barGrad(color), m: { li: i, si: si, v: v } });
           if (labelOn && Math.abs(y1 - y0) > 15 && groupW > 26)
             T(LB, x + groupW / 2, (y0 + y1) / 2, numText(v, st), fs - 1, "#ffffff", { align: "middle", base: "middle" });
           if (v >= 0) accPos[i] = topv; else accNeg[i] = topv;
@@ -458,7 +464,7 @@ function makeCore() {
           var x = plot.x + i * bandW + (bandW - groupW) / 2 + bi * (bw + gap);
           var y = yOf(v, sc);
           var top = Math.min(y, zero), hh = Math.max(1, Math.abs(zero - y));
-          P.push({ k: "rect", x: x, y: top, w: bw, h: hh, r: Math.min(radius, bw / 2), fill: barFill(color), grad: barGrad(color) });
+          P.push({ k: "rect", x: x, y: top, w: bw, h: hh, r: Math.min(radius, bw / 2), fill: barFill(color), grad: barGrad(color), m: { li: i, si: si, v: v } });
           if (labelOn && bw > 12) {
             if (st.labelPos === "inside" && hh > 18) T(LB, x + bw / 2, top + hh / 2, numText(v, st), fs - 1, "#ffffff", { align: "middle", base: "middle" });
             else T(LB, x + bw / 2, v >= 0 ? top - 5 : top + hh + 12, numText(v, st), fs - 1, C.label, { align: "middle" });
@@ -480,21 +486,22 @@ function makeCore() {
       var pts = data.series[si].map(function (v, i) { return [cx(i), yOf(v, sc)]; });
       if (!pts.length) return;
       var zero = yOf(Math.min(Math.max(0, sc.min), sc.max), sc);
-      var cmds = pathOf(pts, st.smooth);
-      if (kind === "area" || (kind === "line" && st.areaFill)) {
+      var pk = kindOf(st, si);                       // 点 / 线 / 曲（逐系列）
+      var sm = pk === "curve" || (st.smooth && pk !== "point");
+      var cmds = pathOf(pts, sm);
+      if ((kind === "area" || (kind === "line" && st.areaFill)) && pk !== "point") {
         var fillCmds = cmds.slice();
         fillCmds.push({ c: "L", p: [pts[pts.length - 1][0], zero] });
         fillCmds.push({ c: "L", p: [pts[0][0], zero] });
         fillCmds.push({ c: "Z" });
         P.push({ k: "path", cmds: fillCmds, fill: rgba(color, kind === "area" ? 0.26 : 0.16), stroke: null });
       }
-      if (kind === "area" && st.gradient) {
-        P.push({ k: "path", cmds: cmds, stroke: color, sw: st.lineWidth || 2.5 });
-      } else {
-        P.push({ k: "path", cmds: cmds, stroke: color, sw: st.lineWidth || 2.5 });
-      }
-      if (st.symbol && pts.length <= 60) pts.forEach(function (p) { P.push({ k: "circle", cx: p[0], cy: p[1], r: 3.2, fill: color, stroke: "#ffffff", sw: 1.2 }); });
-      if (st.showLabels && pts.length <= 40) {
+      if (pk !== "point") P.push({ k: "path", cmds: cmds, stroke: color, sw: st.lineWidth || 2.5, m: { si: si } });
+      var symR = Math.max(2.5, (st.symbolSize || 5) * 0.64);
+      if ((pk === "point" || st.symbol) && pts.length <= 80) pts.forEach(function (p, i) {
+        P.push({ k: "circle", cx: p[0], cy: p[1], r: pk === "point" ? (st.symbolSize || 5) : symR, fill: color, stroke: "#ffffff", sw: 1.2, m: { li: i, si: si, v: data.series[si][i] } });
+      });
+      if (st.showLabels && pts.length <= 40 && pk !== "point") {
         pts.forEach(function (p, i) {
           T(LB, p[0], p[1] - 9, numText(data.series[si][i], st), fs - 1, C.label, { align: "middle" });
         });
@@ -579,7 +586,7 @@ function makeCore() {
       vals.forEach(function (v, i) {
         var x1 = zeroX, x2 = xOf(v);
         var y = plot.y + i * bandH + (bandH - groupH) / 2 + si * (bh + gap);
-        P.push({ k: "rect", x: Math.min(x1, x2), y: y, w: Math.max(1, Math.abs(x2 - x1)), h: bh, r: Math.min(radius, bh / 2), fill: st.gradient ? null : color, grad: st.gradient ? [lighten(color, 0.32), color] : null });
+        P.push({ k: "rect", x: Math.min(x1, x2), y: y, w: Math.max(1, Math.abs(x2 - x1)), h: bh, r: Math.min(radius, bh / 2), fill: st.gradient ? null : color, grad: st.gradient ? [lighten(color, 0.32), color] : null, m: { li: i, si: si, v: v } });
         if (st.showLabels && bh > 11) {
           T(LB, v >= 0 ? x2 + 6 : x2 - 6, y + bh / 2, numText(v, st), fs - 1, C.label, { align: v >= 0 ? "start" : "end", base: "middle" });
         }
@@ -603,10 +610,21 @@ function makeCore() {
     var W = st.width, H = st.height, C = inkOf(st), P = [];
     var fs = st.tickFont || 12;
     var xs = (data.series[0] || []).slice();
-    var ys = data.series.length > 1 ? (data.series[1] || []).slice() : xs.map(function (_, i) { return i + 1; });
+    /* 多系列：≥3 列时首列为 X，其余各列独立为一个系列（点/线/曲逐系列可选） */
+    var multi = !bubble && data.series.length > 2;
+    var ySeries = multi
+      ? data.series.slice(1).map(function (s) { return s.slice(); })
+      : [data.series.length > 1 ? (data.series[1] || []).slice() : xs.map(function (_, i) { return i + 1; })];
+    var allY = [].concat.apply([], ySeries);
     var sizes = bubble && data.series[2] ? data.series[2] : null;
     var top = titleBlock(st, P, W, C);
-    var items = legendItems(st, data), showLeg = st.showLegend && items.length > 0;
+    var items = multi
+      ? data.names.slice(1).map(function (n, i) {
+          var cc = cfgOf(st, i + 1);
+          return { label: n, color: cc.color || palColor(st, i) };
+        })
+      : legendItems(st, data);
+    var showLeg = st.showLegend && items.length > 0;
     var bottomExtra = 0, rightLegW = 0;
     if (showLeg) {
       if (st.legendPos === "top") top = legendRow(st, P, items, W, top, C);
@@ -614,7 +632,7 @@ function makeCore() {
       else if (st.legendPos === "right") rightLegW = legendRightW(st, items);
     }
     var xEx = [Math.min.apply(null, xs.concat([0])), Math.max.apply(null, xs.concat([1]))];
-    var yEx = [Math.min.apply(null, ys.concat([0])), Math.max.apply(null, ys.concat([1]))];
+    var yEx = [Math.min.apply(null, allY.concat([0])), Math.max.apply(null, allY.concat([1]))];
     var sx = niceScale(xEx[0], xEx[1], st.yTickCount || 5, true);
     var sy = niceScale(yEx[0], yEx[1], st.yTickCount || 5, true);
     var tickWL = st.showYTicks ? Math.max.apply(null, sy.ticks.map(function (t) { return estW(tickText(t, st), fs); })) : 0;
@@ -653,14 +671,23 @@ function makeCore() {
     if (st.xTitle) T(P, plot.x + plot.w / 2, H - 8, trunc(st.xTitle, 24), fs, C.sub, { align: "middle" });
     if (st.yTitle) T(P, 14, plot.y + plot.h / 2, trunc(st.yTitle, 18), fs, C.sub, { align: "middle", base: "middle", rot: -90 });
 
-    var color = colorOf(st, 0);
     var maxS = sizes ? Math.max.apply(null, sizes.concat([1])) : 1;
-    for (var i = 0; i < xs.length; i++) {
-      var r = 5;
-      if (bubble) r = 6 + 20 * Math.sqrt(Math.max(0, (sizes ? sizes[i] : 1) / maxS));
-      P.push({ k: "circle", cx: xOf(xs[i]), cy: yOf(ys[i]), r: r, fill: rgba(color, bubble ? 0.62 : 0.85), stroke: color, sw: 1.2 });
-      if (st.showLabels && data.labels[i]) T(P, xOf(xs[i]), yOf(ys[i]) - r - 6, trunc(data.labels[i], 10), fs - 2, C.label, { align: "middle" });
-    }
+    ySeries.forEach(function (col, j) {
+      /* colIdx 对应数据列（面板 cfg 行号）；色板序号取绘制系列序 j */
+      var colIdx = multi ? j + 1 : (data.series.length > 1 ? 1 : 0);
+      var c2 = cfgOf(st, colIdx);
+      var color = c2.color || palColor(st, j);
+      var kind = (c2.kind === "point" || c2.kind === "line" || c2.kind === "curve") ? c2.kind : "point";
+      var pts = col.map(function (v, i) { return [xOf(xs[i]), yOf(v)]; });
+      /* 折线 / 曲线连接 */
+      if (kind !== "point" && pts.length > 1)
+        P.push({ k: "path", cmds: pathOf(pts, kind === "curve"), stroke: color, sw: st.lineWidth || 2.5, m: { si: colIdx } });
+      pts.forEach(function (p, i) {
+        var r = bubble ? 6 + 20 * Math.sqrt(Math.max(0, (sizes ? sizes[i] : 1) / maxS)) : (st.symbolSize || 5);
+        P.push({ k: "circle", cx: p[0], cy: p[1], r: r, fill: rgba(color, bubble ? 0.62 : 0.85), stroke: color, sw: 1.2, m: { li: i, si: colIdx, v: col[i] } });
+        if (st.showLabels && data.labels[i] && (kind !== "point" || pts.length <= 30)) T(P, p[0], p[1] - r - 6, trunc(data.labels[i], 10), fs - 2, C.label, { align: "middle" });
+      });
+    });
     if (showLeg) {
       if (st.legendPos === "right") legendRight(st, P, items, plot.x + plot.w + 14, plot.y + 2, C);
       else if (st.legendPos === "bottom") legendBottom(st, P, items, W, H, C);
@@ -702,7 +729,7 @@ function makeCore() {
         if (frac >= 0.9999) {
           P.push({ k: "circle", cx: cx, cy: cy, r: rr, fill: color });
         } else {
-          P.push({ k: "slice", cx: cx, cy: cy, r: rr, ir: ir, a0: a0, a1: a1, fill: color, stroke: st.bg === "transparent" ? null : "#ffffff", sw: 1.6 });
+          P.push({ k: "slice", cx: cx, cy: cy, r: rr, ir: ir, a0: a0, a1: a1, fill: color, stroke: st.bg === "transparent" ? null : "#ffffff", sw: 1.6, m: { li: i, si: 0, v: v } });
         }
         if (outLabels) {
           var mid = (a0 + a1) / 2;
@@ -811,6 +838,7 @@ function makeCore() {
       var color = colorOf(st, i);
       P.push({
         k: "path", fill: st.gradient ? null : color, grad: st.gradient ? [lighten(color, 0.3), color] : null,
+        m: { li: i, si: 0, v: v },
         cmds: [
           { c: "M", p: [cx - w0 / 2, y0] }, { c: "L", p: [cx + w0 / 2, y0] },
           { c: "L", p: [cx + w1 / 2, y1] }, { c: "L", p: [cx - w1 / 2, y1] }, { c: "Z" }
@@ -897,7 +925,7 @@ function makeCore() {
         if (v == null) continue;
         var t = (v - mn) / span;
         var x = plot.x + c * cw, y = plot.y + r * ch;
-        P.push({ k: "rect", x: x + 1, y: y + 1, w: Math.max(1, cw - 2), h: Math.max(1, ch - 2), r: 3, fill: rgba(base, 0.06 + 0.92 * t) });
+        P.push({ k: "rect", x: x + 1, y: y + 1, w: Math.max(1, cw - 2), h: Math.max(1, ch - 2), r: 3, fill: rgba(base, 0.06 + 0.92 * t), m: { li: r, si: c, v: v } });
         if (st.showLabels && cw > 34 && ch > 20)
           T(P, x + cw / 2, y + ch / 2, numText(v, st), Math.min(12, ch * 0.36), t > 0.55 ? "#ffffff" : C.strong, { align: "middle", base: "middle" });
       }
@@ -928,6 +956,7 @@ function makeCore() {
     axisShow: true, xRotate: 0, yTickCount: 5, xTitle: "", yTitle: "", y2Title: "",
     yMin: "", yMax: "", y2Min: "", y2Max: "", dualAxis: false,
     lineWidth: 2.5, smooth: false, symbol: false, areaFill: false,
+    symbolSize: 5,
     barRadius: 3, barRatio: 0.68, gradient: false,
     pieInner: 0.58, pieLabelMode: "percent", pieName: false, pieCenter: false,
     gaugeMax: "", radarLevels: 5, seriesCfg: []
@@ -982,7 +1011,9 @@ function makeCore() {
     }
     model.P.forEach(function (p) {
       ctx.save();
-      ctx.globalAlpha = p.op != null ? p.op : 1;
+      /* 交互高亮：_hl 为聚焦的标签序号，其余系列淡化 */
+      var dim = (st && st._hl != null && p.m && p.m.li != null && p.m.li !== st._hl) ? 0.15 : 1;
+      ctx.globalAlpha = (p.op != null ? p.op : 1) * dim;
       var k = p.k;
       if (k === "rect") {
         var fill = p.fill;
@@ -1068,7 +1099,9 @@ function makeCore() {
       out.push('<rect width="' + W + '" height="' + H + '" fill="url(#bgG)"/>');
     }
     model.P.forEach(function (p) {
-      var op = p.op != null ? ' opacity="' + p.op + '"' : "";
+      var dim = (st && st._hl != null && p.m && p.m.li != null && p.m.li !== st._hl) ? 0.15 : 1;
+      var eff = (p.op != null ? p.op : 1) * dim;
+      var op = eff < 1 ? ' opacity="' + Math.round(eff * 100) / 100 + '"' : "";
       if (p.k === "rect") {
         var fill = p.fill || "none";
         if (p.grad) {
