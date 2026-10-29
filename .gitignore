@@ -48,3 +48,6 @@ cloudflare/room-worker/tmp/
 # 运维手册（含管理员口令、账号 ID、Cloudflare 绑定的完整清单）
 # ⚠️ 本仓库是公开仓库，推送即全网可见。手册只留本地，绝不入库。
 /docs/
+
+# 本地测试产物
+tmp/
