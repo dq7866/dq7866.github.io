@@ -649,7 +649,7 @@ async function step3(){
 
       window.__errLog = [{ m:'TEST_ERR: canvas unavailable', at:'units.html:1' }];
       const fb = window.feedbackPanel();
-      if(fb.indexOf('V8.9') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V8.9 与最近错误信息');
+      if(fb.indexOf('V9.0') > 0 && fb.indexOf('TEST_ERR: canvas unavailable') > 0) ok('反馈模板带 V9.0 与最近错误信息');
       else bad('反馈模板版本或错误位缺失');
 
       /* 数据新鲜度角标：时效模块渲染 chkbar */
@@ -660,6 +660,16 @@ async function step3(){
         if(bar && /2026-10/.test(bar.textContent)) ok('时效模块显示「数据核对」角标（currency）');
         else bad('currency 未显示核对角标');
       } else bad('导航里找不到 currency');
+
+      /* 赞赏入口：关于页渲染收款码卡片 */
+      const navAbout = doc.querySelector('.nitem[data-id="about"]');
+      if(navAbout){
+        navAbout.click();
+        const sp = doc.querySelector('#main .spcard');
+        const spImg = doc.querySelector('#main .spcard img');
+        if(sp && spImg && /sponsor-qr\.png/.test(spImg.getAttribute('src')) && sp.textContent.length > 20) ok('关于页赞赏卡片就位（文案 + 收款码图）');
+        else bad('关于页赞赏卡片缺失或不完整');
+      } else bad('导航里找不到 about');
 
       /* 时效复核提醒：月差计算 + 逾期标红（临时改 chk 再渲染，测完恢复） */
       if(typeof window.chkMonths === 'function'){
