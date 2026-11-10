@@ -66,6 +66,11 @@
       url: "/guardian/", color: "#e8543a"
     },
     {
+      k: "toy", emoji: "🔧", name: "巧手拆装工坊", sub: "Toy Workshop 3D",
+      desc: "24 件玩具三维拆装闯关 + 38 件机械机构动画，断网也能玩",
+      url: "/toy-workshop/", color: "#ff7a45"
+    },
+    {
       k: "board", emoji: "💬", name: "留言板", sub: "公告 · 联系我",
       desc: "站内公告、留言与联系方式，无需注册即可留言",
       url: "/board/", color: "#7c6cf0"
@@ -81,7 +86,7 @@
   var GROUPS = [
     { t: "阅读与学习", keys: ["home", "edu", "forest"] },
     { t: "工具与下载", keys: ["symbolpass", "toolbox", "offline"] },
-    { t: "游戏", keys: ["games", "bike", "guardian"] },
+    { t: "游戏", keys: ["games", "bike", "guardian", "toy"] },
     { t: "交流", keys: ["board"] }
   ];
 

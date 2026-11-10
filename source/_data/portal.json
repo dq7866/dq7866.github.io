@@ -60,6 +60,17 @@
           "tags": ["每日挑战", "触屏操作"],
           "url": "/guardian/",
           "color": "#7c3aed"
+        },
+        {
+          "k": "toy",
+          "emoji": "🔧",
+          "name": "巧手拆装工坊",
+          "sub": "Toy Workshop 3D",
+          "desc": "3D 拆装闯关：24 件玩具按真实结构拆装，另有 38 件机械机构动画与拆解",
+          "stat": "24 玩具 · 38 机构",
+          "tags": ["3D 拆装", "机械原理"],
+          "url": "/toy-workshop/",
+          "color": "#ff7a45"
         }
       ]
     },

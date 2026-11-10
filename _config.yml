@@ -38,6 +38,7 @@ skip_render:
   - 'forest/**'
   - 'bike/**'
   - 'guardian/**'
+  - 'toy-workshop/**'
   - 'offline/**'
   - 'admin/**'
   - 'stats.js'

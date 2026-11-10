@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>机械原理馆 · 机构动画与拆装</title>
+<link rel="stylesheet" href="style3d.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js" } }
+</script>
+</head>
+<body class="home mech-hall">
+
+<div class="page">
+  <header class="hero">
+    <div class="logo mlogo">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"/></svg>
+    </div>
+    <div class="hero-txt">
+      <h1>机械原理馆 <span class="tag3d">动画</span></h1>
+      <p id="hallStat">正在统计…</p>
+    </div>
+    <div class="hero-acts">
+      <a class="ib th" href="index.html">← 玩具工坊</a>
+    </div>
+  </header>
+
+  <div class="m-herobar"><i id="hallBar"></i></div>
+  <p class="m-hint">
+    先看动画弄懂运动，再拆开看它由哪些零件组成。缩略图滚到眼前才渲染，不会一次建几十个 3D 场景。
+  </p>
+
+  <main id="hallGroups"></main>
+
+  <footer class="foot">
+    <span>纯静态 · 离线可用 · 记录只存在本机</span>
+    <a class="classic-link" href="index.html">回玩具工坊 →</a>
+  </footer>
+</div>
+
+<script type="module" src="./js3d/mech-hall.js"></script>
+</body>
+</html>

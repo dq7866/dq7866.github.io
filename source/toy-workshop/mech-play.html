@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>机构演示 · 机械原理馆</title>
+<link rel="stylesheet" href="style3d.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js" } }
+</script>
+</head>
+<body class="mech-page">
+
+<header class="g-top">
+  <a class="ib" href="mech.html" aria-label="返回机械原理馆">
+    <svg viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+  </a>
+  <div class="g-title">
+    <div class="t-row1">
+      <h1 id="mName">机构</h1>
+      <span class="pill" id="mGroup"></span>
+      <span class="pill" id="mTag"></span>
+    </div>
+    <div class="t-row2">
+      <span class="pill" id="modePill">观察模式</span>
+      <span class="m-sub" id="minfo"></span>
+    </div>
+  </div>
+  <div class="g-tools">
+    <a class="ib th" href="index.html">工坊</a>
+    <button class="ib th" id="modeBtn">拆装</button>
+  </div>
+</header>
+
+<main class="m-main">
+  <div class="stage-wrap">
+    <canvas id="scene"></canvas>
+    <div class="m-readout" id="readout"></div>
+    <div class="m-toast" id="toast"></div>
+    <div class="stage-tip">拖动旋转 · 滚轮缩放</div>
+  </div>
+
+  <aside class="m-side">
+    <section class="m-card">
+      <h2>这个机构解决什么</h2>
+      <p id="lessonWhat"></p>
+      <h3>关键尺寸怎么定</h3>
+      <p id="lessonKey"></p>
+      <h3>现实里用在哪</h3>
+      <p id="lessonWhere"></p>
+      <div class="m-metrics" id="metrics"></div>
+    </section>
+
+    <section class="m-card m-card-parts">
+      <h2>零件 <span class="m-count" id="partCount"></span></h2>
+      <p class="m-tip">拆装模式下按顺序点零件；数字是装配顺序，拆的时候倒着来</p>
+      <div class="m-parts" id="partList"></div>
+    </section>
+  </aside>
+</main>
+
+<footer class="m-bar">
+  <button class="m-btn primary" id="stepPartBtn" hidden>拆下</button>
+  <button class="m-btn primary" id="playBtn">暂停</button>
+  <button class="m-btn" id="stepBack" aria-label="后退 5 度">−5°</button>
+  <button class="m-btn" id="stepFwd" aria-label="前进 5 度">+5°</button>
+  <select class="m-sel" id="speed" aria-label="速度">
+    <option value="0.5">0.5×</option>
+    <option value="1" selected>1×</option>
+    <option value="1.8">1.8×</option>
+    <option value="3">3×</option>
+  </select>
+  <input class="m-range" id="range" type="range" min="0" max="360" step="1" value="0" aria-label="曲柄转角">
+  <span class="m-ang" id="angOut">0°</span>
+  <button class="m-btn ghost" id="resetBtn">回正视角</button>
+</footer>
+
+<script type="module" src="./js3d/mech.js"></script>
+</body>
+</html>

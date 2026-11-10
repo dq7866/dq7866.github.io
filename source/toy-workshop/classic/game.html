@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>游戏中 · 巧手拆装工坊</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="game.css">
+</head>
+<body class="phase-dis">
+
+<div class="game-wrap">
+
+  <header class="game-top">
+    <a class="icon-btn" href="index.html" aria-label="返回大厅">
+      <svg class="icon" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+    </a>
+    <div class="game-title">
+      <h1 id="toyName">玩具</h1>
+      <span class="phase-pill" id="phasePill">第一步 · 拆一拆</span>
+    </div>
+    <div class="top-right">
+      <span class="timer-pill" id="timerPill" hidden>00:00</span>
+      <span class="progress-pill" id="progressPill">0/0</span>
+      <button class="icon-btn" id="stepsBtn" aria-label="拆解步骤">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M10 12h11"/><path d="M10 18h11"/><path d="M10 6h11"/><path d="M4 10h2"/><path d="M4 6h1v4"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+      </button>
+      <button class="icon-btn" id="soundBtn" aria-label="声音开关"></button>
+    </div>
+  </header>
+
+  <main>
+    <div class="stage" id="stage">
+      <svg class="layer" id="baseLayer" viewBox="0 0 480 360"></svg>
+      <svg class="layer" id="ghostLayer" viewBox="0 0 480 360"></svg>
+      <div class="layer" id="partLayer"></div>
+
+      <div class="phase-banner" id="phaseBanner"></div>
+    </div>
+
+    <div class="hint-bar">
+      <svg class="mascot-svg" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="26" r="16" fill="#FFC53D" stroke="#3D2C1E" stroke-width="3.5"/>
+        <circle cx="26" cy="24" r="2.4" fill="#3D2C1E"/>
+        <circle cx="38" cy="24" r="2.4" fill="#3D2C1E"/>
+        <path d="M26 31 Q32 36 38 31" stroke="#3D2C1E" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <rect x="24" y="42" width="16" height="16" rx="7" fill="#FF7A45" stroke="#3D2C1E" stroke-width="3.5"/>
+      </svg>
+      <div class="bubble" id="bubble" aria-live="polite">准备开始！</div>
+    </div>
+
+    <div class="tray-wrap">
+      <div class="tray-label" id="trayLabel">零件架</div>
+      <div class="tray" id="tray"></div>
+    </div>
+  </main>
+
+</div>
+
+<div class="confetti" id="confetti"></div>
+
+<!-- 完成庆祝弹窗 -->
+<div class="modal-mask" id="doneModal">
+  <div class="modal done-modal" role="dialog" aria-modal="true">
+    <div class="done-preview" id="donePreview"></div>
+    <div class="done-stars" id="doneStars"></div>
+    <h2 class="done-title" id="doneTitle">完成啦！</h2>
+    <p class="done-sub" id="doneSub"></p>
+    <p class="done-score" id="doneScore" hidden></p>
+    <div class="done-actions">
+      <a class="btn primary" id="nextBtn" href="game.html">
+        下一个玩具
+        <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+      <button class="btn teal" id="retryBtn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        再玩一次
+      </button>
+      <a class="btn" href="index.html">
+        <svg class="icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        回大厅
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- 拆解步骤预览 -->
+<div class="modal-mask" id="stepsModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="stepsTitle">
+    <div class="modal-head">
+      <h2 id="stepsTitle">拆解步骤</h2>
+      <button class="modal-close" id="stepsClose" aria-label="关闭">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <p class="steps-note" id="stepsNote">按编号顺序拆，装回去时倒着来</p>
+    <ol class="steps-list" id="stepsList"></ol>
+  </div>
+</div>
+
+<!-- 超时提示 -->
+<div class="modal-mask" id="timeoutModal">
+  <div class="modal done-modal" role="dialog" aria-modal="true">
+    <div class="timeout-icon">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <h2 class="done-title">时间到啦</h2>
+    <p class="done-sub">别急，多练几次就熟了</p>
+    <div class="done-actions">
+      <button class="btn primary" id="timeoutRetryBtn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        再试一次
+      </button>
+      <a class="btn" href="index.html">
+        <svg class="icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        回大厅
+      </a>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="api.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

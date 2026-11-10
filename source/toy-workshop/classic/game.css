@@ -1,0 +1,404 @@
+/* ============================================================
+ * game.css — 游戏场景样式（依赖 styles.css 的 tokens）
+ * ============================================================ */
+
+body { overflow-x: hidden; }
+
+.game-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+
+/* ---------- 顶栏 HUD ---------- */
+
+.game-top {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+}
+.game-title {
+  display: flex; align-items: center; gap: 10px;
+  min-width: 0;
+}
+.game-title h1 { font-size: 22px; white-space: nowrap; }
+.phase-pill {
+  padding: 5px 14px;
+  font-size: 13px; font-weight: 800; font-family: var(--font-display);
+  background: var(--c-yellow);
+  border: 2.5px solid var(--c-ink);
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+}
+.phase-pill.assemble { background: var(--c-teal); color: #fff; }
+
+.top-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.progress-pill {
+  min-width: 58px; text-align: center;
+  padding: 8px 12px;
+  font-size: 15px; font-weight: 800; font-family: var(--font-display);
+  background: var(--c-surface);
+  border: 3px solid var(--c-ink);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- 工作台舞台 ---------- */
+
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 480 / 360;
+  background-color: #FFFBF2;
+  background-image: radial-gradient(#F0E4CC 1.2px, transparent 1.3px);
+  background-size: 20px 20px;
+  border: 3px solid var(--c-ink);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.layer { position: absolute; inset: 0; width: 100%; height: 100%; }
+svg.layer { display: block; }
+
+#ghostLayer {
+  opacity: 0; transition: opacity .4s ease;
+  pointer-events: none;
+}
+body.phase-assemble #ghostLayer { opacity: 1; }
+.ghost > * {
+  fill: rgba(61, 44, 30, .07) !important;
+  stroke: rgba(61, 44, 30, .4) !important;
+  stroke-dasharray: 6 5;
+}
+.ghost text { fill: transparent !important; stroke: none !important; }
+.ghost.pulse > * {
+  stroke: var(--c-primary) !important;
+  fill: rgba(255, 122, 69, .15) !important;
+  animation: ghostBlink .55s ease-in-out 4 alternate;
+}
+@keyframes ghostBlink { to { opacity: .35; } }
+
+/* ---------- 零件 ---------- */
+
+.part {
+  position: absolute;
+  cursor: grab;
+  touch-action: none;
+  transition: filter .15s ease;
+}
+.part svg { display: block; width: 100%; height: 100%; }
+.part.static { pointer-events: none; }
+.part.dragging {
+  cursor: grabbing;
+  filter: drop-shadow(4px 6px 0 rgba(61, 44, 30, .3));
+  z-index: 50 !important;
+}
+.part.installed { cursor: default; }
+
+/* 拆解：拆下瞬间的小跳 */
+.part.lifting { animation: lift .24s ease; z-index: 40; }
+@keyframes lift {
+  0% { transform: rotate(0) scale(1); }
+  50% { transform: rotate(-6deg) scale(1.08); }
+  100% { transform: rotate(3deg) scale(1.02); }
+}
+
+/* 吸附成功的小弹跳 */
+.part.snap-pop { animation: snapPop .38s cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes snapPop {
+  0% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* 顺序错误 / 放错位置的抖动 */
+.part.shake { animation: shake .4s ease; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px) rotate(-2deg); }
+  75% { transform: translateX(5px) rotate(2deg); }
+}
+
+/* 启蒙提示：零件呼吸发光 */
+.part.suggest { animation: suggestPulse .6s ease-in-out 3; }
+@keyframes suggestPulse {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(255, 122, 69, 0)); }
+  50% { filter: drop-shadow(0 0 12px rgba(255, 122, 69, .9)); }
+}
+
+/* ---------- 零件架 ---------- */
+
+.tray-wrap { margin-top: 14px; }
+.tray-label {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 16px;
+  font-size: 14px; font-weight: 800; font-family: var(--font-display);
+  background: var(--c-yellow);
+  border: 3px solid var(--c-ink);
+  border-bottom: none;
+  border-radius: 14px 14px 0 0;
+}
+.tray {
+  display: flex; align-items: center; gap: 12px;
+  min-height: 92px;
+  padding: 12px 16px;
+  background: var(--c-surface);
+  border: 3px solid var(--c-ink);
+  border-radius: 0 18px 18px 18px;
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+}
+.tray:empty::before {
+  content: '把拆下来的零件放在这里';
+  width: 100%;
+  text-align: center;
+  font-size: 14px; font-weight: 600;
+  color: var(--c-ink-soft);
+  opacity: .7;
+}
+.part.in-tray {
+  position: static;
+  width: 64px; height: 64px;
+  flex: none;
+  cursor: grab;
+}
+.part.in-tray svg { width: 100%; height: 100%; }
+
+/* ---------- 提示条（位于舞台下方，不遮挡玩具） ---------- */
+
+.hint-bar {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  min-height: 62px;
+  background: var(--c-surface);
+  border: 3px solid var(--c-ink);
+  border-radius: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.mascot-svg { width: 48px; height: 48px; flex: none; }
+.bubble {
+  flex: 1;
+  font-size: 14px; font-weight: 700; line-height: 1.5;
+  color: var(--c-ink);
+  min-height: 21px;
+  transition: opacity .2s ease;
+}
+
+/* ---------- 阶段横幅（贴舞台顶部，避开物体主体） ---------- */
+
+.phase-banner {
+  position: absolute;
+  left: 50%; top: 10px;
+  transform: translateX(-50%) scale(.7);
+  padding: 8px 22px;
+  font-size: 19px; font-weight: 800; font-family: var(--font-display);
+  color: #fff;
+  background: var(--c-primary);
+  border: 3px solid var(--c-ink);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow);
+  opacity: 0; pointer-events: none;
+  z-index: 55;
+  white-space: nowrap;
+}
+.phase-banner.show {
+  animation: bannerIn 1.4s cubic-bezier(.34, 1.56, .64, 1) forwards;
+}
+@keyframes bannerIn {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(.8); }
+  15% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.04); }
+  25% { transform: translateX(-50%) scale(1); }
+  80% { opacity: 1; transform: translateX(-50%) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) scale(1); }
+}
+
+/* ---------- 吸附星光 ---------- */
+
+.sparkle {
+  position: absolute;
+  width: 14px; height: 14px;
+  background: var(--c-yellow);
+  clip-path: polygon(50% 0, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0 50%, 37% 37%);
+  animation: sparkFly .7s ease-out forwards;
+  pointer-events: none;
+  z-index: 48;
+}
+@keyframes sparkFly {
+  0% { opacity: 1; transform: translate(0, 0) scale(.6) rotate(0); }
+  100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(1.3) rotate(120deg); }
+}
+
+/* ---------- 五彩纸屑 ---------- */
+
+.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 70; overflow: hidden; }
+.confetti i {
+  position: absolute; top: -20px;
+  display: block;
+  border: 2px solid rgba(61, 44, 30, .55);
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  to { transform: translateY(112vh) rotate(720deg); }
+}
+
+/* ---------- 完成弹窗 ---------- */
+
+.done-modal { text-align: center; }
+.done-preview {
+  height: 130px;
+  margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.done-preview svg { height: 100%; }
+.done-stars {
+  display: flex; justify-content: center; gap: 10px;
+  margin: 6px 0 12px;
+}
+.done-stars .icon { width: 44px; height: 44px; stroke-width: 1.8; }
+.done-stars .on { fill: var(--c-yellow); stroke: var(--c-ink); animation: starPop .5s cubic-bezier(.34, 1.56, .64, 1) backwards; }
+.done-stars .on:nth-child(2) { animation-delay: .12s; }
+.done-stars .on:nth-child(3) { animation-delay: .24s; }
+.done-stars .off { fill: #F0E6D2; stroke: #D8C7AE; }
+@keyframes starPop {
+  0% { transform: scale(0) rotate(-30deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.done-title { font-size: 24px; margin-bottom: 4px; }
+.done-sub { font-size: 14px; color: var(--c-ink-soft); font-weight: 600; margin-bottom: 18px; }
+.done-actions { display: flex; flex-direction: column; gap: 12px; }
+
+/* ---------- 完成「复活」动画 ---------- */
+
+/* 小汽车：车轮转 + 车身蹦 */
+.celebrating .part[data-id="frontWheel"] svg,
+.celebrating .part[data-id="rearWheel"] svg { animation: wheelSpin 1s linear infinite; }
+@keyframes wheelSpin { to { transform: rotate(360deg); } }
+.celebrating .part[data-id="bodyShell"] { animation: bodyBounce .5s ease-in-out 4; transform-origin: 50% 90%; }
+@keyframes bodyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2%); } }
+
+/* 机器人：挥手 + 天线闪 */
+.celebrating .part[data-id="armL"] { animation: waveL .7s ease-in-out 4; transform-origin: 95% 50%; }
+.celebrating .part[data-id="armR"] { animation: waveR .7s ease-in-out 4; transform-origin: 5% 50%; }
+@keyframes waveL { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-24deg); } }
+@keyframes waveR { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(24deg); } }
+.celebrating .part[data-id="antenna"] { animation: antennaGlow .5s ease-in-out 6 alternate; }
+@keyframes antennaGlow { to { filter: drop-shadow(0 0 8px rgba(255, 122, 69, 1)); } }
+
+/* 算盘：算珠弹跳 */
+.celebrating .part.bead { animation: beadHop .55s ease-in-out 3; }
+.celebrating .part.bead:nth-child(odd) { animation-delay: .15s; }
+@keyframes beadHop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4%); } }
+
+/* 闹钟：铃铛摇摆 + 指针旋转 */
+.celebrating .part[data-id="bellL"],
+.celebrating .part[data-id="bellR"] { animation: bellRing .4s ease-in-out 6; transform-origin: 50% 100%; }
+@keyframes bellRing { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+.celebrating .part[data-id="hourHand"] { animation: handSpinH 1.4s ease-in-out 2; transform-origin: 82% 87%; }
+.celebrating .part[data-id="minuteHand"] { animation: handSpinM 1.4s ease-in-out 2; transform-origin: 4% 94%; }
+@keyframes handSpinH { to { transform: rotate(360deg); } }
+@keyframes handSpinM { to { transform: rotate(720deg); } }
+
+/* ---------- 限时 ---------- */
+
+.timer-pill {
+  min-width: 66px; text-align: center;
+  padding: 8px 12px;
+  font-size: 15px; font-weight: 800; font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  background: var(--c-surface);
+  border: 3px solid var(--c-ink);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-sm);
+}
+.timer-pill.urgent {
+  background: var(--c-red);
+  color: #fff;
+  animation: timerPulse .8s ease-in-out infinite alternate;
+}
+@keyframes timerPulse { to { transform: scale(1.06); } }
+
+/* ---------- 得分 ---------- */
+
+.done-score {
+  display: inline-block;
+  margin-bottom: 16px;
+  padding: 6px 16px;
+  font-size: 16px; font-weight: 800; font-family: var(--font-display);
+  color: var(--c-ink);
+  background: var(--c-yellow);
+  border: 2.5px solid var(--c-ink);
+  border-radius: var(--r-pill);
+}
+
+/* ---------- 拆解步骤预览 ---------- */
+
+.steps-note {
+  margin: -6px 0 14px;
+  font-size: 13px; font-weight: 600;
+  color: var(--c-ink-soft);
+}
+.steps-list { list-style: none; }
+.steps-list li {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 8px;
+  border-bottom: 2px dashed #EFE2CC;
+}
+.steps-list li:last-child { border-bottom: none; }
+.step-num {
+  width: 26px; height: 26px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; font-family: var(--font-display);
+  color: #fff;
+  background: var(--c-primary);
+  border: 2.5px solid var(--c-ink);
+  border-radius: 50%;
+}
+.step-thumb {
+  width: 46px; height: 46px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--c-cream);
+  border: 2.5px solid var(--c-ink);
+  border-radius: 10px;
+  padding: 4px;
+}
+.step-thumb svg { width: 100%; height: 100%; }
+.step-name { font-size: 15px; font-weight: 700; }
+.step-tag {
+  margin-left: auto;
+  font-size: 12px; font-weight: 700;
+  color: var(--c-ink-soft);
+}
+.steps-list li.done { opacity: .42; }
+.steps-list li.done .step-name { text-decoration: line-through; }
+
+/* ---------- 超时 ---------- */
+
+.timeout-icon {
+  width: 68px; height: 68px;
+  margin: 4px auto 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--c-red);
+  border: 3px solid var(--c-ink);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+  color: #fff;
+}
+.timeout-icon .icon { width: 34px; height: 34px; }
+
+/* ---------- 响应式 ---------- */
+
+@media (max-width: 480px) {
+  .game-title h1 { font-size: 18px; }
+  .phase-pill { font-size: 12px; padding: 4px 10px; }
+  .bubble { font-size: 13px; }
+  .mascot-svg { width: 40px; height: 40px; }
+  .hint-bar { min-height: 54px; padding: 6px 10px; }
+  .phase-banner { font-size: 16px; padding: 6px 16px; top: 8px; }
+  .top-right { gap: 6px; }
+  .top-right .icon-btn { width: 40px; height: 40px; }
+  .timer-pill, .progress-pill { font-size: 13px; padding: 7px 9px; min-width: 54px; }
+  .done-stars .icon { width: 38px; height: 38px; }
+}

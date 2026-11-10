@@ -1,0 +1,2450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>巧手拆装工坊 · 单文件版</title>
+<style>
+/* ============================================================
+ * styles.css — 共享设计 tokens + 大厅页样式
+ * 风格：卡通贴纸工坊（粗描边 + 硬质偏移投影 + 平涂高饱和色）
+ * ============================================================ */
+
+:root {
+  --c-bg: #FFF6E9;
+  --c-surface: #FFFFFF;
+  --c-ink: #3D2C1E;
+  --c-ink-soft: #8A7364;
+  --c-primary: #FF7A45;
+  --c-primary-d: #F0652F;
+  --c-teal: #2EC4B6;
+  --c-yellow: #FFC53D;
+  --c-red: #FF5A5A;
+  --c-blue: #4D96FF;
+  --c-cream: #FDF6E9;
+
+  --shadow: 4px 4px 0 rgba(61, 44, 30, .9);
+  --shadow-sm: 3px 3px 0 rgba(61, 44, 30, .9);
+
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-pill: 999px;
+
+  --font-display: "Yuanti SC", "YouYuan", "STYuanti", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-body: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--c-ink);
+  background-color: var(--c-bg);
+  background-image: radial-gradient(#F3E2C7 1.5px, transparent 1.6px);
+  background-size: 26px 26px;
+  min-height: 100vh;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3, .display { font-family: var(--font-display); font-weight: 800; }
+
+/* ---------- 通用组件 ---------- */
+
+.icon {
+  width: 20px; height: 20px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round;
+  flex: none;
+}
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 24px;
+  font-family: var(--font-display); font-size: 17px; font-weight: 800;
+  color: var(--c-ink);
+  background: var(--c-surface);
+  border: 3px solid var(--c-ink);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease, background .15s ease;
+  text-decoration: none;
+}
+.btn:hover { background: var(--c-cream); }
+.btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(61, 44, 30, .9); }
+.btn.primary { background: var(--c-primary); color: #fff; }
+.btn.primary:hover { background: var(--c-primary-d); }
+.btn.teal { background: var(--c-teal); color: #fff; }
+.btn.teal:hover { background: #26A89B; }
+
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; flex: none;
+  background: var(--c-surface);
+  border: 3px solid var(--c-ink);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  color: var(--c-ink);
+  transition: transform .12s ease, box-shadow .12s ease, background .15s ease;
+}
+.icon-btn:hover { background: var(--c-cream); }
+.icon-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(61, 44, 30, .9); }
+
+.tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 12px;
+  font-size: 13px; font-weight: 700;
+  background: var(--c-yellow);
+  border: 2.5px solid var(--c-ink);
+  border-radius: var(--r-pill);
+}
+
+/* 页面载入交错上浮 */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px) rotate(-1deg);
+  animation: rise .5s cubic-bezier(.34, 1.56, .64, 1) forwards;
+  animation-delay: var(--d, 0s);
+}
+@keyframes rise {
+  to { opacity: 1; transform: translateY(0) rotate(0); }
+}
+
+/* ---------- 大厅页 ---------- */
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px 20px calc(28px + env(safe-area-inset-bottom));
+}
+
+.hero {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 24px;
+}
+.logo-badge {
+  width: 64px; height: 64px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--c-primary);
+  border: 3px solid var(--c-ink);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  transform: rotate(-4deg);
+  color: #fff;
+}
+.logo-badge .icon { width: 30px; height: 30px; }
+.hero h1 {
+  font-size: 30px; letter-spacing: 1px;
+}
+.hero .slogan {
+  margin-top: 4px;
+  font-size: 14px; color: var(--c-ink-soft); font-weight: 600;
+}
+.parent-btn { margin-left: auto; }
+
+/* 难度分段控件 */
+.mode-bar { margin-bottom: 24px; }
+.mode-switch {
+  display: flex; gap: 0;
+  background: var(--c-surface);
+  border: 3px solid var(--c-ink);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow);
+  padding: 5px;
+}
+.mode-btn {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 10px 4px;
+  font-family: var(--font-display); font-size: 16px; font-weight: 800;
+  color: var(--c-ink-soft);
+  background: transparent;
+  border: none; border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease;
+}
+.mode-btn span { font-size: 11px; font-weight: 600; font-family: var(--font-body); white-space: nowrap; }
+.mode-btn.active { background: var(--c-primary); color: #fff; }
+.mode-btn.active span { color: rgba(255, 255, 255, .85); }
+.mode-desc {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 13px; color: var(--c-ink-soft); font-weight: 600;
+}
+
+/* 玩具卡片网格 */
+.toy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+@media (max-width: 420px) {
+  .toy-grid { grid-template-columns: 1fr; }
+}
+
+.toy-card {
+  position: relative;
+  display: flex; flex-direction: column;
+  background: var(--c-surface);
+  border: 3px solid var(--c-ink);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  text-decoration: none; color: var(--c-ink);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.toy-card:hover { transform: translateY(-3px) rotate(-.5deg); box-shadow: 6px 7px 0 rgba(61, 44, 30, .9); }
+.toy-card:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(61, 44, 30, .9); }
+
+.toy-preview {
+  height: 150px;
+  background-color: var(--c-cream);
+  background-image: radial-gradient(#F0E0C4 1.2px, transparent 1.3px);
+  background-size: 18px 18px;
+  border-bottom: 3px solid var(--c-ink);
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px;
+}
+.toy-preview svg { height: 100%; max-width: 100%; }
+
+.toy-info { padding: 14px 16px 16px; }
+.toy-info h3 { font-size: 20px; margin-bottom: 6px; }
+.toy-meta {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 13px; color: var(--c-ink-soft); font-weight: 600;
+}
+.toy-stars { display: flex; gap: 3px; margin-top: 10px; }
+.toy-stars .icon { width: 18px; height: 18px; stroke-width: 2; }
+.toy-stars .on { fill: var(--c-yellow); stroke: var(--c-ink); }
+.toy-stars .off { fill: #F0E6D2; stroke: #D8C7AE; }
+.toy-best {
+  margin-top: 6px;
+  font-size: 12px; font-weight: 700;
+  color: var(--c-primary-d);
+}
+
+.toy-play {
+  position: absolute; top: 12px; right: 12px;
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--c-teal); color: #fff;
+  border: 3px solid var(--c-ink);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+.toy-play .icon { width: 18px; height: 18px; fill: currentColor; }
+
+.foot {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 13px; color: var(--c-ink-soft); font-weight: 600;
+}
+
+/* ---------- 弹窗（家长须知 / 完成庆祝共用骨架） ---------- */
+
+.modal-mask {
+  position: fixed; inset: 0;
+  background: rgba(61, 44, 30, .45);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; visibility: hidden;
+  transition: opacity .2s ease, visibility .2s;
+  z-index: 60;
+}
+.modal-mask.show { opacity: 1; visibility: visible; }
+
+.modal {
+  width: 100%; max-width: 440px;
+  max-height: 82vh; overflow-y: auto;
+  background: var(--c-surface);
+  border: 3px solid var(--c-ink);
+  border-radius: 24px;
+  box-shadow: 6px 6px 0 rgba(61, 44, 30, .9);
+  padding: 24px;
+  transform: scale(.92) translateY(10px);
+  transition: transform .22s cubic-bezier(.34, 1.56, .64, 1);
+}
+.modal-mask.show .modal { transform: scale(1) translateY(0); }
+
+.modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.modal-head h2 { font-size: 22px; }
+.modal-close {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--c-cream);
+  border: 2.5px solid var(--c-ink);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.modal-close .icon { width: 16px; height: 16px; }
+
+.guide-block { margin-bottom: 18px; }
+.guide-block h3 {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 16px; margin-bottom: 8px;
+}
+.guide-block h3 .icon { width: 18px; height: 18px; color: var(--c-primary); }
+.guide-block ul { list-style: none; }
+.guide-block li {
+  position: relative;
+  padding: 5px 0 5px 20px;
+  font-size: 14px; line-height: 1.6; color: var(--c-ink);
+}
+.guide-block li::before {
+  content: '';
+  position: absolute; left: 4px; top: 13px;
+  width: 7px; height: 7px;
+  background: var(--c-teal);
+  border: 2px solid var(--c-ink);
+  border-radius: 50%;
+}
+.guide-block p { font-size: 14px; line-height: 1.7; }
+
+</style>
+<style>
+/* ============================================================
+ * game.css — 游戏场景样式（依赖 styles.css 的 tokens）
+ * ============================================================ */
+
+body { overflow-x: hidden; }
+
+.game-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+
+/* ---------- 顶栏 HUD ---------- */
+
+.game-top {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+}
+.game-title {
+  display: flex; align-items: center; gap: 10px;
+  min-width: 0;
+}
+.game-title h1 { font-size: 22px; white-space: nowrap; }
+.phase-pill {
+  padding: 5px 14px;
+  font-size: 13px; font-weight: 800; font-family: var(--font-display);
+  background: var(--c-yellow);
+  border: 2.5px solid var(--c-ink);
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+}
+.phase-pill.assemble { background: var(--c-teal); color: #fff; }
+
+.top-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.progress-pill {
+  min-width: 58px; text-align: center;
+  padding: 8px 12px;
+  font-size: 15px; font-weight: 800; font-family: var(--font-display);
+  background: var(--c-surface);
+  border: 3px solid var(--c-ink);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------- 工作台舞台 ---------- */
+
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 480 / 360;
+  background-color: #FFFBF2;
+  background-image: radial-gradient(#F0E4CC 1.2px, transparent 1.3px);
+  background-size: 20px 20px;
+  border: 3px solid var(--c-ink);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.layer { position: absolute; inset: 0; width: 100%; height: 100%; }
+svg.layer { display: block; }
+
+#ghostLayer {
+  opacity: 0; transition: opacity .4s ease;
+  pointer-events: none;
+}
+body.phase-assemble #ghostLayer { opacity: 1; }
+.ghost > * {
+  fill: rgba(61, 44, 30, .07) !important;
+  stroke: rgba(61, 44, 30, .4) !important;
+  stroke-dasharray: 6 5;
+}
+.ghost text { fill: transparent !important; stroke: none !important; }
+.ghost.pulse > * {
+  stroke: var(--c-primary) !important;
+  fill: rgba(255, 122, 69, .15) !important;
+  animation: ghostBlink .55s ease-in-out 4 alternate;
+}
+@keyframes ghostBlink { to { opacity: .35; } }
+
+/* ---------- 零件 ---------- */
+
+.part {
+  position: absolute;
+  cursor: grab;
+  touch-action: none;
+  transition: filter .15s ease;
+}
+.part svg { display: block; width: 100%; height: 100%; }
+.part.static { pointer-events: none; }
+.part.dragging {
+  cursor: grabbing;
+  filter: drop-shadow(4px 6px 0 rgba(61, 44, 30, .3));
+  z-index: 50 !important;
+}
+.part.installed { cursor: default; }
+
+/* 拆解：拆下瞬间的小跳 */
+.part.lifting { animation: lift .24s ease; z-index: 40; }
+@keyframes lift {
+  0% { transform: rotate(0) scale(1); }
+  50% { transform: rotate(-6deg) scale(1.08); }
+  100% { transform: rotate(3deg) scale(1.02); }
+}
+
+/* 吸附成功的小弹跳 */
+.part.snap-pop { animation: snapPop .38s cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes snapPop {
+  0% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* 顺序错误 / 放错位置的抖动 */
+.part.shake { animation: shake .4s ease; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px) rotate(-2deg); }
+  75% { transform: translateX(5px) rotate(2deg); }
+}
+
+/* 启蒙提示：零件呼吸发光 */
+.part.suggest { animation: suggestPulse .6s ease-in-out 3; }
+@keyframes suggestPulse {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(255, 122, 69, 0)); }
+  50% { filter: drop-shadow(0 0 12px rgba(255, 122, 69, .9)); }
+}
+
+/* ---------- 零件架 ---------- */
+
+.tray-wrap { margin-top: 14px; }
+.tray-label {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 16px;
+  font-size: 14px; font-weight: 800; font-family: var(--font-display);
+  background: var(--c-yellow);
+  border: 3px solid var(--c-ink);
+  border-bottom: none;
+  border-radius: 14px 14px 0 0;
+}
+.tray {
+  display: flex; align-items: center; gap: 12px;
+  min-height: 92px;
+  padding: 12px 16px;
+  background: var(--c-surface);
+  border: 3px solid var(--c-ink);
+  border-radius: 0 18px 18px 18px;
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+}
+.tray:empty::before {
+  content: '把拆下来的零件放在这里';
+  width: 100%;
+  text-align: center;
+  font-size: 14px; font-weight: 600;
+  color: var(--c-ink-soft);
+  opacity: .7;
+}
+.part.in-tray {
+  position: static;
+  width: 64px; height: 64px;
+  flex: none;
+  cursor: grab;
+}
+.part.in-tray svg { width: 100%; height: 100%; }
+
+/* ---------- 提示条（位于舞台下方，不遮挡玩具） ---------- */
+
+.hint-bar {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  min-height: 62px;
+  background: var(--c-surface);
+  border: 3px solid var(--c-ink);
+  border-radius: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.mascot-svg { width: 48px; height: 48px; flex: none; }
+.bubble {
+  flex: 1;
+  font-size: 14px; font-weight: 700; line-height: 1.5;
+  color: var(--c-ink);
+  min-height: 21px;
+  transition: opacity .2s ease;
+}
+
+/* ---------- 阶段横幅（贴舞台顶部，避开物体主体） ---------- */
+
+.phase-banner {
+  position: absolute;
+  left: 50%; top: 10px;
+  transform: translateX(-50%) scale(.7);
+  padding: 8px 22px;
+  font-size: 19px; font-weight: 800; font-family: var(--font-display);
+  color: #fff;
+  background: var(--c-primary);
+  border: 3px solid var(--c-ink);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow);
+  opacity: 0; pointer-events: none;
+  z-index: 55;
+  white-space: nowrap;
+}
+.phase-banner.show {
+  animation: bannerIn 1.4s cubic-bezier(.34, 1.56, .64, 1) forwards;
+}
+@keyframes bannerIn {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(.8); }
+  15% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.04); }
+  25% { transform: translateX(-50%) scale(1); }
+  80% { opacity: 1; transform: translateX(-50%) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) scale(1); }
+}
+
+/* ---------- 吸附星光 ---------- */
+
+.sparkle {
+  position: absolute;
+  width: 14px; height: 14px;
+  background: var(--c-yellow);
+  clip-path: polygon(50% 0, 63% 37%, 100% 50%, 63% 63%, 50% 100%, 37% 63%, 0 50%, 37% 37%);
+  animation: sparkFly .7s ease-out forwards;
+  pointer-events: none;
+  z-index: 48;
+}
+@keyframes sparkFly {
+  0% { opacity: 1; transform: translate(0, 0) scale(.6) rotate(0); }
+  100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(1.3) rotate(120deg); }
+}
+
+/* ---------- 五彩纸屑 ---------- */
+
+.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 70; overflow: hidden; }
+.confetti i {
+  position: absolute; top: -20px;
+  display: block;
+  border: 2px solid rgba(61, 44, 30, .55);
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  to { transform: translateY(112vh) rotate(720deg); }
+}
+
+/* ---------- 完成弹窗 ---------- */
+
+.done-modal { text-align: center; }
+.done-preview {
+  height: 130px;
+  margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.done-preview svg { height: 100%; }
+.done-stars {
+  display: flex; justify-content: center; gap: 10px;
+  margin: 6px 0 12px;
+}
+.done-stars .icon { width: 44px; height: 44px; stroke-width: 1.8; }
+.done-stars .on { fill: var(--c-yellow); stroke: var(--c-ink); animation: starPop .5s cubic-bezier(.34, 1.56, .64, 1) backwards; }
+.done-stars .on:nth-child(2) { animation-delay: .12s; }
+.done-stars .on:nth-child(3) { animation-delay: .24s; }
+.done-stars .off { fill: #F0E6D2; stroke: #D8C7AE; }
+@keyframes starPop {
+  0% { transform: scale(0) rotate(-30deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.done-title { font-size: 24px; margin-bottom: 4px; }
+.done-sub { font-size: 14px; color: var(--c-ink-soft); font-weight: 600; margin-bottom: 18px; }
+.done-actions { display: flex; flex-direction: column; gap: 12px; }
+
+/* ---------- 完成「复活」动画 ---------- */
+
+/* 小汽车：车轮转 + 车身蹦 */
+.celebrating .part[data-id="frontWheel"] svg,
+.celebrating .part[data-id="rearWheel"] svg { animation: wheelSpin 1s linear infinite; }
+@keyframes wheelSpin { to { transform: rotate(360deg); } }
+.celebrating .part[data-id="bodyShell"] { animation: bodyBounce .5s ease-in-out 4; transform-origin: 50% 90%; }
+@keyframes bodyBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2%); } }
+
+/* 机器人：挥手 + 天线闪 */
+.celebrating .part[data-id="armL"] { animation: waveL .7s ease-in-out 4; transform-origin: 95% 50%; }
+.celebrating .part[data-id="armR"] { animation: waveR .7s ease-in-out 4; transform-origin: 5% 50%; }
+@keyframes waveL { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-24deg); } }
+@keyframes waveR { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(24deg); } }
+.celebrating .part[data-id="antenna"] { animation: antennaGlow .5s ease-in-out 6 alternate; }
+@keyframes antennaGlow { to { filter: drop-shadow(0 0 8px rgba(255, 122, 69, 1)); } }
+
+/* 算盘：算珠弹跳 */
+.celebrating .part.bead { animation: beadHop .55s ease-in-out 3; }
+.celebrating .part.bead:nth-child(odd) { animation-delay: .15s; }
+@keyframes beadHop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4%); } }
+
+/* 闹钟：铃铛摇摆 + 指针旋转 */
+.celebrating .part[data-id="bellL"],
+.celebrating .part[data-id="bellR"] { animation: bellRing .4s ease-in-out 6; transform-origin: 50% 100%; }
+@keyframes bellRing { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+.celebrating .part[data-id="hourHand"] { animation: handSpinH 1.4s ease-in-out 2; transform-origin: 82% 87%; }
+.celebrating .part[data-id="minuteHand"] { animation: handSpinM 1.4s ease-in-out 2; transform-origin: 4% 94%; }
+@keyframes handSpinH { to { transform: rotate(360deg); } }
+@keyframes handSpinM { to { transform: rotate(720deg); } }
+
+/* ---------- 限时 ---------- */
+
+.timer-pill {
+  min-width: 66px; text-align: center;
+  padding: 8px 12px;
+  font-size: 15px; font-weight: 800; font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  background: var(--c-surface);
+  border: 3px solid var(--c-ink);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-sm);
+}
+.timer-pill.urgent {
+  background: var(--c-red);
+  color: #fff;
+  animation: timerPulse .8s ease-in-out infinite alternate;
+}
+@keyframes timerPulse { to { transform: scale(1.06); } }
+
+/* ---------- 得分 ---------- */
+
+.done-score {
+  display: inline-block;
+  margin-bottom: 16px;
+  padding: 6px 16px;
+  font-size: 16px; font-weight: 800; font-family: var(--font-display);
+  color: var(--c-ink);
+  background: var(--c-yellow);
+  border: 2.5px solid var(--c-ink);
+  border-radius: var(--r-pill);
+}
+
+/* ---------- 拆解步骤预览 ---------- */
+
+.steps-note {
+  margin: -6px 0 14px;
+  font-size: 13px; font-weight: 600;
+  color: var(--c-ink-soft);
+}
+.steps-list { list-style: none; }
+.steps-list li {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 8px;
+  border-bottom: 2px dashed #EFE2CC;
+}
+.steps-list li:last-child { border-bottom: none; }
+.step-num {
+  width: 26px; height: 26px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; font-family: var(--font-display);
+  color: #fff;
+  background: var(--c-primary);
+  border: 2.5px solid var(--c-ink);
+  border-radius: 50%;
+}
+.step-thumb {
+  width: 46px; height: 46px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--c-cream);
+  border: 2.5px solid var(--c-ink);
+  border-radius: 10px;
+  padding: 4px;
+}
+.step-thumb svg { width: 100%; height: 100%; }
+.step-name { font-size: 15px; font-weight: 700; }
+.step-tag {
+  margin-left: auto;
+  font-size: 12px; font-weight: 700;
+  color: var(--c-ink-soft);
+}
+.steps-list li.done { opacity: .42; }
+.steps-list li.done .step-name { text-decoration: line-through; }
+
+/* ---------- 超时 ---------- */
+
+.timeout-icon {
+  width: 68px; height: 68px;
+  margin: 4px auto 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--c-red);
+  border: 3px solid var(--c-ink);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+  color: #fff;
+}
+.timeout-icon .icon { width: 34px; height: 34px; }
+
+/* ---------- 响应式 ---------- */
+
+@media (max-width: 480px) {
+  .game-title h1 { font-size: 18px; }
+  .phase-pill { font-size: 12px; padding: 4px 10px; }
+  .bubble { font-size: 13px; }
+  .mascot-svg { width: 40px; height: 40px; }
+  .hint-bar { min-height: 54px; padding: 6px 10px; }
+  .phase-banner { font-size: 16px; padding: 6px 16px; top: 8px; }
+  .top-right { gap: 6px; }
+  .top-right .icon-btn { width: 40px; height: 40px; }
+  .timer-pill, .progress-pill { font-size: 13px; padding: 7px 9px; min-width: 54px; }
+  .done-stars .icon { width: 38px; height: 38px; }
+}
+
+</style>
+</head>
+<body>
+
+<div id="homeScreen">
+
+
+<div class="page">
+
+  <header class="hero reveal" style="--d:0s">
+    <div class="logo-badge" aria-hidden="true">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+    </div>
+    <div>
+      <h1>巧手拆装工坊</h1>
+      <p class="slogan">拆一拆，装一装，越玩越聪明</p>
+    </div>
+    <button class="icon-btn parent-btn" id="parentBtn" aria-label="玩法说明">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+    </button>
+  </header>
+
+  <section class="mode-bar reveal" style="--d:.08s">
+    <div class="mode-switch" role="tablist" aria-label="难度选择">
+      <button class="mode-btn active" data-mode="easy" role="tab">简单 <span>少零件 · 有提示</span></button>
+      <button class="mode-btn" data-mode="mid" role="tab">中度 <span>全零件 · 顺序严</span></button>
+      <button class="mode-btn" data-mode="hard" role="tab">困难 <span>精密件 · 限时计分</span></button>
+    </div>
+    <p class="mode-desc" id="modeDesc">简单级：零件少、吸附宽松、有提示，先把「从外到内拆、从内到外装」走熟</p>
+  </section>
+
+  <main class="toy-grid" id="toyGrid"></main>
+
+  <footer class="foot reveal" style="--d:.3s">无广告 · 无内购 · 进度仅保存在本机 · <a href="../index.html">切换 3D 版 →</a></footer>
+
+</div>
+
+<!-- 玩法说明弹窗 -->
+<div class="modal-mask" id="parentModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="parentTitle">
+    <div class="modal-head">
+      <h2 id="parentTitle">玩法说明</h2>
+      <button class="modal-close" id="parentClose" aria-label="关闭">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="guide-block">
+      <h3><svg class="icon" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>怎么玩</h3>
+      <ul>
+        <li>第一步「拆一拆」：点按零件把它拆下来，放进零件架</li>
+        <li>第二步「装一装」：把零件拖回发光轮廓，靠近自动吸附</li>
+        <li>难度分三级：简单（零件少、有提示）、中度（零件全开、顺序更严）、困难（精密件多、吸附最准、无提示并限时计分）</li>
+        <li>困难级的玩具如自行车、台钻、雨伞，零件之间有啮合与配合关系，大人也可以挑战</li>
+      </ul>
+    </div>
+
+    <div class="guide-block">
+      <h3><svg class="icon" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2 1 3.5 2 4.5V17a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-3.5c1-1 2-2.5 2-4.5a7 7 0 0 0-7-7z"/><path d="M9 22h6"/></svg>能练到什么</h3>
+      <ul>
+        <li>空间思维：把零件与轮廓做形状、方位匹配</li>
+        <li>精细动作：点按、拖放、对准，锻炼手眼协调</li>
+        <li>顺序逻辑：先拆什么后装什么，因果有讲究</li>
+        <li>数感启蒙：装算珠时同步数数，建立数量概念</li>
+      </ul>
+    </div>
+
+    <div class="guide-block">
+      <h3><svg class="icon" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>小贴士</h3>
+      <p>所有玩具都遵循同一条规则：拆解要「从外到内」，组装反过来「从内到外」。例如算盘：拆时先取外框，再拆横梁、档杆，最后才是算珠。让孩子先说出判断再动手，比直接告诉答案更有效。</p>
+    </div>
+  </div>
+</div>
+
+
+</div>
+
+<div id="gameScreen" hidden>
+
+
+<div class="game-wrap">
+
+  <header class="game-top">
+    <a class="icon-btn" href="index.html" aria-label="返回大厅">
+      <svg class="icon" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+    </a>
+    <div class="game-title">
+      <h1 id="toyName">玩具</h1>
+      <span class="phase-pill" id="phasePill">第一步 · 拆一拆</span>
+    </div>
+    <div class="top-right">
+      <span class="timer-pill" id="timerPill" hidden>00:00</span>
+      <span class="progress-pill" id="progressPill">0/0</span>
+      <button class="icon-btn" id="stepsBtn" aria-label="拆解步骤">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M10 12h11"/><path d="M10 18h11"/><path d="M10 6h11"/><path d="M4 10h2"/><path d="M4 6h1v4"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+      </button>
+      <button class="icon-btn" id="soundBtn" aria-label="声音开关"></button>
+    </div>
+  </header>
+
+  <main>
+    <div class="stage" id="stage">
+      <svg class="layer" id="baseLayer" viewBox="0 0 480 360"></svg>
+      <svg class="layer" id="ghostLayer" viewBox="0 0 480 360"></svg>
+      <div class="layer" id="partLayer"></div>
+
+      <div class="phase-banner" id="phaseBanner"></div>
+    </div>
+
+    <div class="hint-bar">
+      <svg class="mascot-svg" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="26" r="16" fill="#FFC53D" stroke="#3D2C1E" stroke-width="3.5"/>
+        <circle cx="26" cy="24" r="2.4" fill="#3D2C1E"/>
+        <circle cx="38" cy="24" r="2.4" fill="#3D2C1E"/>
+        <path d="M26 31 Q32 36 38 31" stroke="#3D2C1E" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <rect x="24" y="42" width="16" height="16" rx="7" fill="#FF7A45" stroke="#3D2C1E" stroke-width="3.5"/>
+      </svg>
+      <div class="bubble" id="bubble" aria-live="polite">准备开始！</div>
+    </div>
+
+    <div class="tray-wrap">
+      <div class="tray-label" id="trayLabel">零件架</div>
+      <div class="tray" id="tray"></div>
+    </div>
+  </main>
+
+</div>
+
+<div class="confetti" id="confetti"></div>
+
+<!-- 完成庆祝弹窗 -->
+<div class="modal-mask" id="doneModal">
+  <div class="modal done-modal" role="dialog" aria-modal="true">
+    <div class="done-preview" id="donePreview"></div>
+    <div class="done-stars" id="doneStars"></div>
+    <h2 class="done-title" id="doneTitle">完成啦！</h2>
+    <p class="done-sub" id="doneSub"></p>
+    <p class="done-score" id="doneScore" hidden></p>
+    <div class="done-actions">
+      <a class="btn primary" id="nextBtn" href="game.html">
+        下一个玩具
+        <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+      <button class="btn teal" id="retryBtn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        再玩一次
+      </button>
+      <a class="btn" href="index.html">
+        <svg class="icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        回大厅
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- 拆解步骤预览 -->
+<div class="modal-mask" id="stepsModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="stepsTitle">
+    <div class="modal-head">
+      <h2 id="stepsTitle">拆解步骤</h2>
+      <button class="modal-close" id="stepsClose" aria-label="关闭">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <p class="steps-note" id="stepsNote">按编号顺序拆，装回去时倒着来</p>
+    <ol class="steps-list" id="stepsList"></ol>
+  </div>
+</div>
+
+<!-- 超时提示 -->
+<div class="modal-mask" id="timeoutModal">
+  <div class="modal done-modal" role="dialog" aria-modal="true">
+    <div class="timeout-icon">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <h2 class="done-title">时间到啦</h2>
+    <p class="done-sub">别急，多练几次就熟了</p>
+    <div class="done-actions">
+      <button class="btn primary" id="timeoutRetryBtn">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        再试一次
+      </button>
+      <a class="btn" href="index.html">
+        <svg class="icon" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        回大厅
+      </a>
+    </div>
+  </div>
+</div>
+
+
+</div>
+
+<script>
+/* ============================================================
+ * data.js — 玩具零件数据（本原型唯一的 mock 数据源）
+ * 场景坐标系：480 × 360，所有零件的 x/y/w/h 都在该坐标系下定义
+ * 零件 svg 字段为「0 0 w h」视窗内的内层图形标记
+ *
+ * seq = 拆装顺序序号（同一序号可互换）
+ *   · 组装：seq 小的先装
+ *   · 拆解：seq 大的先拆（即组装的逆序）
+ * 例：算盘 seq 拆解顺序 = 外框 → 横梁 → 档杆 → 算珠
+ * ============================================================ */
+
+const TOYS = {
+
+  /* ---------------- 小汽车：底盘(车轮/排气管) → 车壳 → 车灯/车门/车窗 → 后视镜 ---------------- */
+  car: {
+    id: 'car',
+    name: '小汽车',
+    tag: '空间思维',
+    base: `
+      <ellipse cx="240" cy="312" rx="175" ry="13" fill="rgba(61,44,30,.08)"/>
+      <rect x="110" y="222" width="260" height="26" rx="10" fill="#6B5B4F" stroke="#3D2C1E" stroke-width="4"/>
+      <rect x="92" y="228" width="20" height="12" rx="5" fill="#8A7364" stroke="#3D2C1E" stroke-width="3"/>
+      <circle cx="150" cy="250" r="9" fill="#8A7364" stroke="#3D2C1E" stroke-width="3"/>
+      <circle cx="330" cy="250" r="9" fill="#8A7364" stroke="#3D2C1E" stroke-width="3"/>
+    `,
+    parts: [
+      {
+        id: 'exhaust', name: '排气管', x: 66, y: 230, w: 44, h: 18, z: 2, seq: 1,
+        easy: false,
+        hint: '排气管装在车尾下方，先把它固定到底盘上',
+        svg: `<rect x="2" y="4" width="30" height="10" rx="5" fill="#B8B2A7" stroke="#3D2C1E" stroke-width="3"/>
+              <ellipse cx="36" cy="9" rx="6" ry="7" fill="#8A7364" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'rearWheel', name: '后车轮', x: 112, y: 212, w: 76, h: 76, z: 1, seq: 1,
+        easy: true,
+        hint: '把车轮对准圆圆的车轴，咔哒装上！',
+        svg: `<circle cx="38" cy="38" r="33" fill="#4A3A2E" stroke="#3D2C1E" stroke-width="4"/>
+              <circle cx="38" cy="38" r="19" fill="#FFC53D" stroke="#3D2C1E" stroke-width="4"/>
+              <circle cx="38" cy="48" r="2.8" fill="#3D2C1E"/><circle cx="47.5" cy="41.1" r="2.8" fill="#3D2C1E"/>
+              <circle cx="43.9" cy="29.9" r="2.8" fill="#3D2C1E"/><circle cx="32.1" cy="29.9" r="2.8" fill="#3D2C1E"/>
+              <circle cx="28.5" cy="41.1" r="2.8" fill="#3D2C1E"/>
+              <circle cx="38" cy="38" r="4.5" fill="#FFF7EA" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'frontWheel', name: '前车轮', x: 292, y: 212, w: 76, h: 76, z: 1, seq: 1,
+        easy: true,
+        hint: '把车轮对准圆圆的车轴，咔哒装上！',
+        svg: `<circle cx="38" cy="38" r="33" fill="#4A3A2E" stroke="#3D2C1E" stroke-width="4"/>
+              <circle cx="38" cy="38" r="19" fill="#FFC53D" stroke="#3D2C1E" stroke-width="4"/>
+              <circle cx="38" cy="48" r="2.8" fill="#3D2C1E"/><circle cx="47.5" cy="41.1" r="2.8" fill="#3D2C1E"/>
+              <circle cx="43.9" cy="29.9" r="2.8" fill="#3D2C1E"/><circle cx="32.1" cy="29.9" r="2.8" fill="#3D2C1E"/>
+              <circle cx="28.5" cy="41.1" r="2.8" fill="#3D2C1E"/>
+              <circle cx="38" cy="38" r="4.5" fill="#FFF7EA" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'bodyShell', name: '车身上盖', x: 95, y: 120, w: 290, h: 110, z: 2, seq: 2,
+        easy: true,
+        hint: '把车身上盖扣到底盘上，车轮要卡进拱形里',
+        svg: `<path d="M10 108 L10 66 Q10 46 30 44 L96 38 Q120 10 168 12 L208 16 Q240 20 252 46 L272 50 Q280 52 280 66 L280 108 L275 108 A40 40 0 0 0 195 108 L95 108 A40 40 0 0 0 15 108 Z"
+                fill="#FF7A45" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M26 60 L92 50" stroke="#FFB08A" stroke-width="6" stroke-linecap="round"/>`
+      },
+      {
+        id: 'door', name: '车门', x: 208, y: 162, w: 88, h: 60, z: 3, seq: 3,
+        easy: false,
+        hint: '车门装在车身中间，有小把手',
+        svg: `<rect x="4" y="4" width="80" height="52" rx="12" fill="#FF8C5C" stroke="#3D2C1E" stroke-width="4"/>
+              <rect x="54" y="20" width="20" height="7" rx="3.5" fill="#3D2C1E"/>
+              <path d="M14 14 L40 10" stroke="#FFB08A" stroke-width="5" stroke-linecap="round"/>`
+      },
+      {
+        id: 'windshield', name: '车窗', x: 208, y: 130, w: 100, h: 38, z: 3, seq: 3,
+        easy: true,
+        hint: '蓝色的车窗贴在车顶上',
+        svg: `<path d="M8 34 L24 6 L50 4 L50 34 Z" fill="#C9ECFF" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M58 34 L58 4 L82 8 Q92 16 94 34 Z" fill="#C9ECFF" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M18 20 L30 10" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity=".8"/>`
+      },
+      {
+        id: 'headlight', name: '车灯', x: 352, y: 166, w: 34, h: 26, z: 4, seq: 3,
+        easy: false,
+        hint: '圆圆的车灯装在最前面，照亮马路',
+        svg: `<ellipse cx="17" cy="13" rx="14" ry="10" fill="#FFF3B0" stroke="#3D2C1E" stroke-width="4"/>
+              <circle cx="13" cy="10" r="2.5" fill="#FFFFFF"/>`
+      },
+      {
+        id: 'taillight', name: '尾灯', x: 92, y: 162, w: 24, h: 32, z: 4, seq: 3,
+        easy: false,
+        hint: '红色的尾灯，装在车屁股上',
+        svg: `<rect x="4" y="4" width="16" height="24" rx="7" fill="#FF5A5A" stroke="#3D2C1E" stroke-width="4"/>
+              <circle cx="11" cy="11" r="2" fill="#FFFFFF" opacity=".8"/>`
+      },
+      {
+        id: 'mirror', name: '后视镜', x: 296, y: 134, w: 26, h: 24, z: 4, seq: 4,
+        easy: false,
+        hint: '后视镜装在车门的前上方',
+        svg: `<path d="M6 22 L12 12" stroke="#3D2C1E" stroke-width="4" stroke-linecap="round"/>
+              <rect x="9" y="2" width="15" height="12" rx="5" fill="#2EC4B6" stroke="#3D2C1E" stroke-width="3"/>`
+      }
+    ]
+  },
+
+  /* ---------------- 小算盘：外框 → 横梁 → 档杆 → 算珠（组装逆序） ---------------- */
+  abacus: {
+    id: 'abacus',
+    name: '小算盘',
+    tag: '数感启蒙',
+    base: `
+      <ellipse cx="240" cy="298" rx="165" ry="12" fill="rgba(61,44,30,.08)"/>
+      <rect x="115" y="106" width="250" height="150" fill="#FDF6E9"/>
+    `,
+    parts: [
+      {
+        id: 'frame', name: '外框', x: 93, y: 84, w: 294, h: 194, z: 6, seq: 4,
+        easy: false, staticInEasy: true,
+        hint: '最后把外框扣上去，算盘就完整啦',
+        svg: `<path d="M2 2 H292 V192 H2 Z M22 22 H272 V172 H22 Z" fill-rule="evenodd"
+                fill="#E8B06A" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <circle cx="13" cy="12" r="4" fill="#C98A4B"/><circle cx="281" cy="12" r="4" fill="#C98A4B"/>
+              <circle cx="13" cy="182" r="4" fill="#C98A4B"/><circle cx="281" cy="182" r="4" fill="#C98A4B"/>`
+      },
+      {
+        id: 'beam', name: '横梁', x: 115, y: 166, w: 250, h: 18, z: 5, seq: 3,
+        easy: false, staticInEasy: true,
+        hint: '长长的横梁，把算盘分成上和下',
+        svg: `<rect x="2" y="2" width="246" height="14" rx="7" fill="#D9A35B" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'rod1', name: '第一档杆', x: 159, y: 106, w: 12, h: 150, z: 1, seq: 2,
+        easy: false, staticInEasy: true,
+        hint: '档杆竖着插进框框里',
+        svg: `<rect x="2" y="2" width="8" height="146" rx="4" fill="#A9743C" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'rod2', name: '第二档杆', x: 234, y: 106, w: 12, h: 150, z: 1, seq: 2,
+        easy: false, staticInEasy: true,
+        hint: '档杆竖着插进框框里',
+        svg: `<rect x="2" y="2" width="8" height="146" rx="4" fill="#A9743C" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'rod3', name: '第三档杆', x: 309, y: 106, w: 12, h: 150, z: 1, seq: 2,
+        easy: false, staticInEasy: true,
+        hint: '档杆竖着插进框框里',
+        svg: `<rect x="2" y="2" width="8" height="146" rx="4" fill="#A9743C" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      ...[
+        ['bead1', 142, 120, '#FF7A45', '橙色算珠'],
+        ['bead2', 142, 200, '#FF7A45', '橙色算珠'],
+        ['bead3', 217, 120, '#2EC4B6', '绿色算珠'],
+        ['bead4', 217, 200, '#2EC4B6', '绿色算珠'],
+        ['bead5', 292, 120, '#FFC53D', '黄色算珠'],
+        ['bead6', 292, 200, '#FFC53D', '黄色算珠']
+      ].map(([id, x, y, color, name]) => ({
+        id, name, x, y, w: 46, h: 32, z: 3, seq: 1, isBead: true,
+        easy: true,
+        hint: '算珠中间有洞，要穿在档杆上哦',
+        svg: `<ellipse cx="23" cy="16" rx="20" ry="13" fill="${color}" stroke="#3D2C1E" stroke-width="4"/>
+              <ellipse cx="23" cy="16" rx="6" ry="4.5" fill="#FDF6E9" stroke="#3D2C1E" stroke-width="3"/>
+              <path d="M10 10 Q16 5 24 6" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity=".7" fill="none"/>`
+      }))
+    ]
+  },
+
+  /* ---------------- 机器人：腿/手臂 → 头 → 眼睛天线 ---------------- */
+  robot: {
+    id: 'robot',
+    name: '机器人',
+    tag: '想象创造',
+    base: `
+      <ellipse cx="240" cy="320" rx="120" ry="12" fill="rgba(61,44,30,.08)"/>
+      <rect x="230" y="136" width="20" height="18" rx="6" fill="#C7D0D8" stroke="#3D2C1E" stroke-width="3"/>
+      <circle cx="195" cy="175" r="7" fill="#C7D0D8" stroke="#3D2C1E" stroke-width="3"/>
+      <circle cx="285" cy="175" r="7" fill="#C7D0D8" stroke="#3D2C1E" stroke-width="3"/>
+      <rect x="206" y="250" width="28" height="12" rx="5" fill="#C7D0D8" stroke="#3D2C1E" stroke-width="3"/>
+      <rect x="246" y="250" width="28" height="12" rx="5" fill="#C7D0D8" stroke="#3D2C1E" stroke-width="3"/>
+      <rect x="195" y="150" width="90" height="106" rx="16" fill="#E8EDF2" stroke="#3D2C1E" stroke-width="4"/>
+      <rect x="210" y="216" width="60" height="8" rx="4" fill="#C7D0D8"/>
+      <rect x="210" y="232" width="60" height="8" rx="4" fill="#C7D0D8"/>
+    `,
+    parts: [
+      {
+        id: 'legL', name: '左腿', x: 206, y: 256, w: 28, h: 52, z: 1, seq: 1,
+        easy: false,
+        hint: '腿装在身体下面，机器人才能站起来',
+        svg: `<rect x="5" y="2" width="18" height="34" rx="8" fill="#4D96FF" stroke="#3D2C1E" stroke-width="4"/>
+              <rect x="2" y="34" width="24" height="14" rx="7" fill="#3D6CB5" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'legR', name: '右腿', x: 246, y: 256, w: 28, h: 52, z: 1, seq: 1,
+        easy: false,
+        hint: '腿装在身体下面，机器人才能站起来',
+        svg: `<rect x="5" y="2" width="18" height="34" rx="8" fill="#4D96FF" stroke="#3D2C1E" stroke-width="4"/>
+              <rect x="2" y="34" width="24" height="14" rx="7" fill="#3D6CB5" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'armL', name: '左手臂', x: 136, y: 162, w: 52, h: 26, z: 1, seq: 2,
+        easy: true,
+        hint: '手臂装在身体左边的小圆钮上',
+        svg: `<rect x="10" y="3" width="38" height="20" rx="10" fill="#2EC4B6" stroke="#3D2C1E" stroke-width="4"/>
+              <circle cx="10" cy="13" r="8" fill="#F4F7FA" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'armR', name: '右手臂', x: 292, y: 162, w: 52, h: 26, z: 1, seq: 2,
+        easy: true,
+        hint: '手臂装在身体右边的小圆钮上',
+        svg: `<rect x="4" y="3" width="38" height="20" rx="10" fill="#2EC4B6" stroke="#3D2C1E" stroke-width="4"/>
+              <circle cx="42" cy="13" r="8" fill="#F4F7FA" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'core', name: '电池仓', x: 216, y: 180, w: 48, h: 48, z: 2, seq: 2,
+        easy: true,
+        hint: '打开胸口的盖板，里面装着两节电池',
+        svg: `<rect x="3" y="3" width="42" height="42" rx="9" fill="#4A3A2E" stroke="#3D2C1E" stroke-width="4"/>
+              <rect x="9" y="15" width="13" height="22" rx="3" fill="#FFC53D" stroke="#3D2C1E" stroke-width="3"/>
+              <rect x="26" y="15" width="13" height="22" rx="3" fill="#2EC4B6" stroke="#3D2C1E" stroke-width="3"/>
+              <path d="M36 9 L36 5 M38 7 L34 7" stroke="#FFF7EA" stroke-width="2" stroke-linecap="round"/>`
+      },
+      {
+        id: 'head', name: '脑袋', x: 192, y: 72, w: 96, h: 62, z: 3, seq: 3,
+        easy: true,
+        hint: '方方的大脑袋，放在脖子上',
+        svg: `<rect x="4" y="4" width="88" height="54" rx="14" fill="#F4F7FA" stroke="#3D2C1E" stroke-width="4"/>
+              <circle cx="6" cy="31" r="6" fill="#2EC4B6" stroke="#3D2C1E" stroke-width="3"/>
+              <circle cx="90" cy="31" r="6" fill="#2EC4B6" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'eyes', name: '眼睛面板', x: 206, y: 88, w: 68, h: 26, z: 4, seq: 4,
+        easy: false,
+        hint: '亮亮的眼睛，贴在脸中间',
+        svg: `<rect x="2" y="2" width="64" height="22" rx="11" fill="#3D2C1E"/>
+              <circle cx="20" cy="13" r="5.5" fill="#FFE066"/>
+              <circle cx="48" cy="13" r="5.5" fill="#FFE066"/>`
+      },
+      {
+        id: 'antenna', name: '天线', x: 232, y: 38, w: 16, h: 36, z: 5, seq: 4,
+        easy: false,
+        hint: '天线插在头顶上，接受信号',
+        svg: `<path d="M8 34 L8 14" stroke="#3D2C1E" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="8" cy="8" r="6" fill="#FF7A45" stroke="#3D2C1E" stroke-width="3"/>`
+      }
+    ]
+  },
+
+  /* ---------------- 小闹钟：发条钥匙(背面) → 钟面 → 指针 → 铃铛(外壳顶) → 提手 ---------------- */
+  clock: {
+    id: 'clock',
+    name: '小闹钟',
+    tag: '时间认知',
+    base: `
+      <ellipse cx="240" cy="312" rx="150" ry="12" fill="rgba(61,44,30,.08)"/>
+      <path d="M180 286 L172 306 L196 306 L192 288 Z" fill="#F0B429" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M300 286 L308 306 L284 306 L288 288 Z" fill="#F0B429" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+      <circle cx="240" cy="206" r="88" fill="#FFD43B" stroke="#3D2C1E" stroke-width="5"/>
+      <circle cx="240" cy="206" r="72" fill="#FFF7EA" stroke="#3D2C1E" stroke-width="3"/>
+    `,
+    parts: [
+      {
+        id: 'bellL', name: '左铃铛', x: 158, y: 92, w: 54, h: 44, z: 2, seq: 4,
+        easy: true,
+        hint: '铃铛装在闹钟头顶，叮铃铃叫人起床',
+        svg: `<circle cx="27" cy="8" r="5" fill="#F0652F" stroke="#3D2C1E" stroke-width="3"/>
+              <path d="M8 40 L8 30 Q8 12 27 12 Q46 12 46 30 L46 40 Z" fill="#FF7A45" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M4 40 L50 40" stroke="#3D2C1E" stroke-width="4" stroke-linecap="round"/>`
+      },
+      {
+        id: 'bellR', name: '右铃铛', x: 268, y: 92, w: 54, h: 44, z: 2, seq: 4,
+        easy: true,
+        hint: '铃铛装在闹钟头顶，叮铃铃叫人起床',
+        svg: `<circle cx="27" cy="8" r="5" fill="#F0652F" stroke="#3D2C1E" stroke-width="3"/>
+              <path d="M8 40 L8 30 Q8 12 27 12 Q46 12 46 30 L46 40 Z" fill="#FF7A45" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M4 40 L50 40" stroke="#3D2C1E" stroke-width="4" stroke-linecap="round"/>`
+      },
+      {
+        id: 'key', name: '发条钥匙', x: 322, y: 194, w: 44, h: 24, z: 2, seq: 1,
+        easy: false,
+        hint: '钥匙插在闹钟的耳朵边上，拧一拧上发条',
+        svg: `<rect x="2" y="9" width="14" height="7" rx="3" fill="#B8B2A7" stroke="#3D2C1E" stroke-width="3"/>
+              <ellipse cx="30" cy="12" rx="11" ry="9" fill="#FFC53D" stroke="#3D2C1E" stroke-width="3"/>
+              <circle cx="30" cy="12" r="3" fill="#FFF7EA" stroke="#3D2C1E" stroke-width="2"/>`
+      },
+      {
+        id: 'face', name: '钟面', x: 178, y: 144, w: 124, h: 124, z: 1, seq: 2,
+        easy: false,
+        hint: '白色的钟面贴在正中间，数字 12 朝上',
+        svg: `<circle cx="62" cy="62" r="58" fill="#FFFFFF" stroke="#3D2C1E" stroke-width="4"/>
+              <circle cx="62" cy="62" r="48" fill="none" stroke="#3D2C1E" stroke-width="9" pathLength="60" stroke-dasharray="1.6 3.4"/>
+              <text x="62" y="26" text-anchor="middle" font-size="15" font-weight="800" fill="#8A7364">12</text>
+              <text x="104" y="67" text-anchor="middle" font-size="15" font-weight="800" fill="#8A7364">3</text>
+              <text x="62" y="108" text-anchor="middle" font-size="15" font-weight="800" fill="#8A7364">6</text>
+              <text x="20" y="67" text-anchor="middle" font-size="15" font-weight="800" fill="#8A7364">9</text>`
+      },
+      {
+        id: 'hourHand', name: '时针', x: 204, y: 166, w: 44, h: 46, z: 3, seq: 3,
+        easy: true,
+        hint: '短短的时针，指着数字 10',
+        svg: `<path d="M36 40 L10 25" stroke="#3D2C1E" stroke-width="9" stroke-linecap="round"/>
+              <circle cx="36" cy="40" r="7" fill="#FF7A45" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'minuteHand', name: '分针', x: 238, y: 172, w: 50, h: 36, z: 4, seq: 3,
+        easy: true,
+        hint: '长长的分针，指着数字 2',
+        svg: `<path d="M2 34 L42 11" stroke="#3D2C1E" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="2" cy="34" r="5" fill="#FFF7EA" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'handle', name: '提手', x: 206, y: 64, w: 68, h: 30, z: 5, seq: 5,
+        easy: false,
+        hint: '弯弯的提手，最后架在两个铃铛中间',
+        svg: `<path d="M6 28 Q6 6 34 6 Q62 6 62 28" fill="none" stroke="#3D2C1E" stroke-width="7" stroke-linecap="round"/>`
+      }
+    ]
+  },
+
+  /* ---------------- 小台灯：灯座(含电源线) → 灯杆 → 灯泡 → 灯罩 ---------------- */
+  lamp: {
+    id: 'lamp',
+    name: '小台灯',
+    tag: '生活认知',
+    base: `
+      <ellipse cx="240" cy="316" rx="128" ry="12" fill="rgba(61,44,30,.08)"/>
+    `,
+    parts: [
+      {
+        id: 'cord', name: '电源线', x: 316, y: 282, w: 78, h: 44, z: 1, seq: 1,
+        easy: false,
+        hint: '电源线从灯座背面接出去，插头在最末端',
+        svg: `<path d="M4 18 Q28 18 38 28 Q48 38 70 34" fill="none" stroke="#3D2C1E" stroke-width="5" stroke-linecap="round"/>
+              <rect x="64" y="26" width="12" height="16" rx="4" fill="#B8B2A7" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'lampBase', name: '灯座', x: 160, y: 266, w: 160, h: 50, z: 2, seq: 1,
+        easy: true,
+        hint: '灯座要放在桌面上，底座稳了灯才不倒',
+        svg: `<path d="M16 44 Q16 8 80 8 Q144 8 144 44 Z" fill="#6B5B4F" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <ellipse cx="80" cy="44" rx="64" ry="6" fill="#8A7364"/>
+              <circle cx="120" cy="28" r="7" fill="#FFC53D" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'pole', name: '灯杆', x: 228, y: 148, w: 24, h: 128, z: 1, seq: 2,
+        easy: true,
+        hint: '灯杆一头插进灯座，一头托住灯罩',
+        svg: `<path d="M12 126 L12 14" stroke="#3D2C1E" stroke-width="12" stroke-linecap="round"/>
+              <path d="M12 122 L12 16" stroke="#B8B2A7" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="9" fill="#8A7364" stroke="#3D2C1E" stroke-width="4"/>`
+      },
+      {
+        id: 'bulb', name: '灯泡', x: 194, y: 126, w: 34, h: 44, z: 2, seq: 3,
+        easy: true,
+        hint: '灯泡拧进灯座里，再罩上灯罩才不会刺眼',
+        svg: `<circle cx="17" cy="16" r="14" fill="#FFF3B0" stroke="#3D2C1E" stroke-width="4"/>
+              <path d="M11 14 Q17 22 23 14" fill="none" stroke="#B88A2E" stroke-width="3" stroke-linecap="round"/>
+              <rect x="8" y="28" width="18" height="12" rx="4" fill="#B8B2A7" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'shade', name: '灯罩', x: 148, y: 60, w: 128, h: 100, z: 3, seq: 4,
+        easy: true,
+        hint: '灯罩是台灯最外面的一层，罩住灯泡',
+        svg: `<path d="M6 94 L38 12 Q41 4 50 4 L78 4 Q87 4 90 12 L122 94 Q124 100 116 100 L12 100 Q4 100 6 94 Z" fill="#FF7A45" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M20 90 Q64 72 108 90" stroke="#FFB08A" stroke-width="6" fill="none" stroke-linecap="round"/>
+              <rect x="52" y="0" width="24" height="8" rx="4" fill="#8A7364" stroke="#3D2C1E" stroke-width="3"/>`
+      }
+    ]
+  },
+
+  /* ---------------- 小风扇：底座(含旋钮) → 电机 → 后网罩 → 扇叶 → 前网罩 ---------------- */
+  fan: {
+    id: 'fan',
+    name: '小风扇',
+    tag: '机械原理',
+    base: `
+      <ellipse cx="240" cy="312" rx="98" ry="11" fill="rgba(61,44,30,.08)"/>
+    `,
+    parts: [
+      {
+        id: 'fanBase', name: '底座', x: 180, y: 210, w: 120, h: 98, z: 2, seq: 1,
+        easy: true,
+        hint: '底座压稳桌面，风扇转起来才不会晃',
+        svg: `<rect x="54" y="2" width="12" height="52" rx="6" fill="#8A7364" stroke="#3D2C1E" stroke-width="4"/>
+              <path d="M10 92 Q10 56 60 56 Q110 56 110 92 Z" fill="#6B5B4F" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <ellipse cx="60" cy="92" rx="50" ry="6" fill="#8A7364"/>`
+      },
+      {
+        id: 'knob', name: '旋钮', x: 250, y: 272, w: 28, h: 18, z: 3, seq: 1,
+        easy: true,
+        hint: '底座上的旋钮，拧一下就开始转',
+        svg: `<rect x="2" y="2" width="24" height="14" rx="7" fill="#FFC53D" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'motor', name: '电机', x: 214, y: 190, w: 52, h: 84, z: 1, seq: 2,
+        easy: false, staticInEasy: true,
+        hint: '电机藏在网罩后面，是风扇的心脏',
+        svg: `<rect x="20" y="34" width="12" height="50" rx="6" fill="#B8B2A7" stroke="#3D2C1E" stroke-width="4"/>
+              <rect x="4" y="2" width="44" height="38" rx="12" fill="#8A7364" stroke="#3D2C1E" stroke-width="4"/>
+              <circle cx="26" cy="21" r="10" fill="#4A3A2E" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'rearGuard', name: '后网罩', x: 154, y: 42, w: 172, h: 172, z: 2, seq: 3,
+        easy: false, staticInEasy: true,
+        hint: '后网罩套在电机上，扇叶装在它前面',
+        svg: `<circle cx="86" cy="86" r="80" fill="#FFF7EA" fill-opacity=".6" stroke="#3D2C1E" stroke-width="4"/>
+              <circle cx="86" cy="86" r="58" fill="none" stroke="#8A7364" stroke-width="3"/>
+              <circle cx="86" cy="86" r="36" fill="none" stroke="#8A7364" stroke-width="3"/>
+              <path d="M86 6 L86 166 M6 86 L166 86" stroke="#8A7364" stroke-width="3"/>`
+      },
+      {
+        id: 'blades', name: '扇叶', x: 176, y: 64, w: 128, h: 128, z: 3, seq: 4,
+        easy: true,
+        hint: '三片扇叶套在电机轴上，转起来才有风',
+        svg: `<g stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round">
+                <path d="M64 64 Q96 44 100 20 Q74 24 58 52 Z" fill="#2EC4B6"/>
+                <path d="M64 64 Q92 90 116 88 Q100 62 76 62 Z" fill="#2EC4B6"/>
+                <path d="M64 64 Q38 90 28 108 Q54 98 62 76 Z" fill="#2EC4B6"/>
+              </g>
+              <circle cx="64" cy="64" r="15" fill="#FFC53D" stroke="#3D2C1E" stroke-width="4"/>`
+      },
+      {
+        id: 'frontGuard', name: '前网罩', x: 154, y: 42, w: 172, h: 172, z: 4, seq: 5,
+        easy: true,
+        hint: '前网罩扣在最外面，挡住飞速旋转的扇叶',
+        svg: `<circle cx="86" cy="86" r="80" fill="none" stroke="#3D2C1E" stroke-width="5"/>
+              <circle cx="86" cy="86" r="68" fill="none" stroke="#8A7364" stroke-width="3"/>
+              <circle cx="86" cy="86" r="46" fill="none" stroke="#8A7364" stroke-width="3"/>
+              <circle cx="86" cy="86" r="24" fill="none" stroke="#8A7364" stroke-width="3"/>
+              <path d="M86 6 L86 166 M6 86 L166 86 M29 29 L143 143 M143 29 L29 143" stroke="#8A7364" stroke-width="3"/>
+              <circle cx="86" cy="86" r="13" fill="#FF7A45" stroke="#3D2C1E" stroke-width="4"/>`
+      }
+    ]
+  },
+
+  /* ---------------- 手电筒：电池 → 筒身 → 灯泡 → 镜片 → 灯头盖 ---------------- */
+  flashlight: {
+    id: 'flashlight',
+    name: '手电筒',
+    tag: '生活认知',
+    base: `
+      <ellipse cx="240" cy="236" rx="152" ry="10" fill="rgba(61,44,30,.08)"/>
+    `,
+    parts: [
+      {
+        id: 'battery', name: '电池', x: 132, y: 164, w: 84, h: 40, z: 1, seq: 1,
+        easy: false, staticInEasy: true,
+        hint: '电池装在筒身里，正负极要对准',
+        svg: `<rect x="2" y="4" width="68" height="32" rx="6" fill="#FFC53D" stroke="#3D2C1E" stroke-width="4"/>
+              <rect x="66" y="12" width="10" height="16" rx="3" fill="#B8B2A7" stroke="#3D2C1E" stroke-width="3"/>
+              <path d="M16 20 L34 20 M25 11 L25 29" stroke="#3D2C1E" stroke-width="3" stroke-linecap="round"/>`
+      },
+      {
+        id: 'shell', name: '筒身', x: 108, y: 150, w: 232, h: 68, z: 2, seq: 2,
+        easy: true,
+        hint: '筒身是手电筒的外壳，电池就装在它里面',
+        svg: `<rect x="2" y="4" width="228" height="60" rx="16" fill="#2EC4B6" stroke="#3D2C1E" stroke-width="4"/>
+              <rect x="24" y="14" width="150" height="12" rx="6" fill="#FFF7EA" opacity=".35"/>
+              <rect x="60" y="38" width="46" height="12" rx="6" fill="#FF7A45" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'bulb', name: '灯泡', x: 328, y: 166, w: 32, h: 38, z: 3, seq: 3,
+        easy: true,
+        hint: '灯泡装在灯头里，通电就会发光',
+        svg: `<circle cx="16" cy="17" r="14" fill="#FFF3B0" stroke="#3D2C1E" stroke-width="4"/>
+              <rect x="5" y="29" width="22" height="8" rx="4" fill="#B8B2A7" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'lens', name: '镜片', x: 392, y: 156, w: 24, h: 56, z: 5, seq: 4,
+        easy: true,
+        hint: '透明镜片卡在灯头最前面，保护灯泡',
+        svg: `<ellipse cx="12" cy="28" rx="9" ry="26" fill="#C9ECFF" stroke="#3D2C1E" stroke-width="4"/>
+              <path d="M8 18 Q13 12 10 4" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity=".85"/>`
+      },
+      {
+        id: 'head', name: '灯头盖', x: 336, y: 146, w: 66, h: 76, z: 4, seq: 5,
+        easy: true,
+        hint: '灯头盖是筒身前端的喇叭口，最外一层',
+        svg: `<path d="M4 32 L14 8 Q16 2 24 2 L44 2 Q56 2 58 10 L58 66 Q56 74 44 74 L24 74 Q16 74 14 68 Z" fill="#4A3A2E" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M50 6 L50 70" stroke="#8A7364" stroke-width="5" stroke-linecap="round"/>`
+      }
+    ]
+  },
+
+  /* ---------------- 铅笔盒：盒身 → 文具 → 盒盖 ---------------- */
+  pencilCase: {
+    id: 'pencilCase',
+    name: '铅笔盒',
+    tag: '整理收纳',
+    base: `
+      <ellipse cx="240" cy="288" rx="122" ry="10" fill="rgba(61,44,30,.08)"/>
+    `,
+    parts: [
+      {
+        id: 'caseBody', name: '盒身', x: 128, y: 198, w: 224, h: 74, z: 2, seq: 1,
+        easy: true,
+        hint: '盒身是铅笔盒的底，文具都放在里面',
+        svg: `<rect x="3" y="10" width="218" height="61" rx="12" fill="#4D96FF" stroke="#3D2C1E" stroke-width="4"/>
+              <rect x="14" y="14" width="196" height="34" rx="8" fill="#EAF2FF" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'pencil', name: '铅笔', x: 150, y: 180, w: 150, h: 16, z: 3, seq: 2,
+        easy: true,
+        hint: '铅笔躺在盒子里，笔尖朝外',
+        svg: `<rect x="2" y="3" width="128" height="10" rx="5" fill="#FFC53D" stroke="#3D2C1E" stroke-width="3"/>
+              <path d="M130 3 L146 8 L130 13 Z" fill="#FFE0B2" stroke="#3D2C1E" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M140 6 L146 8 L140 10 Z" fill="#3D2C1E"/>`
+      },
+      {
+        id: 'ruler', name: '尺子', x: 156, y: 198, w: 120, h: 14, z: 3, seq: 2,
+        easy: true,
+        hint: '尺子贴着盒子边放平',
+        svg: `<rect x="2" y="2" width="116" height="10" rx="3" fill="#FFE066" stroke="#3D2C1E" stroke-width="3"/>
+              <path d="M16 2 L16 8 M30 2 L30 8 M44 2 L44 8 M58 2 L58 8 M72 2 L72 8 M86 2 L86 8 M100 2 L100 8" stroke="#3D2C1E" stroke-width="2"/>`
+      },
+      {
+        id: 'eraser', name: '橡皮', x: 286, y: 188, w: 36, h: 26, z: 3, seq: 2,
+        easy: false,
+        hint: '橡皮放在盒子右端，盖盖子前别忘拿',
+        svg: `<rect x="2" y="2" width="32" height="22" rx="6" fill="#FF9FB2" stroke="#3D2C1E" stroke-width="3"/>
+              <path d="M10 2 L10 24" stroke="#3D2C1E" stroke-width="2"/>`
+      },
+      {
+        id: 'caseLid', name: '盒盖', x: 136, y: 138, w: 208, h: 52, z: 4, seq: 3,
+        easy: true,
+        hint: '盒盖最后扣上，咔哒一声就关好了',
+        svg: `<rect x="2" y="6" width="204" height="42" rx="12" fill="#2EC4B6" stroke="#3D2C1E" stroke-width="4"/>
+              <rect x="86" y="20" width="36" height="10" rx="5" fill="#FFF7EA" stroke="#3D2C1E" stroke-width="3"/>`
+      }
+    ]
+  },
+
+  /* ---------------- 烧水壶：底座(含开关) → 内胆 → 壶身 → 手柄 → 壶盖 ---------------- */
+  kettle: {
+    id: 'kettle',
+    name: '烧水壶',
+    tag: '生活认知',
+    base: `
+      <ellipse cx="240" cy="316" rx="112" ry="11" fill="rgba(61,44,30,.08)"/>
+    `,
+    parts: [
+      {
+        id: 'kettleBase', name: '底座', x: 172, y: 268, w: 136, h: 44, z: 1, seq: 1,
+        easy: true,
+        hint: '底座插上电，壶放上去才能烧水',
+        svg: `<path d="M8 40 Q8 10 68 10 Q128 10 128 40 Z" fill="#6B5B4F" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <ellipse cx="68" cy="40" rx="58" ry="6" fill="#8A7364"/>`
+      },
+      {
+        id: 'kettleSwitch', name: '开关', x: 276, y: 276, w: 26, h: 16, z: 3, seq: 1,
+        easy: false,
+        hint: '底座侧面的开关，按下去就通电',
+        svg: `<rect x="2" y="2" width="22" height="12" rx="6" fill="#FF7A45" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'heater', name: '内胆', x: 186, y: 196, w: 108, h: 74, z: 1, seq: 2,
+        easy: false, staticInEasy: true,
+        hint: '内胆包着加热盘，水就是在这里烧开的',
+        svg: `<rect x="6" y="6" width="96" height="62" rx="12" fill="#C7D0D8" stroke="#3D2C1E" stroke-width="4"/>
+              <circle cx="54" cy="36" r="24" fill="none" stroke="#8A7364" stroke-width="4"/>
+              <path d="M36 36 Q54 24 72 36 Q54 48 36 36" fill="none" stroke="#8A7364" stroke-width="3"/>`
+      },
+      {
+        id: 'kettleBody', name: '壶身', x: 170, y: 150, w: 160, h: 126, z: 2, seq: 3,
+        easy: true,
+        hint: '壶身套在内胆外面，左边是壶嘴',
+        svg: `<path d="M20 120 Q6 60 24 30 Q40 6 80 6 Q120 6 136 30 Q154 60 140 120 Z" fill="#F4F7FA" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M20 46 L2 26 L6 62 Z" fill="#E8EDF2" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M34 96 Q80 84 126 96" stroke="#C7D0D8" stroke-width="4" fill="none"/>`
+      },
+      {
+        id: 'kettleHandle', name: '手柄', x: 320, y: 132, w: 56, h: 96, z: 3, seq: 4,
+        easy: true,
+        hint: '手柄装在壶身右侧，握着不烫手',
+        svg: `<path d="M8 8 Q44 8 44 48 Q44 88 8 88" fill="none" stroke="#3D2C1E" stroke-width="12" stroke-linecap="round"/>
+              <path d="M8 8 Q44 8 44 48 Q44 88 8 88" fill="none" stroke="#8A7364" stroke-width="6" stroke-linecap="round"/>`
+      },
+      {
+        id: 'kettleLid', name: '壶盖', x: 196, y: 118, w: 88, h: 40, z: 4, seq: 5,
+        easy: true,
+        hint: '壶盖最后盖上，水开后别马上掀',
+        svg: `<path d="M6 32 Q6 6 44 6 Q82 6 82 32 Z" fill="#E8EDF2" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <rect x="34" y="0" width="20" height="10" rx="5" fill="#8A7364" stroke="#3D2C1E" stroke-width="3"/>`
+      }
+    ]
+  },
+
+  /* ---------------- 自行车：车架 → 车轮 → 链条/脚踏 → 挡泥板 → 车座车把 → 车铃 ---------------- */
+  bike: {
+    id: 'bike',
+    name: '自行车',
+    tag: '机械原理',
+    base: `
+      <ellipse cx="240" cy="306" rx="150" ry="10" fill="rgba(61,44,30,.08)"/>
+    `,
+    parts: [
+      {
+        id: 'chain', name: '链条', x: 146, y: 230, w: 100, h: 32, z: 1, seq: 3,
+        easy: false,
+        hint: '链条套在前齿盘和后飞轮上，要啮合住',
+        svg: `<ellipse cx="50" cy="16" rx="44" ry="11" fill="none" stroke="#3D2C1E" stroke-width="4" stroke-dasharray="5 4"/>`
+      },
+      {
+        id: 'crank', name: '脚踏', x: 226, y: 238, w: 56, h: 50, z: 2, seq: 3,
+        easy: false,
+        hint: '脚踏接在前齿盘轴上，踩它车才会走',
+        svg: `<circle cx="14" cy="22" r="10" fill="#8A7364" stroke="#3D2C1E" stroke-width="3"/>
+              <path d="M14 22 L42 22" stroke="#3D2C1E" stroke-width="6" stroke-linecap="round"/>
+              <rect x="36" y="14" width="16" height="12" rx="4" fill="#4A3A2E" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'frame', name: '车架', x: 130, y: 140, w: 210, h: 120, z: 2, seq: 1,
+        easy: true,
+        hint: '车架是整车的骨架，所有零件都挂在它上面',
+        svg: `<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 106 L80 12 L110 106 Z M80 12 L180 26 M110 106 L180 26 M180 26 L200 106" stroke="#3D2C1E" stroke-width="13"/>
+                <path d="M20 106 L80 12 L110 106 Z M80 12 L180 26 M110 106 L180 26 M180 26 L200 106" stroke="#FF7A45" stroke-width="7"/>
+              </g>`
+      },
+      {
+        id: 'rearWheelB', name: '后车轮', x: 100, y: 196, w: 100, h: 100, z: 1, seq: 2,
+        easy: true,
+        hint: '后车轮套在车架后叉上',
+        svg: `<circle cx="50" cy="50" r="46" fill="#FFF7EA" stroke="#3D2C1E" stroke-width="5"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#B8B2A7" stroke-width="3"/>
+              <path d="M50 10 L50 90 M10 50 L90 50 M22 22 L78 78 M78 22 L22 78" stroke="#B8B2A7" stroke-width="2"/>
+              <circle cx="50" cy="50" r="8" fill="#8A7364" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'frontWheelB', name: '前车轮', x: 280, y: 196, w: 100, h: 100, z: 1, seq: 2,
+        easy: true,
+        hint: '前车轮装在前叉上，能带着车把转向',
+        svg: `<circle cx="50" cy="50" r="46" fill="#FFF7EA" stroke="#3D2C1E" stroke-width="5"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#B8B2A7" stroke-width="3"/>
+              <path d="M50 10 L50 90 M10 50 L90 50 M22 22 L78 78 M78 22 L22 78" stroke="#B8B2A7" stroke-width="2"/>
+              <circle cx="50" cy="50" r="8" fill="#8A7364" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'fenderR', name: '后挡泥板', x: 92, y: 172, w: 116, h: 46, z: 3, seq: 4,
+        easy: false,
+        hint: '挡泥板罩在车轮上方，挡住甩起来的泥水',
+        svg: `<path d="M6 40 Q8 8 58 8 Q108 8 110 40" fill="none" stroke="#3D2C1E" stroke-width="9" stroke-linecap="round"/>`
+      },
+      {
+        id: 'fenderF', name: '前挡泥板', x: 272, y: 172, w: 116, h: 46, z: 3, seq: 4,
+        easy: false,
+        hint: '前挡泥板装在前轮上方',
+        svg: `<path d="M6 40 Q8 8 58 8 Q108 8 110 40" fill="none" stroke="#3D2C1E" stroke-width="9" stroke-linecap="round"/>`
+      },
+      {
+        id: 'saddle', name: '车座', x: 176, y: 116, w: 62, h: 26, z: 3, seq: 5,
+        easy: true,
+        hint: '车座插在座管顶端，坐上去才舒服',
+        svg: `<path d="M4 18 Q10 4 34 4 Q58 4 58 16 Q58 24 40 24 L10 24 Q4 24 4 18 Z" fill="#4A3A2E" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'handlebar', name: '车把', x: 290, y: 138, w: 90, h: 52, z: 3, seq: 5,
+        easy: true,
+        hint: '车把装在前叉上，用来掌握方向',
+        svg: `<path d="M14 44 Q14 10 50 10 Q82 10 82 30" fill="none" stroke="#3D2C1E" stroke-width="9" stroke-linecap="round"/>
+              <path d="M4 44 L22 44" stroke="#3D2C1E" stroke-width="11" stroke-linecap="round"/>`
+      },
+      {
+        id: 'bell', name: '车铃', x: 336, y: 122, w: 28, h: 28, z: 4, seq: 6,
+        easy: true,
+        hint: '车铃装在车把上，叮铃铃提醒行人',
+        svg: `<circle cx="14" cy="16" r="11" fill="#FFC53D" stroke="#3D2C1E" stroke-width="4"/>
+              <path d="M14 5 L14 1" stroke="#3D2C1E" stroke-width="3" stroke-linecap="round"/>`
+      }
+    ]
+  },
+
+  /* ---------------- 台钻：底座 → 立柱 → 工作台 → 机头 → 电机 → 皮带 → 钻夹头 → 钻头 ---------------- */
+  drill: {
+    id: 'drill',
+    name: '台钻',
+    tag: '机械原理',
+    base: `
+      <ellipse cx="240" cy="316" rx="126" ry="11" fill="rgba(61,44,30,.08)"/>
+    `,
+    parts: [
+      {
+        id: 'drillBase', name: '底座', x: 150, y: 274, w: 180, h: 40, z: 1, seq: 1,
+        easy: true,
+        hint: '底座最重，压在台面上台钻才不会晃',
+        svg: `<path d="M10 34 Q10 8 90 8 Q170 8 170 34 Z" fill="#6B5B4F" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <ellipse cx="90" cy="34" rx="80" ry="6" fill="#8A7364"/>`
+      },
+      {
+        id: 'column', name: '立柱', x: 228, y: 158, w: 24, h: 122, z: 1, seq: 2,
+        easy: true,
+        hint: '立柱插进底座，是整台的脊梁',
+        svg: `<rect x="4" y="4" width="16" height="114" rx="6" fill="#B8B2A7" stroke="#3D2C1E" stroke-width="4"/>
+              <rect x="8" y="10" width="4" height="100" rx="2" fill="#FFF7EA" opacity=".5"/>`
+      },
+      {
+        id: 'drillTable', name: '工作台', x: 196, y: 228, w: 108, h: 22, z: 2, seq: 3,
+        easy: true,
+        hint: '工作台套在立柱上，工件放在这里',
+        svg: `<rect x="2" y="2" width="104" height="18" rx="6" fill="#8A7364" stroke="#3D2C1E" stroke-width="4"/>`
+      },
+      {
+        id: 'drillHead', name: '机头', x: 196, y: 100, w: 100, h: 60, z: 2, seq: 4,
+        easy: true,
+        hint: '机头套在立柱顶端，里面是主轴',
+        svg: `<rect x="2" y="2" width="96" height="56" rx="14" fill="#4D96FF" stroke="#3D2C1E" stroke-width="4"/>
+              <circle cx="28" cy="16" r="7" fill="#FFF7EA" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'motor', name: '电机', x: 288, y: 112, w: 64, h: 46, z: 1, seq: 5,
+        easy: false,
+        hint: '电机挂在机头后面，通过皮带带动主轴',
+        svg: `<rect x="2" y="6" width="56" height="34" rx="12" fill="#8A7364" stroke="#3D2C1E" stroke-width="4"/>
+              <path d="M14 14 L14 32 M24 14 L24 32 M34 14 L34 32" stroke="#6B5B4F" stroke-width="3"/>`
+      },
+      {
+        id: 'belt', name: '皮带', x: 214, y: 104, w: 96, h: 24, z: 3, seq: 6,
+        easy: false,
+        hint: '皮带把电机的动力传给主轴，要张紧',
+        svg: `<path d="M8 4 L88 4 A8 8 0 0 1 88 20 L8 20 A8 8 0 0 1 8 4 Z" fill="none" stroke="#3D2C1E" stroke-width="6"/>
+              <path d="M20 4 L20 20 M44 4 L44 20 M68 4 L68 20" stroke="#3D2C1E" stroke-width="2"/>`
+      },
+      {
+        id: 'chuck', name: '钻夹头', x: 216, y: 158, w: 30, h: 30, z: 3, seq: 7,
+        easy: true,
+        hint: '钻夹头卡住钻头，装的时候要对准主轴',
+        svg: `<circle cx="15" cy="12" r="10" fill="#8A7364" stroke="#3D2C1E" stroke-width="4"/>
+              <path d="M8 20 L22 20" stroke="#3D2C1E" stroke-width="5" stroke-linecap="round"/>`
+      },
+      {
+        id: 'bit', name: '钻头', x: 226, y: 186, w: 12, h: 44, z: 3, seq: 8,
+        easy: true,
+        hint: '钻头最后装进夹头，尖头朝下对准工件',
+        svg: `<path d="M6 2 L6 30 M2 30 L10 30" stroke="#3D2C1E" stroke-width="4" stroke-linecap="round"/>
+              <path d="M6 8 L9 12 M6 16 L9 20 M6 24 L9 28" stroke="#B8B2A7" stroke-width="3"/>`
+      }
+    ]
+  },
+
+  /* ---------------- 雨伞：伞杆 → 伞柄 → 开关 → 伞骨 → 伞面 → 伞顶盖 → 伞尖 ---------------- */
+  umbrella: {
+    id: 'umbrella',
+    name: '雨伞',
+    tag: '结构认知',
+    base: `
+      <ellipse cx="240" cy="322" rx="70" ry="9" fill="rgba(61,44,30,.08)"/>
+    `,
+    parts: [
+      {
+        id: 'shaft', name: '伞杆', x: 232, y: 80, w: 16, h: 194, z: 1, seq: 1,
+        easy: true,
+        hint: '伞杆是雨伞的中轴，一头接伞柄，一头接伞骨',
+        svg: `<path d="M8 4 L8 190" stroke="#3D2C1E" stroke-width="8" stroke-linecap="round"/>
+              <path d="M8 8 L8 186" stroke="#B8B2A7" stroke-width="3" stroke-linecap="round"/>`
+      },
+      {
+        id: 'umbrellaHandle', name: '伞柄', x: 214, y: 258, w: 60, h: 62, z: 1, seq: 2,
+        easy: true,
+        hint: '伞柄接在伞杆下端，弯钩方便挂着',
+        svg: `<path d="M30 4 L30 30 Q30 52 12 52 Q2 52 2 40" fill="none" stroke="#3D2C1E" stroke-width="9" stroke-linecap="round"/>`
+      },
+      {
+        id: 'runner', name: '开关', x: 246, y: 186, w: 28, h: 22, z: 2, seq: 3,
+        easy: false,
+        hint: '伞杆上的开关卡住下巢，按一下就能收伞',
+        svg: `<rect x="2" y="2" width="24" height="18" rx="8" fill="#FF7A45" stroke="#3D2C1E" stroke-width="3"/>`
+      },
+      {
+        id: 'ribs', name: '伞骨', x: 96, y: 92, w: 288, h: 96, z: 2, seq: 4,
+        easy: false,
+        hint: '伞骨从伞杆顶端撑开，撑住整个伞面',
+        svg: `<g stroke="#8A7364" stroke-width="4" stroke-linecap="round">
+                <path d="M144 6 L20 74"/><path d="M144 6 L74 88"/><path d="M144 6 L144 92"/>
+                <path d="M144 6 L214 88"/><path d="M144 6 L268 74"/>
+              </g>`
+      },
+      {
+        id: 'canopy', name: '伞面', x: 88, y: 66, w: 304, h: 112, z: 3, seq: 5,
+        easy: true,
+        hint: '伞面罩在伞骨外面，挡住雨水',
+        svg: `<path d="M4 100 Q14 6 152 6 Q290 6 300 100 Q262 78 224 100 Q186 78 152 100 Q118 78 80 100 Q42 78 4 100 Z" fill="#FF7A45" stroke="#3D2C1E" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M76 92 Q84 44 120 20" stroke="#FFB08A" stroke-width="5" fill="none" stroke-linecap="round"/>`
+      },
+      {
+        id: 'cap', name: '伞顶盖', x: 226, y: 48, w: 28, h: 22, z: 4, seq: 6,
+        easy: true,
+        hint: '伞顶盖扣在伞杆顶端，把伞骨固定住',
+        svg: `<path d="M4 18 Q4 2 14 2 Q24 2 24 18 Z" fill="#FFC53D" stroke="#3D2C1E" stroke-width="3" stroke-linejoin="round"/>`
+      },
+      {
+        id: 'tip', name: '伞尖', x: 233, y: 26, w: 14, h: 26, z: 4, seq: 7,
+        easy: true,
+        hint: '伞尖在最顶上，收伞时朝下就能插住',
+        svg: `<path d="M7 24 L7 4" stroke="#3D2C1E" stroke-width="5" stroke-linecap="round"/>`
+      }
+    ]
+  }
+};
+
+/* 玩具分级：1 简单 / 2 中度 / 3 困难 */
+const TOY_LEVEL = {
+  car: 1, lamp: 1, flashlight: 1, pencilCase: 1,
+  abacus: 2, clock: 2, robot: 2, fan: 2, kettle: 2,
+  bike: 3, drill: 3, umbrella: 3
+};
+
+const TOY_ORDER = [
+  'car', 'lamp', 'flashlight', 'pencilCase',
+  'abacus', 'clock', 'robot', 'fan', 'kettle',
+  'bike', 'drill', 'umbrella'
+];
+
+/* 组装态完整预览（大厅卡片 / 完成弹窗共用） */
+function assembledPreview(toy, viewBox) {
+  const parts = toy.parts
+    .slice()
+    .sort((a, b) => (a.z || 2) - (b.z || 2))
+    .map(p => `<g transform="translate(${p.x} ${p.y})">${p.svg}</g>`)
+    .join('');
+  return `<svg viewBox="${viewBox || '0 0 480 360'}" xmlns="http://www.w3.org/2000/svg">${toy.base}${parts}</svg>`;
+}
+
+</script>
+<script>
+/* ============================================================
+ * api.js — 存档服务 stub（本地 localStorage 实现，形态即未来真实 API）
+ * ============================================================ */
+
+const delay = ms => new Promise(r => setTimeout(r, ms));
+const PROGRESS_KEY = 'ttw_progress_v1';
+
+function readLocal() {
+  try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)) || {}; }
+  catch (e) { return {}; }
+}
+
+/**
+ * GET /api/v1/progress
+ * → { code, data: { [toyId]: { easy: {stars, plays}, hard: {stars, plays} } } }
+ */
+async function apiLoadProgress() {
+  await delay(60);
+  // TODO: replace with fetch('/api/v1/progress')
+  return { code: 0, data: readLocal() };
+}
+
+/**
+ * POST /api/v1/progress  body: { toyId, mode, stars, score }
+ * → { code, data }  规则：保留历史最高星级与最高分，累计完成次数
+ */
+async function apiSaveProgress(toyId, mode, stars, score = 0) {
+  await delay(60);
+  // TODO: replace with fetch('/api/v1/progress', { method: 'POST', body: JSON.stringify({ toyId, mode, stars, score }) })
+  const db = readLocal();
+  db[toyId] = db[toyId] || {};
+  const cur = db[toyId][mode] || { stars: 0, plays: 0, bestScore: 0 };
+  db[toyId][mode] = {
+    stars: Math.max(cur.stars || 0, stars),
+    plays: (cur.plays || 0) + 1,
+    bestScore: Math.max(cur.bestScore || 0, score)
+  };
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(db));
+  return { code: 0, data: db };
+}
+
+</script>
+<script>
+
+function showScreen(name) {
+  document.querySelector('#homeScreen').hidden = name !== 'home';
+  document.querySelector('#gameScreen').hidden = name !== 'game';
+  window.scrollTo(0, 0);
+}
+
+document.addEventListener('click', e => {
+  const a = e.target.closest('a');
+  if (!a) return;
+  const href = a.getAttribute('href') || '';
+  if (href === 'index.html') {
+    e.preventDefault();
+    exitGame();
+  } else if (href.indexOf('game.html') === 0) {
+    e.preventDefault();
+    const u = new URL(href, location.href);
+    startGame(u.searchParams.get('toy'), u.searchParams.get('mode'));
+  }
+});
+
+</script>
+<script>
+;(function () {
+/* ============================================================
+ * app.js — 大厅页逻辑：难度切换、玩具卡片渲染、家长弹窗
+ * 数据来源：data.js (TOYS) / api.js (apiLoadProgress)
+ * ============================================================ */
+
+const MODE_KEY = 'ttw_mode';
+const MODE_DESC = {
+  easy: '简单级：零件少、吸附宽松、有提示，先把「从外到内拆、从内到外装」走熟',
+  mid: '中等级：零件全开，顺序和配合都更严格，吸附范围收紧，适合已经上手的孩子',
+  hard: '困难级：大件与精密件，零件最多、吸附最准、没有提示，并限时计分'
+};
+const LEVEL_OF = { easy: 1, mid: 2, hard: 3 };
+
+const ICON_STAR = '<svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+const ICON_PLAY = '<svg class="icon" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
+
+let mode = LEVEL_OF[localStorage.getItem(MODE_KEY)] ? localStorage.getItem(MODE_KEY) : 'easy';
+let progress = {};
+
+/* 每个玩具在当前难度下的可玩零件数 */
+function partCount(toy) {
+  return toy.parts.filter(p => mode !== 'easy' || p.easy).length;
+}
+
+function starIcons(n) {
+  let html = '';
+  for (let i = 1; i <= 3; i++) {
+    html += ICON_STAR.replace('class="icon"', `class="icon ${i <= n ? 'on' : 'off'}"`);
+  }
+  return html;
+}
+
+function renderGrid() {
+  const grid = document.querySelector('#toyGrid');
+  const level = LEVEL_OF[mode];
+  grid.innerHTML = TOY_ORDER.filter(id => TOY_LEVEL[id] === level).map((id, i) => {
+    const toy = TOYS[id];
+    const rec = (progress[id] || {})[mode];
+    const best = rec && rec.bestScore ? `最高 ${rec.bestScore} 分` : '';
+    return `
+      <a class="toy-card reveal" style="--d:${0.12 + i * 0.07}s" href="game.html?toy=${id}&mode=${mode}">
+        <span class="toy-play" aria-hidden="true">${ICON_PLAY}</span>
+        <div class="toy-preview">${assembledPreview(toy)}</div>
+        <div class="toy-info">
+          <h3>${toy.name}</h3>
+          <p class="toy-meta"><span class="tag">${toy.tag}</span><span>${partCount(toy)} 个零件</span></p>
+          <div class="toy-stars" aria-label="已获得 ${rec ? rec.stars : 0} 星">${starIcons(rec ? rec.stars : 0)}</div>
+          ${best ? `<p class="toy-best">${best}</p>` : ''}
+        </div>
+      </a>`;
+  }).join('');
+}
+
+function renderModeSwitch() {
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+  document.querySelector('#modeDesc').textContent = MODE_DESC[mode];
+}
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    mode = btn.dataset.mode;
+    localStorage.setItem(MODE_KEY, mode);
+    renderMode();
+  });
+});
+
+function renderMode() {
+  renderModeSwitch();
+  renderGrid();
+}
+
+/* 家长须知弹窗 */
+const parentModal = document.querySelector('#parentModal');
+document.querySelector('#parentBtn').addEventListener('click', () => parentModal.classList.add('show'));
+document.querySelector('#parentClose').addEventListener('click', () => parentModal.classList.remove('show'));
+parentModal.addEventListener('click', e => { if (e.target === parentModal) parentModal.classList.remove('show'); });
+
+/* 初始化：读存档 → 渲染 */
+async function refreshLobby() {
+  const res = await apiLoadProgress();
+  progress = res.data;
+  renderMode();
+}
+window.refreshLobby = refreshLobby;
+refreshLobby();
+
+})();
+</script>
+<script>
+;(function () {
+/* ============================================================
+ * game.js — 拆装游戏引擎
+ * 阶段：dis（拆解：点按拆下）→ assemble（组装：拖放吸附）→ done（庆祝评星）
+ * 数据：data.js (TOYS) / 存档：api.js (apiSaveProgress)
+ * ============================================================ */
+
+const q = (s, r = document) => r.querySelector(s);
+const qa = (s, r = document) => [...r.querySelectorAll(s)];
+
+let toyId = 'car';
+let mode = 'easy';
+let toy = TOYS.car;
+
+const SCENE_W = 480, SCENE_H = 360;
+/* 吸附半径随难度收紧：简单宽容、困难要求对得更准 */
+let SNAP_R = 66;
+
+const ICON_VOLUME = '<svg class="icon" viewBox="0 0 24 24"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg>';
+const ICON_VOLUME_X = '<svg class="icon" viewBox="0 0 24 24"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/></svg>';
+const ICON_STAR = '<svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+
+const PRAISES = ['好样的！', '真棒！', '小手真巧！', '太厉害了！', '咔哒，装好啦！'];
+
+const S = {
+  phase: 'dis',
+  sound: localStorage.getItem('ttw_sound') !== 'off',
+  mistakes: 0,
+  startAt: Date.now(),
+  drag: null,
+  idleTimer: null,
+  beadCount: 0,
+  limit: 0,        // 限时总秒数（仅顺序挑战）
+  remaining: 0,
+  timerId: null,
+  score: 0
+};
+
+/* 参与本局的零件：简单只玩 easy 件（staticInEasy 件预装展示）；中度/困难全部零件 */
+let partsInScene = [];
+let playable = [];
+
+/* ---------- DOM ---------- */
+const stage = q('#stage');
+const partLayer = q('#partLayer');
+const ghostLayer = q('#ghostLayer');
+const baseLayer = q('#baseLayer');
+const tray = q('#tray');
+const bubble = q('#bubble');
+const phasePill = q('#phasePill');
+const progressPill = q('#progressPill');
+const timerPill = q('#timerPill');
+
+function say(text) { bubble.textContent = text; }
+
+function setPos(el, x, y) {
+  el.style.left = (x / SCENE_W * 100) + '%';
+  el.style.top = (y / SCENE_H * 100) + '%';
+}
+
+function toScene(e) {
+  const rect = stage.getBoundingClientRect();
+  return {
+    x: (e.clientX - rect.left) / rect.width * SCENE_W,
+    y: (e.clientY - rect.top) / rect.height * SCENE_H
+  };
+}
+
+/* ---------- 音效（WebAudio 合成，无外部资源） ---------- */
+let AC = null;
+function ensureAudio() {
+  if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { } }
+}
+function tone(freq, dur, type = 'triangle', gain = 0.14, slideTo, when = 0) {
+  if (!S.sound) return;
+  ensureAudio();
+  if (!AC) return;
+  const t0 = AC.currentTime + when;
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(freq, t0);
+  if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+  g.gain.setValueAtTime(gain, t0);
+  g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+  o.connect(g); g.connect(AC.destination);
+  o.start(t0); o.stop(t0 + dur);
+}
+const soundPop = () => tone(500, .09, 'square', .1, 900);
+const soundSnap = () => { tone(440, .08); tone(660, .12, 'triangle', .14, null, .07); };
+const soundError = () => tone(220, .18, 'sawtooth', .08, 140);
+const soundWin = () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .18, 'triangle', .14, null, i * .13));
+
+/* ---------- 初始化场景 ---------- */
+function init() {
+  q('#toyName').textContent = toy.name;
+  baseLayer.innerHTML = toy.base;
+
+  // 虚线轮廓（仅可玩零件）
+  ghostLayer.innerHTML = playable
+    .map(p => `<g class="ghost" data-id="${p.id}" transform="translate(${p.x} ${p.y})">${p.svg}</g>`)
+    .join('');
+
+  // 零件（初始全部安装在场景里）
+  partsInScene.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'part' + (p.isBead ? ' bead' : '');
+    el.dataset.id = p.id;
+    el.style.width = (p.w / SCENE_W * 100) + '%';
+    el.style.aspectRatio = p.w + ' / ' + p.h;
+    el.style.zIndex = p.z || 2;
+    el.innerHTML = `<svg viewBox="0 0 ${p.w} ${p.h}">${p.svg}</svg>`;
+    setPos(el, p.x, p.y);
+    p.el = el;
+    p.installed = true;
+    p.isStatic = !playable.includes(p);
+    if (p.isStatic) el.classList.add('static');
+
+    el.addEventListener('click', () => {
+      if (S.phase === 'dis' && !p.isStatic && p.installed) tryRemove(p);
+    });
+    el.addEventListener('pointerdown', e => {
+      if (S.phase === 'assemble' && !p.installed) startDrag(e, p);
+    });
+    partLayer.appendChild(el);
+  });
+
+  document.body.classList.add('phase-dis');
+  phasePill.textContent = '第一步 · 拆一拆';
+  updateProgress();
+  say('按顺序拆：先拆最外面的零件哦！');
+  resetIdle();
+}
+
+/* ---------- 拆装顺序判定 ----------
+ * seq 小 = 组装时先装 / 拆解时后拆
+ * seq 大 = 组装时后装 / 拆解时先拆
+ */
+const seqOf = p => p.seq || 0;
+
+function canRemove(p) {
+  return !playable.some(o => o.installed && o !== p && seqOf(o) > seqOf(p));
+}
+
+/* 阻碍拆解的零件：还裝着的、seq 更大的那一批里最靠后的 */
+function removeBlocker(p) {
+  return playable
+    .filter(o => o.installed && o !== p && seqOf(o) > seqOf(p))
+    .sort((a, b) => seqOf(b) - seqOf(a))[0];
+}
+
+function canInstall(p) {
+  return !playable.some(o => !o.installed && o !== p && seqOf(o) < seqOf(p));
+}
+
+/* 阻碍组装的零件：还没装的、seq 更小的那一批里最靠前的 */
+function installBlocker(p) {
+  return playable
+    .filter(o => !o.installed && o !== p && seqOf(o) < seqOf(p))
+    .sort((a, b) => seqOf(a) - seqOf(b))[0];
+}
+
+/* 当前应该操作的零件（用于提示） */
+function nextToRemove() {
+  return playable
+    .filter(o => o.installed && canRemove(o))
+    .sort((a, b) => seqOf(b) - seqOf(a))[0];
+}
+function nextToInstall() {
+  return playable
+    .filter(o => !o.installed && canInstall(o))
+    .sort((a, b) => seqOf(a) - seqOf(b))[0];
+}
+
+function tryRemove(p) {
+  ensureAudio();
+  const blocker = removeBlocker(p);
+  if (blocker) {
+    S.mistakes++;
+    say(`先拆下【${blocker.name}】哦`);
+    p.el.classList.add('shake');
+    setTimeout(() => p.el.classList.remove('shake'), 420);
+    soundError();
+    resetIdle();
+    return;
+  }
+  p.installed = false;
+  soundPop();
+  p.el.classList.add('lifting');
+  setTimeout(() => {
+    p.el.classList.remove('lifting');
+    flyToTray(p.el);
+  }, 240);
+  updateProgress();
+  resetIdle();
+
+  if (playable.every(o => !o.installed)) {
+    setTimeout(startAssemble, 800);
+  }
+}
+
+/* 零件飞入零件架（FLIP 动画） */
+function flyToTray(el) {
+  const r1 = el.getBoundingClientRect();
+  el.classList.add('in-tray');
+  el.style.left = ''; el.style.top = ''; el.style.width = ''; el.style.aspectRatio = '';
+  tray.appendChild(el);
+  const r2 = el.getBoundingClientRect();
+  const scale = r2.width ? r1.width / r2.width : 1;
+  el.style.transform = `translate(${r1.left - r2.left}px, ${r1.top - r2.top}px) scale(${scale})`;
+  requestAnimationFrame(() => {
+    el.style.transition = 'transform .45s cubic-bezier(.34,1.56,.64,1)';
+    el.style.transform = '';
+    setTimeout(() => { el.style.transition = ''; }, 480);
+  });
+}
+
+/* ---------- 阶段切换 ---------- */
+function startAssemble() {
+  S.phase = 'assemble';
+  document.body.classList.remove('phase-dis');
+  document.body.classList.add('phase-assemble');
+  phasePill.textContent = '第二步 · 装一装';
+  phasePill.classList.add('assemble');
+  q('#trayLabel').textContent = '零件架 · 拖到虚线轮廓上';
+  banner('现在把它装回去吧！');
+  updateProgress();
+  resetIdle();
+  const next = nextToInstall();
+  if (next) say(next.hint);
+}
+
+/* ---------- 阶段二：组装（拖放） ---------- */
+function startDrag(e, p) {
+  e.preventDefault();
+  ensureAudio();
+  const el = p.el;
+  el.classList.remove('in-tray');
+  el.style.width = (p.w / SCENE_W * 100) + '%';
+  el.style.aspectRatio = p.w + ' / ' + p.h;
+  partLayer.appendChild(el);
+  S.drag = { p, pos: null };
+  el.classList.add('dragging');
+  moveDrag(e);
+  window.addEventListener('pointermove', moveDrag);
+  window.addEventListener('pointerup', endDrag, { once: true });
+  resetIdle();
+}
+
+function moveDrag(e) {
+  if (!S.drag) return;
+  const { p } = S.drag;
+  const pos = toScene(e);
+  S.drag.pos = pos;
+  setPos(p.el, pos.x - p.w / 2, pos.y - p.h / 2);
+}
+
+function endDrag() {
+  if (!S.drag) return;
+  const { p, pos } = S.drag;
+  S.drag = null;
+  p.el.classList.remove('dragging');
+  window.removeEventListener('pointermove', moveDrag);
+
+  const slotCenter = { x: p.x + p.w / 2, y: p.y + p.h / 2 };
+  const d = pos ? Math.hypot(pos.x - slotCenter.x, pos.y - slotCenter.y) : Infinity;
+
+  if (d < SNAP_R) { trySnap(p); return; }
+
+  // 靠近了别的零件的轮廓 → 放错位置的正向引导
+  const wrong = playable.find(o => !o.installed && o !== p && pos &&
+    Math.hypot(pos.x - (o.x + o.w / 2), pos.y - (o.y + o.h / 2)) < SNAP_R * 0.9);
+  if (wrong) {
+    S.mistakes++;
+    say('这里不对哦，看看它像哪个轮廓？');
+    soundError();
+  }
+  flyToTray(p.el);
+  resetIdle();
+}
+
+function trySnap(p) {
+  const blocker = installBlocker(p);
+  if (blocker) {
+    S.mistakes++;
+    say(`先装上【${blocker.name}】哦`);
+    p.el.classList.add('shake');
+    setTimeout(() => p.el.classList.remove('shake'), 420);
+    soundError();
+    flyToTray(p.el);
+    resetIdle();
+    return;
+  }
+
+  p.installed = true;
+  setPos(p.el, p.x, p.y);
+  p.el.classList.add('installed', 'snap-pop');
+  setTimeout(() => p.el.classList.remove('snap-pop'), 400);
+  soundSnap();
+  spawnSparkles(p.x + p.w / 2, p.y + p.h / 2);
+
+  // 算珠数数（数感启蒙）
+  if (p.isBead) {
+    S.beadCount++;
+    say(`第 ${S.beadCount} 颗算珠！`);
+  } else {
+    say(PRAISES[Math.floor(Math.random() * PRAISES.length)]);
+  }
+
+  updateProgress();
+  resetIdle();
+
+  if (playable.every(o => o.installed)) {
+    setTimeout(finish, 500);
+  }
+}
+
+/* ---------- 完成 ---------- */
+function finish() {
+  S.phase = 'done';
+  stopTimer();
+  stage.classList.add('celebrating');
+  banner('完成啦！');
+  soundWin();
+  confetti(90);
+
+  const stars = S.mistakes <= 1 ? 3 : S.mistakes <= 3 ? 2 : 1;
+  // 计分：基础分 + 剩余时间奖励 - 误操作扣分（仅顺序挑战计入）
+  S.score = mode === 'hard'
+    ? Math.max(50, 300 + S.remaining * 10 - S.mistakes * 60)
+    : 0;
+  apiSaveProgress(toyId, mode, stars, S.score);
+  setTimeout(() => showDone(stars), 1600);
+}
+
+function showDone(stars) {
+  const secs = Math.round((Date.now() - S.startAt) / 1000);
+  const praises = { 3: '完美！几乎没有出错', 2: '很棒！再试一次冲满星', 1: '完成啦！继续加油' };
+  q('#doneTitle').textContent = `${toy.name}装好了！`;
+  q('#doneStars').innerHTML = [1, 2, 3].map(i =>
+    ICON_STAR.replace('class="icon"', `class="icon ${i <= stars ? 'on' : 'off'}"`)
+  ).join('');
+  q('#doneSub').textContent = `${praises[stars]} · 用时 ${secs} 秒`;
+
+  const scoreEl = q('#doneScore');
+  if (mode === 'hard') {
+    scoreEl.hidden = false;
+    scoreEl.textContent = `本局得分 ${S.score} · 误操作 ${S.mistakes} 次`;
+  } else {
+    scoreEl.hidden = true;
+  }
+
+  q('#donePreview').innerHTML = assembledPreview(toy, '60 30 360 300');
+
+  /* 下一关：同一难度等级内轮转，不跳到别的等级去 */
+  const levelOf = id => (typeof TOY_LEVEL !== 'undefined' ? TOY_LEVEL[id] : 1);
+  const sameLevel = TOY_ORDER.filter(id => levelOf(id) === levelOf(toyId));
+  const idx = sameLevel.indexOf(toyId);
+  const next = sameLevel[(idx + 1) % sameLevel.length];
+  q('#nextBtn').href = `game.html?toy=${next}&mode=${mode}`;
+  q('#doneModal').classList.add('show');
+}
+
+/* ---------- 限时（顺序挑战） ---------- */
+function startTimer() {
+  if (mode !== 'hard') { timerPill.hidden = true; return; }
+  S.limit = 25 + playable.length * 12;
+  S.remaining = S.limit;
+  timerPill.hidden = false;
+  renderTimer();
+  S.timerId = setInterval(() => {
+    S.remaining--;
+    renderTimer();
+    if (S.remaining <= 0) timeUp();
+  }, 1000);
+}
+
+function renderTimer() {
+  const m = String(Math.floor(S.remaining / 60)).padStart(2, '0');
+  const s = String(S.remaining % 60).padStart(2, '0');
+  timerPill.textContent = `${m}:${s}`;
+  timerPill.classList.toggle('urgent', S.remaining <= 15);
+}
+
+function stopTimer() {
+  clearInterval(S.timerId);
+  S.timerId = null;
+}
+
+function timeUp() {
+  if (S.phase === 'done') return;
+  S.phase = 'done';
+  stopTimer();
+  stopIdle();
+  soundError();
+  timerPill.textContent = '00:00';
+  q('#timeoutModal').classList.add('show');
+}
+
+/* ---------- 拆解步骤预览 ---------- */
+function openSteps() {
+  const list = q('#stepsList');
+  const ordered = playable.slice().sort((a, b) => seqOf(b) - seqOf(a));
+  list.innerHTML = ordered.map((p, i) => `
+    <li class="${p.installed ? '' : 'done'}">
+      <span class="step-num">${i + 1}</span>
+      <span class="step-thumb"><svg viewBox="0 0 ${p.w} ${p.h}">${p.svg}</svg></span>
+      <span class="step-name">${p.name}</span>
+      <span class="step-tag">${p.installed ? '待拆' : '已拆'}</span>
+    </li>`).join('');
+  q('#stepsNote').textContent = '按编号顺序拆，装回去时倒着来';
+  q('#stepsModal').classList.add('show');
+}
+
+/* ---------- 反馈小件 ---------- */
+function banner(text) {
+  const b = q('#phaseBanner');
+  b.textContent = text;
+  b.classList.remove('show');
+  void b.offsetWidth; // 重新触发动画
+  b.classList.add('show');
+}
+
+function spawnSparkles(cx, cy) {
+  for (let i = 0; i < 3; i++) {
+    const s = document.createElement('i');
+    s.className = 'sparkle';
+    s.style.left = (cx / SCENE_W * 100) + '%';
+    s.style.top = (cy / SCENE_H * 100) + '%';
+    const ang = Math.random() * Math.PI * 2;
+    s.style.setProperty('--sx', Math.cos(ang) * 30 + 'px');
+    s.style.setProperty('--sy', Math.sin(ang) * 30 - 14 + 'px');
+    stage.appendChild(s);
+    setTimeout(() => s.remove(), 750);
+  }
+}
+
+function confetti(n) {
+  const box = q('#confetti');
+  const colors = ['#FF7A45', '#2EC4B6', '#FFC53D', '#FF5A5A', '#4D96FF'];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('i');
+    const size = 8 + Math.random() * 8;
+    c.style.left = Math.random() * 100 + '%';
+    c.style.width = size + 'px';
+    c.style.height = (Math.random() > .5 ? size : size * .45) + 'px';
+    c.style.background = colors[i % colors.length];
+    if (Math.random() > .6) c.style.borderRadius = '50%';
+    c.style.animationDelay = (Math.random() * .5) + 's';
+    c.style.animationDuration = (1.7 + Math.random() * 1.2) + 's';
+    box.appendChild(c);
+  }
+  setTimeout(() => { box.innerHTML = ''; }, 3400);
+}
+
+/* ---------- 进度与提示 ---------- */
+function updateProgress() {
+  const total = playable.length;
+  const done = S.phase === 'dis'
+    ? playable.filter(o => !o.installed).length
+    : playable.filter(o => o.installed).length;
+  progressPill.textContent = `${done}/${total}`;
+}
+
+/* 5 秒无操作 → 脉冲提示下一步 */
+function resetIdle() {
+  clearTimeout(S.idleTimer);
+  if (mode === 'hard') return;   // 困难模式不给操作提示
+  S.idleTimer = setTimeout(suggest, 5000);
+}
+function stopIdle() {
+  clearTimeout(S.idleTimer);
+  S.idleTimer = null;
+}
+
+function suggest() {
+  if (S.phase === 'dis') {
+    const t = nextToRemove();
+    if (t) {
+      t.el.classList.add('suggest');
+      setTimeout(() => t.el.classList.remove('suggest'), 1900);
+      say(`试试拆下【${t.name}】`);
+    }
+  } else if (S.phase === 'assemble') {
+    const t = nextToInstall();
+    if (t) {
+      const g = ghostLayer.querySelector(`g.ghost[data-id="${t.id}"]`);
+      if (g) {
+        g.classList.add('pulse');
+        setTimeout(() => g.classList.remove('pulse'), 2300);
+      }
+      t.el.classList.add('suggest');
+      setTimeout(() => t.el.classList.remove('suggest'), 1900);
+      say(t.hint);
+    }
+  }
+  resetIdle();
+}
+
+/* ---------- 顶栏事件 ---------- */
+const soundBtn = q('#soundBtn');
+function renderSound() { soundBtn.innerHTML = S.sound ? ICON_VOLUME : ICON_VOLUME_X; }
+soundBtn.addEventListener('click', () => {
+  S.sound = !S.sound;
+  localStorage.setItem('ttw_sound', S.sound ? 'on' : 'off');
+  renderSound();
+  if (S.sound) soundPop();
+});
+renderSound();
+
+q('#retryBtn').addEventListener('click', () => startGame(toyId, mode));
+q('#timeoutRetryBtn').addEventListener('click', () => startGame(toyId, mode));
+
+/* 拆解步骤预览弹窗 */
+const stepsModal = q('#stepsModal');
+q('#stepsBtn').addEventListener('click', openSteps);
+q('#stepsClose').addEventListener('click', () => stepsModal.classList.remove('show'));
+stepsModal.addEventListener('click', e => { if (e.target === stepsModal) stepsModal.classList.remove('show'); });
+
+/* ---------- 单文件版：开局 / 退出 ---------- */
+function startGame(id, m) {
+  toyId = TOYS[id] ? id : 'car';
+  mode = ['easy', 'mid', 'hard'].includes(m) ? m : 'easy';
+  toy = TOYS[toyId];
+  SNAP_R = mode === 'easy' ? 66 : mode === 'mid' ? 48 : 34;
+  partsInScene = toy.parts.filter(p => mode !== 'easy' || p.easy || p.staticInEasy);
+  playable = partsInScene.filter(p => mode !== 'easy' || p.easy);
+
+  stopTimer(); stopIdle();
+  S.phase = 'dis'; S.mistakes = 0; S.startAt = Date.now();
+  S.drag = null; S.beadCount = 0; S.score = 0;
+  partLayer.innerHTML = ''; tray.innerHTML = ''; ghostLayer.innerHTML = '';
+  stage.classList.remove('celebrating');
+  phasePill.classList.remove('assemble');
+  q('#trayLabel').textContent = '零件架';
+  q('#doneModal').classList.remove('show');
+  q('#timeoutModal').classList.remove('show');
+  q('#stepsModal').classList.remove('show');
+  document.body.classList.remove('phase-assemble');
+
+  showScreen('game');
+  init();
+  startTimer();
+}
+
+function exitGame() {
+  stopTimer(); stopIdle();
+  S.drag = null;
+  q('#doneModal').classList.remove('show');
+  q('#timeoutModal').classList.remove('show');
+  q('#stepsModal').classList.remove('show');
+  document.body.classList.remove('phase-dis', 'phase-assemble');
+  showScreen('home');
+  if (window.refreshLobby) window.refreshLobby();
+}
+
+window.startGame = startGame;
+window.exitGame = exitGame;
+
+})();
+</script>
+</body>
+</html>

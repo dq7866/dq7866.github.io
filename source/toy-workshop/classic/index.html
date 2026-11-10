@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>巧手拆装工坊 · 儿童拆装益智游戏</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="home">
+
+<div class="page">
+
+  <header class="hero reveal" style="--d:0s">
+    <div class="logo-badge" aria-hidden="true">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+    </div>
+    <div>
+      <h1>巧手拆装工坊</h1>
+      <p class="slogan">拆一拆，装一装，越玩越聪明</p>
+    </div>
+    <button class="icon-btn parent-btn" id="parentBtn" aria-label="玩法说明">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+    </button>
+  </header>
+
+  <section class="mode-bar reveal" style="--d:.08s">
+    <div class="mode-switch" role="tablist" aria-label="难度选择">
+      <button class="mode-btn active" data-mode="easy" role="tab">简单 <span>少零件 · 有提示</span></button>
+      <button class="mode-btn" data-mode="mid" role="tab">中度 <span>全零件 · 顺序严</span></button>
+      <button class="mode-btn" data-mode="hard" role="tab">困难 <span>精密件 · 限时计分</span></button>
+    </div>
+    <p class="mode-desc" id="modeDesc">简单级：零件少、吸附宽松、有提示，先把「从外到内拆、从内到外装」走熟</p>
+  </section>
+
+  <main class="toy-grid" id="toyGrid"></main>
+
+  <footer class="foot reveal" style="--d:.3s">无广告 · 无内购 · 进度仅保存在本机 · <a href="../index.html">切换 3D 版 →</a></footer>
+
+</div>
+
+<!-- 玩法说明弹窗 -->
+<div class="modal-mask" id="parentModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="parentTitle">
+    <div class="modal-head">
+      <h2 id="parentTitle">玩法说明</h2>
+      <button class="modal-close" id="parentClose" aria-label="关闭">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="guide-block">
+      <h3><svg class="icon" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>怎么玩</h3>
+      <ul>
+        <li>第一步「拆一拆」：点按零件把它拆下来，放进零件架</li>
+        <li>第二步「装一装」：把零件拖回发光轮廓，靠近自动吸附</li>
+        <li>难度分三级：简单（零件少、有提示）、中度（零件全开、顺序更严）、困难（精密件多、吸附最准、无提示并限时计分）</li>
+        <li>困难级的玩具如自行车、台钻、雨伞，零件之间有啮合与配合关系，大人也可以挑战</li>
+      </ul>
+    </div>
+
+    <div class="guide-block">
+      <h3><svg class="icon" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2 1 3.5 2 4.5V17a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-3.5c1-1 2-2.5 2-4.5a7 7 0 0 0-7-7z"/><path d="M9 22h6"/></svg>能练到什么</h3>
+      <ul>
+        <li>空间思维：把零件与轮廓做形状、方位匹配</li>
+        <li>精细动作：点按、拖放、对准，锻炼手眼协调</li>
+        <li>顺序逻辑：先拆什么后装什么，因果有讲究</li>
+        <li>数感启蒙：装算珠时同步数数，建立数量概念</li>
+      </ul>
+    </div>
+
+    <div class="guide-block">
+      <h3><svg class="icon" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>小贴士</h3>
+      <p>所有玩具都遵循同一条规则：拆解要「从外到内」，组装反过来「从内到外」。例如算盘：拆时先取外框，再拆横梁、档杆，最后才是算珠。让孩子先说出判断再动手，比直接告诉答案更有效。</p>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="api.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
