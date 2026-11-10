@@ -43,12 +43,28 @@ export function mat(c, o = {}) {
 
 const gcache = new Map();
 function geom(pr) {
-  const k = JSON.stringify([pr.t, pr.s, pr.rt, pr.rb, pr.h, pr.rad, pr.tube, pr.arc, pr.seg, pr.a, pr.b, pr.d, pr.pts, pr.holes, pr.len, pr.turns]);
+  const k = JSON.stringify([pr.t, pr.s, pr.rt, pr.rb, pr.h, pr.rad, pr.tube, pr.arc, pr.seg, pr.a, pr.b, pr.d, pr.pts, pr.holes, pr.len, pr.turns, pr.bore]);
   let g = gcache.get(k);
   if (g) return g;
   switch (pr.t) {
     case 'b': g = new THREE.BoxGeometry(pr.s[0], pr.s[1], pr.s[2]); break;
-    case 'c': g = new THREE.CylinderGeometry(pr.rt, pr.rb ?? pr.rt, pr.h, pr.seg || 24); break;
+    /* 圆柱：pr.bore>0 时用 Lathe 旋成「带轴孔的套筒」，真正挖空，供轴瓦/衬套使用 */
+    case 'c': {
+      const bore = pr.bore || 0, seg = pr.seg || 24;
+      if (bore > 0 && bore < Math.min(pr.rt, pr.rb ?? pr.rt)) {
+        const half = pr.h / 2, rb = pr.rb ?? pr.rt;
+        g = new THREE.LatheGeometry([
+          new THREE.Vector2(bore, -half),
+          new THREE.Vector2(rb, -half),
+          new THREE.Vector2(pr.rt, half),
+          new THREE.Vector2(bore, half),
+          new THREE.Vector2(bore, -half)
+        ], seg);
+      } else {
+        g = new THREE.CylinderGeometry(pr.rt, pr.rb ?? pr.rt, pr.h, seg);
+      }
+      break;
+    }
     case 'k': g = new THREE.ConeGeometry(pr.rad, pr.h, pr.seg || 22); break;
     case 's': g = new THREE.SphereGeometry(pr.rad, pr.seg || 22, (pr.seg || 22) / 2); break;
     case 'o': g = new THREE.TorusGeometry(pr.rad, pr.tube, pr.seg2 || 10, pr.seg || 36, pr.arc ?? Math.PI * 2); break;
@@ -89,7 +105,7 @@ function geom(pr) {
 /* ---------- 单个图元 → Mesh ---------- */
 const UP = new THREE.Vector3(0, 1, 0);
 function meshOf(pr) {
-  const m = new THREE.Mesh(geom(pr), mat(pr.c, pr));
+  const m = new THREE.Mesh(geom(pr), mat(pr.c, pr.bore ? Object.assign({}, pr, { dbl: true }) : pr));
   if (pr.t === 'd') {
     const a = new THREE.Vector3(...pr.a), b = new THREE.Vector3(...pr.b);
     const dir = b.clone().sub(a);

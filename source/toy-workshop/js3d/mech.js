@@ -398,6 +398,8 @@ function setMode(m) {
 $('#modeBtn').addEventListener('click', () => setMode(mode === 'teach' ? 'observe' : 'teach'));
 /* 舞台上的一键拆装入口（观察模式才显示，见 style3d.css 的 body.teach 规则） */
 $('#ctaTeach')?.addEventListener('click', () => { if (mode !== 'teach') setMode('teach'); });
+/* 从清单页的「拆装练习」按钮直接进来：跳过观察，直接进拆装 */
+if (q.get('mode') === 'teach') setMode('teach');
 
 /* ---------------- 播放控制 ---------------- */
 function setPlaying(v) {

@@ -1000,6 +1000,15 @@ body.phase-asm .chip:hover { border-color: #F0C79A; }
 .m-group-desc { margin: 4px 0 14px; font-size: 12px; color: var(--ink2); }
 .mech-grid { grid-template-columns: repeat(auto-fill, minmax(228px, 1fr)); gap: 16px; }
 .mech-card .info .sub { margin: 8px 0 0; font-size: 12px; color: var(--ink2); }
+/* 清单页的拆装入口：卡片底部一条实心按钮，点进去直接进拆装模式 */
+.card-hit { display: block; text-decoration: none; color: inherit; }
+.card-act {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  margin: 0 12px 12px; min-height: 36px; border-radius: 13px;
+  background: var(--orange); color: #fff; text-decoration: none;
+  font-size: 12.5px; font-weight: 700; box-shadow: 0 4px 12px rgba(255, 122, 69, .28);
+}
+.card-act:active { transform: translateY(1px); }
 
 .card .badge.seen { color: #2E7D79; background: #E6F6F3; border-color: #B9E3DD; }
 .card .badge.done { color: #8A5A2B; background: #FFF0D2; border-color: #EBC98D; }
@@ -2691,12 +2700,28 @@ function mat(c, o = {}) {
 
 const gcache = new Map();
 function geom(pr) {
-  const k = JSON.stringify([pr.t, pr.s, pr.rt, pr.rb, pr.h, pr.rad, pr.tube, pr.arc, pr.seg, pr.a, pr.b, pr.d, pr.pts, pr.holes, pr.len, pr.turns]);
+  const k = JSON.stringify([pr.t, pr.s, pr.rt, pr.rb, pr.h, pr.rad, pr.tube, pr.arc, pr.seg, pr.a, pr.b, pr.d, pr.pts, pr.holes, pr.len, pr.turns, pr.bore]);
   let g = gcache.get(k);
   if (g) return g;
   switch (pr.t) {
     case 'b': g = new THREE.BoxGeometry(pr.s[0], pr.s[1], pr.s[2]); break;
-    case 'c': g = new THREE.CylinderGeometry(pr.rt, pr.rb ?? pr.rt, pr.h, pr.seg || 24); break;
+    /* 圆柱：pr.bore>0 时用 Lathe 旋成「带轴孔的套筒」，真正挖空，供轴瓦/衬套使用 */
+    case 'c': {
+      const bore = pr.bore || 0, seg = pr.seg || 24;
+      if (bore > 0 && bore < Math.min(pr.rt, pr.rb ?? pr.rt)) {
+        const half = pr.h / 2, rb = pr.rb ?? pr.rt;
+        g = new THREE.LatheGeometry([
+          new THREE.Vector2(bore, -half),
+          new THREE.Vector2(rb, -half),
+          new THREE.Vector2(pr.rt, half),
+          new THREE.Vector2(bore, half),
+          new THREE.Vector2(bore, -half)
+        ], seg);
+      } else {
+        g = new THREE.CylinderGeometry(pr.rt, pr.rb ?? pr.rt, pr.h, seg);
+      }
+      break;
+    }
     case 'k': g = new THREE.ConeGeometry(pr.rad, pr.h, pr.seg || 22); break;
     case 's': g = new THREE.SphereGeometry(pr.rad, pr.seg || 22, (pr.seg || 22) / 2); break;
     case 'o': g = new THREE.TorusGeometry(pr.rad, pr.tube, pr.seg2 || 10, pr.seg || 36, pr.arc ?? Math.PI * 2); break;
@@ -2737,7 +2762,7 @@ function geom(pr) {
 /* ---------- 单个图元 → Mesh ---------- */
 const UP = new THREE.Vector3(0, 1, 0);
 function meshOf(pr) {
-  const m = new THREE.Mesh(geom(pr), mat(pr.c, pr));
+  const m = new THREE.Mesh(geom(pr), mat(pr.c, pr.bore ? Object.assign({}, pr, { dbl: true }) : pr));
   if (pr.t === 'd') {
     const a = new THREE.Vector3(...pr.a), b = new THREE.Vector3(...pr.b);
     const dir = b.clone().sub(a);
@@ -6036,16 +6061,16 @@ function rig(y0) {
       pivots.forEach(pv => {
         const x = typeof pv === 'number' ? pv : pv.x;
         const zb = typeof pv === 'number' ? 0 : (pv.z ?? 0);
-        const bh = typeof pv === 'number' ? 0.46 : 0.28;
+        const fixed = typeof pv !== 'number' && pv.z !== undefined;
+        const front = typeof pv !== 'number' ? (pv.front ?? null) : null;
         const top = Y(0);                             // 轴心高度
         out.push({ t: 'b', s: [0.18, top + 0.16, 0.12], p: [x, (top + 0.16) / 2, zB], c: PA.woodD, ro: .8 });
-        /* 支臂从后立柱伸到轴承后缘；轴承移出旋转面时支臂自动缩短 */
-        const za = zb - bh / 2 - 0.02;
-        if (za > zB + 0.12) {
-          out.push({ t: 'b', s: [0.1, 0.1, za - zB], p: [x, top, (zB + za) / 2], c: PA.woodD, ro: .8 });
-        }
-        out.push({ t: 'c', rt: 0.22, h: bh, p: [x, top, zb], rot: [HF, 0, 0], c: PA.woodL, ro: .72 });
-        out.push({ t: 'c', rt: 0.085, h: bh + 0.18, p: [x, top, zb], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 });
+        /* 轴瓦（外圈）与内轴：先按默认长度生成；等全部零件建好后由 fitPivotSupports()
+         * 统一收进「后立柱 → 最近零件背面」这段自由区间，绝不伸进任何零件实体。
+         * 指定了 z 的铰点表示轴承座固定在这个深度（如从背面支承内齿圈）；
+         * 指定了 front 表示轴承前端不许越过这个 z（如平台会摆下来扫过该轴心）。 */
+        out.push({ t: 'c', rt: 0.22, h: 0.36, p: [x, top, zb], rot: [HF, 0, 0], c: PA.woodL, ro: .72, bore: 0.17, _pv: 1, _px: x, _py: top, _zb: zb, _fixed: fixed ? 1 : 0, _front: front });
+        out.push({ t: 'c', rt: 0.085, h: 0.28, p: [x, top, zb], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3, _pv: 1, _isAxle: 1, _px: x, _py: top, _zb: zb, _fixed: fixed ? 1 : 0, _front: front });
       });
       return out;
     }
@@ -6176,7 +6201,7 @@ function chainB(A, B, r1, r2, count, sx, sy, c) {
     const [p, q, d] = seg[i], u = Math.min(1, Math.max(0, (s - len[i]) / (d || 1)));
     const x = p[0] + (q[0] - p[0]) * u, y = p[1] + (q[1] - p[1]) * u;
     const a = Math.atan2(q[1] - p[1], q[0] - p[0]);
-    out.push({ t: 'b', s: [sx, sy, .16], p: [x, y, .08], rot: [0, 0, a], c, m: .5, ro: .45 });
+    out.push({ t: 'b', s: [sx, sy, .11], p: [x, y, -.14], rot: [0, 0, a], c, m: .5, ro: .45 });
   }
   return out;
 }
@@ -6210,7 +6235,7 @@ const cr1 = (() => {
           R.disc(0, 0, 0.38, PA.red, 0.16, -0.3),
           R.rod([0, 0], [r, 0], 0.11, PA.red, -0.3),
           R.hub(0, 0, 0.14, 0.24, PA.metalD, -0.3),
-          R.pin(r, 0, 0.095, 0.56, -0.18),
+          R.pin(r, 0, 0.095, 0.375, -0.2725),
           { t: 'c', rt: 0.075, h: 0.16, p: [r, R.Y(0), -0.42], rot: [HF, 0, 0], c: PA.dark, m: .8, ro: .4 }
         ]
       },
@@ -6219,8 +6244,8 @@ const cr1 = (() => {
         hint: '连杆两端都是铰接，拔出曲柄销后整根取下',
         b: [
           R.rod([B0.x, B0.y], rodC, 0.085, PA.blue, 0),
-          R.pin(B0.x, B0.y, 0.085, 0.66, 0),
-          R.pin(rodC[0], rodC[1], 0.085, 0.5, 0.08)
+          R.pin(B0.x, B0.y, 0.085, 0.415, 0.1225),
+          R.pin(rodC[0], rodC[1], 0.085, 0.36, 0.01)
         ]
       },
       {
@@ -6228,7 +6253,7 @@ const cr1 = (() => {
         hint: '摇杆在最外侧，铰在右侧机架上，先把它从轴承里抽出',
         b: [
           R.rod([d, 0], rodC, 0.1, PA.green, 0.3),
-          R.pin(rodC[0], rodC[1], 0.09, 0.52, 0.3),
+          R.pin(rodC[0], rodC[1], 0.09, 0.37, 0.375),
           R.disc(d, 0, 0.3, PA.greenD, 0.14, 0.3),
           R.hub(d, 0, 0.12, 0.22, PA.metalD, 0.3),
           { t: 'b', s: [0.3, 0.16, 0.12], p: [rodC[0], R.Y(rodC[1]) + 0.2, 0.3], rot: [0, 0, ang(B0, C0)], c: PA.org, ro: .55 }
@@ -6285,7 +6310,7 @@ const cr2 = (() => {
           R.disc(0, 0, 0.44, PA.red, 0.16, -0.3),
           R.rod([0, 0], [a, 0], 0.1, PA.red, -0.3),
           R.hub(0, 0, 0.15, 0.24, PA.metalD, -0.3),
-          R.pin(a, 0, 0.09, 0.5, -0.3),
+          R.pin(a, 0, 0.09, 0.435, -0.3025),
           { t: 'c', rt: 0.07, h: 0.16, p: [a, R.Y(0), -0.42], rot: [HF, 0, 0], c: PA.dark, m: .8, ro: .4 }
         ]
       },
@@ -6294,8 +6319,8 @@ const cr2 = (() => {
         hint: '连杆斜跨两根曲柄，拔出两端销轴后取下',
         b: [
           R.rod([B0.x, B0.y], [C0.x, C0.y], 0.085, PA.blue, 0),
-          R.pin(B0.x, B0.y, 0.085, 0.72, -0.02),
-          R.pin(C0.x, C0.y, 0.085, 0.72, 0.02)
+          R.pin(B0.x, B0.y, 0.085, 0.305, 0.0675),
+          R.pin(C0.x, C0.y, 0.085, 0.53, -0.075)
         ]
       },
       {
@@ -6305,7 +6330,7 @@ const cr2 = (() => {
           R.disc(d, 0, 0.44, PA.green, 0.16, 0.3),
           R.rod([d, 0], [C0.x, C0.y], 0.1, PA.green, 0.3),
           R.hub(d, 0, 0.15, 0.24, PA.metalD, 0.3),
-          R.pin(C0.x, C0.y, 0.09, 0.5, 0.3)
+          R.pin(C0.x, C0.y, 0.09, 0.37, 0.375)
         ]
       }
     ],
@@ -6389,11 +6414,11 @@ const cr3 = (() => {
         id: 'slider', n: '滑块', seq: 3, pivot: [0, 0, 0], out: [0, 0, 1.9],
         hint: '滑块卡在两条导轨之间，先顺着导轨方向平着抽出来',
         b: [
-          R.box(C0.x, 0, 0.9, 0.6, 0.68, PA.yellow),
-          R.box(C0.x, 0, 0.5, 0.72, 0.5, PA.org),
-          R.box(C0.x + 0.34, 0, 0.06, 0.7, 0.74, PA.metal, 0, .35),
-          R.box(C0.x - 0.34, 0, 0.06, 0.7, 0.74, PA.metal, 0, .35),
-          R.pin(C0.x, 0, 0.09, 0.76, 0)
+          R.box(C0.x, 0, 0.9, 0.6, 0.34, PA.yellow, -0.52),
+          R.box(C0.x, 0, 0.5, 0.72, 0.30, PA.org, -0.52),
+          R.box(C0.x + 0.34, 0, 0.06, 0.7, 0.38, PA.metal, -0.52, .35),
+          R.box(C0.x - 0.34, 0, 0.06, 0.7, 0.38, PA.metal, -0.52, .35),
+          R.pin(C0.x, 0, 0.09, 0.34, -0.20)
         ]
       }
     ],
@@ -6426,7 +6451,7 @@ const cr4 = (() => {
   const R = rig(2.62);
   const r = 1.25, dx = 3.2;
   const D = V(dx, 0), B0 = V(r, 0);
-  const tipX = -1.5;
+  const tipX = -1.8;
 
   return {
     id: 'oscillatingGuide', name: '摆动导杆机构', group: 'linkage', tag: '导杆',
@@ -6465,7 +6490,7 @@ const cr4 = (() => {
         b: [
           R.box((dx + tipX) / 2, 0.34, dx - tipX, 0.16, 0.26, PA.blue, 0.3),
           R.box((dx + tipX) / 2, -0.34, dx - tipX, 0.16, 0.26, PA.blue, 0.3),
-          R.box(tipX, 0, 0.24, 0.88, 0.26, PA.blueD, 0.3),
+          R.box(tipX, 0, 0.24, 0.76, 0.26, PA.blueD, 0.3),
           R.disc(dx, 0, 0.42, PA.blueD, 0.14, 0.3),
           R.hub(dx, 0, 0.13, 0.22, PA.metalD, 0.3),
           R.pin(dx, 0, 0.09, 0.8, 0.3)
@@ -6538,7 +6563,7 @@ const cr5 = (() => {
           R.rod([r, 0], [tip.x, tip.y], 0.1, PA.blue, 0),
           R.pin(r, 0, 0.095, 0.62, 0),
           R.hub(tip.x - 0.18, 0, 0.13, 0.24, PA.blueD, 0),
-          { t: 'b', s: [0.5, 0.3, 0.12], p: [(r + tip.x) / 2, R.Y(0) + 0.22, 0], c: PA.sky, ro: .5 }
+          { t: 'b', s: [0.5, 0.26, 0.12], p: [(r + tip.x) / 2, R.Y(0) + 0.18, 0], c: PA.sky, ro: .5 }
         ]
       },
       {
@@ -6595,7 +6620,7 @@ const cr6 = (() => {
       key: '对边等长且平行，平台只做平移（不转动）。摆杆长 1.4，平台就绕机架中点画半径 1.4 的圆。',
       where: '天平托盘、电梯平层、摄影机稳定架、机车联动杆。'
     },
-    base: R.base(-1.2, 3.4, [0, dx]),
+    base: R.base(-1.2, 3.4, [0, { x: dx, front: -0.17 }]),
     parts: [
       {
         id: 'rockerA', n: '主动摆杆', seq: 1, pivot: [0, R.Y(0), -0.28], out: [0, 0, 2.0],
@@ -6612,13 +6637,13 @@ const cr6 = (() => {
         id: 'platform', n: '平台', seq: 2, pivot: [0, 0, 0], out: [0, 0, 2.2],
         hint: '平台两端各一个铰点，拔出两端销轴后整体取下',
         b: [
-          R.box(dx / 2, L, dx + 0.1, 0.16, 0.8, PA.blue, 0.15),
-          R.box(dx / 2, L + 0.24, dx - 0.4, 0.34, 0.72, PA.blueD, 0.15),
+          R.box(dx / 2, L, dx + 0.1, 0.16, 0.32, PA.blue, 0),
+          R.box(dx / 2, L + 0.24, dx - 0.4, 0.34, 0.32, PA.blueD, 0),
           R.pin(0, L, 0.09, 0.9, 0.05),
           R.pin(dx, L, 0.09, 0.9, 0.05),
           /* 水平仪：平台不转时气泡永远在中间 */
-          { t: 'c', rt: 0.2, h: 0.1, p: [dx / 2, R.Y(L + 0.55), 0.15], rot: [HF, 0, 0], c: PA.glass, op: 0.55, ro: .2 },
-          { t: 's', rad: 0.09, p: [dx / 2, R.Y(L + 0.58), 0.15], c: PA.green, em: .3, ro: .3 }
+          { t: 'c', rt: 0.2, h: 0.1, p: [dx / 2, R.Y(L + 0.55), 0], rot: [HF, 0, 0], c: PA.glass, op: 0.55, ro: .2 },
+          { t: 's', rad: 0.09, p: [dx / 2, R.Y(L + 0.58), 0], c: PA.green, em: .3, ro: .3 }
         ]
       },
       {
@@ -6789,7 +6814,7 @@ const cm1 = (() => {
   const L0 = rAt(HF);                       // θ=0 时的接触半径
   const at = th => rAt(HF - th);            // 从动件底面到凸轮中心的距离
   const camPts = radiusRing(0, Y0, rAt, 288);
-  const YT = L0 + 1.1;                      // 导向座高度
+  const YT = L0 + 0.80;                     // 导向座高度（顶板压在从动杆最低位置之下）
 
   return {
     id: 'camKnife', name: '盘形凸轮（尖顶从动件）', group: 'cam', tag: '凸轮',
@@ -6827,8 +6852,11 @@ const cm1 = (() => {
         id: 'guide', n: '导向座', seq: 3, pivot: [0, R.Y(YT), 0], out: [0, 0, 2.2],
         hint: '导向座套住从动杆，两条腿落在底板上，整体向上抽出',
         b: [
-          R.box(0, YT, 1.06, 0.18, 0.8, PA.woodL, -0.16),
-          { t: 'c', rt: 0.155, h: 0.42, p: [0, R.Y(YT), 0.02], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 },
+          /* 顶板做成开叉的两片，中间留出从动杆穿过的缺口 */
+          R.box(-0.32, YT, 0.42, 0.18, 0.8, PA.woodL, -0.16),
+          R.box(0.32, YT, 0.42, 0.18, 0.8, PA.woodL, -0.16),
+          /* 导套轴向沿从动杆方向，杆在孔里滑动，孔真正挖通 */
+          { t: 'c', rt: 0.155, h: 0.42, p: [0, R.Y(YT), 0], c: PA.metalD, m: .85, ro: .3, bore: 0.09 },
           pillar(-0.42, YT, Y0),
           pillar(0.42, YT, Y0)
         ]
@@ -6839,7 +6867,7 @@ const cm1 = (() => {
       const dy = at(th) - L0;
       return {
         cam: { r: [0, 0, th] },
-        follower: { p: [0, dy, 0] },
+        follower: { p: [0, dy + 0.03, 0] },
         n: { lift: dy },
         readout: [
           { k: '凸轮转角', v: dg(th) },
@@ -6869,7 +6897,7 @@ const cm2 = (() => {
   const C0 = rAt(HF) + rr;                  // 滚子中心的起始高度
   const at = th => rAt(HF - th) + rr;
   const camPts = radiusRing(0, Y0, rAt, 288);
-  const YT = C0 + 1.02;
+  const YT = C0 + 0.72;
 
   return {
     id: 'camRoller', name: '滚子从动件凸轮', group: 'cam', tag: '凸轮',
@@ -6916,8 +6944,11 @@ const cm2 = (() => {
         id: 'guide', n: '导向座', seq: 4, pivot: [0, R.Y(YT), 0], out: [0, 0, 2.2],
         hint: '导向座卡住从动杆的杆身，向上抽出',
         b: [
-          R.box(0, YT, 1.06, 0.18, 0.8, PA.woodL, -0.16),
-          { t: 'c', rt: 0.155, h: 0.42, p: [0, R.Y(YT), 0.02], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 },
+          /* 顶板做成开叉的两片，中间留出从动杆穿过的缺口 */
+          R.box(-0.32, YT, 0.42, 0.18, 0.8, PA.woodL, -0.16),
+          R.box(0.32, YT, 0.42, 0.18, 0.8, PA.woodL, -0.16),
+          /* 导套轴向沿从动杆方向，杆在孔里滑动，孔真正挖通 */
+          { t: 'c', rt: 0.155, h: 0.42, p: [0, R.Y(YT), 0], c: PA.metalD, m: .85, ro: .3, bore: 0.09 },
           pillar(-0.42, YT, Y0),
           pillar(0.42, YT, Y0)
         ]
@@ -6985,9 +7016,9 @@ const cm3 = (() => {
         id: 'strap', n: '偏心套连杆', seq: 2, pivot: [E0.x, Y0, 0], out: [0, 0, 2.2],
         hint: '环形套抱住偏心轮，环上连着连杆，先摘下环再抽出',
         b: [
-          { t: 'o', rad: 1.02, tube: 0.08, seg: 44, p: [E0.x, Y0, 0], c: PA.metalD, m: .85, ro: .3 },
-          R.rod([E0.x + 0.99, 0], [S0.x, 0], 0.09, PA.gold, 0),
-          { t: 'b', s: [0.34, 0.3, 0.3], p: [E0.x + 1.0, Y0, 0], c: PA.gold, ro: .45 },
+          { t: 'o', rad: 1.06, tube: 0.08, seg: 44, p: [E0.x, Y0, 0], c: PA.metalD, m: .85, ro: .3 },
+          R.rod([E0.x + 1.04, 0], [S0.x, 0], 0.09, PA.gold, 0),
+          { t: 'b', s: [0.28, 0.3, 0.3], p: [E0.x + 1.11, Y0, 0], c: PA.gold, ro: .45 },
           R.pin(E0.x, 0, 0.09, 0.34, 0, PA.metalD)
         ]
       },
@@ -6995,11 +7026,15 @@ const cm3 = (() => {
         id: 'slider', n: '滑块', seq: 3, pivot: [0, 0, 0], out: [0, 0, 1.9],
         hint: '滑块夹在上下导轨之间，顺着导轨平着抽出',
         b: [
-          R.box(S0.x, 0, 0.86, 0.62, 0.66, PA.yellow),
-          R.box(S0.x, 0, 0.46, 0.74, 0.5, PA.org),
+          /* 滑块做成上下两片夹瓦，中间留出连杆穿过的槽，不横穿连杆实体 */
+          R.box(S0.x, 0, 0.86, 0.62, 0.22, PA.yellow, -0.29),
+          R.box(S0.x, 0, 0.86, 0.62, 0.22, PA.yellow, 0.29),
+          R.box(S0.x, 0, 0.46, 0.74, 0.22, PA.org, -0.29),
+          R.box(S0.x, 0, 0.46, 0.74, 0.22, PA.org, 0.29),
           R.box(S0.x, 0.34, 0.9, 0.06, 0.72, PA.metal, 0, .35),
           R.box(S0.x, -0.34, 0.9, 0.06, 0.72, PA.metal, 0, .35),
-          R.pin(S0.x, 0, 0.09, 0.86, 0)
+          R.pin(S0.x, 0, 0.09, 0.24, -0.30),
+          R.pin(S0.x, 0, 0.09, 0.24, 0.30)
         ]
       }
     ],
@@ -7128,7 +7163,8 @@ const cm5 = (() => {
     },
     base: [
       ...R.base(-0.7, 4.2, [A.x, C.x]),
-      pillar(1.45, -0.72, Y0, PA.woodD, -0.3, 0.14)
+      /* 止回棘爪的立柱下移，让开摇臂下摆时棘爪尾部扫过的范围 */
+      pillar(1.45, -0.94, Y0, PA.woodD, -0.3, 0.14)
     ],
     parts: [
       {
@@ -7157,19 +7193,20 @@ const cm5 = (() => {
         hint: '棘爪挂在摇臂端头的小轴上，爪尖落在齿槽里',
         b: [
           R.box(T0.x + 0.12, -0.06, 0.34, 0.42, 0.16, PA.org, 0.15),
-          R.box(T0.x + 0.2, -0.3, 0.2, 0.24, 0.14, PA.metalD, 0.15),
+          /* 尾部小方块收短上提：摇臂下摆 0.42 时也不再碰止回棘爪的轴套 */
+          R.box(T0.x + 0.16, -0.2, 0.16, 0.16, 0.14, PA.metalD, 0.15),
           R.pin(T0.x, 0, 0.055, 0.66, 0.15, PA.metalD),
           { t: 'b', s: [0.12, 0.12, 0.14], p: [T0.x - 0.1, Y0 + 0.2, 0.15], c: PA.purpleD, ro: .5 }
         ]
       },
       {
-        id: 'detent', n: '止回棘爪', seq: 4, pivot: [1.45, Y0 - 0.72, 0.15], out: [0, 0, 2.2],
+        id: 'detent', n: '止回棘爪', seq: 4, pivot: [1.45, Y0 - 0.94, 0.15], out: [0, 0, 2.2],
         hint: '止回棘爪固定在立柱上，顶住齿背不让棘轮倒转',
         b: [
-          R.rod([1.45, -0.68], [1.62, -0.73], 0.07, PA.metalD, 0.15),
+          R.rod([1.45, -0.9], [1.66, -0.96], 0.07, PA.metalD, 0.15),
           /* 圆头爪尖停在齿顶圆之外，齿背掠过时不穿插 */
-          R.pin(1.64, -0.75, 0.085, 0.16, 0.15, PA.metalD),
-          { t: 'c', rt: 0.1, h: 0.24, p: [1.45, R.Y(-0.72), 0.15], rot: [HF, 0, 0], c: PA.steel, m: .8, ro: .3 }
+          R.pin(1.68, -0.98, 0.085, 0.16, 0.15, PA.metalD),
+          { t: 'c', rt: 0.1, h: 0.24, p: [1.45, R.Y(-0.94), 0.15], rot: [HF, 0, 0], c: PA.steel, m: .8, ro: .3 }
         ]
       }
     ],
@@ -7205,8 +7242,10 @@ const cm6 = (() => {
   const R = rig(2.35), Y0 = R.Y(0);
   const dx = 2.91;
   const drivePts = radiusRing(0, Y0, teethRF(0.9, 1.02, 16, -HF, Math.PI), 288);
-  const lockPts = sectorRing(0, Y0, 0.92, 1.04, HF, 3 * HF, 24);
-  const drivenPts = radiusRing(dx, Y0, teethRF(1.86, 1.98, 32), 448);
+  /* 锁止弧：贴在主动轮盘缘外侧的一圈细弧，半径 = 中心距 − 从动轮齿顶圆，
+     停位时与从动轮齿顶相切，不切进齿体 */
+  const lockPts = sectorRing(0, Y0, 0.915, 0.945, HF, 3 * HF, 24);
+  const drivenPts = radiusRing(dx, Y0, teethRF(1.82, 1.94, 32), 448);
 
   /* 有齿半圈对着从动轮时按齿数比滚动：i = 16/32 = 1/2 */
   const psi = th => {
@@ -7239,8 +7278,7 @@ const cm6 = (() => {
         id: 'lock', n: '锁止弧', seq: 2, pivot: [0, Y0, 0], out: [0, 0, 2.1],
         hint: '锁止弧和主动轮同轴，缺口处才能让从动轮转',
         b: [
-          prof(lockPts, 0.3, PA.metalD, -0.04),
-          { t: 'b', s: [0.24, 0.2, 0.34], p: [-0.62, Y0, -0.04], c: PA.metal, m: .8, ro: .35 }
+          prof(lockPts, 0.3, PA.metalD, -0.04)
         ]
       },
       {
@@ -7449,7 +7487,7 @@ const gr2 = (() => {
         hint: '小齿轮在齿圈里面，先拆摇把再往外抽',
         b: [
           { t: 'pf', pts: g1, d: .3, p: [P.x, Y0, 0], c: PA.blue, m: .45, ro: .42 },
-          R.hub(P.x, 0, .3, .5, PA.blueD, 0),
+          R.hub(P.x, 0, .3, .42, PA.blueD, 0),
           R.disc(P.x, 0, .5, PA.sky, .08, .22),
           R.rod([P.x, 0], [P.x + .5, 0], .08, PA.red, .3),
           R.pin(P.x + .5, 0, .07, .4, .3, PA.redD),
@@ -7463,9 +7501,9 @@ const gr2 = (() => {
           ringB,
           ...boltB,
           R.box(Q.x, 1.62, .1, .26, .14, PA.red, .2),
-          /* 背面轮毂：从齿圈背面接出，避开小齿轮扫过的整个齿盘平面 */
-          R.hub(Q.x, 0, .4, .26, PA.gold, -.28),
-          R.pin(Q.x, 0, .1, .5, -.28, PA.metalD)
+          /* 背面轮毂：从齿圈背面接出，避开小齿轮扫过的整个齿盘平面；
+             轮毂做成带轴孔的轴承座，机架轴瓦(r0.22)整个落在孔里，不穿实体 */
+          Object.assign(R.hub(Q.x, 0, .4, .24, PA.gold, -.34), { bore: .24 })
         ]
       }
     ],
@@ -7525,9 +7563,9 @@ const gr3 = (() => {
   /* 小齿轮轴支座：后立柱 + 沿轴支臂，把轴承抬到小齿轮实际轴心高度（避开齿盘扫掠） */
   const pinionSup = [
     { t: 'b', s: [.18, PY + .16, .12], p: [P.x, (PY + .16) / 2, -.58], c: PA.woodD, ro: .8 },
-    { t: 'b', s: [.1, .1, .36], p: [P.x, PY, -.42], c: PA.woodD, ro: .8 },
-    { t: 'c', rt: .22, h: .46, p: [P.x, PY, 0], rot: [0, 0, HF], c: PA.woodL, ro: .72 },
-    { t: 'c', rt: .085, h: .64, p: [P.x, PY, 0], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .3 }
+    { t: 'b', s: [.1, .1, .30], p: [P.x, PY, -.44], c: PA.woodD, ro: .8 },
+    { t: 'c', rt: .22, h: .26, p: [P.x, PY, -.42], rot: [HF, 0, 0], c: PA.woodL, ro: .72, bore: .11 },
+    { t: 'c', rt: .085, h: .28, p: [P.x, PY, -.42], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 }
   ];
 
   return {
@@ -7605,11 +7643,14 @@ const gr4 = (() => {
     },
     base: [
       ...R.base(-.6, 4.4, [C.x]),
-      /* 蜗杆两端支座挪到蜗轮齿顶圆（r=1.3）之外，避免蜗轮齿扫过立柱 */
-      pillar(.52, WY, Y0, PA.woodD, 0, .18),
-      pillar(3.48, WY, Y0, PA.woodD, 0, .18),
-      { t: 'c', rt: .18, h: .26, p: [.52, Y0 + WY, 0], rot: [0, 0, HF], c: PA.woodD, ro: .8 },
-      { t: 'c', rt: .18, h: .26, p: [3.48, Y0 + WY, 0], rot: [0, 0, HF], c: PA.woodD, ro: .8 }
+      /* 蜗杆两端支座退到机架后侧，再用一段支臂把轴承环送到蜗杆轴线上；
+         轴承环开轴孔，蜗杆轴从孔里穿过，立柱本身绝不与轴相交 */
+      pillar(.52, WY, Y0, PA.woodD, -.42, .18),
+      pillar(3.48, WY, Y0, PA.woodD, -.42, .18),
+      { t: 'b', s: [.1, .1, .34], p: [.52, Y0 + WY, -.38], c: PA.woodD, ro: .8 },
+      { t: 'c', rt: .18, h: .26, p: [.52, Y0 + WY, 0], rot: [0, 0, HF], c: PA.woodD, ro: .8, bore: .11 },
+      { t: 'b', s: [.1, .1, .34], p: [3.48, Y0 + WY, -.38], c: PA.woodD, ro: .8 },
+      { t: 'c', rt: .18, h: .26, p: [3.48, Y0 + WY, 0], rot: [0, 0, HF], c: PA.woodD, ro: .8, bore: .11 }
     ],
     parts: [
       {
@@ -7618,8 +7659,8 @@ const gr4 = (() => {
         b: [
           { t: 'hd', rad: wr, tube: .075, len: L, turns: 9, p: [C.x, Y0 + WY, 0], c: PA.purple, m: .7, ro: .3 },
           { t: 'c', rt: .17, h: L, p: [C.x, Y0 + WY, 0], rot: [0, 0, HF], c: PA.purpleD, m: .7, ro: .35 },
-          { t: 'c', rt: .09, h: .7, p: [C.x - L / 2 - .3, Y0 + WY, 0], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .3 },
-          { t: 'c', rt: .09, h: .9, p: [C.x + L / 2 + .4, Y0 + WY, 0], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .3 },
+          { t: 'c', rt: .09, h: .5, p: [C.x - L / 2 - .15, Y0 + WY, 0], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .3 },
+          { t: 'c', rt: .09, h: .9, p: [C.x + L / 2 + .35, Y0 + WY, 0], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .3 },
           { t: 'b', s: [.1, .56, .14], p: [C.x + L / 2 + .78, Y0 + WY + .28, 0], c: PA.red, ro: .5 },
           { t: 's', rad: .1, p: [C.x + L / 2 + .78, Y0 + WY + .56, 0], c: PA.redD, ro: .5 }
         ]
@@ -7672,13 +7713,13 @@ const gr5 = (() => {
     bolts.push({ t: 'c', rt: .06, h: .12, p: [C.x + 2.24 * Math.cos(a), Y0 + 2.24 * Math.sin(a), .16], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 });
   }
   const carrierB = [
-    R.hub(C.x, 0, .44, .3, PA.purpleD, .36),
+    R.hub(C.x, 0, .44, .2, PA.purpleD, .44),
     R.pin(C.x, 0, .1, 1.5, .3, PA.metalD)
   ];
   DI.forEach(d => {
     const x = C.x + RC * Math.cos(d), y = RC * Math.sin(d);
-    carrierB.push(R.rod([C.x, 0], [x, y], .09, PA.purple, .36));
-    carrierB.push({ t: 'c', rt: .07, h: .62, p: [x, Y0 + y, .2], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 });
+    carrierB.push(R.rod([C.x, 0], [x, y], .09, PA.purple, .42));
+    carrierB.push({ t: 'c', rt: .07, h: .62, p: [x, Y0 + y, .24], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 });
   });
 
   const planets = DI.map((d, i) => ({
@@ -7708,9 +7749,10 @@ const gr5 = (() => {
         b: [
           { t: 'pf', pts: sunPts, d: .3, p: [C.x, Y0, 0], c: PA.blue, m: .45, ro: .42 },
           R.hub(C.x, 0, .3, .6, PA.blueD, 0),
-          R.disc(C.x, 0, .5, PA.sky, .08, .3),
-          R.rod([C.x, 0], [C.x + .5, 0], .08, PA.red, .42),
-          R.pin(C.x + .5, 0, .07, .38, .42, PA.redD),
+          /* 摇把盘与手柄整体挪到行星架轮毂之前，绝不穿进行星架 */
+          R.disc(C.x, 0, .5, PA.sky, .08, .6),
+          R.rod([C.x + .22, 0], [C.x + .62, 0], .08, PA.red, .7),
+          R.pin(C.x + .62, 0, .07, .38, .7, PA.redD),
           R.pin(C.x, 0, .1, 1.2, .2, PA.metalD)
         ]
       },
@@ -7763,9 +7805,9 @@ const gr6 = (() => {
   const sL = gearPts(zg, m, 0), sR = gearPts(zg, m, 0);
   const pl = gearPts(zg, m, Math.PI / zg * .5);
   const col = x => [
-    { t: 'b', s: [.26, CY - .24, .56], p: [x, .24 + (CY - .24) / 2, 0], c: PA.woodD, ro: .8 },
-    { t: 'c', rt: .2, h: .3, p: [x, CY, 0], rot: [0, 0, HF], c: PA.woodL, ro: .72 },
-    { t: 'c', rt: .095, h: .56, p: [x, CY, 0], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .3 }
+    { t: 'b', s: [.26, CY - .40, .56], p: [x, .24 + (CY - .40) / 2, 0], c: PA.woodD, ro: .8 },
+    /* 轴承环开轴孔：半轴从孔里穿过，环体与被支承轴不再互穿 */
+    { t: 'c', rt: .2, h: .3, p: [x, CY, 0], rot: [0, 0, HF], c: PA.woodL, ro: .72, bore: .10 }
   ];
   const side = (sx, pts, c, nm, sg, hint) => ({
     id: nm, n: '半轴锥齿轮', seq: sg, pivot: [X0 + sx, CY, 0], out: [0, 0, 2.0],
@@ -7794,28 +7836,30 @@ const gr6 = (() => {
         id: 'carrier', n: '行星架', seq: 1, pivot: [X0, CY, 0], out: [0, 0, 2.2],
         hint: '行星架就是十字轴，先拆摇把再整根抽出',
         b: [
+          /* 中央轮毂 */
           { t: 'c', rt: .26, h: .7, p: [X0, CY, 0], rot: [0, 0, HF], c: PA.purpleD, m: .5, ro: .4 },
-          { t: 'c', rt: .055, h: 1.9, p: [X0, CY, 0], c: PA.metalD, m: .9, ro: .3 },
-          { t: 's', rad: .1, p: [X0, CY + .95, 0], c: PA.purpleD },
-          { t: 's', rad: .1, p: [X0, CY - .95, 0], c: PA.purpleD },
-          { t: 'b', s: [.1, .1, .62], p: [X0, CY + .84, .34], c: PA.red, ro: .5 },
-          { t: 's', rad: .09, p: [X0, CY + .84, .68], c: PA.redD }
+          { t: 'c', rt: .055, h: 2.24, p: [X0, CY, 0], c: PA.metalD, m: .9, ro: .3 },
+          { t: 's', rad: .1, p: [X0, CY + 1.12, 0], c: PA.purpleD },
+          { t: 's', rad: .1, p: [X0, CY - 1.12, 0], c: PA.purpleD },
+          /* 摇把装在行星架轴线上，径向伸出，避开两只行星锥齿轮 */
+          { t: 'b', s: [.1, .1, .62], p: [X0, CY, .34], c: PA.red, ro: .5 },
+          { t: 's', rad: .09, p: [X0, CY, .68], c: PA.redD }
         ]
       },
       {
-        id: 'plTop', n: `行星锥齿轮 1 z=${zg}`, seq: 2, pivot: [X0, CY + PY, 0], out: [0, 0, 1.9],
+        id: 'plTop', n: `行星锥齿轮 1 z=${zg}`, seq: 2, pivot: [X0, CY, 0], out: [0, 0, 1.9],
         hint: '行星锥齿轮套在十字轴上，取下行星架后就能拿下',
         b: [
-          { t: 'pf', pts: pl, d: .3, p: [X0, CY + PY, 0], rot: [HF, 0, 0], c: PA.gold, m: .45, ro: .42 },
-          { t: 'c', rt: .26, rb: .5, h: .35, p: [X0, CY + PY + .32, 0], c: PA.gold, m: .45, ro: .42 }
+          { t: 'pf', pts: pl, d: .3, p: [X0, CY + PY, 0], rot: [HF, 0, 0], c: PA.gold, m: .45, ro: .42, holes: [radiusRing(0, 0, () => .07, 20)] },
+          { t: 'c', rt: .5, rb: .26, h: .35, p: [X0, CY + PY + .32, 0], c: PA.gold, m: .45, ro: .42, bore: .07 }
         ]
       },
       {
-        id: 'plBot', n: `行星锥齿轮 2 z=${zg}`, seq: 3, pivot: [X0, CY - PY, 0], out: [0, 0, 1.7],
+        id: 'plBot', n: `行星锥齿轮 2 z=${zg}`, seq: 3, pivot: [X0, CY, 0], out: [0, 0, 1.7],
         hint: '另一只行星锥齿轮在下方，和上面那只同轴',
         b: [
-          { t: 'pf', pts: pl, d: .3, p: [X0, CY - PY, 0], rot: [HF, 0, 0], c: PA.gold, m: .45, ro: .42 },
-          { t: 'c', rt: .5, rb: .26, h: .35, p: [X0, CY - PY - .32, 0], c: PA.gold, m: .45, ro: .42 }
+          { t: 'pf', pts: pl, d: .3, p: [X0, CY - PY, 0], rot: [HF, 0, 0], c: PA.gold, m: .45, ro: .42, holes: [radiusRing(0, 0, () => .07, 20)] },
+          { t: 'c', rt: .26, rb: .5, h: .35, p: [X0, CY - PY - .32, 0], c: PA.gold, m: .45, ro: .42, bore: .07 }
         ]
       },
       side(-PX, sL, PA.blue, 'sideL', 4, '左半轴锥齿轮在左边，先拆下再取行星架'),
@@ -7864,11 +7908,11 @@ const gr7 = (() => {
     },
     base: [
       ...R.base(-0.6, BX + 1.5, []),
-      /* 输入轴支座退到锥齿轮背面，避开锥面扫过的区域 */
-      { t: 'b', s: [.28, AY - .24, .5], p: [AX, .24 + (AY - .24) / 2, -.02], c: PA.woodD, ro: .8 },
-      { t: 'c', rt: .2, h: .36, p: [AX, AY, -.02], rot: [HF, 0, 0], c: PA.woodL, ro: .72 },
-      { t: 'b', s: [.28, AY - .24, .5], p: [BX + 1.05, .24 + (AY - .24) / 2, 0], c: PA.woodD, ro: .8 },
-      { t: 'c', rt: .2, h: .36, p: [BX + 1.05, AY, 0], rot: [0, 0, HF], c: PA.woodL, ro: .72 }
+      /* 输入轴支座退到锥齿轮背面，避开锥面扫过的区域；轴承环开轴孔 */
+      { t: 'b', s: [.28, AY - .50, .5], p: [AX, .24 + (AY - .50) / 2, -.02], c: PA.woodD, ro: .8 },
+      { t: 'c', rt: .2, h: .36, p: [AX, AY, -.02], rot: [HF, 0, 0], c: PA.woodL, ro: .72, bore: .14 },
+      { t: 'b', s: [.28, AY - .50, .5], p: [BX + 1.05, .24 + (AY - .50) / 2, 0], c: PA.woodD, ro: .8 },
+      { t: 'c', rt: .2, h: .36, p: [BX + 1.05, AY, 0], rot: [0, 0, HF], c: PA.woodL, ro: .72, bore: .17 }
     ],
     parts: [
       {
@@ -7981,8 +8025,9 @@ const gr8 = (() => {
           { t: 'pf', pts: genPts, d: .5, p: [0, 0, .04], c: PA.purple, m: .3, ro: .5 },
           R.hub(C.x, 0, .34, .62, PA.purpleD, .04),
           R.pin(C.x, 0, .1, .9, .3, PA.metalD),
-          { t: 'c', rt: .11, h: .6, p: [C.x + gA, Y0, .04], rot: [HF, 0, 0], c: PA.steel, m: .85, ro: .3 },
-          { t: 'c', rt: .11, h: .6, p: [C.x - gA, Y0, .04], rot: [HF, 0, 0], c: PA.steel, m: .85, ro: .3 },
+          /* 滚轮压在椭圆长轴内侧，只与柔轮接触不相穿 */
+          { t: 'c', rt: .06, h: .6, p: [C.x + 1.57, Y0, .04], rot: [HF, 0, 0], c: PA.steel, m: .85, ro: .3 },
+          { t: 'c', rt: .06, h: .6, p: [C.x - 1.57, Y0, .04], rot: [HF, 0, 0], c: PA.steel, m: .85, ro: .3 },
           R.rod([C.x, 0], [C.x + .6, 0], .08, PA.red, .5),
           R.pin(C.x + .6, 0, .07, .36, .5, PA.redD)
         ]
@@ -8034,7 +8079,7 @@ const bd1 = (() => {
       key: `带传动比 i = d₂/d₁ = ${r2}/${r1} = ${(r2 / r1).toFixed(2)}，从动轮转速是主动轮的 ${(r1 / r2).toFixed(2)} 倍。皮带靠摩擦工作，过载时会打滑，正好保护机器；但传动比不严格，也不能用在要求精确分度的场合。`,
       where: '电风扇、洗衣机、空压机、汽车正时皮带、拖拉机。'
     },
-    base: [...R.base(-.2, 4.4, [A.x, B.x]), { t: 'pf', pts: belt, d: .12, p: [0, 0, -.06], c: PA.dark, m: .1, ro: .85 }],
+    base: [...R.base(-.2, 4.4, [A.x, B.x]), { t: 'pf', pts: belt, d: .12, p: [0, 0, -.23], c: PA.dark, m: .1, ro: .85 }],
     parts: [
       {
         id: 'p1', n: '主动带轮', seq: 1, pivot: [A.x, Y0, 0], out: [0, 0, 2.0],
@@ -8173,7 +8218,9 @@ const bd3 = (() => {
       ...R.base(-.2, 3.6, []),
       pillar(CX, -CH / 2, Y0, PA.woodD, 0, .3),
       pillar(2.95, .95, Y0, PA.woodD, 0, .18),
-      { t: 'b', s: [1.05, .12, .2], p: [2.5, Y0 + .95, 0], c: PA.woodL, ro: .75 }
+      /* 横臂做成两片夹板，给上下滑动的摩擦轮支撑杆让出中间的槽 */
+      { t: 'b', s: [1.05, .12, .06], p: [2.5, Y0 + .95, -.13], c: PA.woodL, ro: .75 },
+      { t: 'b', s: [1.05, .12, .06], p: [2.5, Y0 + .95, .13], c: PA.woodL, ro: .75 }
     ],
     parts: [
       {
@@ -8190,9 +8237,10 @@ const bd3 = (() => {
         id: 'roller', n: '摩擦轮', seq: 2, pivot: [CX + R0 + RR, Y0, 0], out: [0, 0, 2.2],
         hint: '摩擦轮压在锥面上，随锥面上下滑动',
         b: [
-          { t: 'c', rt: RR, h: .34, p: [CX + R0 + RR, Y0, 0], c: PA.gold, m: .45, ro: .4 },
+          /* 球形摩擦轮：任何转角下与锥面都是点接触，不会扫进锥体 */
+          { t: 's', rad: RR, p: [CX + R0 + RR, Y0, 0], c: PA.gold, m: .45, ro: .4 },
           { t: 'c', rt: .06, h: 1.5, p: [CX + R0 + RR, Y0 + .75, 0], c: PA.metalD, m: .9, ro: .3 },
-          { t: 'b', s: [.2, .08, .2], p: [CX + R0 + RR, Y0 + .2, .2], c: PA.red, ro: .5 }
+          { t: 'b', s: [.06, .05, .06], p: [CX + R0 + RR, Y0 + .2, .17], c: PA.red, ro: .5 }
         ]
       }
     ],
@@ -8237,8 +8285,9 @@ const bd4 = (() => {
       ...R.base(-.2, 4.4, []),
       pillar(.4, SY - Y0 - .1, Y0, PA.woodD, 0, .2),
       pillar(3.1, SY - Y0 - .1, Y0, PA.woodD, 0, .2),
-      { t: 'b', s: [.3, .44, .36], p: [.4, SY, 0], c: PA.woodL, ro: .72 },
-      { t: 'b', s: [.3, .44, .36], p: [3.1, SY, 0], c: PA.woodL, ro: .72 },
+      /* 两端轴承座开轴孔：丝杠从孔里穿过 */
+      { t: 'pf', pts: [[-.18, -.22], [.18, -.22], [.18, .22], [-.18, .22]], holes: [radiusRing(0, 0, () => .115, 24)], d: .3, p: [.4, SY, 0], rot: [0, HF, 0], c: PA.woodL, ro: .72 },
+      { t: 'pf', pts: [[-.18, -.22], [.18, -.22], [.18, .22], [-.18, .22]], holes: [radiusRing(0, 0, () => .115, 24)], d: .3, p: [3.1, SY, 0], rot: [0, HF, 0], c: PA.woodL, ro: .72 },
       { t: 'b', s: [2.4, .1, .5], p: [X0, SY - .42, 0], c: PA.woodL, ro: .75 }
     ],
     parts: [
@@ -8246,7 +8295,7 @@ const bd4 = (() => {
         id: 'screw', n: '丝杠', seq: 1, pivot: [X0, SY, 0], out: [0, 0, 2.0],
         hint: '丝杠横穿两端轴承座，先拆右端手轮再整根抽出',
         b: [
-          { t: 'hd', rad: .2, tube: .052, len: L, turns: 20, p: [X0, SY, 0], c: PA.metal, m: .8, ro: .3 },
+          { t: 'hd', rad: .2, tube: .052, len: 2.36, turns: 20, p: [X0, SY, 0], c: PA.metal, m: .8, ro: .3 },
           { t: 'c', rt: .1, h: L, p: [X0, SY, 0], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .32 },
           { t: 'c', rt: .09, h: .7, p: [X0 - L / 2 - .32, SY, 0], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .3 },
           { t: 'c', rt: .09, h: .55, p: [X0 + L / 2 + .25, SY, 0], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .3 },
@@ -8258,7 +8307,8 @@ const bd4 = (() => {
         id: 'nut', n: '螺母', seq: 2, pivot: [X0, SY, 0], out: [0, 0, 2.3],
         hint: '螺母套在丝杠上，顺着导轨整块取下',
         b: [
-          { t: 'c', rt: .3, h: .4, p: [X0, SY, 0], rot: [0, 0, HF], c: PA.gold, m: .4, ro: .5 },
+          /* 螺母内孔大于螺纹外径，螺纹从孔中穿过 */
+          { t: 'c', rt: .34, h: .4, p: [X0, SY, 0], rot: [0, 0, HF], c: PA.gold, m: .4, ro: .5, bore: .27 },
           { t: 'b', s: [.3, .16, .4], p: [X0, SY - .38, 0], c: PA.org, ro: .5 },
           { t: 'b', s: [.24, .42, .24], p: [X0, SY + .45, 0], c: PA.gold, ro: .5 },
           { t: 'b', s: [.1, .1, .5], p: [X0, SY + .66, 0], c: PA.red, ro: .5 }
@@ -8317,10 +8367,10 @@ const bd5 = (() => {
     base: [
       ...R.base(-.3, 4.2, []),
       pillar(.55, 1.2, Y0, PA.woodD, 0, .2),
-      { t: 'c', rt: .2, h: .3, p: [.55, CY, 0], rot: [0, 0, HF], c: PA.woodL, ro: .72 },
+      { t: 'c', rt: .2, h: .3, p: [.55, CY, 0], rot: [0, 0, HF], c: PA.woodL, ro: .72, bore: .12 },
       /* 输出轴支座前移到轴中段，把轴端摇把让到支座之外 */
       pillar(2.61, 1.91, Y0, PA.woodD, 0, .18),
-      { t: 'c', rt: .2, h: .3, p: [2.61, CY + UY * 1.1, 0], rot: [0, 0, HF - BETA], c: PA.woodL, ro: .72 }
+      { t: 'c', rt: .2, h: .3, p: [2.61, CY + UY * 1.1, 0], rot: [0, 0, BETA - HF], c: PA.woodL, ro: .72, bore: .12 }
     ],
     parts: [
       {
@@ -8328,11 +8378,11 @@ const bd5 = (() => {
         hint: '输入轴叉带摇把，先拆摇把再抽出轴',
         b: [
           R.rod([CX - 1.25, CY - Y0], [CX - .35, CY - Y0], .11, PA.blue, 0),
-          { t: 'c', rt: .17, h: .34, p: [CX - .3, CY, 0], rot: [0, 0, HF], c: PA.blueD, m: .5, ro: .4 },
+          { t: 'c', rt: .17, h: .34, p: [CX - .38, CY, 0], rot: [0, 0, HF], c: PA.blueD, m: .5, ro: .4 },
           { t: 'b', s: [.4, .14, .1], p: [CX - .12, CY, .3], c: PA.blue, m: .5, ro: .42 },
           { t: 'b', s: [.4, .14, .1], p: [CX - .12, CY, -.3], c: PA.blue, m: .5, ro: .42 },
-          R.rod([CX - 1.15, CY - Y0], [CX - 1.15, CY - Y0 + .46], .07, PA.red, .24),
-          R.pin(CX - 1.15, CY - Y0 + .46, .07, .34, .24, PA.redD)
+          R.rod([CX - .9, CY - Y0], [CX - .9, CY - Y0 + .46], .07, PA.red, .24),
+          R.pin(CX - .9, CY - Y0 + .46, .07, .34, .24, PA.redD)
         ]
       },
       {
@@ -8340,15 +8390,16 @@ const bd5 = (() => {
         hint: '十字轴是核心件，四个轴颈分别插进两侧轴叉',
         b: [
           { t: 's', rad: .13, p: [CX, CY, 0], c: PA.metal, m: .85, ro: .28 },
-          { t: 'c', rt: .055, h: .78, p: [CX, CY, 0], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 },
-          { t: 'c', rt: .055, h: .78, p: [CX, CY, 0], rot: [0, 0, Math.PI + BETA], c: PA.metalD, m: .9, ro: .3 }
+          /* 轴颈止于两侧叉头轴承内端面，不再穿过叉臂 */
+          { t: 'c', rt: .055, h: .44, p: [CX, CY, 0], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 },
+          { t: 'c', rt: .055, h: .36, p: [CX, CY, 0], rot: [0, 0, Math.PI + BETA], c: PA.metalD, m: .9, ro: .3 }
         ]
       },
       {
         id: 'out', n: '输出轴叉', seq: 3, pivot: [CX, CY, 0], out: [0, 0, 2.2],
         hint: '输出轴斜向上 40°，最后取下',
         b: [
-          R.rod([CX, CY - Y0], [CX + UX * 1.55, CY - Y0 + UY * 1.55], .11, PA.gold, 0),
+          R.rod([CX + UX * .2, CY - Y0 + UY * .2], [CX + UX * 1.55, CY - Y0 + UY * 1.55], .11, PA.gold, 0),
           ...yoke(1, PA.gold), ...yoke(-1, PA.gold),
           { t: 'b', s: [.1, .44, .1], p: [CX + UX * 1.5, CY + UY * 1.5, 0], rot: [0, 0, BETA], c: PA.red, ro: .5 }
         ]
@@ -8410,7 +8461,7 @@ const bd6 = (() => {
     },
     base: [
       ...R.base(-.3, 3.7, [C0.x]),
-      { t: 'c', rt: 1.12, h: .06, p: [C0.x, Y0, -.24], rot: [HF, 0, 0], c: PA.woodL, m: 0, ro: .8 }
+      { t: 'c', rt: 1.12, h: .06, p: [C0.x, Y0, -.32], rot: [HF, 0, 0], c: PA.woodL, m: 0, ro: .8 }
     ],
     parts: [
       {
@@ -8459,11 +8510,12 @@ const bd7 = (() => {
   const A0 = .66;
   const rp = th => .5 + .3 * ((2 + .55 * Math.cos(th)) - 1.45) / 1.1;
   const armB = sg => {
-    const c = sg > 0 ? PA.blue : PA.teal;
+    const c = sg > 0 ? PA.blue : PA.teal, z = sg * .09;
     return [
-      R.rod([CX, HY - Y0], [CX + sg * LA * Math.sin(A0), HY - Y0 - LA * Math.cos(A0)], .07, c, 0),
-      { t: 's', rad: .21, p: [CX + sg * LA * Math.sin(A0), HY - LA * Math.cos(A0), 0], c: PA.gold, m: .4, ro: .4 },
-      { t: 'b', s: [.08, .3, .08], p: [CX + sg * LA * .55 * Math.sin(A0), HY - LA * .55 * Math.cos(A0), 0], rot: [0, 0, sg * A0], c: PA.steel, m: .7, ro: .3 }
+      /* 左右两臂各占一个 z 平面，共铰一点但不互穿 */
+      R.rod([CX, HY - Y0], [CX + sg * LA * Math.sin(A0), HY - Y0 - LA * Math.cos(A0)], .07, c, z),
+      { t: 's', rad: .21, p: [CX + sg * LA * Math.sin(A0), HY - LA * Math.cos(A0), z], c: PA.gold, m: .4, ro: .4 },
+      { t: 'b', s: [.08, .3, .08], p: [CX + sg * LA * .55 * Math.sin(A0), HY - LA * .55 * Math.cos(A0), z], rot: [0, 0, sg * A0], c: PA.steel, m: .7, ro: .3 }
     ];
   };
 
@@ -8478,7 +8530,9 @@ const bd7 = (() => {
     },
     base: [
       ...R.base(-.35, 3.65, [CX]),
-      pillar(CX, HY - Y0, Y0, PA.woodD, 0, .18)
+      /* 立柱退到盘面扫掠范围（z ±0.43）之外，顶部支臂把主轴顶端挑住 */
+      pillar(CX, HY + .26 - Y0, Y0, PA.woodD, -.64, .18),
+      { t: 'b', s: [.14, .12, .64], p: [CX, HY + .2, -.31], c: PA.woodD, ro: .8 }
     ],
     parts: [
       {
@@ -8504,7 +8558,7 @@ const bd7 = (() => {
         hint: '驱动盘由外部动力带动，负责让飞球获得转速',
         b: [
           { t: 'c', rt: .5, h: .12, p: [CX, Y0 + .35, 0], c: PA.purple, m: .4, ro: .45 },
-          ...[-1, 0, 1].map(k => ({ t: 'b', s: [.86, .06, .12], p: [CX, Y0 + .35, 0], rot: [0, 0, k * Math.PI / 3], c: PA.purpleL, ro: .5 }))
+          ...[-1, 0, 1].map(k => ({ t: 'b', s: [.86, .06, .12], p: [CX, Y0 + .35, 0], rot: [0, k * Math.PI / 3, 0], c: PA.purpleL, ro: .5 }))
         ]
       }
     ],
@@ -8568,10 +8622,10 @@ const cp1 = (() => {
         ]
       },
       {
-        id: 'load', n: '重物（阻力端）', seq: 2, pivot: [LP.x, Y0, 0], out: [0, 0, 2.2],
+        id: 'load', n: '重物（阻力端）', seq: 2, pivot: [F.x, Y0, 0], out: [0, 0, 2.2],
         hint: '重物挂在短臂一端，靠它被抬起',
         b: [
-          R.rod([LP.x, .02], [LP.x, -.36], .035, PA.metalD, 0),
+          R.rod([LP.x, -.08], [LP.x, -.36], .035, PA.metalD, 0),
           { t: 'c', rt: .09, h: .12, p: [LP.x, Y0 - .4, 0], rot: [HF, 0, 0], c: PA.metal, m: .8, ro: .3 },
           { t: 'b', s: [.46, .34, .34], p: [LP.x, Y0 - .64, 0], c: PA.blue, ro: .6 },
           { t: 'b', s: [.1, .36, .36], p: [LP.x - .2, Y0 - .64, 0], c: PA.blueD, ro: .6 },
@@ -8579,10 +8633,10 @@ const cp1 = (() => {
         ]
       },
       {
-        id: 'effort', n: '配重（动力端）', seq: 3, pivot: [EP.x, Y0, 0], out: [0, 0, 2.4],
+        id: 'effort', n: '配重（动力端）', seq: 3, pivot: [F.x, Y0, 0], out: [0, 0, 2.4],
         hint: '动力端挂小配重，它一沉，重物那头就翘起来',
         b: [
-          R.rod([EP.x, .02], [EP.x, -.28], .035, PA.metalD, 0),
+          R.rod([EP.x, -.08], [EP.x, -.28], .035, PA.metalD, 0),
           { t: 'c', rt: .07, h: .1, p: [EP.x, Y0 - .32, 0], rot: [HF, 0, 0], c: PA.metal, m: .8, ro: .3 },
           { t: 'b', s: [.3, .26, .26], p: [EP.x, Y0 - .48, 0], c: PA.red, ro: .6 },
           { t: 'c', rt: .045, h: .3, p: [EP.x, Y0 - .48, .14], rot: [HF, 0, 0], c: PA.redD, m: .3, ro: .5 }
@@ -8591,11 +8645,12 @@ const cp1 = (() => {
     ],
     measure: [{ key: 'lift', label: '重物升降', unit: '', k: 1, dec: 2 }],
     pose(th) {
-      const a = aAt(th), pe = shift(EP, a), pl = shift(LP, a);
+      const a = aAt(th), pl = shift(LP, a);
       return {
         bar: { r: [0, 0, a] },
-        load: { p: [pl[0], pl[1], 0] },
-        effort: { p: [pe[0], pe[1], 0] },
+        /* 挂件与硬杆刚性固定：绕同一支点转同一角度，相对位置恒定 */
+        load: { r: [0, 0, a] },
+        effort: { r: [0, 0, a] },
         n: { lift: pl[1] },
         readout: [
           { k: '杠杆摆角', v: rd(a) },
@@ -8618,6 +8673,12 @@ const cp2 = (() => {
   const XA = CX - RP, XM = CX + RP, XF = FX + RP;
   const DY = .12;                      // 吊物升程 ±
   const rope = (x, y0, y1) => R.rod([x, y0], [x, y1], .028, PA.cream, 0);
+  /* 滑轮做出绳槽：轮芯半径 = RP - 绳半径，两侧挡边到 RP，绳正好落在槽里不穿实体 */
+  const groove = (cx, cy, c1, c2) => [
+    { t: 'c', rt: RP - .028, h: .16, p: [cx, cy, 0], rot: [HF, 0, 0], c: c1, m: .35, ro: .45 },
+    { t: 'c', rt: RP, h: .05, p: [cx, cy, .105], rot: [HF, 0, 0], c: c2, m: .35, ro: .45 },
+    { t: 'c', rt: RP, h: .05, p: [cx, cy, -.105], rot: [HF, 0, 0], c: c2, m: .35, ro: .45 }
+  ];
   const guard = (cx, cy, a0, a1, rOut = .375) =>
     prof(sectorRing(cx, cy, .295, rOut, a0, a1, 22), .06, PA.metal, .15, { m: .7, ro: .42 });
 
@@ -8647,7 +8708,7 @@ const cp2 = (() => {
         id: 'fixed', n: '定滑轮', seq: 1, pivot: [FX, TOP, 0], out: [0, 0, 2.0],
         hint: '定滑轮挂在横梁下，只改方向不省力，先取下它',
         b: [
-          { t: 'c', rt: RP, h: .26, p: [FX, TOP, 0], rot: [HF, 0, 0], c: PA.blue, m: .35, ro: .45 },
+          ...groove(FX, TOP, PA.blue, PA.blue),
           { t: 'c', rt: .1, h: .34, p: [FX, TOP, 0], rot: [HF, 0, 0], c: PA.blueD, m: .6, ro: .35 },
           { t: 'b', s: [.1, .1, .3], p: [FX, TOP + .19, 0], c: PA.red, ro: .5 }
         ]
@@ -8656,7 +8717,7 @@ const cp2 = (() => {
         id: 'move', n: '动滑轮', seq: 2, pivot: [CX, Y0, 0], out: [0, 0, 2.2],
         hint: '动滑轮跟着吊物一起上下，正是它省了力',
         b: [
-          { t: 'c', rt: RP, h: .26, p: [CX, Y0, 0], rot: [HF, 0, 0], c: PA.gold, m: .35, ro: .45 },
+          ...groove(CX, Y0, PA.gold, PA.gold),
           { t: 'c', rt: .1, h: .34, p: [CX, Y0, 0], rot: [HF, 0, 0], c: PA.org, m: .5, ro: .4 },
           { t: 'b', s: [.1, .1, .3], p: [CX, Y0 - .19, 0], c: PA.red, ro: .5 }
         ]
@@ -8714,12 +8775,13 @@ const cp3 = (() => {
   const R = rig(.58), Y0 = R.Y(0);
   const A0 = L * Math.cos(PH0), S0 = 2 * L * Math.sin(PH0), TOP0 = 2 * S0;
   const phi = th => (PH0 + PH1) / 2 - (PH1 - PH0) / 2 * Math.cos(th);
-  const linkB = (x0, y0, ang, c) => {
+  const linkB = (x0, y0, ang, c, z = 0) => {
     const x1 = x0 + 2 * L * Math.cos(ang), y1 = y0 + 2 * L * Math.sin(ang);
     const mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
     return [
-      R.rod([x0, y0], [x1, y1], .075, c, 0),
-      { t: 'c', rt: .13, h: .3, p: [mx, Y0 + my, 0], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 },
+      R.rod([x0, y0], [x1, y1], .075, c, z),
+      /* 交叉中心轴套分层：上下两组杆各占一个 z 平面，中间的销贯穿两者 */
+      { t: 'c', rt: .13, h: .16, p: [mx, Y0 + my, z], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 },
       R.pin(x0, y0, .07, .44, 0, PA.metal),
       R.pin(x1, y1, .07, .44, 0, PA.metal)
     ];
@@ -8747,34 +8809,34 @@ const cp3 = (() => {
       {
         id: 'l1a', n: '下左撑杆', seq: 1, pivot: [CX - A0, Y0, 0], out: [0, 0, 2.0],
         hint: '两根下撑杆交叉铰接，下端骑在底座的滑轨上',
-        b: linkB(CX - A0, 0, PH0, PA.blue)
+        b: linkB(CX - A0, 0, PH0, PA.blue, -.10)
       },
       {
         id: 'l1b', n: '下右撑杆', seq: 2, pivot: [CX + A0, Y0, 0], out: [0, 0, 2.0],
         hint: '右下撑杆与左下撑杆在中点交叉',
-        b: linkB(CX + A0, 0, Math.PI - PH0, PA.blue)
+        b: linkB(CX + A0, 0, Math.PI - PH0, PA.blue, .10)
       },
       {
         id: 'l2a', n: '上左撑杆', seq: 3, pivot: [CX + A0, Y0 + S0, 0], out: [0, 0, 2.2],
         hint: '第二级撑杆架在第一级的铰点上，再撑起平台',
-        b: linkB(CX + A0, S0, Math.PI - PH0, PA.gold)
+        b: linkB(CX + A0, S0, Math.PI - PH0, PA.gold, .10)
       },
       {
         id: 'l2b', n: '上右撑杆', seq: 4, pivot: [CX - A0, Y0 + S0, 0], out: [0, 0, 2.2],
         hint: '第二级撑杆与平台铰接，顶起整块台面',
-        b: linkB(CX - A0, S0, PH0, PA.gold)
+        b: linkB(CX - A0, S0, PH0, PA.gold, -.10)
       },
       {
         id: 'platform', n: '平台', seq: 5, pivot: [CX, Y0 + TOP0, 0], out: [0, 0, 2.4],
         hint: '平台在最上面，随剪叉张合而升降',
         b: [
-          { t: 'b', s: [1.56, .1, .66], p: [CX, Y0 + TOP0 + .05, 0], c: PA.woodL, ro: .74 },
-          { t: 'b', s: [1.62, .05, .72], p: [CX, Y0 + TOP0 + .12, 0], c: PA.yellow, ro: .6 },
-          { t: 'b', s: [1.5, .07, .07], p: [CX, Y0 + TOP0 + .52, -.3], c: PA.metalD, ro: .4 },
-          { t: 'b', s: [.07, .4, .07], p: [CX - .72, Y0 + TOP0 + .32, -.3], c: PA.metalD, ro: .4 },
-          { t: 'b', s: [.07, .4, .07], p: [CX + .72, Y0 + TOP0 + .32, -.3], c: PA.metalD, ro: .4 },
-          { t: 'b', s: [.5, .3, .38], p: [CX, Y0 + TOP0 + .28, .06], c: PA.blue, ro: .6 },
-          { t: 'b', s: [.52, .06, .4], p: [CX, Y0 + TOP0 + .44, .06], c: PA.blueD, ro: .5 }
+          { t: 'b', s: [1.56, .1, .66], p: [CX, Y0 + TOP0 + .12, 0], c: PA.woodL, ro: .74 },
+          { t: 'b', s: [1.62, .05, .72], p: [CX, Y0 + TOP0 + .19, 0], c: PA.yellow, ro: .6 },
+          { t: 'b', s: [1.5, .07, .07], p: [CX, Y0 + TOP0 + .59, -.3], c: PA.metalD, ro: .4 },
+          { t: 'b', s: [.07, .4, .07], p: [CX - .72, Y0 + TOP0 + .39, -.3], c: PA.metalD, ro: .4 },
+          { t: 'b', s: [.07, .4, .07], p: [CX + .72, Y0 + TOP0 + .39, -.3], c: PA.metalD, ro: .4 },
+          { t: 'b', s: [.5, .3, .38], p: [CX, Y0 + TOP0 + .35, .06], c: PA.blue, ro: .6 },
+          { t: 'b', s: [.52, .06, .4], p: [CX, Y0 + TOP0 + .51, .06], c: PA.blueD, ro: .5 }
         ]
       }
     ],
@@ -8834,10 +8896,11 @@ const cp4 = (() => {
     },
     base: [
       ...R.base(.2, 3.45, []),
-      pillar(CX, 0, Y0, PA.woodD, -.46, .2),
+      pillar(CX, -0.39, Y0, PA.woodD, -.56, .2),
       pillar(PX, 0, Y0, PA.woodD, -.5, .16),
-      { t: 'c', rt: .12, h: .5, p: [CX, CY, -.34], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 },
-      { t: 'c', rt: .1, h: .5, p: [PX, CY, -.36], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 },
+      /* 两根支承轴只顶到零件背面为止，不再伸进盒体/轮毂实体 */
+      { t: 'c', rt: .12, h: .24, p: [CX, CY, -.58], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 },
+      { t: 'c', rt: .1, h: .28, p: [PX, CY, -.38], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 },
       pillar(CX - .72, -.5, Y0, PA.woodD, -.52, .14)
     ],
     parts: [
@@ -8876,7 +8939,7 @@ const cp4 = (() => {
         b: [
           gearAt(Z2, m, PX, CY, .3, PA.blue, Math.PI - s2),
           { t: 'c', rt: .14, h: .44, p: [PX, CY, 0], rot: [HF, 0, 0], c: PA.blueD, m: .6, ro: .35 },
-          { t: 'b', s: [.1, .3, .1], p: [PX + .2, CY, .16], c: PA.sky, ro: .5 }
+          { t: 'b', s: [.07, .3, .07], p: [PX + .13, CY, .16], c: PA.sky, ro: .5 }
         ]
       },
       {
@@ -8885,7 +8948,7 @@ const cp4 = (() => {
         b: [
           R.rod([CX - .72, -.5], [CX - .5, -.3], .055, PA.metalD, -.24),
           { t: 'b', s: [.14, .1, .12], p: [CX - .46, CY - .27, -.24], c: PA.steel, ro: .4 },
-          R.pin(CX - .72, -.5, .07, .3, -.24, PA.metal)
+          R.pin(CX - .72, -.5, .07, .2, -.31, PA.metal)
         ]
       }
     ],
@@ -8950,7 +9013,7 @@ const cp5 = (() => {
     base: [
       ...R.base(.55, 3.85, []),
       pillar(CX, 0, Y0, PA.woodD, -.55, .22),
-      { t: 'c', rt: .16, h: .5, p: [CX, CY, -.44], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 }
+      { t: 'c', rt: .16, h: .4, p: [CX, CY, -.45], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 }
     ],
     parts: [
       {
@@ -9143,8 +9206,8 @@ const fq2 = (() => {
         id: 'sear', n: '阻铁', seq: 2, pivot: [S.x, Y0 - .62, 0], out: [0, 0, 2.3],
         hint: '阻铁的尖端卡在击锤缺口里，转一点点就解脱',
         b: [
-          R.rod([S.x, -.62], [1.72, -.28], .07, PA.steel, 0),
-          { t: 'b', s: [.16, .1, .16], p: [1.74, Y0 - .3, 0], c: PA.metalD, ro: .35 },
+          R.rod([S.x, -.62], [1.70, -.36], .07, PA.steel, 0),
+          { t: 'b', s: [.16, .1, .16], p: [1.74, Y0 - .36, 0], c: PA.metalD, ro: .35 },
           { t: 'c', rt: .1, h: .22, p: [S.x, Y0 - .62, 0], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 }
         ]
       }
@@ -9193,8 +9256,8 @@ const fq3 = (() => {
       { t: 'b', s: [2.0, 1.7, .1], p: [1.75, Y0 + .05, -.3], c: PA.woodD, ro: .8 },
       { t: 'c', rt: .07, h: .5, p: [S.x, Y0 + .55, -.3], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .3 },
       { t: 'c', rt: .07, h: .5, p: [T.x, Y0 + .05, -.3], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .3 },
-      { t: 'b', s: [.36, .14, .22], p: [.98, Y0 + .62, 0], c: PA.metalD, m: .7, ro: .35 },
-      { t: 'b', s: [.12, .16, .22], p: [1.16, Y0 + .55, 0], c: PA.metalD, m: .7, ro: .35 }
+      { t: 'b', s: [.36, .14, .22], p: [0.86, Y0 + .62, 0], c: PA.metalD, m: .7, ro: .35 },
+      { t: 'b', s: [.12, .16, .22], p: [0.94, Y0 + .48, 0], c: PA.metalD, m: .7, ro: .35 }
     ],
     parts: [
       {
@@ -9211,9 +9274,9 @@ const fq3 = (() => {
         id: 'link', n: '联动杆', seq: 2, pivot: [1.9, Y0 + .38, 0], out: [0, 0, 2.3],
         hint: '水平连杆把扳机的推动原样传给阻铁',
         b: [
-          { t: 'b', s: [.85, .1, .16], p: [1.93, Y0 + .38, 0], c: PA.sky, ro: .5 },
-          { t: 'c', rt: .06, h: .2, p: [1.52, Y0 + .38, 0], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 },
-          { t: 'c', rt: .06, h: .2, p: [2.34, Y0 + .38, 0], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 }
+          /* 杆身右端面正好落在扳机上臂顶端的运动包络之外：只顶不穿 */
+          { t: 'b', s: [.76, .1, .16], p: [1.93, Y0 + .38, 0], c: PA.sky, ro: .5 },
+          { t: 'c', rt: .06, h: .2, p: [1.57, Y0 + .38, 0], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 }
         ]
       },
       {
@@ -9221,7 +9284,7 @@ const fq3 = (() => {
         hint: '阻铁尖端挂在待发件上，尾端被连杆顶着',
         b: [
           R.rod([S.x, .55], [1.2, .58], .075, PA.steel, 0),
-          R.rod([S.x, .55], [S.x, .38], .06, PA.steel, 0),
+          R.rod([S.x, .55], [S.x, .46], .06, PA.steel, 0),
           { t: 'b', s: [.14, .12, .18], p: [1.19, Y0 + .6, 0], c: PA.metalD, ro: .35 },
           { t: 'c', rt: .1, h: .22, p: [S.x, Y0 + .55, 0], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 }
         ]
@@ -9254,10 +9317,11 @@ const fq4 = (() => {
   const CX = 1.75, CY = Y0, RIM = .62, N = 6;
   const sp = (t, a, b) => smooth(Math.min(1, Math.max(0, (t - a) / (b - a))));
   const seg = TAU / N;
+  /* 外圆的定位槽做成直壁窄槽：定位栓的方头能整块落进去，槽底与栓头相切 */
   const rimR = a => {
     const p = ((a % seg) + seg) % seg;
-    const d = Math.abs(p - seg / 2) / (seg / 2);
-    return d < .24 ? RIM - .07 * Math.cos(d / .24 * HF) : RIM;
+    const d = Math.abs(p - seg / 2);
+    return d < .16 ? RIM - .1 : RIM;
   };
   const chamber = k => {
     const a = k * seg + seg / 2;
@@ -9279,13 +9343,16 @@ const fq4 = (() => {
     base: [
       ...R.base(.35, 3.15, []),
       pillar(CX, 0, Y0, PA.woodD, -.55, .24),
-      { t: 'c', rt: .13, h: .6, p: [CX, CY, -.5], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .3 },
-      { t: 'c', rt: .1, h: .4, p: [CX, CY, .42], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .3 },
+      /* 前后轴承座都改成带轴孔的轴瓦：转轮轴从孔里穿过，不与座体互穿 */
+      { t: 'c', rt: .17, h: .18, p: [CX, CY, -.57], rot: [HF, 0, 0], c: PA.woodL, ro: .72, bore: .13 },
+      { t: 'c', rt: .17, h: .18, p: [CX, CY, .45], rot: [HF, 0, 0], c: PA.woodL, ro: .72, bore: .13 },
       /* 定位栓的导座做成 U 形抱箍：两侧夹板 + 底板，栓体在中间滑动 */
       { t: 'b', s: [.06, .26, .26], p: [CX - .16, Y0 - RIM - .16, -.16], c: PA.woodD, ro: .8 },
       { t: 'b', s: [.06, .26, .26], p: [CX + .16, Y0 - RIM - .16, -.16], c: PA.woodD, ro: .8 },
       { t: 'b', s: [.34, .05, .26], p: [CX, Y0 - RIM - .31, -.16], c: PA.woodD, ro: .8 },
-      pillar(CX - 1.05, -.9, Y0, PA.woodD, -.34, .16)
+      pillar(CX - 1.05, -.9, Y0, PA.woodD, -.50, .16),
+      /* 拨动爪的轴座：带轴孔的轴瓦，爪绕自己的轴转，瓦体在爪的运动包络之外 */
+      { t: 'c', rt: .13, h: .18, p: [CX - 1.05, Y0 - .9, -.19], rot: [HF, 0, 0], c: PA.woodL, ro: .72, bore: .1 }
     ],
     parts: [
       {
@@ -9296,7 +9363,8 @@ const fq4 = (() => {
             t: 'pf', pts: radiusRing(CX, CY, rimR, 340), holes: [0, 1, 2, 3, 4, 5].map(chamber),
             d: .6, p: [0, 0, 0], c: PA.gold, m: .5, ro: .4
           },
-          prof(radiusRing(CX, CY, ratchetRF(.46, .56, N, 0), 120), .12, PA.org, -.35, { m: .5, ro: .4 }),
+          /* 棘齿圈长在金色轮盘外缘之外：拨动爪只咬棘齿，绝不进轮体 */
+          prof(radiusRing(CX, CY, ratchetRF(.60, .70, N, 0), 160), .12, PA.org, -.35, { m: .5, ro: .4 }),
           { t: 'c', rt: .12, h: .8, p: [CX, CY, 0], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 },
           { t: 'b', s: [.1, .18, .1], p: [CX + .34, CY, .31], c: PA.red, ro: .5 }
         ]
@@ -9305,16 +9373,18 @@ const fq4 = (() => {
         id: 'bolt', n: '定位栓', seq: 2, pivot: [CX, Y0 - RIM, 0], out: [0, 0, 2.3],
         hint: '定位栓落进外圆槽里，转轮就锁死了',
         b: [
-          { t: 'b', s: [.2, .2, .2], p: [CX, Y0 - RIM - .04, -.16], c: PA.steel, ro: .4 },
-          { t: 'c', rt: .1, h: .2, p: [CX, Y0 - RIM + .04, -.16], rot: [HF, 0, 0], c: PA.metalD, m: .8, ro: .3 }
+          { t: 'b', s: [.16, .2, .2], p: [CX, Y0 - RIM - .04, -.16], c: PA.steel, ro: .4 },
+          /* 方栓头：宽度按槽宽做，顶面落到槽底为止，落槽时与槽底相切 */
+          { t: 'b', s: [.1, .08, .14], p: [CX, Y0 - RIM + .06, -.16], c: PA.metalD, m: .8, ro: .3 }
         ]
       },
       {
         id: 'pawl', n: '拨动爪', seq: 3, pivot: [CX - 1.05, Y0 - .9, 0], out: [0, 0, 2.5],
         hint: '拨动爪推着棘齿走一格，回程时从齿背滑过',
         b: [
-          R.rod([CX - 1.05, -.9], [CX - .46, -.34], .06, PA.blue, -.24),
-          { t: 'b', s: [.16, .12, .12], p: [CX - .44, Y0 - .32, -.24], c: PA.blueD, ro: .4 },
+          R.rod([CX - 1.05, -.9], [CX - .58, -.46], .06, PA.blue, -.35),
+          /* 爪头压在棘齿圈上（半径 ≥ 轮盘外缘 0.62），只与棘齿啮合 */
+          { t: 'b', s: [.12, .08, .12], p: [CX - .58, Y0 - .46, -.35], c: PA.blueD, ro: .4 },
           { t: 'c', rt: .09, h: .24, p: [CX - 1.05, Y0 - .9, -.24], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 }
         ]
       }
@@ -9326,7 +9396,7 @@ const fq4 = (() => {
         : th < .62 * Math.PI ? '定位栓落槽' : '锁定待发';
       return {
         cyl: { r: [0, 0, rot] },
-        bolt: { p: [0, -.085 * r, 0] },
+        bolt: { p: [0, -.11 * r, 0] },
         pawl: { r: [0, 0, .42 * adv(th)] },
         n: { turn: dd(rot) },
         readout: [
@@ -9427,6 +9497,299 @@ const MECH_ORDER = [
   'lever', 'pulleyBlock', 'scissorLift', 'springStore', 'ratchetWrench',
   'rotaryLock', 'hammerSear', 'triggerLink', 'cylinderIndex'
 ];
+
+/* ============================================================
+ * 轴瓦 / 内轴的安全收拢
+ *   旧做法把轴瓦放在 z=0 并让内轴前后各伸出 0.09，
+ *   结果曲柄摇杆、双曲柄这类四连杆的连杆会扫过伸出的内轴。
+ *   这里在零件表建好后，按「后立柱 → 最近零件背面」这段自由区间
+ *   重新摆放每一组轴瓦与内轴：它们只待在这段空隙里，不进入零件实体。
+ * ============================================================ */
+function primZRange(pr) {
+  const rot = pr.rot || [0, 0, 0];
+  const rx = rot[0] || 0, ry = rot[1] || 0, rz = rot[2] || 0;
+  const pz = pr.p ? (pr.p[2] || 0) : 0;
+  const near = (a) => Math.abs(Math.abs(a) - HF) < 0.02;
+  if (pr.t === 'b') {
+    const [sx, sy, sz] = pr.s;
+    let hz = sz / 2;
+    if (near(rx)) hz = sy / 2;
+    else if (near(ry)) hz = sx / 2;
+    else if (Math.abs(rx) > 1e-3) hz = (Math.abs(sy * Math.sin(rx)) + Math.abs(sz * Math.cos(rx))) / 2;
+    else if (Math.abs(ry) > 1e-3) hz = (Math.abs(sx * Math.sin(ry)) + Math.abs(sz * Math.cos(ry))) / 2;
+    return [pz - hz, pz + hz];
+  }
+  if (pr.t === 'c' || pr.t === 'd') {
+    const r = pr.t === 'c' ? Math.max(pr.rt, pr.rb ?? pr.rt) : pr.rad;
+    const h = pr.t === 'c' ? pr.h : Math.hypot(pr.b[0] - pr.a[0], pr.b[1] - pr.a[1], pr.b[2] - pr.a[2]);
+    let hz;
+    if (near(rx)) hz = h / 2;
+    else if (near(ry) || near(rz) || Math.abs(ry) > 1e-3) hz = r;
+    else if (Math.abs(rx) > 1e-3) hz = (Math.abs(h * Math.sin(rx)) + Math.abs(2 * r * Math.cos(rx))) / 2;
+    else hz = r;
+    const cz = pr.t === 'd' ? (pr.a[2] + pr.b[2]) / 2 : pz;
+    return [cz - hz, cz + hz];
+  }
+  if (pr.t === 'pf') {
+    const hz = Math.abs(rx) > 1e-3 || Math.abs(ry) > 1e-3 ? 0.8 : (pr.d || 0.2) / 2;
+    return [pz - Math.abs(hz), pz + Math.abs(hz)];
+  }
+  if (pr.t === 'o') return [pz - (pr.tube || 0), pz + (pr.tube || 0)];
+  if (pr.t === 's') return [pz - pr.rad, pz + pr.rad];
+  if (pr.t === 'k') { const hz = Math.max(pr.rad, pr.h / 2); return [pz - hz, pz + hz]; }
+  if (pr.t === 'hd') { const r = (pr.rad || .3) + (pr.tube || .06); return [pz - r, pz + r]; }
+  return null;
+}
+
+function primXY(pr) {
+  if (pr.t === 'd') {
+    return [(pr.a[0] + pr.b[0]) / 2, (pr.a[1] + pr.b[1]) / 2,
+      Math.hypot(pr.b[0] - pr.a[0], pr.b[1] - pr.a[1]) / 2 + pr.rad];
+  }
+  const px = pr.p ? (pr.p[0] || 0) : 0, py = pr.p ? (pr.p[1] || 0) : 0;
+  if (pr.t === 'b') return [px, py, Math.hypot(pr.s[0], pr.s[1]) / 2];
+  if (pr.t === 'c') {
+    const r = Math.max(pr.rt, pr.rb ?? pr.rt);
+    const rot = pr.rot || [0, 0, 0];
+    const rx = rot[0] || 0;
+    /* 轴向沿 z 时，XY 投影就是半径 r 的圆；轴向仍在 XY 平面时，投影是 2r×h 的长条 */
+    const rmax = Math.abs(Math.abs(rx) - HF) < 0.02 ? r : Math.hypot(r, pr.h / 2);
+    return [px, py, rmax];
+  }
+  if (pr.t === 'pf') {
+    let mnx = Infinity, mxx = -Infinity, mny = Infinity, mxy = -Infinity;
+    (pr.pts || []).forEach(q => {
+      if (q[0] < mnx) mnx = q[0]; if (q[0] > mxx) mxx = q[0];
+      if (q[1] < mny) mny = q[1]; if (q[1] > mxy) mxy = q[1];
+    });
+    if (!isFinite(mnx)) return [px, py, 0];
+    const cx = (mnx + mxx) / 2, cy = (mny + mxy) / 2;
+    return [px + cx, py + cy, Math.hypot(mxx - mnx, mxy - mny) / 2];
+  }
+  if (pr.t === 'o') return [px, py, pr.rad + pr.tube];
+  if (pr.t === 's') return [px, py, pr.rad];
+  if (pr.t === 'k') return [px, py, Math.hypot(pr.rad, pr.h / 2)];
+  if (pr.t === 'hd') return [px, py, Math.hypot((pr.len || 2) / 2, (pr.rad || .3) + (pr.tube || .06))];
+  return [px, py, 0];
+}
+
+function fitPivotSupports(mech) {
+  const BORE = 0.17, ROUT = 0.22;
+  const near = [];
+  mech.parts.forEach(p => p.b.forEach(pr => {
+    const z = primZRange(pr);
+    if (!z) return;
+    near.push({ z, pr });
+  }));
+  /* 同一轴心的「轴瓦 + 内轴」成组处理：整组贴着最靠后那个零件的背面站，
+   * 绝不横穿任何零件的实体，也不伸进零件的运动包络。 */
+  const groups = new Map();
+  (mech.base || []).forEach(pr => {
+    if (!pr._pv) return;
+    const k = [pr._px.toFixed(3), pr._py.toFixed(3), (pr._zb ?? 0).toFixed(3)].join('|');
+    if (!groups.has(k)) groups.set(k, { px: pr._px, py: pr._py, list: [] });
+    groups.get(k).list.push(pr);
+  });
+  groups.forEach(({ px, py, list }) => {
+    if (list[0]._fixed) return;                      // 指定了固定深度的轴承座，原样保留
+    let back = Infinity;
+    for (const it of near) {
+      if (it.z[1] <= -0.50) continue;                // 已经退到后立柱之后，构不成阻挡
+      if (!primHitXY(it.pr, px, py, ROUT + 0.02)) continue;   // 径向够不着轴心
+      const r = it.pr.t === 'c' ? Math.max(it.pr.rt, it.pr.rb ?? it.pr.rt) : Infinity;
+      if (r <= BORE + 0.006) continue;               // 整体落在轴孔里，属于配合
+      if (it.z[0] < back) back = it.z[0];            // 取最靠后的零件背面
+    }
+    if (back === Infinity) return;                   // 轴心附近没有零件，保持默认位置
+    const z1 = Math.min(back - 0.008, list[0]._front ?? 0.48);   // 轴瓦前端紧贴零件背面
+    list.forEach(pr => {
+      const want = pr._isAxle ? 0.22 : 0.30;
+      const z0 = Math.max(z1 - want, -0.62);
+      const h = Math.max(0.12, z1 - z0);
+      pr.h = +h.toFixed(3);
+      pr.p = [pr.p[0], pr.p[1], +(z1 - h / 2).toFixed(3)];
+    });
+  });
+}
+
+/* ---------------- 自动配孔 ----------------
+ * 真实机械里，销轴/转轴穿过零件的地方一定有孔；
+ * 数据里如果没有孔，审计器就会把它当成「实体穿越」。
+ * 这里在全部机构建好后统一扫描（只看同轴情形）：
+ *   1) 同轴的小轴(销) 穿过大圆柱(轴瓦/轮毂/盘) → 给大圆柱 `bore`（Lathe 真正挖空）
+ *   2) 同轴的 z 向销穿过挤出轮廓(pf，齿轮/摆杆/盘) → 在轮廓里挖一个圆孔
+ * 只做「同轴」的这一类；真正的实体互撞仍由 strict.mjs 报出来逐件改。
+ */
+function eulerAxis(rot) {
+  const rx = rot[0] || 0, ry = rot[1] || 0, rz = rot[2] || 0;
+  /* three.js Euler 'XYZ'：R = Rx·Ry·Rz，作用在 (0,1,0) 上 */
+  let x = 0, y = 1, z = 0;
+  const cx = Math.cos(rx), sx = Math.sin(rx), cy = Math.cos(ry), sy = Math.sin(ry), cz = Math.cos(rz), sz = Math.sin(rz);
+  let x1 = x * cz - y * sz, y1 = x * sz + y * cz, z1 = z;
+  let x2 = x1 * cy + z1 * sy, y2 = y1, z2 = -x1 * sy + z1 * cy;
+  return [x2, y2 * cx - z2 * sx, y2 * sx + z2 * cx];
+}
+
+function polyHit(x, y, pts) {
+  let c = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const xi = pts[i][0], yi = pts[i][1], xj = pts[j][0], yj = pts[j][1];
+    if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) c = !c;
+  }
+  return c;
+}
+
+function autoBore(mech) {
+  const items = [];
+  (mech.base || []).forEach(pr => items.push({ pr, owner: '#base' }));
+  (mech.parts || []).forEach(p => (p.b || []).forEach(pr => items.push({ pr, owner: p.id })));
+  const cyl = [];
+  items.forEach(it => {
+    const pr = it.pr;
+    if (pr.t !== 'c' || !(pr.h > 0)) return;
+    const p = pr.p || [0, 0, 0];
+    cyl.push({
+      ...it, p, u: eulerAxis(pr.rot || [0, 0, 0]),
+      r: Math.max(pr.rt, pr.rb ?? pr.rt), h: pr.h, bore: pr.bore || 0
+    });
+  });
+  const pins = cyl.filter(o => o.r <= 0.12);
+  for (const pin of pins) {
+    for (const rec of cyl) {
+      if (rec === pin || rec.owner === pin.owner) continue;
+      if (rec.r < pin.r + 0.03) continue;
+      if (Math.abs(pin.u[0] * rec.u[0] + pin.u[1] * rec.u[1] + pin.u[2] * rec.u[2]) < 0.995) continue;
+      const d = [rec.p[0] - pin.p[0], rec.p[1] - pin.p[1], rec.p[2] - pin.p[2]];
+      const along = d[0] * pin.u[0] + d[1] * pin.u[1] + d[2] * pin.u[2];
+      const perp = Math.hypot(d[0] - along * pin.u[0], d[1] - along * pin.u[1], d[2] - along * pin.u[2]);
+      if (perp > 0.012) continue;                       // 不同轴
+      const ov = Math.min(pin.h / 2, along + rec.h / 2) - Math.max(-pin.h / 2, along - rec.h / 2);
+      if (ov < 0.012) continue;                         // 轴向不重叠
+      const want = +(pin.r + 0.012).toFixed(3);
+      if (want > rec.r - 0.025) continue;               // 壁太薄，挖不了
+      if ((rec.pr.bore || 0) >= want) continue;
+      rec.pr.bore = rec.bore = want;
+    }
+  }
+  /* 挤出轮廓：z 向销穿过就在轮廓里挖个圆孔 */
+  const pfs = items.filter(it => it.pr.t === 'pf' && !it.pr.rot && it.pr.pts);
+  for (const pin of pins) {
+    if (Math.abs(pin.u[2]) < 0.995) continue;
+    for (const it of pfs) {
+      const pr = it.pr;
+      if (it.owner === pin.owner) continue;
+      const hz = (pr.d || 0.1) / 2, cz = pr.p ? (pr.p[2] || 0) : 0;
+      if (Math.min(pin.p[2] + pin.h / 2, cz + hz) - Math.max(pin.p[2] - pin.h / 2, cz - hz) < 0.012) continue;
+      if (!polyHit(pin.p[0], pin.p[1], pr.pts)) continue;
+      if ((pr.holes || []).some(hp => hp.every(q => Math.hypot(q[0] - pin.p[0], q[1] - pin.p[1]) < pin.r + 0.02))) continue;
+      const want = +(pin.r + 0.012).toFixed(3);
+      pr.holes = (pr.holes || []).concat([radiusRing(pin.p[0], pin.p[1], () => want, 40)]);
+    }
+  }
+}
+
+MECH_ORDER.forEach(id => fitPivotSupports(MECHS[id]));
+MECH_ORDER.forEach(id => autoBore(MECHS[id]));
+
+/* ---------------- 销轴自动让位 ----------------
+ * 判定标准（用户要求）：运动件在整个运动包络里都不得与别的零件实体穿越。
+ * 真实的销轴连接应该是「各自带一段销、在对方零件背面处对接」，
+ * 而不是一根长销从别人身体里穿过去。
+ * 这里在数据建好后统一把每根销缩短到「本零件 → 对方零件近侧面」之间；
+ * 如果销整个埋进了别的零件实体（根本看不见），直接删掉。
+ * 只处理轴向沿 Z 的销（机构平面内的绝大多数），其它方向的销留给审计器逐件报。
+ */
+function primHitXY(pr, x, y, m = 0.004) {
+  const px = pr.p ? (pr.p[0] || 0) : 0, py = pr.p ? (pr.p[1] || 0) : 0;
+  if (pr.t === 'b') return Math.abs(x - px) <= pr.s[0] / 2 + m && Math.abs(y - py) <= pr.s[1] / 2 + m;
+  if (pr.t === 'c') {
+    const r = Math.max(pr.rt, pr.rb ?? pr.rt);
+    const rot = pr.rot || [0, 0, 0];
+    const flat = Math.abs(Math.abs(rot[0] || 0) - HF) < 0.02;
+    return Math.hypot(x - px, y - py) <= (flat ? r : Math.hypot(r, pr.h / 2)) + m;
+  }
+  if (pr.t === 'd') {
+    const [ax, ay] = pr.a, [bx, by] = pr.b;
+    const dx = bx - ax, dy = by - ay;
+    const L2 = dx * dx + dy * dy || 1e-9;
+    let t = ((x - ax) * dx + (y - ay) * dy) / L2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(x - (ax + t * dx), y - (ay + t * dy)) <= pr.rad + m;
+  }
+  if (pr.t === 'pf') return polyHit(x, y, pr.pts || []);
+  if (pr.t === 'o') return Math.abs(Math.hypot(x - px, y - py) - pr.rad) <= pr.tube + m;
+  if (pr.t === 's' || pr.t === 'k') return Math.hypot(x - px, y - py) <= pr.rad + m;
+  if (pr.t === 'hd') return Math.abs(x - px) <= (pr.len || 2) / 2 && Math.hypot(y - py, 0) <= (pr.rad || .3) + (pr.tube || .06);
+  return false;
+}
+
+function fitPins(mech) {
+  const parts = mech.parts || [];
+  const blockers = [];
+  const pins = [];
+  const push = (owner, pr) => {
+    const z = primZRange(pr);
+    if (!z) return;
+    blockers.push({ owner, pr, z });
+  };
+  const pushPin = (owner, pr, r) => {
+    const z = primZRange(pr);
+    const px = pr.p[0] || 0, py = pr.p[1] || 0;
+    pins.push({ owner, pr, r, px, py, a: z[0], b: z[1] });
+  };
+  (mech.base || []).forEach(pr => push('#base', pr));
+  parts.forEach(p => p.b.forEach(pr => push(p.id, pr)));
+  parts.forEach(p => p.b.forEach(pin => {
+    if (pin.t !== 'c' || !(pin.h > 0)) return;
+    const r = Math.max(pin.rt, pin.rb ?? pin.rt);
+    if (r > 0.12) return;
+    const rot = pin.rot || [0, 0, 0];
+    if (!(Math.abs(Math.abs(rot[0] || 0) - HF) < 0.02) || Math.abs(rot[1] || 0) > 0.01 ||
+      Math.abs(rot[2] || 0) > 0.01) return;                         // 只处理沿 Z 的销
+    pushPin(p.id, pin, r);
+  }));
+  const isPin = pr => pr.t === 'c' && Math.max(pr.rt, pr.rb ?? pr.rt) <= 0.12;
+  /* 第一轮：把销缩到「本零件 → 对方零件近侧面」之间（销不当作阻挡体） */
+  for (const pn of pins) {
+    let a = pn.a, b = pn.b;
+    for (const it of blockers) {
+      if (it.owner === pn.owner) continue;
+      if (isPin(it.pr)) continue;
+      const [l, h2] = it.z;
+      if (h2 <= a + 0.004 || l >= b - 0.004) continue;              // z 不重叠
+      if (!primHitXY(it.pr, pn.px, pn.py)) continue;                // 径向没打上
+      if (l <= a + 0.004 && h2 >= b - 0.004) { a = b; break; }       // 整个埋住
+      if (l > a + 0.004) b = Math.min(b, l - 0.006);
+      if (h2 < b - 0.004) a = Math.max(a, h2 + 0.006);
+    }
+    pn.a = a; pn.b = b;
+  }
+  /* 第二轮：同轴的销与销在重叠处对接分开（各自只留在自己那一段） */
+  for (let i = 0; i < pins.length; i++) {
+    for (let j = i + 1; j < pins.length; j++) {
+      const A = pins[i], B = pins[j];
+      if (A.owner === B.owner) continue;
+      if (Math.hypot(A.px - B.px, A.py - B.py) > 0.012) continue;
+      if (A.b <= B.a + 0.012 || B.b <= A.a + 0.012) continue;
+      /* 重叠区 [lo,hi]：按各自所在层的前后关系，在中线处断开 */
+      const lo = Math.max(A.a, B.a), hi = Math.min(A.b, B.b);
+      const mid = (lo + hi) / 2;
+      const Ac = (A.a + A.b) / 2, Bc = (B.a + B.b) / 2;
+      const [front, back] = Ac <= Bc ? [B, A] : [A, B];
+      if (back.b > mid - 0.005) back.b = mid - 0.005;
+      if (front.a < mid + 0.005) front.a = mid + 0.005;
+    }
+  }
+  /* 落盘 */
+  for (const pn of pins) {
+    if (pn.b - pn.a < 0.04) { pn.pr._del = 1; continue; }
+    pn.pr.h = +(pn.b - pn.a).toFixed(3);
+    pn.pr.p = [pn.px, pn.py, +((pn.a + pn.b) / 2).toFixed(3)];
+  }
+  parts.forEach(p => { p.b = p.b.filter(pr => !pr._del); });
+}
+
+MECH_ORDER.forEach(id => fitPins(MECHS[id]));
 
 /* 采样一遍，把摆幅 / 行程测出来，界面上直接用真值 */
 Object.values(MECHS).forEach(m => {

@@ -31,17 +31,20 @@ host.innerHTML = MECH_PLAN.map(gp => {
     const m = MECHS[it.id];
     if (!m) return '';
     return `
-      <a class="card mech-card" style="--d:${0.04 + i * 0.04}s" href="mech-play.html?id=${it.id}">
-        <div class="thumb" data-mech="${it.id}">
-          ${badge(it.id)}
-          <span class="spin"></span>
-        </div>
-        <div class="info">
-          <h3>${m.name}</h3>
-          <p class="meta"><span class="tg">${m.tag}</span><span>${m.parts.length} 个可拆零件</span></p>
-          <p class="sub">${m.summary}</p>
-        </div>
-      </a>`;
+      <div class="card mech-card" style="--d:${0.04 + i * 0.04}s">
+        <a class="card-hit" href="mech-play.html?id=${it.id}">
+          <div class="thumb" data-mech="${it.id}">
+            ${badge(it.id)}
+            <span class="spin"></span>
+          </div>
+          <div class="info">
+            <h3>${m.name}</h3>
+            <p class="meta"><span class="tg">${m.tag}</span><span>${m.parts.length} 个可拆零件</span></p>
+            <p class="sub">${m.summary}</p>
+          </div>
+        </a>
+        <a class="card-act" href="mech-play.html?id=${it.id}&mode=teach">🔧 拆装练习 · ${m.parts.length} 件</a>
+      </div>`;
   }).join('');
 
   const soon = off.length
