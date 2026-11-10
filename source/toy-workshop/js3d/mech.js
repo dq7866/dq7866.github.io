@@ -140,6 +140,22 @@ function renderParts() {
       stage.highlight(p.id, false);
       stage.highlight(p.id, true);
       setTimeout(() => stage.highlight(p.id, false), 1600);
+      if (mode === 'teach') {
+        /* 拆装模式下清单就是操作入口：点对了就拆/装，点错了直接提示该点谁 */
+        if (phase === 'dis') {
+          const w = nextRemove();
+          if (w && w.id === p.id) { detach(p); return; }
+          if (removed.includes(p.id)) { toast(`「${p.n}」已经拆下来了`); return; }
+          toast(`按顺序拆：先拆「${w ? w.n : '—'}」`);
+          if (w) { stage.highlight(w.id, true); setTimeout(() => stage.highlight(w.id, false), 1600); }
+          return;
+        }
+        const w = nextInstall();
+        if (w && w.id === p.id) { attach(p); return; }
+        toast(`按顺序装：下一步装「${w ? w.n : '—'}」`);
+        if (w) { stage.highlight(w.id, true); setTimeout(() => stage.highlight(w.id, false), 1600); }
+        return;
+      }
       toast(`${p.n}：${p.hint}`);
     });
     host.appendChild(row);
@@ -348,7 +364,7 @@ function setMode(m) {
     th = 0;
     phase = 'dis';
     resetParts();
-    $('#modeBtn').textContent = '观察';
+    $('#modeBtn').textContent = '返回观察';
     $('#modePill').textContent = '拆装模式';
     document.body.classList.add('teach');
     stage.fitCamera();
@@ -363,7 +379,7 @@ function setMode(m) {
     });
     removed = [];
     phase = 'dis';
-    $('#modeBtn').textContent = '拆装';
+    $('#modeBtn').textContent = '拆装练习';
     $('#modePill').textContent = '观察模式';
     document.body.classList.remove('teach');
     playing = true;
@@ -380,6 +396,8 @@ function setMode(m) {
   syncStepBtn();
 }
 $('#modeBtn').addEventListener('click', () => setMode(mode === 'teach' ? 'observe' : 'teach'));
+/* 舞台上的一键拆装入口（观察模式才显示，见 style3d.css 的 body.teach 规则） */
+$('#ctaTeach')?.addEventListener('click', () => { if (mode !== 'teach') setMode('teach'); });
 
 /* ---------------- 播放控制 ---------------- */
 function setPlaying(v) {
