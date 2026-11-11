@@ -113,6 +113,9 @@ exclude:
   - 'forest - 副本/**'
   - 'bike - 副本/**'
   - 'guardian - 副本/**'
+  # 巧手拆装工坊的完整副本（约 5.7 MB，含 4 个 1 MB 单文件），只作本地备份，
+  # 不随站点发布；不排除的话 hexo 会照原样复制进 public/ 一起上站。
+  - 'toy-workshop - 副本/**'
   - 'forest/assets/audio/**'
   # 亲子知识擂台是本地 Node 服务端工程，不是站点静态资源。
   # 整目录排除：里面有 data/admin/auth.json（管理员口令）、

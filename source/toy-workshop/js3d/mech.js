@@ -360,7 +360,7 @@ function setMode(m) {
   mode = m;
   const btn = $('#modeBtn');
   if (m === 'teach') {
-    playing = false;
+    setPlaying(false);
     th = 0;
     phase = 'dis';
     resetParts();

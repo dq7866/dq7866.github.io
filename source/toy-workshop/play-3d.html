@@ -5952,20 +5952,21 @@ __REG["mech-models"] = (function(){
  *     两者可同时给：先绕 pivot 转，再整体平移，正好描述连杆的刚体运动
  *   · 所有图元都按 θ=0 姿态直接写在世界坐标里，缩略图渲染器不用改
  *
- * 38 件清单（分批实现，⭐ = 已上线）
- *   一、连杆家族（批 1，7 件）
- *     ⭐ 曲柄摇杆 / 双曲柄 / 曲柄滑块 / 摆动导杆 / 曲柄摇块 / 平行四连杆 / 牛头刨六杆
+ * 43 件清单（分批实现，⭐ = 已上线）
+ *   一、连杆家族（批 1 + 扩充，8 件）
+ *     ⭐ 曲柄摇杆 / 双曲柄 / 曲柄滑块 / 摆动导杆 / 曲柄摇块 / 平行四连杆 / 牛头刨六杆 /
+ *     双摇杆
  *   二、凸轮与间歇（批 2，7 件）
  *     ⭐ 盘形凸轮尖顶从动件 / 滚子从动件凸轮 / 偏心轮 / 槽轮(日内瓦) /
  *     棘轮棘爪 / 不完全齿轮 / 凸轮分度机构
- *   三、齿轮与轮系（批 3，8 件）
+ *   三、齿轮与轮系（批 3 + 扩充，9 件）
  *     ⭐ 外啮合齿轮对 / 内啮合 / 齿轮齿条 / 蜗轮蜗杆 / 行星齿轮 /
- *     差速器 / 锥齿轮换向 / 谐波减速器
- *   四、传动与调速（批 4，7 件）
+ *     差速器 / 锥齿轮换向 / 谐波减速器 / 两级齿轮减速
+ *   四、传动与调速（批 4 + 扩充，9 件）
  *     ⭐ 皮带传动 / 链传动 / 锥轮无级变速 / 丝杠螺母 / 万向节 /
- *     超越离合器 / 离心调速器
- *   五、夹持与蓄能（批 5，5 件）
- *     ⭐ 杠杆 / 滑轮组 / 剪式升降 / 卷簧蓄能 / 棘轮扳手
+ *     超越离合器 / 离心调速器 / 十字滑块联轴器 / 摩擦轮传动
+ *   五、夹持与蓄能（批 5 + 扩充，6 件）
+ *     ⭐ 杠杆 / 滑轮组 / 剪式升降 / 卷簧蓄能 / 棘轮扳手 / 楔块夹紧
  *   六、击发时序（批 6，4 件，抽象结构，不做写实外观）
  *     ⭐ 旋转闭锁 / 击锤与阻铁 / 扳机联动 / 转轮定位
  * ============================================================ */
@@ -6598,7 +6599,7 @@ const cr6 = (() => {
       key: '对边等长且平行，平台只做平移（不转动）。摆杆长 1.4，平台就绕机架中点画半径 1.4 的圆。',
       where: '天平托盘、电梯平层、摄影机稳定架、机车联动杆。'
     },
-    base: R.base(-1.2, 3.4, [0, { x: dx, front: -0.17 }]),
+    base: R.base(-1.2, 3.4, [0, { x: dx, front: -0.30 }]),
     parts: [
       {
         id: 'rockerA', n: '主动摆杆', seq: 1, pivot: [0, R.Y(0), -0.28], out: [0, 0, 2.0],
@@ -6641,12 +6642,12 @@ const cr6 = (() => {
       return {
         rockerA: { r: [0, 0, th] },
         rockerB: { r: [0, 0, th] },
-        platform: { p: [L * c - 0, L * s - L, 0] },
+        platform: { p: [-L * s, L * c - L, 0] },
         n: { tilt: 0 },
         readout: [
           { k: '摆杆转角', v: dg(th) },
           { k: '平台倾角', v: '0.0°' },
-          { k: '平台高度', v: (L + L * s).toFixed(2) }
+          { k: '平台高度', v: (L * c).toFixed(2) }
         ]
       };
     }
@@ -7476,7 +7477,7 @@ const gr2 = (() => {
       },
       {
         id: 'ring', n: `内齿圈 z=${z2}`, seq: 2, pivot: [Q.x, Y0, 0], out: [0, 0, 2.0],
-        hint: '齿圈套在小齿轮外面，最后整体取下',
+        hint: '齿圈套在小齿轮外面，先取下它才能看到小齿轮',
         b: [
           ringB,
           ...boltB,
@@ -7725,7 +7726,7 @@ const gr5 = (() => {
     parts: [
       {
         id: 'sun', n: `太阳轮 z=${zs}`, seq: 1, pivot: [C.x, Y0, 0], out: [0, 0, 2.2],
-        hint: '太阳轮在最外侧中心，先拆摇把再取它',
+        hint: '太阳轮在正中间，先拆摇把，等行星轮和内齿圈都取下后才轮得到它',
         b: [
           { t: 'pf', pts: sunPts, d: .3, p: [C.x, Y0, 0], c: PA.blue, m: .45, ro: .42 },
           R.hub(C.x, 0, .3, .6, PA.blueD, 0),
@@ -7738,7 +7739,7 @@ const gr5 = (() => {
       },
       {
         id: 'carrier', n: '行星架', seq: 2, pivot: [C.x, Y0, .36], out: [0, 0, 2.0],
-        hint: '行星架托着四只行星轮，最后整体取下',
+        hint: '行星架托着四只行星轮，拆完行星轮和内齿圈后取下',
         b: carrierB
       },
       {
@@ -7790,7 +7791,7 @@ const gr6 = (() => {
     { t: 'c', rt: .2, h: .3, p: [x, CY, 0], rot: [0, 0, HF], c: PA.woodL, ro: .72, bore: .10 }
   ];
   const side = (sx, pts, c, nm, sg, hint) => ({
-    id: nm, n: '半轴锥齿轮', seq: sg, pivot: [X0 + sx, CY, 0], out: [0, 0, 2.0],
+    id: nm, n: sx < 0 ? '左半轴锥齿轮' : '右半轴锥齿轮', seq: sg, pivot: [X0 + sx, CY, 0], out: [0, 0, 2.0],
     hint: hint,
     b: [
       { t: 'pf', pts, d: .3, p: [X0 + sx, CY, 0], rot: [0, HF, 0], c, m: .45, ro: .42 },
@@ -8000,7 +8001,7 @@ const gr8 = (() => {
       },
       {
         id: 'gen', n: '波发生器', seq: 3, pivot: [C.x, Y0, 0], out: [0, 0, 2.2],
-        hint: '波发生器是椭圆凸轮，最里侧，最后取下',
+        hint: '波发生器是椭圆凸轮，装在最里面，拆时最先抽出',
         b: [
           { t: 'pf', pts: genPts, d: .5, p: [0, 0, .04], c: PA.purple, m: .3, ro: .5 },
           R.hub(C.x, 0, .34, .62, PA.purpleD, .04),
@@ -8141,7 +8142,7 @@ const bd2 = (() => {
       },
       {
         id: 's2', n: `从动链轮 z=${z2}`, seq: 2, pivot: [B.x, Y0, 0], out: [0, 0, 2.2],
-        hint: '从动链轮在右侧，最后取下',
+        hint: '从动链轮在右侧，先脱开链条再取下它',
         b: [
           { t: 'pf', pts: gearPts(z2, m, 0), d: .16, p: [B.x, Y0, 0], c: PA.gold, m: .6, ro: .38 },
           R.hub(B.x, 0, .2, .42, PA.org, 0),
@@ -8151,7 +8152,7 @@ const bd2 = (() => {
       },
       {
         id: 'chain', n: '链条', seq: 3, pivot: [B.x - dx / 2, Y0, 0], out: [0, 0, 2.4],
-        hint: '链条整圈挂在两个链轮上，最后整体取下',
+        hint: '链条整圈挂在两个链轮上，先整圈取下',
         b: links
       }
     ],
@@ -8377,7 +8378,7 @@ const bd5 = (() => {
       },
       {
         id: 'out', n: '输出轴叉', seq: 3, pivot: [CX, CY, 0], out: [0, 0, 2.2],
-        hint: '输出轴斜向上 40°，最后取下',
+        hint: '输出轴斜向上 40°，在最外侧，先取下',
         b: [
           R.rod([CX + UX * .2, CY - Y0 + UY * .2], [CX + UX * 1.55, CY - Y0 + UY * 1.55], .11, PA.gold, 0),
           ...yoke(1, PA.gold), ...yoke(-1, PA.gold),
@@ -8445,12 +8446,12 @@ const bd6 = (() => {
     ],
     parts: [
       {
-        id: 'ring', n: '外圈（输出）', seq: 1, pivot: [C0.x, Y0, 0], out: [0, 0, 2.0],
+        id: 'ring', n: '外圈（输出）', seq: 2, pivot: [C0.x, Y0, 0], out: [0, 0, 2.0],
         hint: '外圈套在最外面，先取下它才能看到内圈',
         b: [ringB, ...pawl, ...bolt]
       },
       {
-        id: 'inner', n: '内圈（输入）', seq: 2, pivot: [C0.x, Y0, 0], out: [0, 0, 2.2],
+        id: 'inner', n: '内圈（输入）', seq: 1, pivot: [C0.x, Y0, 0], out: [0, 0, 2.2],
         hint: '内圈是棘轮星轮，最后取下',
         b: [
           { t: 'pf', pts: starPts, d: .3, p: [C0.x, Y0, 0], c: PA.gold, m: .5, ro: .4 },
@@ -8717,6 +8718,10 @@ const cp2 = (() => {
         hint: '吊架罩住动滑轮，下挂钩上吊重物',
         b: [
           guard(CX, Y0, -3.5, .35),
+          /* 吊架轴肩 + 前支撑臂：两片轴肩夹住动滑轮轮毂，滑轮绕它转 */
+          { t: 'c', rt: .1, h: .07, p: [CX, Y0, .19], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 },
+          { t: 'c', rt: .1, h: .07, p: [CX, Y0, -.19], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 },
+          R.rod([CX + .06, 0], [CX + .36, 0], .035, PA.metalD, .20),
           { t: 'b', s: [.9, .12, .2], p: [CX, Y0 - .36, 0], c: PA.metalD, m: .6, ro: .4 },
           R.rod([CX, -.42], [CX, -.58], .045, PA.metalD, 0),
           { t: 'o', rad: .1, tube: .035, p: [CX, Y0 - .62, 0], rot: [HF, 0, 0], c: PA.metal, m: .85, ro: .3 },
@@ -8770,8 +8775,8 @@ const cp3 = (() => {
     const mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
     return [
       R.rod([x0, y0], [x1, y1], .075, c, z),
-      /* 交叉中心轴套分层：上下两组杆各占一个 z 平面，中间的销贯穿两者 */
-      { t: 'c', rt: .13, h: .16, p: [mx, Y0 + my, z], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 },
+      /* 交叉中心轴套分层：上下两组杆各占一个 z 平面，两只轴套端面相抵 */
+      { t: 'c', rt: .13, h: .20, p: [mx, Y0 + my, z], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 },
       R.pin(x0, y0, .07, .44, 0, PA.metal),
       R.pin(x1, y1, .07, .44, 0, PA.metal)
     ];
@@ -8791,6 +8796,9 @@ const cp3 = (() => {
       /* 底板压低、减薄，让下撑杆端销落座而不埋进板里；
        * 加厚成台座一直坐到主底板上，不再悬空 */
       { t: 'b', s: [1.66, .25, .8], p: [CX, Y0 - .215, 0], c: PA.woodL, ro: .78 },
+      /* 下撑杆端销的落地轴承垫：把销子托在台座上 */
+      { t: 'b', s: [.24, .06, .5], p: [CX - A0, Y0 - .09, 0], c: PA.metalD, ro: .4 },
+      { t: 'b', s: [.24, .06, .5], p: [CX + A0, Y0 - .09, 0], c: PA.metalD, ro: .4 },
       pillar(.86, 0, Y0, PA.woodD, -.46, .16),
       pillar(2.64, 0, Y0, PA.woodD, -.46, .16)
     ],
@@ -9174,8 +9182,8 @@ const fq2 = (() => {
     base: [
       ...R.base(.55, 3.05, []),
       { t: 'b', s: [1.9, 1.5, .1], p: [1.95, Y0 + .18, -.32], c: PA.woodD, ro: .8 },
-      { t: 'c', rt: .07, h: .5, p: [H.x, Y0, -.3], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .3 },
-      { t: 'c', rt: .065, h: .5, p: [S.x, Y0 - .62, -.3], rot: [0, 0, HF], c: PA.metalD, m: .9, ro: .3 },
+      { t: 'c', rt: .07, h: .24, p: [H.x, Y0, -.25], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 },
+      { t: 'c', rt: .065, h: .30, p: [S.x, Y0 - .62, -.25], rot: [HF, 0, 0], c: PA.metalD, m: .9, ro: .3 },
       { t: 'b', s: [.2, .26, .26], p: [2.72, Y0 + .62, 0], c: PA.metalD, m: .7, ro: .35 },
       { t: 'c', rt: .05, h: .2, p: [2.60, Y0 + .62, 0], rot: [0, 0, HF], c: PA.steel, m: .9, ro: .25 }
     ],
@@ -9186,11 +9194,11 @@ const fq2 = (() => {
         b: [
           R.rod([H.x, 0], HEAD, .09, PA.gold, 0),
           { t: 'b', s: [.3, .2, .24], p: [H.x + HEAD[0] - H.x, Y0 + HEAD[1], 0], c: PA.org, ro: .45 },
-          { t: 'c', rt: .28, h: .26, p: [H.x, Y0, 0], rot: [HF, 0, 0], c: PA.gold, m: .5, ro: .4 },
+          { t: 'c', rt: .28, h: .26, p: [H.x, Y0, 0], rot: [HF, 0, 0], c: PA.gold, m: .5, ro: .4, bore: .085 },
           { t: 'b', s: [.18, .14, .2], p: [1.73, Y0 - .22, 0], c: PA.org, ro: .45 },
           { t: 'b', s: [.16, .2, .18], p: [2.16, Y0 + .3, 0], c: PA.org, ro: .45 },
-          { t: 'o', rad: .34, tube: .028, p: [H.x, Y0, .18], rot: [HF, 0, 0], c: PA.metal, m: .85, ro: .3 },
-          { t: 'o', rad: .3, tube: .028, p: [H.x, Y0, .18], rot: [HF, 0, 0], c: PA.metal, m: .85, ro: .3 }
+          { t: 'o', rad: .34, tube: .028, p: [H.x, Y0, .18], c: PA.metal, m: .85, ro: .3 },
+          { t: 'o', rad: .3, tube: .028, p: [H.x, Y0, .18], c: PA.metal, m: .85, ro: .3 }
         ]
       },
       {
@@ -9199,7 +9207,7 @@ const fq2 = (() => {
         b: [
           R.rod([S.x, -.62], [1.70, -.36], .07, PA.steel, 0),
           { t: 'b', s: [.16, .1, .16], p: [1.74, Y0 - .36, 0], c: PA.metalD, ro: .35 },
-          { t: 'c', rt: .1, h: .22, p: [S.x, Y0 - .62, 0], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3 }
+          { t: 'c', rt: .1, h: .22, p: [S.x, Y0 - .62, 0], rot: [HF, 0, 0], c: PA.metalD, m: .85, ro: .3, bore: .078 }
         ]
       }
     ],
@@ -9401,6 +9409,361 @@ const fq4 = (() => {
 })();
 
 /* ============================================================
+ * 39. 双摇杆机构
+ *    机架 2.5，两连架杆 1.2 / 1.4，连杆 1.3：不满足格拉肖夫条件，
+ *    两根连架杆都只能摆动，谁也不能整圈转。
+ * ============================================================ */
+const cr9 = (() => {
+  const R = rig(1.9);
+  const a = 1.2, b = 1.3, c = 1.4, d0 = 2.5, TH = 1.15;
+  const A = V(1.0, 0), D = V(1.0 + d0, 0), B0 = V(A.x + a, 0);
+  const C0 = circleHit(B0, b, D, c, -1);
+  const phi0 = ang(B0, C0), psi0 = ang(D, C0);
+
+  return {
+    id: 'dualRocker', name: '双摇杆机构', group: 'linkage', tag: '四连杆',
+    summary: '两根连架杆都只能摆动，谁也转不满一圈',
+    input: { label: '主动摆杆相位', speed: 46 },
+    lesson: {
+      what: '两根连架杆都只能来回摆，谁也转不满一整圈——这叫双摇杆机构。',
+      key: '四杆长 1.2 / 1.3 / 1.4 / 2.5 不满足「最短杆 + 最长杆 ≤ 另两杆之和」（1.2 + 2.5 = 3.7 > 1.3 + 1.4 = 2.7），所以任何一根都转不满整圈，只能摆动。',
+      where: '汽车转向梯形、风扇摇头、缝纫机抬牙、起重机变幅机构。'
+    },
+    base: R.base(-0.3, 4.9, [A.x, D.x]),
+    parts: [
+      {
+        id: 'rockerA', n: '主动摆杆', seq: 1, pivot: [A.x, R.Y(0), -0.3], out: [0, 0, 2.0],
+        hint: '主动摆杆在里侧，最后取摇把再整根拔出',
+        b: [
+          R.disc(A.x, 0, 0.42, PA.red, 0.16, -0.3),
+          R.rod([A.x, 0], [B0.x, B0.y], 0.1, PA.red, -0.3),
+          R.hub(A.x, 0, 0.15, 0.24, PA.metalD, -0.3),
+          R.pin(B0.x, B0.y, 0.09, 0.39, -0.3),
+          { t: 'c', rt: 0.07, h: 0.16, p: [A.x + 0.42, R.Y(0), -0.44], rot: [HF, 0, 0], c: PA.dark, m: .8, ro: .4 }
+        ]
+      },
+      {
+        id: 'coupler', n: '连杆', seq: 2, pivot: [B0.x, R.Y(B0.y), 0], out: [0, 0, 2.2],
+        hint: '连杆两端都是铰接，拔出两端销轴后整根取下',
+        b: [
+          R.rod([B0.x, B0.y], [C0.x, C0.y], 0.085, PA.blue, 0),
+          R.pin(B0.x, B0.y, 0.085, 0.34, 0.05),
+          R.pin(C0.x, C0.y, 0.085, 0.42, -0.02)
+        ]
+      },
+      {
+        id: 'rockerB', n: '从动摆杆', seq: 3, pivot: [D.x, R.Y(0), 0.3], out: [0, 0, 2.0],
+        hint: '从动摆杆在最外侧，先拆',
+        b: [
+          R.disc(D.x, 0, 0.36, PA.green, 0.16, 0.3),
+          R.rod([D.x, 0], [C0.x, C0.y], 0.1, PA.green, 0.3),
+          R.hub(D.x, 0, 0.14, 0.24, PA.metalD, 0.3),
+          R.pin(C0.x, C0.y, 0.09, 0.4, 0.3)
+        ]
+      }
+    ],
+    measure: [{ key: 'out', label: '从动摆幅', unit: '°', k: 180 / Math.PI, dec: 0 }],
+    pose(t) {
+      const th = TH * Math.sin(t);
+      const B = V(A.x + a * Math.cos(th), a * Math.sin(th));
+      const C = circleHit(B, b, D, c, -1);
+      const dq = wrap(ang(B, C) - phi0);
+      const dw = wrap(ang(D, C) - psi0);
+      return {
+        rockerA: { r: [0, 0, th] },
+        coupler: { r: [0, 0, dq], p: [B.x - B0.x, B.y - B0.y, 0] },
+        rockerB: { r: [0, 0, dw] },
+        n: { out: dd(dw) },
+        readout: [
+          { k: '主动摆角', v: rd(th) },
+          { k: '连杆摆角', v: rd(dq) },
+          { k: '从动摆角', v: rd(dw) }
+        ]
+      };
+    }
+  };
+})();
+
+/* ============================================================
+ * 40. 两级齿轮减速
+ *    m=0.09：z1/z2 = 18/36 第一级，z2 与 z3=14 同轴，z3/z4 = 14/28 第二级
+ *    总传动比 4，输入转 4 圈输出转 1 圈
+ * ============================================================ */
+const gr9 = (() => {
+  const R = rig(2.15), Y0 = R.Y(0);
+  const m = 0.07, z1 = 18, z2 = 36, z3 = 14, z4 = 28;
+  const r1 = z1 * m / 2, r2 = z2 * m / 2, r3 = z3 * m / 2, r4 = z4 * m / 2;
+  const A = V(1.15, 0), B = V(A.x + r1 + r2, 0), C = V(B.x + r3 + r4, 0);
+  const s1 = TAU / z1, s2 = TAU / z2, s3 = TAU / z3, s4 = TAU / z4;
+  const g1 = gearPts(z1, m, -s1 / 2), g2 = gearPts(z2, m, Math.PI - s2);
+  const g3 = gearPts(z3, m, -s3 / 2), g4 = gearPts(z4, m, Math.PI - s4);
+  const i12 = z2 / z1, i34 = z4 / z3, iAll = i12 * i34;
+
+  return {
+    id: 'twoStageGearbox', name: '两级齿轮减速', group: 'gear', tag: '定传动比',
+    summary: '两级齿轮串联，转速按齿数连乘下降',
+    input: { label: '输入轴转角', speed: 40 },
+    lesson: {
+      what: '一级减速不够就串两级：中间那根轴上，大齿轮被第一级带着转，同一个轴上的小齿轮再去带第二级。',
+      key: `总传动比 i = (z₂/z₁) × (z₄/z₃) = (36/18) × (28/14) = ${iAll.toFixed(0)}。输入转 4 圈输出才转 1 圈，扭矩同时放大约 ${iAll.toFixed(0)} 倍（不计损失）。`,
+      where: '减速箱、卷扬机、电梯曳引机、机器人关节、汽车变速器。'
+    },
+    base: R.base(-0.2, C.x + 1.0, [A.x, B.x, C.x]),
+    parts: [
+      {
+        id: 'g1', n: `第一级主动轮 z=${z1}`, seq: 1, pivot: [A.x, Y0, 0], out: [0, 0, 2.0],
+        hint: '第一级主动轮在里侧，最后取下摇把和齿轮',
+        b: [
+          { t: 'pf', pts: g1, d: .3, p: [A.x, Y0, 0], c: PA.blue, m: .45, ro: .42 },
+          R.hub(A.x, 0, .24, .46, PA.blueD, 0),
+          R.disc(A.x, 0, .42, PA.sky, .08, .22),
+          R.rod([A.x, 0], [A.x + .42, 0], .07, PA.red, .3),
+          R.pin(A.x, 0, .08, 1.05, .05, PA.metalD)
+        ]
+      },
+      {
+        id: 'g2', n: `第一级从动轮 z=${z2}`, seq: 2, pivot: [B.x, Y0, 0], out: [0, 0, 2.2],
+        hint: '第一级大轮套在中间轴上，第二级拆完后取下',
+        b: [
+          { t: 'pf', pts: g2, d: .3, p: [B.x, Y0, 0], c: PA.gold, m: .45, ro: .42 },
+          R.hub(B.x, 0, .3, .48, PA.blueD, 0),
+          R.disc(B.x, 0, .46, PA.goldD, .08, .22)
+        ]
+      },
+      {
+        id: 'g3', n: `第二级主动轮 z=${z3}`, seq: 3, pivot: [B.x, Y0, .4], out: [0, 0, 2.2],
+        hint: '第二级小轮在中间轴外侧，先取第二级大轮再抽它，之后才轮到第一级大轮',
+        b: [
+          { t: 'pf', pts: g3, d: .3, p: [B.x, Y0, .4], c: PA.teal, m: .45, ro: .42 },
+          R.hub(B.x, 0, .22, .46, PA.tealD, .4),
+          R.pin(B.x, 0, .08, 1.05, .05, PA.metalD)
+        ]
+      },
+      {
+        id: 'g4', n: `第二级从动轮 z=${z4}`, seq: 4, pivot: [C.x, Y0, .4], out: [0, 0, 2.1],
+        hint: '第二级从动轮在最外侧，先拆（输出轴手轮先取下）',
+        b: [
+          { t: 'pf', pts: g4, d: .3, p: [C.x, Y0, .4], c: PA.purple, m: .45, ro: .42 },
+          R.hub(C.x, 0, .26, .48, PA.purpleD, .4),
+          R.disc(C.x, 0, .5, PA.purpleD, .1, .62),
+          { t: 'b', s: [.3, .12, .1], p: [C.x + .5, Y0, .62], c: PA.org, ro: .5 }
+        ]
+      }
+    ],
+    measure: [{ key: 'out', label: '输出轴转角', unit: '°', k: 180 / Math.PI, dec: 0 }],
+    pose(th) {
+      const a2 = -th / i12, a4 = th / iAll;
+      return {
+        g1: { r: [0, 0, th] },
+        g2: { r: [0, 0, a2] },
+        g3: { r: [0, 0, a2] },
+        g4: { r: [0, 0, a4] },
+        n: { out: dd(a4) },
+        readout: [
+          { k: '输入转角', v: dg(th) },
+          { k: '中间轴转角', v: rd(a2) },
+          { k: '输出转角', v: rd(a4) },
+          { k: '总传动比 i', v: iAll.toFixed(0) }
+        ]
+      };
+    }
+  };
+})();
+
+/* ============================================================
+ * 41. 十字滑块联轴器（奥氏联轴器）
+ *   两轴平行、偏心 e=0.34；中间盘的十字榫分别插进两端盘的槽里，
+ *   中间盘中心走一个直径 e 的圆，两轴仍同步转动。
+ * ============================================================ */
+const bd9 = (() => {
+  const R = rig(1.75), Y0 = R.Y(0);
+  const X0 = 1.55, E = 0.34, X1 = X0 + E, RAD = 0.62;
+  const midX = t => X0 + E / 2 + E / 2 * Math.cos(2 * t);
+  const midY = t => E / 2 * Math.sin(2 * t);
+
+  return {
+    id: 'oldhamCoupling', name: '十字滑块联轴器', group: 'drive', tag: '同步联轴',
+    summary: '两轴稍有偏心也能同步传力，中间盘在打滑一样地晃',
+    input: { label: '输入轴转角', speed: 54 },
+    lesson: {
+      what: '两根平行但有偏心的轴，用一只中间盘连起来：两端盘上开槽，中间盘两面各有十字榫，一边插一个槽。',
+      key: `偏心量 e = ${E}，中间盘中心走一个直径 ${E} 的圆（转一圈晃两下，所以频率是轴的两倍），两只轴却始终 1:1 同步转，不像万向节那样有转速波动。`,
+      where: '电机与减速箱之间的对接、泵与马达、纺织机械长轴传动。'
+    },
+    base: R.base(0.3, 2.9, [X0, X1]),
+    parts: [
+      {
+        id: 'discIn', n: '主动端盘（带槽）', seq: 1, pivot: [X0, Y0, -0.34], out: [0, 0, 2.0],
+        hint: '主动端盘在里侧，最后从轴上取下',
+        b: [
+          R.disc(X0, 0, RAD, PA.blue, 0.18, -0.34),
+          R.hub(X0, 0, 0.2, 0.5, PA.blueD, -0.34),
+          R.box(X0, 0.44, 1.0, 0.26, 0.18, PA.blueD, -0.34),
+          R.box(X0, -0.44, 1.0, 0.26, 0.18, PA.blueD, -0.34),
+          R.pin(X0, 0, 0.08, 1.0, -0.34, PA.metalD)
+        ]
+      },
+      {
+        id: 'midDisc', n: '中间十字盘', seq: 2, pivot: [X1, Y0, 0], out: [0, 0, 2.2],
+        hint: '中间十字盘夹在两盘之间，先拆外侧盘再整块抽出',
+        b: [
+          R.disc(X1, 0, 0.5, PA.metal, 0.2, 0),
+          R.box(X1, 0, 1.16, 0.16, 0.44, PA.metalD, 0),
+          R.box(X1, 0, 0.16, 1.16, 0.44, PA.metalD, 0)
+        ]
+      },
+      {
+        id: 'discOut', n: '从动端盘（带槽）', seq: 3, pivot: [X1, Y0, 0.34], out: [0, 0, 2.0],
+        hint: '从动端盘在最外侧，先拆',
+        b: [
+          R.disc(X1, 0, RAD, PA.gold, 0.18, 0.34),
+          R.hub(X1, 0, 0.2, 0.5, PA.goldD, 0.34),
+          R.box(X1 + 0.44, 0, 0.26, 1.0, 0.18, PA.goldD, 0.34),
+          R.box(X1 - 0.44, 0, 0.26, 1.0, 0.18, PA.goldD, 0.34),
+          { t: 'c', rt: 0.14, h: 0.16, p: [X1, Y0 + 0.62, 0.62], rot: [HF, 0, 0], c: PA.org, m: .3, ro: .5 }
+        ]
+      }
+    ],
+    measure: [{ key: 'wobble', label: '中间盘偏心位移', unit: '', k: 1, dec: 2 }],
+    pose(th) {
+      const dx = midX(th) - X1, dy = midY(th);
+      return {
+        discIn: { r: [0, 0, th] },
+        midDisc: { r: [0, 0, th], p: [dx, dy, 0] },
+        discOut: { r: [0, 0, th] },
+        n: { wobble: Math.hypot(dx, dy) },
+        readout: [
+          { k: '输入转角', v: dg(th) },
+          { k: '两轴偏心 e', v: E.toFixed(2) },
+          { k: '中间盘偏移', v: Math.hypot(dx, dy).toFixed(2) }
+        ]
+      };
+    }
+  };
+})();
+
+/* ============================================================
+ * 42. 摩擦轮传动
+ *    两轮靠压紧力对滚，靠摩擦力传力；速比按半径反比，打滑时失效
+ * ============================================================ */
+const bd10 = (() => {
+  const R = rig(1.65), Y0 = R.Y(0);
+  const ra = 0.7, rb = 0.46;
+  const A = V(1.2, 0), B = V(1.2 + ra + rb, 0);
+
+  return {
+    id: 'frictionWheel', name: '摩擦轮传动', group: 'drive', tag: '摩擦传动',
+    summary: '没有齿也能传力，靠压紧的摩擦力对滚',
+    input: { label: '主动轮转角', speed: 50 },
+    lesson: {
+      what: '两只轮子压在一起对滚，靠接触面上的摩擦力传力——没有齿，也就不会因为齿隙产生冲击。',
+      key: `速比 i = r₂/r₁ = ${rb}/${ra} = ${(ra / rb).toFixed(2)}，从动轮转得比主动轮快 ${(ra / rb).toFixed(2)} 倍，方向相反。传力上限由压紧力和摩擦系数决定，过载时先打滑，正好当机械保险。`,
+      where: '无级变速器、录音机走带、纸箱印刷机、过载保护装置。'
+    },
+    base: R.base(0.15, 3.0, [A.x, B.x]),
+    parts: [
+      {
+        id: 'wheelA', n: '主动摩擦轮', seq: 1, pivot: [A.x, Y0, 0], out: [0, 0, 2.0],
+        hint: '主动轮在里侧，最后取下摇把和轮子',
+        b: [
+          { t: 'o', rad: ra - 0.04, tube: 0.08, p: [A.x, Y0, 0], c: PA.tire, m: .1, ro: .8 },
+          R.disc(A.x, 0, ra - 0.09, PA.red, 0.26, 0),
+          R.hub(A.x, 0, 0.2, 0.42, PA.redD, 0),
+          R.rod([A.x, 0], [A.x + 0.5, 0], 0.07, PA.redD, 0.22),
+          R.pin(A.x, 0, 0.08, 0.9, 0.02, PA.metalD)
+        ]
+      },
+      {
+        id: 'wheelB', n: '从动摩擦轮', seq: 2, pivot: [B.x, Y0, 0], out: [0, 0, 2.0],
+        hint: '从动轮在最外侧，先拆',
+        b: [
+          { t: 'o', rad: rb - 0.04, tube: 0.08, p: [B.x, Y0, 0], c: PA.tire, m: .1, ro: .8 },
+          R.disc(B.x, 0, rb - 0.09, PA.teal, 0.26, 0),
+          R.hub(B.x, 0, 0.17, 0.42, PA.tealD, 0),
+          R.pin(B.x, 0, 0.08, 0.9, 0.02, PA.metalD)
+        ]
+      }
+    ],
+    measure: [{ key: 'out', label: '从动轮转角', unit: '°', k: 180 / Math.PI, dec: 0 }],
+    pose(th) {
+      const out = -th * ra / rb;
+      return {
+        wheelA: { r: [0, 0, th] },
+        wheelB: { r: [0, 0, out] },
+        n: { out: dd(out) },
+        readout: [
+          { k: '主动轮转角', v: dg(th) },
+          { k: '从动轮转角', v: rd(out) },
+          { k: '速比 i', v: (ra / rb).toFixed(2) }
+        ]
+      };
+    }
+  };
+})();
+
+/* ============================================================
+ * 43. 楔块夹紧
+ *    斜面把水平推力放大成竖直夹紧力；楔角小于摩擦角时自锁，松手也不退
+ * ============================================================ */
+const cp9 = (() => {
+  const R = rig(0.30), Y0 = R.Y(0);
+  const TAN = 0.55, TRAVEL = 0.95, XW = 1.5, H0 = 0.06;
+  const push = t => TRAVEL * (1 - Math.cos(t)) / 2;
+  const topAt = x => H0 + (x - (XW - 0.55)) * TAN;
+  const XR = XW + 0.12, YR = topAt(XR);
+  const wedgePts = [
+    [XW - 0.55, Y0 + 0.02], [XW + 0.55, Y0 + 0.02],
+    [XW + 0.55, Y0 + H0 + 1.10 * TAN], [XW - 0.55, Y0 + H0]
+  ];
+
+  return {
+    id: 'wedgeClamp', name: '楔块夹紧', group: 'clamp', tag: '斜面自锁',
+    summary: '斜面把横向推力变成竖向夹紧力，还能自锁',
+    input: { label: '楔块推程相位', speed: 44 },
+    lesson: {
+      what: '把楔形块推进去，顶杆被斜面抬起来夹住工件；松手时楔面摩擦会把楔块卡住，工件不会自己松脱。',
+      key: `楔角 α = arctan(${TAN}) ≈ ${(Math.atan(TAN) * 180 / Math.PI).toFixed(0)}°。楔块推 ${TRAVEL.toFixed(2)}，顶杆只升 ${(TRAVEL * TAN).toFixed(2)}，力被放大 ${(1 / TAN).toFixed(2)} 倍；楔角小于摩擦角时自锁。`,
+      where: '机床楔铁、夹具压板、门锁斜面、无键联接、楔形千斤顶。'
+    },
+    base: R.base(-0.2, 3.2, []),
+    parts: [
+      {
+        id: 'wedge', n: '楔块', seq: 1, pivot: [XW, Y0, 0], out: [0, 0, 2.0],
+        hint: '楔块在导轨里，最后沿导轨方向抽出',
+        b: [
+          { t: 'pf', pts: wedgePts, d: 0.5, p: [0, 0, 0], c: PA.gold, m: .35, ro: .5 },
+          R.box(XW - 0.55, 0.03, 0.16, 0.18, 0.54, PA.goldD, 0),
+          R.pin(XW - 0.5, 0.02, 0.06, 0.62, 0, PA.metalD)
+        ]
+      },
+      {
+        id: 'rod', n: '顶杆', seq: 2, pivot: [XR, Y0 + YR, 0], out: [0, 0, 2.0],
+        hint: '顶杆插在导向座里，先抽出它才能动楔块',
+        b: [
+          R.rod([XR, YR], [XR, YR + 1.0], 0.075, PA.red, 0),
+          R.box(XR, YR + 1.0, 0.5, 0.12, 0.3, PA.redD, 0),
+          R.box(XR, YR + 1.16, 0.24, 0.2, 0.22, PA.org, 0)
+        ]
+      }
+    ],
+    measure: [{ key: 'lift', label: '顶杆升程', unit: '', k: 1, dec: 2 }],
+    pose(t) {
+      const s = push(t), lift = s * TAN;
+      return {
+        wedge: { p: [s, 0, 0] },
+        rod: { p: [0, lift, 0] },
+        n: { lift },
+        readout: [
+          { k: '楔块推程', v: s.toFixed(2) },
+          { k: '顶杆升程', v: lift.toFixed(2) },
+          { k: '楔角 α', v: `${(Math.atan(TAN) * 180 / Math.PI).toFixed(0)}°` }
+        ]
+      };
+    }
+  };
+})();
+
+/* ============================================================
  * 分组与清单
  * ============================================================ */
 const MECH_GROUPS = [
@@ -9421,7 +9784,8 @@ const MECH_PLAN = [
     { id: 'oscillatingGuide', name: '摆动导杆机构', done: true },
     { id: 'oscillatingBlock', name: '曲柄摇块机构', done: true },
     { id: 'parallelogram', name: '平行四连杆机构', done: true },
-    { id: 'shaper', name: '牛头刨六杆机构', done: true }
+    { id: 'shaper', name: '牛头刨六杆机构', done: true },
+    { id: 'dualRocker', name: '双摇杆机构', done: true }
   ] },
   { group: 'cam', items: [
     { id: 'camKnife', name: '盘形凸轮（尖顶从动件）', done: true },
@@ -9440,7 +9804,8 @@ const MECH_PLAN = [
     { id: 'planetary', name: '行星齿轮', done: true },
     { id: 'differential', name: '差速器', done: true },
     { id: 'bevelGear', name: '锥齿轮换向', done: true },
-    { id: 'harmonic', name: '谐波减速器', done: true }
+    { id: 'harmonic', name: '谐波减速器', done: true },
+    { id: 'twoStageGearbox', name: '两级齿轮减速', done: true }
   ] },
   { group: 'drive', items: [
     { id: 'beltDrive', name: '皮带传动', done: true },
@@ -9449,14 +9814,17 @@ const MECH_PLAN = [
     { id: 'leadScrew', name: '丝杠螺母', done: true },
     { id: 'universalJoint', name: '万向节', done: true },
     { id: 'overrunClutch', name: '超越离合器', done: true },
-    { id: 'flyballGovernor', name: '离心调速器', done: true }
+    { id: 'flyballGovernor', name: '离心调速器', done: true },
+    { id: 'oldhamCoupling', name: '十字滑块联轴器', done: true },
+    { id: 'frictionWheel', name: '摩擦轮传动', done: true }
   ] },
   { group: 'clamp', items: [
     { id: 'lever', name: '杠杆', done: true },
     { id: 'pulleyBlock', name: '滑轮组', done: true },
     { id: 'scissorLift', name: '剪式升降', done: true },
     { id: 'springStore', name: '卷簧蓄能', done: true },
-    { id: 'ratchetWrench', name: '棘轮扳手', done: true }
+    { id: 'ratchetWrench', name: '棘轮扳手', done: true },
+    { id: 'wedgeClamp', name: '楔块夹紧', done: true }
   ] },
   { group: 'timing', items: [
     { id: 'rotaryLock', name: '旋转闭锁', done: true },
@@ -9469,23 +9837,26 @@ const MECH_PLAN = [
 const MECHS = {
   crankRocker: cr1, doubleCrank: cr2, sliderCrank: cr3,
   oscillatingGuide: cr4, oscillatingBlock: cr5,
-  parallelogram: cr6, shaper: cr7,
+  parallelogram: cr6, shaper: cr7, dualRocker: cr9,
   camKnife: cm1, camRoller: cm2, eccentric: cm3, geneva: cm4,
   ratchet: cm5, partialGear: cm6, camIndexer: cm7,
   spurPair: gr1, internalGear: gr2, rackPinion: gr3, wormDrive: gr4,
   planetary: gr5, differential: gr6, bevelGear: gr7, harmonic: gr8,
+  twoStageGearbox: gr9,
   beltDrive: bd1, chainDrive: bd2, cvt: bd3, leadScrew: bd4,
   universalJoint: bd5, overrunClutch: bd6, flyballGovernor: bd7,
+  oldhamCoupling: bd9, frictionWheel: bd10,
   lever: cp1, pulleyBlock: cp2, scissorLift: cp3, springStore: cp4, ratchetWrench: cp5,
+  wedgeClamp: cp9,
   rotaryLock: fq1, hammerSear: fq2, triggerLink: fq3, cylinderIndex: fq4
 };
 
 const MECH_ORDER = [
-  'crankRocker', 'doubleCrank', 'sliderCrank', 'oscillatingGuide', 'oscillatingBlock', 'parallelogram', 'shaper',
+  'crankRocker', 'doubleCrank', 'sliderCrank', 'oscillatingGuide', 'oscillatingBlock', 'parallelogram', 'shaper', 'dualRocker',
   'camKnife', 'camRoller', 'eccentric', 'geneva', 'ratchet', 'partialGear', 'camIndexer',
-  'spurPair', 'internalGear', 'rackPinion', 'wormDrive', 'planetary', 'differential', 'bevelGear', 'harmonic',
-  'beltDrive', 'chainDrive', 'cvt', 'leadScrew', 'universalJoint', 'overrunClutch', 'flyballGovernor',
-  'lever', 'pulleyBlock', 'scissorLift', 'springStore', 'ratchetWrench',
+  'spurPair', 'internalGear', 'rackPinion', 'wormDrive', 'planetary', 'differential', 'bevelGear', 'harmonic', 'twoStageGearbox',
+  'beltDrive', 'chainDrive', 'cvt', 'leadScrew', 'universalJoint', 'overrunClutch', 'flyballGovernor', 'oldhamCoupling', 'frictionWheel',
+  'lever', 'pulleyBlock', 'scissorLift', 'springStore', 'ratchetWrench', 'wedgeClamp',
   'rotaryLock', 'hammerSear', 'triggerLink', 'cylinderIndex'
 ];
 
