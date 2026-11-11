@@ -2976,6 +2976,8 @@ function startRain(){
   updateRainHud();
   spawnRain(); spawnRain();
   rainBanner(levelBannerEl, '烦恼雨 · ' + d.name);
+  setHint(S.trigger === 'shake' ? '摇一摇，敲碎落下的烦恼' : '点碎落下的烦恼', true);
+  setTimeout(()=>{ if (S.rain.active) setHint('', false); }, 4200);
   AU.play('level');
 }
 
@@ -3234,7 +3236,7 @@ function makeCard(){
     : words.map(w=> isEmojiStr(w) ? 'emoji' : 'text');
   const n = words.length;
   const ringR = n > 6 ? 198 : 172;
-  const cardShape = S.shape === 'none' ? 'bubble' : S.shape;
+  const cardShape = ['bubble','rounded','hex','star','heart'].includes(S.shape) ? S.shape : 'bubble';
   words.forEach((w,i)=>{
     const a = -Math.PI/2 + i*(Math.PI*2/n) + 0.35;
     const rr = ringR + (i%2)*18;
