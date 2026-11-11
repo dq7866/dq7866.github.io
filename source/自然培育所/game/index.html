@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="自然培育所 Nature Lab：一款把一株生命养完整的离线培育模拟游戏。18 个物种、环境模拟、多代选育、本地多用户档案。">
+<meta name="theme-color" content="#0d1310">
+<meta name="color-scheme" content="dark">
+<meta name="application-name" content="自然培育所">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>自然培育所 · Nature Lab</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%231a2820%22%2F%3E%3Cpath%20d%3D%22M16%2024V14%22%20stroke%3D%22%237fc9a2%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M16%2015c0-4%203-7%207-7%200%204-3%207-7%207z%22%20fill%3D%22%239fe0b4%22%2F%3E%3Cpath%20d%3D%22M16%2019c0-3-2.2-5-5-5%200%203%202.2%205%205%205z%22%20fill%3D%22%235fb98a%22%2F%3E%3C%2Fsvg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brandMark" id="brandMark"></div>
+      <div class="brandTxt">
+        <h1>自然培育所</h1>
+        <span>NATURE LAB · 把一株生命养完整</span>
+      </div>
+    </div>
+    <div class="topInfo">
+      <div class="infoChip"><label>第<b id="dayNum">1</b>天</label><span id="clock">06:00</span></div>
+      <div class="infoChip weather"><span id="weatherIcon"></span><label id="weatherName">晴</label></div>
+      <div class="infoChip season" id="seasonChip" title="当前节令"><b id="seasonName">春</b><small id="seasonLeft"></small></div>
+      <div class="infoChip coin"><span id="coinIcon"></span><b id="coins">0</b></div>
+      <button class="infoChip stockBtn" id="btnStock" aria-label="打开收获仓"><span id="stockIcon"></span>收获仓 <b id="stockNum">0</b></button>
+      <button class="infoChip stockBtn" id="btnOrder" aria-label="查看订单"><span id="orderIcon"></span>订单 <b id="orderNum">0</b></button>
+      <button class="infoChip stockBtn" id="btnUpgrade" aria-label="温室升级"><span id="upIcon"></span>温室 <b id="upNum">0</b></button>
+      <button class="infoChip stockBtn" id="btnTask" aria-label="每日目标"><span id="taskIcon"></span>目标 <b id="taskNum">0/3</b></button>
+      <button class="infoChip stockBtn" id="btnQuest" aria-label="经营手账"><span id="questIcon"></span>手账 <b id="questNum">0/16</b></button>
+      <div class="infoChip lv">
+        <label>Lv.<b id="level">1</b></label>
+        <div class="xpWrap"><i id="xpBar"></i></div>
+        <small id="xpText">0/120</small>
+      </div>
+    </div>
+    <div class="topActions">
+      <button class="btn ghost accBtn" id="btnAccount" title="档案与用户管理" aria-label="打开档案与用户管理"><span id="accAvatar">🌱</span><b id="accName">培育员</b></button>
+      <button class="btn ghost" id="btnCodex" aria-label="打开图鉴"><span id="bookIcon"></span> 图鉴</button>
+      <div class="moreWrap">
+        <button class="btn ghost" id="btnMore" aria-label="更多：帮助、关于、设置" aria-haspopup="menu" aria-expanded="false" title="帮助 · 关于 · 设置">更多 ▾</button>
+        <div class="moreMenu" id="moreMenu" role="menu">
+          <button role="menuitem" id="btnHelp">帮助<span>玩法、数值、公式</span></button>
+          <button role="menuitem" id="btnSettings">设置<span>音量、动效、字号</span></button>
+          <button role="menuitem" id="btnAbout">关于<span>版本与更新日志</span></button>
+        </div>
+      </div>
+      <button class="btn ghost icoBtn" id="btnSound" title="音效开关" aria-label="音效开关">🔊</button>
+      <button class="btn ghost on" id="btn3d" title="切换 3D 场景" aria-label="切换 3D 场景" aria-pressed="true">3D</button>
+      <button class="btn ghost" id="btnSlots" title="多存档管理" aria-label="多存档管理">存档</button>
+      <button class="btn ghost" id="btnPause" aria-label="暂停或继续" aria-pressed="false">暂停</button>
+      <div class="speedGroup" role="group" aria-label="时间流速">
+        <button data-speed="1" class="on" aria-label="1 倍速" aria-pressed="true">1x</button>
+        <button data-speed="2" aria-label="2 倍速" aria-pressed="false">2x</button>
+        <button data-speed="4" aria-label="4 倍速" aria-pressed="false">4x</button>
+      </div>
+      <button class="btn ghost tiny" id="btnReset" title="重置存档" aria-label="重置存档">重置</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="rail">
+      <div class="railHead">培育位 <span id="slotCount">1 / 4</span></div>
+      <div id="slots" class="slots"></div>
+      <div class="railFoot">
+        <div class="hint">适生评分低于 50 时生长几乎停滞；高于 70 才会恢复健康。看曲线就知道它过得好不好。</div>
+      </div>
+    </aside>
+
+    <section class="stage">
+      <div id="scene" class="scene"></div>
+      <div class="stageBadges">
+        <span class="sb">目标：走完全部阶段 → 收获 → 留下自留种，再养一轮</span>
+      </div>
+    </section>
+
+    <aside class="controls">
+      <div class="ctrlScroll" id="panel"></div>
+      <div class="tail">
+        <div class="tabs">
+          <div class="tabLeft">
+            <button data-tab="log" class="on">动态</button>
+            <button data-tab="records">档案</button>
+            <button data-tab="report">统计</button>
+          </div>
+          <button class="expandBtn" id="btnExpand"><span>展开</span><i class="expIc"></i></button>
+        </div>
+        <div id="logPane">
+          <div id="logList" class="logList"></div>
+        </div>
+        <div id="recordsPane" style="display:none">
+          <div id="recordList" class="recordList"></div>
+        </div>
+        <div id="reportPane" style="display:none">
+          <div id="reportBody" class="reportBody"></div>
+        </div>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<div class="modal" id="picker">
+  <div class="modalBox">
+    <div class="modalHead">
+      <h2>选择要培育的生命</h2>
+      <button class="xBtn" id="pickerClose" aria-label="关闭选择物种">✕</button>
+    </div>
+    <p class="modalDesc">每种生命都有自己的舒适区。对上了温度、湿度、光照与营养，它就按阶段长大；对不上，它会变慢、生病，最后枯死。</p>
+    <div class="pickerGrid" id="pickerGrid"></div>
+  </div>
+</div>
+
+<div class="modal" id="stockModal">
+  <div class="modalBox">
+    <div class="modalHead">
+      <h2>收获仓</h2>
+      <button class="xBtn" id="stockClose" aria-label="关闭收获仓">✕</button>
+    </div>
+    <div class="seasonBar" id="seasonBar"></div>
+    <p class="modalDesc" id="stockDesc">每一轮收获都会存进这里。品质越高，单位价值越高。可以一次性全部出售换成金币，用来扩建培育位、买种子、防治病害。</p>
+    <div id="stockBody" class="stockBody"></div>
+    <div class="stockFoot">
+      <div class="stockTotal">合计估值 <b id="stockValue">0</b> 币</div>
+      <button class="btn primary" id="btnSellAll">全部出售</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="codexModal">
+  <div class="modalBox wide">
+    <div class="modalHead">
+      <h2>生命图鉴</h2>
+      <button class="xBtn" id="codexClose" aria-label="关闭图鉴">✕</button>
+    </div>
+    <div id="achvStrip" class="achvStrip"></div>
+    <div class="codexTools">
+      <button class="btn ghost tiny" id="btnCrossOpen">杂交育种</button>
+      <button class="btn ghost tiny" id="btnGraftOpen">远缘嫁接</button>
+      <button class="btn ghost tiny" id="btnExport">导出存档</button>
+      <button class="btn ghost tiny" id="btnImport">导入存档</button>
+      <input type="file" id="importFile" accept=".json" style="display:none">
+    </div>
+    <div class="codexSec">研究等级权益</div>
+    <div id="levelPanel" class="lvPanel"></div>
+    <div class="codexSec">收藏进度</div>
+    <div id="collectBar" class="cpWrap"></div>
+    <div class="codexSec">物种档案</div>
+    <div id="codexBody2" class="codexBody2"></div>
+    <div class="codexSec">自动备份 <em>每 5 天滚动一份，最多 3 份</em></div>
+    <div id="bakList" class="bakList"></div>
+  </div>
+</div>
+
+<div class="modal" id="seedModal">
+  <div class="modalBox">
+    <div class="modalHead">
+      <h2>选择种子</h2>
+      <button class="xBtn" id="seedClose" aria-label="关闭种子">✕</button>
+    </div>
+    <p class="modalDesc">自留种带有代数与活力。活力越高，评分加成与生长速度越强；劣变种子会拖慢生长。优质种留着自己播，别随手卖掉。</p>
+    <div id="seedList" class="seedList"></div>
+  </div>
+</div>
+
+<div class="modal" id="questModal">
+  <div class="modalBox wide">
+    <div class="modalHead">
+      <h2>经营手账 <em id="questTitle" style="font-style:normal;font-size:12px;color:#d6b26e;margin-left:10px"></em></h2>
+      <button class="xBtn" id="questClose" aria-label="关闭手账">✕</button>
+    </div>
+    <p class="modalDesc" id="questDesc">五章主线，贯穿整个经营。每一步都在正常游玩中自然达成，奖励即时到账——不用手动领取。</p>
+    <div id="questBody" class="questBody"></div>
+  </div>
+</div>
+
+<div class="modal" id="upModal">
+  <div class="modalBox wide">
+    <div class="modalHead">
+      <h2>温室改造</h2>
+      <button class="xBtn" id="upClose" aria-label="关闭温室">✕</button>
+    </div>
+    <p class="modalDesc">一次性投入，永久生效。用来抵消季节压制、减少日常操作负担，或者直接提升产量。改造不可退，按自己的经营路线挑重点投资。</p>
+    <div id="upList" class="upList"></div>
+  </div>
+</div>
+
+<div class="modal" id="orderModal">
+  <div class="modalBox wide">
+    <div class="modalHead">
+      <h2>收购订单</h2>
+      <button class="xBtn" id="orderClose" aria-label="关闭订单">✕</button>
+    </div>
+    <p class="modalDesc">甲方会提出具体需求：某个物种、最低品质、有时还要代数。达成后按订单价收购，通常远高于市集散卖。订单有有效期，过期自动撤回。</p>
+    <div id="orderList" class="orderList"></div>
+    <div class="orderFoot">
+      <span class="odHint">交付时优先消耗刚好达标的最低品质批次，好货留着卖更贵。</span>
+      <button class="btn ghost small" id="btnOrderRefresh">刷新订单（20 币）</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="graftModal">
+  <div class="modalBox wide">
+    <div class="modalHead">
+      <h2>远缘嫁接</h2>
+      <button class="xBtn" id="graftClose" aria-label="关闭嫁接">✕</button>
+    </div>
+    <p class="modalDesc">把两个不同物种接在一起。维管束能否对接取决于亲和性——同科组合成功率高，跨科基本必败，但接活的每一株都是自然界不存在的孤品。失败会枯死接穗，假活还要多付一笔清理费。</p>
+    <div class="crossPick">
+      <div class="crossSlot" id="graftA" data-side="A"><span class="csHint">点下面选择砧木（根系）</span></div>
+      <div class="crossX">×</div>
+      <div class="crossSlot" id="graftB" data-side="B"><span class="csHint">点下面选择接穗（枝条）</span></div>
+    </div>
+    <div class="graftPick" id="graftPick"></div>
+    <div class="crossPreview" id="graftPreview"></div>
+    <div class="graftResult" id="graftResult"></div>
+    <div class="crossFoot">
+      <button class="btn primary" id="btnGraft" disabled>开始嫁接（120 币）</button>
+    </div>
+    <div class="graftBankWrap">
+      <div class="gbHead">嫁接体库 <span id="graftBankCount">0</span></div>
+      <div id="graftBankList" class="graftBankList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="crossModal">
+  <div class="modalBox wide">
+    <div class="modalHead">
+      <h2>杂交育种</h2>
+      <button class="xBtn" id="crossClose" aria-label="关闭杂交">✕</button>
+    </div>
+    <p class="modalDesc">选两粒同种种子杂交。子代活力取双亲均值再加少量杂种优势，突变率提高到 6%（大突变）/ 20%（小波动）。消耗两粒种子，场地费 60 币。</p>
+    <div class="crossPick">
+      <div class="crossSlot" id="crossA" data-side="A"><span class="csHint">点下面的种子选为亲本 A</span></div>
+      <div class="crossX">×</div>
+      <div class="crossSlot" id="crossB" data-side="B"><span class="csHint">点下面的种子选为亲本 B</span></div>
+    </div>
+    <div class="crossPreview" id="crossPreview"></div>
+    <div class="crossBank" id="crossBank"></div>
+    <div class="crossFoot">
+      <button class="btn primary" id="btnCross" disabled>开始杂交（60 币）</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="harvestModal">
+  <div class="harvestBox">
+    <div class="hvTop" id="hvTop">收 获 结 算</div>
+    <div class="hvGrade" id="hvGrade">A</div>
+    <div class="hvName" id="hvName">番茄</div>
+    <div class="hvScore" id="hvScore">品质 87</div>
+    <div class="hvRow" id="hvRow"></div>
+    <div class="hvStrain" id="hvStrain"></div>
+    <div class="hvFact" id="hvFact"></div>
+    <button class="btn primary" id="hvClose">收下</button>
+  </div>
+</div>
+
+<div class="modal" id="eventModal">
+  <div class="eventBox">
+    <div class="evTop">
+      <span class="evIcon" id="evIcon"></span>
+      <div>
+        <div class="evLabel">今日事件</div>
+        <h2 id="evName">—</h2>
+      </div>
+    </div>
+    <p class="evDesc" id="evDesc"></p>
+    <div class="evOpts" id="evOpts"></div>
+  </div>
+</div>
+
+<div class="modal" id="dailyModal">
+  <div class="dailyBox">
+    <div class="helpHead">
+      <h2>今日目标</h2>
+      <button class="mxClose" data-close="dailyModal" aria-label="关闭每日目标">×</button>
+    </div>
+    <div class="dailySub" id="dailySub">第 <b id="dailyDay">1</b> 天 · 完成目标换取周转资金，每天 0 点刷新</div>
+    <div class="dailyBody" id="dailyBody"></div>
+  </div>
+</div>
+
+<div class="modal" id="slotModal">
+  <div class="slotBox">
+    <div class="helpHead">
+      <h2>存档管理</h2>
+      <button class="mxClose" data-close="slotModal" aria-label="关闭存档管理">×</button>
+    </div>
+    <p class="slotDesc">三个独立存档位，各自保存完整进度。切换存档会先自动保存当前进度。想多周目尝试不同玩法时，用新存档位，别覆盖旧档。</p>
+    <div id="slotList" class="slotList"></div>
+  </div>
+</div>
+
+<div class="modal" id="helpModal">
+  <div class="helpBox">
+    <div class="helpHead">
+      <h2>玩法帮助</h2>
+      <button class="mxClose" data-close="helpModal" aria-label="关闭帮助">×</button>
+    </div>
+    <div class="helpTabs">
+      <button data-htab="basics" class="on">基础</button>
+      <button data-htab="env">环境与设备</button>
+      <button data-htab="quality">品质判定</button>
+      <button data-htab="breed">选育与杂交</button>
+      <button data-htab="graft">远缘嫁接</button>
+      <button data-htab="econ">经济与季节</button>
+      <button data-htab="soil">地力与轮作</button>
+      <button data-htab="pond">池塘水体</button>
+      <button data-htab="pets">宠物养成</button>
+      <button data-htab="events">随机事件</button>
+      <button data-htab="quest">经营手账</button>
+      <button data-htab="stats">统计与成就</button>
+      <button data-htab="scene3d">3D 场景</button>
+      <button data-htab="sound">音效</button>
+      <button data-htab="slots">多存档</button>
+      <button data-htab="tutor">新手教学</button>
+      <button data-htab="live">数值速查</button>
+      <button data-htab="keys">快捷与存档</button>
+    </div>
+    <div class="helpBody" id="helpBody"></div>
+  </div>
+</div>
+
+<div class="modal" id="aboutModal">
+  <div class="aboutBox">
+    <div class="aboutHead">
+      <div class="aboutMark" id="aboutMark"></div>
+      <div>
+        <h2>自然培育所</h2>
+        <p>NATURE LAB · 一款关于「把生命养完整」的模拟经营小品</p>
+      </div>
+      <button class="mxClose" data-close="aboutModal" aria-label="关闭关于">×</button>
+    </div>
+    <div class="aboutBody">
+      <p class="aboutLead">你接手了一间废弃的玻璃温室。手里只有一枚种子和有限的启动资金——把它养到开花结果，留下更好的种子，再养下一轮。</p>
+      <div class="aboutGrid">
+        <div class="abCard">
+          <h4>设计目标</h4>
+          <p>不做「点一下等进度条」的放置游戏。每一次调节都对应一个真实的生态参数，收获的品质由<strong>全程</strong>决定的，而不是最后一刻。</p>
+        </div>
+        <div class="abCard">
+          <h4>科学依据</h4>
+          <p>温度、湿度、日照、土壤含水、pH 五项参数取自常见作物栽培区间；N/P/K 配比按营养生长期偏氮、花果期偏磷钾的规律设计。科普问答均可在教材中查到。</p>
+        </div>
+        <div class="abCard">
+          <h4>系统构成</h4>
+          <p>环境模拟 · 品质评分 · 多代选育 · 杂交育种 · 季节性市价 · 收购订单 · 温室改造 · 成就图鉴 · 本地存档。</p>
+        </div>
+        <div class="abCard">
+          <h4>技术</h4>
+          <p>纯前端实现，无后端、无网络请求。单文件版可离线双击运行，存档保存在浏览器 localStorage，也可导出 JSON 迁移。</p>
+        </div>
+      </div>
+      <details class="aboutChangelog">
+        <summary>更新日志</summary>
+        <ul>
+          <li><b>v2.0</b> 商业化升级：本地多用户档案（多档案独立存档 / 设置 / 教学进度）、可选 PIN 隐私锁、启动锁屏、档案切换与删除、单档案与全档案导出导入、数据隐私说明；存档结构校验 + 损坏自动隔离 + 备份回滚；全局异常兜底、保存失败可见提示、退出前自动保存；弹窗焦点陷阱与 aria 补全；新增自动化自检工具。</li>
+          <li><b>v1.10</b> BGM 四季色彩（春基准 / 夏 +2 半音更亮 / 秋 −3 转暖 / 冬 −5 萧瑟，随 10 天一季自动移调）、音乐响应系统：收获与成就时当前音阶上行琶音，死亡与恶性事件低音小二度涌动。</li>
+          <li><b>v1.9</b> 氛围 BGM 场景变奏：温室白天 / 夜晚（低八度、琶音更稀疏）/ 水景（多利亚调式 + 持续流水噪声层）/ 蜂房（大调明亮、琶音密集）/ 暗房（低音呼吸），随培育物种与昼夜自动平滑切换。</li>
+          <li><b>v1.8</b> 氛围 BGM（程序化生成四和弦循环 + 五声音阶琶音，独立音量）、数字飘字（金币入账/支出从金币栏飘起，四槽位错开防重叠）、屏幕震动（死亡重震 / 恶性事件轻震），全部遵循「减少动效」偏好。</li>
+          <li><b>v1.7</b> 设置面板（音量滑杆 / 减少动效 / 色盲友好 / 界面字号 / 后台自动暂停 / 全屏）、无障碍补全（全部 77 个按钮均带可读标签，节奏与状态按钮补 aria-pressed，全局键盘焦点环）、切后台自动停表。</li>
+          <li><b>v1.6</b> 经济体系重构：种子价与收成联动（修复 17 物种「种一季必亏」）、订单定价锚定散卖（修复社区市集 44% 亏本）、温室改造重定价（育苗架回本从 107 轮降到 6–17 轮）、新增中药铺与水族馆两类专收客户、经营手账第五章「规模」。</li>
+          <li><b>v1.5</b> 全物种收益配平（曲线比 12.6×→4.0×）、成就奖励体系（28 项共 3240 币）、新音效补齐（订单/事件/回滚/手账）、老档兼容修复（图鉴字段迁移）、宠物默契档位显示修正。</li>
+          <li><b>v1.4</b> 新物种库拉索芦荟与海月水母（18 种 90 阶段）、经营手账四章主线、新客户花艺工作室与摄影棚、事件季节加权、自动备份轮换与一键回滚。</li>
+          <li><b>v1.3</b> 宠物姿态动画、寻回事件「门口的猫」、雷暴/冰雹等新事件、订单熟客度与连锁单、窄屏适配。</li>
+          <li><b>v1.2</b> 宠物系统（鸡产蛋 / 狗猫默契）、负反馈机制、年报统计、成就体系。</li>
+          <li><b>v1.1</b> 多存档、季节系统、远缘嫁接、3D 场景、新手教学。</li>
+        </ul>
+      </details>
+      <div class="aboutMeta">
+        <span>版本 <b id="aboutVer">2.0</b></span>
+        <span>物种 <b id="aboutSp">18</b> · 阶段 <b id="aboutStage">91</b> · 成就 <b id="aboutAchv">28</b></span>
+        <span>本地档案 <b id="aboutAcc">—</b></span>
+        <span id="aboutTime"></span>
+      </div>
+      <div class="aboutLegal">
+        <b>适龄提示：全年龄</b> · 本作无内购、无广告、无网络请求，进度仅保存在本机浏览器。<br>
+        健康游戏忠告：抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。
+      </div>
+    </div>
+    <div class="aboutFoot">
+      <button class="btn ghost" id="btnAboutHelp">查看玩法帮助</button>
+      <button class="btn primary" data-close="aboutModal">知道了</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="accountModal" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
+  <div class="modalBox accBox">
+    <div class="modalHead">
+      <h2 id="accountTitle">档案与用户</h2>
+      <button class="xBtn" aria-label="关闭档案管理">✕</button>
+    </div>
+    <p class="modalDesc">一台设备可以有多位培育员。每个档案独立保存存档、设置、教学进度与成就；可选 PIN 隐私锁。全部数据只留在本机浏览器。</p>
+    <div id="accBody"></div>
+  </div>
+</div>
+
+<div id="tutorLayer" class="tutorLayer">
+  <div id="tutorSpot" class="tutorSpot"></div>
+  <div id="tutorCard" class="tutorCard"></div>
+</div>
+
+<div class="modal" id="guide">
+  <div class="guideBox">
+    <div class="guideHead">
+      <div class="guideMark" id="guideMark"></div>
+      <h2>自然培育所</h2>
+      <p>三分钟学会，然后把它养到结果</p>
+    </div>
+    <ol class="guideSteps">
+      <li><b>选一个培育位</b><span>点左侧「选种培育」，从 18 个物种里挑一个：作物（番茄、草莓、向日葵、芦荟）、昆虫（帝王蝶、蚕）、水生（林蛙、锦鲤、海月水母）、家禽（鸡、绿头鸭）、家养宠物（狗、猫、兔子、陆龟）、蜂与菌（蜜蜂、平菇）、猛禽（仓鸮）。第一次建议从番茄或鸡开始。</span></li>
+      <li><b>看它的舒适区</b><span>右侧写着适宜区间（如 18–28℃），下方仪表会实时显示当前值是否落在绿区。偏差越大越红，扣健康也越快。</span></li>
+      <li><b>用设备把环境拉回来</b><span>加温、降温、加湿、除湿、补光、遮阳——点一下开关就生效，相反的两台会自动互斥。拿不准就点「一键调到适宜」。</span></li>
+      <li><b>补上营养</b><span>氮长叶、磷促根与花、钾管抗逆与品质。点「按阶段配肥」，它会自动对齐当前阶段的需求。每进一个阶段都要再补一次；土壤含水会蒸发，记得浇水。</span></li>
+      <li><b>守住健康度</b><span>适生评分 &gt;70 会回血，&lt;50 就掉血、生病。生病了用「防治」（30 币），拖着会死。</span></li>
+      <li><b>收获，进入下一轮</b><span>走完全部生长阶段就能收获（多数物种 5 个，鸡是 6 个），品质 S/A/B/C/D 取决于全程表现——不只是最后一天的分数。收获后自动留下自留种，直接开下一轮。</span></li>
+    </ol>
+    <div class="guideFoot">
+      <span>提示：右上角可调 1x / 2x / 4x 速度；一轮完整生命约 15–25 个游戏天。</span>
+      <button class="btn primary" id="guideClose">开始培育</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts" role="status" aria-live="polite"></div>
+
+<!-- 设置面板 -->
+<div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+  <div class="modalBox settingsBox">
+    <div class="modalHead">
+      <h2 id="settingsTitle">设置</h2>
+      <button class="xBtn" data-close="settingsModal" aria-label="关闭设置">✕</button>
+    </div>
+    <p class="modalDesc">这些偏好存在本机浏览器，与存档分离——切换存档不会重置。</p>
+    <div class="settingsBody" id="settingsBody"></div>
+  </div>
+</div>
+
+<script src="js/account.js"></script>
+<script src="js/vendor/three.min.js"></script>
+<script src="js/sound.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/bgm.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/data.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/season.js"></script>
+<script src="js/upgrade.js"></script>
+<script src="js/orders.js"></script>
+<script src="js/breed.js"></script>
+<script src="js/graft.js"></script>
+<script src="js/milestone.js"></script>
+<script src="js/events.js"></script>
+<script src="js/soil.js"></script>
+<script src="js/tasks.js"></script>
+<script src="js/quest.js"></script>
+<script src="js/report.js"></script>
+<script src="js/poster.js"></script>
+<script src="js/pet.js"></script>
+<script src="js/tutor.js"></script>
+<script src="js/graft_ui.js"></script>
+<script src="js/scene3d.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -122,6 +122,9 @@ exclude:
   # data/profiles.json（孩子的学习档案）、node_modules、题库等，
   # 一旦被 hexo generate 复制进 public/ 就会随 GitHub Pages 公开到网上。
   - 'parent-child-knowledge-game/**'
+  # 《自然培育所》完整开发包（含 bat、审计报告、tools、19MB 单文件版）不直接发布；
+  # 只由 build-scripts/post-build-naturelab.js 把 game/ 子目录复制到 /naturelab/。
+  - '自然培育所/**'
 ignore:
 
 # Extensions

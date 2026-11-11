@@ -1,0 +1,28 @@
+/* 轻量线性图标集（内联 SVG，避免 emoji 字体缺失） */
+const ICONS = {
+  leaf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',
+  water: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7s6 6.2 6 10.3a6 6 0 0 1-12 0C6 8.9 12 2.7 12 2.7Z"/></svg>',
+  wind: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 8h9a3 3 0 1 0-3-3"/><path d="M3 12h13a3 3 0 1 1-3 3"/><path d="M3 16h6"/></svg>',
+  snow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 2v20M4.2 6.5l15.6 11M19.8 6.5 4.2 17.5"/></svg>',
+  fire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2s5 5 5 9a5 5 0 0 1-10 0c0-2 1-3 1-3s.5 2 2 2c0-3 2-6 2-8Z"/></svg>',
+  flask: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6.5L5 18a2 2 0 0 0 1.7 3h10.6A2 2 0 0 0 19 18l-5-8.5V3"/><path d="M7.5 14h9"/></svg>',
+  recycle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.5a2 2 0 0 1-1.7-3l2.3-4"/><path d="m9.6 4.6 1.3-2.2a2 2 0 0 1 3.4 0l2.4 4.1"/><path d="M14 19h5.5a2 2 0 0 0 1.7-3l-1.6-2.8"/><path d="m4 12 2.5 4.5L11 14"/><path d="m14.5 4.5-1 4.9 5 .6"/><path d="m18 15-4 3 4 3"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  coin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1.2 1.1-1.8 2.5-1.8s2.5.7 2.5 1.8c0 2.5-5 1.5-5 3.9 0 1.1 1.1 1.9 2.5 1.9s2.5-.7 2.5-1.9"/></svg>',
+  book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H19v18H5.5A1.5 1.5 0 0 1 4 19.5Z"/><path d="M8 3v18"/></svg>',
+  pause: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="5" width="3.5" height="14" rx="1"/><rect x="13.5" y="5" width="3.5" height="14" rx="1"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5Z"/></svg>',
+  reset: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>',
+  warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 3 2.5 20h19Z"/><path d="M12 9v5M12 17h.01" stroke-linecap="round"/></svg>',
+  drop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3s5 5.4 5 9a5 5 0 0 1-10 0c0-3.6 5-9 5-9Z"/></svg>',
+  s_soil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 16h18M3 19h18M6 16c1-3 3-4 6-4s5 1 6 4"/></svg>',
+  s_water: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14c2-2 4-2 6 0s4 2 6 0 4-2 6 0M2 18c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg>',
+  basket: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18l-1.6 9.2a2 2 0 0 1-2 1.8H6.6a2 2 0 0 1-2-1.8Z"/><path d="M8 9V6.5a4 4 0 0 1 8 0V9"/><path d="M9.5 13v3M14.5 13v3"/></svg>',
+  fan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 10c0-3 1-5 4-5s4 2 4 4-2 3-4 3"/><path d="M14 12c3 0 5 1 5 4s-2 4-4 4-3-2-3-4"/><path d="M12 14c0 3-1 5-4 5s-4-2-4-4 2-3 4-3"/><path d="M10 12c-3 0-5-1-5-4s2-4 4-4 3 2 3 4"/></svg>',
+  shade: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a9 9 0 0 1 18 0Z"/><path d="M12 10v9"/><path d="M8 19h8"/><path d="M5.5 10c1.5 2 4 3 6.5 3s5-1 6.5-3"/></svg>',
+  chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg>',
+  sprout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 21v-8"/><path d="M12 13C12 9 9 7 5 7c0 4 3 6 7 6Z"/><path d="M12 11c0-3.5 2.5-5.5 6-5.5 0 3.5-2.5 5.5-6 5.5Z"/></svg>',
+  egg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3s6.5 6.8 6.5 12a6.5 6.5 0 0 1-13 0C5.5 9.8 12 3 12 3Z"/><path d="M9.5 13.5a2.6 3.2 0 0 0 2 2.6" stroke-linecap="round"/></svg>',
+  paw: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><ellipse cx="7" cy="9" rx="1.6" ry="2.2"/><ellipse cx="12" cy="7.4" rx="1.6" ry="2.3"/><ellipse cx="17" cy="9" rx="1.6" ry="2.2"/><path d="M12 12.5c2.9 0 5.2 2 5.2 4.3 0 1.7-1.4 2.7-3 2.4-1-.2-1.5-.4-2.2-.4s-1.2.2-2.2.4c-1.6.3-3-.7-3-2.4 0-2.3 2.3-4.3 5.2-4.3Z"/></svg>'
+};
+function icon(name, cls) { return `<span class="ic ${cls || ''}">${ICONS[name] || ''}</span>`; }

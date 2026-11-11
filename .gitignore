@@ -4,6 +4,8 @@ Thumbs.db
 db.json
 *.log
 node_modules/
+# 《自然培育所》单文件构建产物（约 19MB，可由 tools/build_single.py 重建，不必进版本库）
+source/自然培育所/dist/
 # 只忽略根目录的 Hexo 构建产物（原来是 public/，会匹配任意层级的 public 目录）
 /public/
 .deploy_git/
