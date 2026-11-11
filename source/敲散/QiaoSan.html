@@ -792,7 +792,9 @@
       '<div class="pfSec">数据与隐私</div>' +
       '<div class="pfNote">全部数据只保存在本机浏览器，不上传、不统计、不追踪。清理站点数据会连同档案一起删除；换设备前请先导出档案。</div>' +
       '<div class="pfData"><button class="mini" data-pf="export">导出当前档案</button>' +
-      '<button class="mini danger" data-pf="wipe">清除本机全部数据</button></div>' +
+      '<button class="mini" data-pf="import">导入档案</button>' +
+      '<button class="mini danger" data-pf="wipe">清除本机全部数据</button>' +
+      '<input type="file" id="pfImport" accept=".json,application/json" hidden></div>' +
       '<div class="pfErr" id="pfMsg">' + (msg ? esc(msg) : '') + '</div>';
 
     if (!bound) {
@@ -811,6 +813,12 @@
       }
     }
     if (open) openModal();
+    const fi = document.getElementById('pfImport');
+    if (fi) fi.addEventListener('change', e => {
+      const f = e.target.files && e.target.files[0];
+      if (f) importProfile(f);
+      e.target.value = '';
+    });
   }
 
   function openModal() {
@@ -831,6 +839,30 @@
     msg = t || '';
     const el = document.getElementById('pfMsg');
     if (el) { el.textContent = t || ''; el.style.color = bad ? '#ff8f8f' : ''; }
+  }
+
+  function importProfile(file) {
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) return setMsg('文件过大（>2MB），已拒绝导入', true);
+    const rd = new FileReader();
+    rd.onload = () => {
+      try {
+        const obj = JSON.parse(rd.result);
+        if (!obj || obj.app !== 'qiaosan-profile' || !obj.data) throw new Error('bad');
+        const acc = create((obj.profile && obj.profile.name) || '导入档案',
+                           (obj.profile && obj.profile.avatar) || '🙂');
+        const p = prefixOf(acc);
+        Object.keys(obj.data).forEach(k => {
+          if (!/^[a-zA-Z0-9_.-]{1,80}$/.test(k)) return;
+          try { localStorage.setItem(p + k, String(obj.data[k])); } catch (e) { }
+        });
+        setActive(acc.id);
+        location.reload();
+      } catch (e) {
+        setMsg('不是有效的敲散档案文件', true);
+      }
+    };
+    rd.readAsText(file);
   }
 
   async function act(action, btn) {
@@ -915,6 +947,10 @@
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 800);
       setMsg('档案已导出');
+
+    } else if (action === 'import') {
+      const f = document.getElementById('pfImport');
+      if (f) f.click();
 
     } else if (action === 'wipe') {
       if (!confirm('清除本机全部数据？所有档案与统计都会被删除，不可恢复。')) return;

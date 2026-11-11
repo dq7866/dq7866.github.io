@@ -67,6 +67,7 @@ ok('档案命名空间', profile.includes("'qs.u'"));
 ok('PIN SHA-256 + fallback', profile.includes('sha256:') && profile.includes("'fnv'"));
 ok('PIN 失败冷却 30 秒', profile.includes('30000'));
 ok('档案导出', profile.includes('qiaosan-profile'));
+ok('档案导入', profile.includes('importProfile'));
 ok('删除档案清空命名空间', profile.includes('keysWithPrefix(prefixOf(acc))'));
 ok('旧版 yt_ 迁移', profile.includes("keysWithPrefix('yt_')"));
 
