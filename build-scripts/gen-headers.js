@@ -73,6 +73,12 @@ const RULES = `# 由 build-scripts/gen-headers.js 生成，请勿手改
 /naturelab/assets/*
   Cache-Control: public, max-age=2592000
 
+# ---- 敲散（/qiaosan/）：HTML 回源，脚本样式 1 小时 ----
+/qiaosan/*.js
+  Cache-Control: public, max-age=3600
+/qiaosan/*.css
+  Cache-Control: public, max-age=3600
+
 # ---- forest 音频与视频：内容不变，给 1 年（604MB 的主要包袱）----
 /forest/assets/audio/*
   Cache-Control: public, max-age=31536000, immutable

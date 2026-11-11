@@ -125,6 +125,9 @@ exclude:
   # 《自然培育所》完整开发包（含 bat、审计报告、tools、19MB 单文件版）不直接发布；
   # 只由 build-scripts/post-build-naturelab.js 把 game/ 子目录复制到 /naturelab/。
   - '自然培育所/**'
+  # 《敲散》完整开发包（单文件版、Electron 壳、启动脚本）不直接发布；
+  # 只由 build-scripts/post-build-qiaosan.js 把 src/ 复制到 /qiaosan/。
+  - '敲散/**'
 ignore:
 
 # Extensions

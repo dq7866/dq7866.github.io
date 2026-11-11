@@ -1,0 +1,23 @@
+{
+  "name": "qiaosan",
+  "version": "3.0.0",
+  "description": "敲散 · 解压气泡 —— 通勤解压小游戏（桌面版 v3.0）",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.qiaosan.app",
+    "productName": "敲散",
+    "files": ["main.js", "app/**/*"],
+    "win": { "target": ["nsis", "portable"] },
+    "mac": { "target": ["dmg"] },
+    "linux": { "target": ["AppImage"] }
+  }
+}
