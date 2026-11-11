@@ -15,6 +15,7 @@
   <div class="brand"><b>敲散</b><span>TAP IT OFF</span></div>
   <div class="hudRight">
     <button id="profileBtn" class="hudBtn" aria-label="我的档案"><span id="pfAvatar">🙂</span></button>
+    <button id="rankBtn" class="hudBtn" aria-label="排行榜">🏆</button>
     <button id="helpBtn" class="hudBtn" aria-label="玩法帮助">?</button>
     <button id="gear" aria-label="设置">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
@@ -23,6 +24,16 @@
     </button>
   </div>
 </div>
+
+<div id="rainHud">
+  <div class="rhCell"><b id="rhScore">0</b><small>得分</small></div>
+  <div class="rhCell"><b id="rhPops">0</b><small>破损</small></div>
+  <div class="rhCell"><b id="rhBursts">0</b><small>爆裂</small></div>
+  <div class="rhCell rhLvlCell"><b id="rhLevel">1</b><small>层</small></div>
+  <div class="rhLives" id="rhLives"></div>
+</div>
+<div id="levelBanner"></div>
+<div id="burstBanner"></div>
 
 <div id="combo"></div>
 <div id="dots"></div>
@@ -47,9 +58,17 @@
     </div>
     <div class="g-t">敲碎它</div>
     <div class="g-s">用指腹轻点气泡，两三下就碎<br>敲得越急，爆得越爽</div>
+    <div class="modeRow" id="modeRow" role="tablist" aria-label="游戏模式">
+      <button class="modeCard on" data-gm="zen" role="tab" aria-selected="true"><b>静心一轮</b><span>敲完一圈 · 生成消散卡</span></button>
+      <button class="modeCard" data-gm="rain" role="tab" aria-selected="false"><b>烦恼雨</b><span>烦恼落下 · 冲刺排行榜</span></button>
+    </div>
+    <div class="diffRow" id="diffRow" aria-label="烦恼雨难度">
+      <button data-diff="chill">悠闲</button><button data-diff="normal" class="on">标准</button><button data-diff="frenzy">狂潮</button>
+    </div>
     <button class="g-btn" id="startBtn">开始</button>
     <div id="deskTip">鼠标点击 = 敲一下 · 按住 <kbd>Shift</kbd> 点 = 重击爆破<br><kbd>Space</kbd> 敲击 · <kbd>R</kbd> 重开 · <kbd>Esc</kbd> 关闭面板</div>
     <div class="g-note">自定义字效 · 贴图 · 图案 · 全程离线无广告</div>
+    <button class="g-rank" id="guideRank">🏆 本机排行榜</button>
   </div>
 </div>
 
@@ -61,7 +80,34 @@
     <button class="btn p" id="againBtn">再敲一轮</button>
     <button class="btn g" id="saveBtn">保存消散卡</button>
   </div>
+  <div class="rrSub">
+    <button class="pfLink" id="resHome">回到首页</button>
+    <span>·</span>
+    <button class="pfLink" id="resRank">排行榜</button>
+  </div>
   <div class="r-tip">也可长按卡片保存到相册</div>
+</div>
+
+<div id="rainResult" role="dialog" aria-modal="true" aria-labelledby="rrTitle">
+  <div class="r-kicker">WORRY RAIN · ROUND OVER</div>
+  <div class="rrScore"><b id="rrScore">0</b><small id="rrTitle">本局得分</small></div>
+  <div class="rrBadge" id="rrBadge">本机第 1 名</div>
+  <div class="rrGrid">
+    <div><b id="rrPops">0</b><span>破损</span></div>
+    <div><b id="rrBursts">0</b><span>爆裂</span></div>
+    <div><b id="rrLevel">1</b><span>到达层数</span></div>
+    <div><b id="rrChain">0</b><span>最高连击</span></div>
+  </div>
+  <div class="r-acts">
+    <button class="btn p" id="rrAgain">再来一局</button>
+    <button class="btn g" id="rrRank">排行榜</button>
+  </div>
+  <div class="rrSub">
+    <button class="pfLink" id="rrSave">保存战绩卡</button>
+    <span>·</span>
+    <button class="pfLink" id="rrHome">回到首页</button>
+  </div>
+  <div class="r-tip" id="rrTip">难度：标准</div>
 </div>
 
 <div id="scrim"></div>
@@ -107,7 +153,24 @@
   </div>
 
   <div class="p-sec">
-    <div class="p-label">显示数量</div>
+    <div class="p-label">游戏模式<small>静心一轮，或进入无尽下落的烦恼雨</small></div>
+    <div class="seg" id="segMode">
+      <button data-v="zen" class="on">静心一轮</button>
+      <button data-v="rain">烦恼雨</button>
+    </div>
+  </div>
+
+  <div class="p-sec">
+    <div class="p-label">烦恼雨难度<small>难度越高，下落越快、背景越烈、扣血越快</small></div>
+    <div class="seg" id="segDiff">
+      <button data-v="chill">悠闲</button>
+      <button data-v="normal" class="on">标准</button>
+      <button data-v="frenzy">狂潮</button>
+    </div>
+  </div>
+
+  <div class="p-sec">
+    <div class="p-label">显示数量<small>静心模式的单圈气泡数</small></div>
     <div class="seg" id="segCount"></div>
   </div>
 
@@ -119,6 +182,7 @@
       <button data-v="hex">六边</button>
       <button data-v="star">星形</button>
       <button data-v="heart">心形</button>
+      <button data-v="mix">随机</button>
       <button data-v="none">无形状</button>
     </div>
   </div>
@@ -194,7 +258,7 @@
     </div>
   </div>
 
-  <div class="p-foot">敲散 v3.0 · 敲击解压 · <button class="pfLink" id="footHelp">帮助</button> · <button class="pfLink" id="footAbout">关于</button></div>
+  <div class="p-foot">敲散 v3.1 · 敲击解压 · <button class="pfLink" id="footRank">排行榜</button> · <button class="pfLink" id="footHelp">帮助</button> · <button class="pfLink" id="footAbout">关于</button></div>
 </div>
 
 <div id="modalScrim" class="mScrim"></div>
@@ -202,11 +266,18 @@
 <div id="helpModal" class="modalCard" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
   <div class="mcHead"><h2 id="helpTitle">玩法帮助</h2><button class="mcClose" data-mc-close aria-label="关闭帮助">✕</button></div>
   <div class="mcBody">
-    <h3>怎么玩</h3>
+    <h3>怎么玩 · 静心一轮</h3>
     <ol class="mcList">
       <li>点「开始」，屏幕上会出现一圈情绪气泡。</li>
       <li>用指腹点击气泡，两三下就会碎裂；敲得越急，COMBO 越高、爆得越爽。</li>
       <li>全部敲碎后生成一张「情绪消散卡」，可以保存成图片。</li>
+    </ol>
+    <h3>怎么玩 · 烦恼雨</h3>
+    <ol class="mcList">
+      <li>烦恼会从屏幕顶部不断落下，大小、形状、颜色、速度都不一样，大的更耐敲。</li>
+      <li>敲碎得分：敲得越快连击越高；1.1 秒内连续敲碎 3 个以上会触发「爆裂」额外加分。</li>
+      <li>漏掉一个扣一条命，命用完本局结束；每敲碎 12 个升一层，下落更快、背景换色。</li>
+      <li>结算后可保存战绩卡，成绩会记入本机排行榜（每个档案独立）。</li>
     </ol>
     <h3>桌面端操作</h3>
     <ul class="mcList">
@@ -215,12 +286,21 @@
     </ul>
     <h3>设置项说明</h3>
     <table class="mcTable">
-      <tr><th>形状</th><td>圆形、圆角、六边、星形、心形，或「无形状」只保留文字/图案。</td></tr>
+      <tr><th>游戏模式</th><td>静心一轮是敲完一圈的短局；烦恼雨是无尽下落、按分数排名的长局。</td></tr>
+      <tr><th>难度</th><td>悠闲 / 标准 / 狂潮：影响下落速度、出怪密度、气泡硬度、命数与背景主题。</td></tr>
+      <tr><th>形状</th><td>圆形、圆角、六边、星形、心形，「随机」每颗都不同，或「无形状」只保留文字/图案。</td></tr>
       <tr><th>大小差异</th><td>一致、轻微、明显；只影响视觉，不改变敲击手感。</td></tr>
       <tr><th>入场动画</th><td>随机 / 飞入 / 飘入 / 落入 / 弹出；随机模式每颗气泡的速度与方向都不同。</td></tr>
       <tr><th>破裂效果</th><td>碎裂偏玻璃片，炸裂范围更大更亮，烟雾是柔和的色雾。</td></tr>
       <tr><th>敲击手感</th><td>轻松约 1–2 下，标准 2–3 下，顽固 3–4 下。</td></tr>
     </table>
+    <h3>得分规则 · 烦恼雨</h3>
+    <ul class="mcList">
+      <li>每敲碎一个得 10 分 × 层数加成 × 连击加成；气泡越大分数越高，金色气泡三倍分。</li>
+      <li>爆裂：1.1 秒内连续敲碎，每到 3 / 6 / 9 连额外加分并触发全屏冲击环。</li>
+      <li>漏掉一个扣一条命，初始命数随难度不同（悠闲 4 / 标准 3 / 狂潮 2）。</li>
+      <li>排行榜只存在本机，按每个档案分开记录，最多保留 20 局。</li>
+    </ul>
     <h3>常见问题</h3>
     <p><b>没有声音？</b>浏览器要求先点一下页面才能播放音频；再点一次「开始」即可。</p>
     <p><b>摇晃没反应？</b>iOS Safari 需要在「设置 → Safari → 动作与方向」允许运动传感器；没有权限时用敲击即可。</p>
@@ -232,8 +312,9 @@
   <div class="mcHead"><h2 id="aboutTitle">关于敲散</h2><button class="mcClose" data-mc-close aria-label="关闭关于">✕</button></div>
   <div class="mcBody">
     <p class="mcLead">把烦心事做成气泡，敲碎它。两三下、几声脆响、一点点震动——不需要理由，也不需要登录。</p>
-    <h3>版本 3.0</h3>
+    <h3>版本 3.1</h3>
     <ul class="mcList mcLog">
+      <li><b>v3.1</b> 新增「烦恼雨」无尽模式：烦恼从顶部落下，按破损数 / 爆裂数计分，三档难度配三套动态背景，每 12 个升一层，支持本机排行榜与战绩卡。</li>
       <li><b>v3.0</b> 形状系统（圆形/圆角/六边/星形/心形/无形状）、大小差异、飞入·飘入·落入·弹出入场动画、碎裂·炸裂·烟雾三种破裂效果；设置面板固定宽度；新增本地多档案、PIN 隐私锁、帮助与关于页面。</li>
       <li><b>v2.2</b> 桌面适配：悬停高亮、Shift/右键重击、Space/R/Esc 快捷键、宽屏布局。</li>
       <li><b>v2.1</b> 字效自定义、四档字号、内置矢量图案、照片贴图、3D 玻璃质感。</li>
@@ -250,6 +331,11 @@
 <div id="profileModal" class="modalCard wide" role="dialog" aria-modal="true" aria-labelledby="pfTitle">
   <div class="mcHead"><h2 id="pfTitle">我的档案</h2><button class="mcClose" data-pf-close aria-label="关闭档案">✕</button></div>
   <div class="mcBody" id="pfBody"></div>
+</div>
+
+<div id="rankModal" class="modalCard wide" role="dialog" aria-modal="true" aria-labelledby="rkTitle">
+  <div class="mcHead"><h2 id="rkTitle">排行榜</h2><button class="mcClose" data-mc-close aria-label="关闭排行榜">✕</button></div>
+  <div class="mcBody" id="rankBody"></div>
 </div>
 
 <div id="toast"></div>

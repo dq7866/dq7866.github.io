@@ -55,11 +55,38 @@ const shapes = ['rounded', 'hex', 'star', 'heart', 'none'];
 shapes.forEach(s => ok('形状实现：' + s, app.includes("shape === '" + s + "'")));
 ok('无形状跳过主体绘制', app.includes("if (shape === 'none')"));
 ok('六种形状选项', ['bubble', 'rounded', 'hex', 'star', 'heart', 'none'].every(v => html.includes('data-v="' + v + '"') && html.includes('segShape')));
+ok('随机形状选项', html.includes('data-v="mix"') && app.includes('randomShape()'));
+ok('文字按形状缩放', app.includes('fitWidth(b.shape, b.r)'));
 ok('大小差异三档', ['0', '0.14', '0.3'].every(v => html.includes('data-v="' + v + '"')) && html.includes('segSize'));
 ok('入场动画五种', ['fly', 'float', 'fall', 'pop', 'none'].every(v => app.includes("'" + v + "'")));
 ok('破裂样式三种', ['crack', 'blast', 'puff'].every(v => app.includes("'" + v + "'")) && html.includes('segBurst'));
 ok('入场期间不可命中', app.includes('b.entA < 0.45'));
 ok('烟雾粒子绘制', app.includes("p.type === 'puff'"));
+
+/* 5.5 烦恼雨无尽模式 */
+ok('模式切换：静心 / 烦恼雨', html.includes('data-gm="zen"') && html.includes('data-gm="rain"') && html.includes('segMode'));
+ok('三档难度定义', ['chill', 'normal', 'frenzy'].every(k => app.includes(k + ':')) && app.includes('DIFF[S.diff]'));
+ok('难度影响速度与命数', /speed\s*:/.test(app) && /lives\s*:/.test(app));
+ok('三套背景主题', ['dusk:', 'cyber:', 'lava:', 'inferno:', 'toxic:', 'aurora:'].every(k => app.includes(k)));
+ok('背景随层级切换', app.includes('function bgKeyFor()') && app.includes('buildBackdrop(bgKeyFor())'));
+ok('下落生成与推进', app.includes('function spawnRain()') && app.includes('function updateRain(') && app.includes('b.fall.vy') === false && app.includes('f.vy * dt'));
+ok('漏掉扣命', app.includes('function missBubble(') && app.includes('R.lives = Math.max(0, R.lives - 1)'));
+ok('命数归零结算', app.includes('setTimeout(finishRain'));
+ok('破损 / 爆裂计分', app.includes('R.pops++') && app.includes('R.bursts++'));
+ok('连爆额外加分', app.includes('R.chain % 3 === 0'));
+ok('每 12 个升一层', app.includes('Math.floor(R.pops / 12)'));
+ok('金色奖励气泡', app.includes('const gold = Math.random() < 0.06'));
+ok('危险区提示', app.includes('危险区提示') && app.includes('b.danger'));
+ok('雨滴 HUD 节点', ['rainHud', 'rhScore', 'rhPops', 'rhBursts', 'rhLevel', 'rhLives'].every(id => html.includes('id="' + id + '"')));
+ok('层级 / 爆裂横幅', html.includes('id="levelBanner"') && html.includes('id="burstBanner"'));
+ok('雨局结算面板', ['rainResult', 'rrScore', 'rrBadge', 'rrPops', 'rrBursts', 'rrLevel', 'rrChain'].every(id => html.includes('id="' + id + '"')));
+ok('雨局战绩卡', app.includes('function makeRainCard()') && app.includes('WORRY  RAIN'));
+ok('本机排行榜', app.includes('function renderRank()') && app.includes("store.set('board'") && html.includes('id="rankModal"'));
+ok('排行榜分难度筛选', app.includes('rkFilter') && app.includes("data-rk="));
+ok('排行榜最多 20 局', app.includes('S.board.slice(0, 20)') || app.includes('board.slice(0, 20)'));
+ok('排行榜按分数降序', app.includes('(Number(b.score)||0) - (Number(a.score)||0)'));
+ok('面板打开时暂停', app.includes('function isPaused()') && app.includes('isPaused()'));
+ok('雨局中不允许改模式', app.includes('本局结束后再切换模式'));
 
 /* 6. 用户体系 */
 ok('档案注册表键', profile.includes("qs.accounts.v1") && profile.includes("qs.current"));
@@ -82,13 +109,15 @@ ok('保存失败提示', app.includes('__QS_ON_SAVE_ERROR'));
 /* 8. 单文件一致性 */
 ok('单文件包含 profile 逻辑', single.includes('qs.accounts.v1'));
 ok('单文件包含形状逻辑', single.includes("shape === 'heart'"));
+ok('单文件包含烦恼雨逻辑', single.includes('function spawnRain') && single.includes('makeRainCard'));
 ok('单文件体积 > 100KB', single.length > 100000, (single.length / 1024).toFixed(1) + ' KB');
 ok('单文件无未内联的 src 引用', !single.includes('src="app.js"'));
 
 /* 9. 版本一致 */
-ok('页面版本 3.0', html.includes('敲散 v3.0'));
-ok('README 版本 3.0', read('README.md').includes('当前版本：v3.0'));
-ok('Electron 版本 3.0', read('electron/package.json').includes('"version": "3.0.0"'));
+ok('页面版本 3.1', html.includes('敲散 v3.1'));
+ok('关于页含 3.1 更新', html.includes('版本 3.1') && html.includes('烦恼雨'));
+ok('README 版本 3.1', read('README.md').includes('v3.1'));
+ok('Electron 版本 3.1', read('electron/package.json').includes('"version": "3.1.0"'));
 
 /* 10. id 唯一 */
 const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(m => m[1]);

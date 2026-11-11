@@ -74,6 +74,67 @@ const HARD = { easy:{mul:0.70}, normal:{mul:1.0}, hard:{mul:1.40} };
 const MARK_SIZE = { s:0.72, m:1.0, l:1.32, xl:1.68 };
 
 /* ============================================================
+   1.2 烦恼雨：难度 / 背景主题 / 形状池
+   ============================================================ */
+const DIFF = {
+  chill:  { name:'悠闲', speed:0.60, spawn:1.34, hp:0.85, max:4, lives:4 },
+  normal: { name:'标准', speed:1.00, spawn:0.98, hp:1.00, max:6, lives:3 },
+  frenzy: { name:'狂潮', speed:1.58, spawn:0.72, hp:1.22, max:7, lives:2 }
+};
+const SHAPES = ['bubble','rounded','hex','star','heart'];
+const BG_SETS = {
+  chill:  ['dusk','mist','aurora'],
+  normal: ['cyber','neon','deep'],
+  frenzy: ['lava','inferno','toxic']
+};
+const BG = {
+  neon:  {a:'#151233',b:'#0d0b20',c:'#070510',
+          g1:'rgba(120,88,255,0.30)',g2:'rgba(45,210,196,0.16)',g3:'rgba(255,86,160,0.13)',
+          gv:'rgba(140,110,255,0.5)',gt:'rgba(80,230,215,0.42)',gp:'rgba(255,120,180,0.35)',
+          deco:'grid',decoC:'rgba(140,120,255,0.055)'},
+  cyber: {a:'#0b1c2e',b:'#06111d',c:'#03070e',
+          g1:'rgba(40,150,255,0.28)',g2:'rgba(60,235,215,0.18)',g3:'rgba(255,70,190,0.13)',
+          gv:'rgba(60,150,255,0.5)',gt:'rgba(60,235,215,0.42)',gp:'rgba(255,80,200,0.32)',
+          deco:'grid',decoC:'rgba(60,200,255,0.06)'},
+  deep:  {a:'#0d1032',b:'#080a1e',c:'#04030e',
+          g1:'rgba(90,80,255,0.26)',g2:'rgba(120,90,255,0.16)',g3:'rgba(40,200,255,0.12)',
+          gv:'rgba(110,90,255,0.5)',gt:'rgba(80,180,255,0.4)',gp:'rgba(160,110,255,0.32)',
+          deco:'stars',decoC:'rgba(200,210,255,0.35)'},
+  dusk:  {a:'#2b1731',b:'#190e23',c:'#0a0511',
+          g1:'rgba(255,120,180,0.26)',g2:'rgba(255,180,120,0.13)',g3:'rgba(150,110,255,0.14)',
+          gv:'rgba(255,130,190,0.45)',gt:'rgba(255,190,140,0.35)',gp:'rgba(160,120,255,0.32)',
+          deco:'bokeh',decoC:'rgba(255,180,220,0.10)'},
+  mist:  {a:'#1b2c34',b:'#101d25',c:'#070d13',
+          g1:'rgba(120,220,220,0.20)',g2:'rgba(180,200,255,0.14)',g3:'rgba(255,200,220,0.10)',
+          gv:'rgba(120,225,220,0.4)',gt:'rgba(170,200,255,0.34)',gp:'rgba(255,200,220,0.28)',
+          deco:'bokeh',decoC:'rgba(200,240,240,0.09)'},
+  aurora:{a:'#10263a',b:'#0a1728',c:'#050810',
+          g1:'rgba(80,255,200,0.22)',g2:'rgba(140,110,255,0.22)',g3:'rgba(255,120,200,0.12)',
+          gv:'rgba(80,255,200,0.42)',gt:'rgba(140,110,255,0.42)',gp:'rgba(255,120,200,0.3)',
+          deco:'stars',decoC:'rgba(180,255,240,0.32)'},
+  lava:  {a:'#2e1015',b:'#1b0811',c:'#0b0409',
+          g1:'rgba(255,86,60,0.32)',g2:'rgba(255,170,60,0.17)',g3:'rgba(180,40,120,0.16)',
+          gv:'rgba(255,90,60,0.5)',gt:'rgba(255,175,70,0.42)',gp:'rgba(200,50,130,0.34)',
+          deco:'embers',decoC:'rgba(255,150,80,0.5)'},
+  inferno:{a:'#36110a',b:'#1f0805',c:'#0c0303',
+          g1:'rgba(255,140,40,0.32)',g2:'rgba(255,60,60,0.18)',g3:'rgba(120,20,90,0.16)',
+          gv:'rgba(255,150,50,0.5)',gt:'rgba(255,70,70,0.42)',gp:'rgba(140,30,110,0.34)',
+          deco:'embers',decoC:'rgba(255,120,60,0.55)'},
+  toxic: {a:'#10271c',b:'#0a1a13',c:'#050c09',
+          g1:'rgba(140,255,120,0.20)',g2:'rgba(60,255,200,0.17)',g3:'rgba(200,255,60,0.12)',
+          gv:'rgba(150,255,120,0.42)',gt:'rgba(60,255,200,0.4)',gp:'rgba(200,255,80,0.3)',
+          deco:'embers',decoC:'rgba(170,255,140,0.45)'}
+};
+function randomShape(){
+  return SHAPES[(Math.random()*SHAPES.length)|0];
+}
+function bgKeyFor(){
+  if (S.gameMode !== 'rain') return 'neon';
+  const set = BG_SETS[S.diff] || BG_SETS.normal;
+  return set[(Math.max(1, S.rain.level) - 1) % set.length];
+}
+
+/* ============================================================
    1.5 内置矢量图案（无 emoji 字体也能显示的小人 / 动植物）
    ============================================================ */
 const ICONS = {
@@ -206,6 +267,14 @@ const S = {
   stats: Object.assign({rounds:0,pops:0,taps:0,bestCombo:0}, store.get('stats',{})),
   picData: store.get('picData', []),
   pics: [],
+  gameMode: store.get('gameMode','zen'),
+  diff: store.get('diff','normal'),
+  board: store.get('board', []),
+  rain: {
+    active:false, score:0, pops:0, bursts:0, lives:3, level:1, miss:0,
+    chain:0, chainT:0, maxChain:0, spawnT:0, elapsed:0, rank:0, best:false
+  },
+  scores: [],
   combo: 0, lastHitT: 0, comboUntil: 0,
   shakeAmp: 0, flash: 0,
   hover: null,
@@ -226,8 +295,8 @@ function resize(){
   cv.width = Math.round(W*DPR); cv.height = Math.round(H*DPR);
   cv.style.width = W+'px'; cv.style.height = H+'px';
   ctx.setTransform(DPR,0,0,DPR,0,0);
-  buildBackdrop();
-  if (S.bubbles.length) placeBubbles();
+  buildBackdrop(bgKeyFor());
+  if (S.bubbles.length && !S.rain.active) placeBubbles();
 }
 
 let noiseCanvas = null;
@@ -262,27 +331,65 @@ function glowOf(hex){
   return GLOW_CACHE[hex];
 }
 
-function buildBackdrop(){
+function buildBackdrop(key){
+  const p = BG[key] || BG.neon;
   bgCanvas = document.createElement('canvas');
   bgCanvas.width = Math.round(W*DPR); bgCanvas.height = Math.round(H*DPR);
   const g = bgCanvas.getContext('2d');
   g.setTransform(DPR,0,0,DPR,0,0);
 
   const lg = g.createLinearGradient(W*0.15,0,W*0.85,H);
-  lg.addColorStop(0,'#151233'); lg.addColorStop(0.42,'#0d0b20'); lg.addColorStop(1,'#070510');
+  lg.addColorStop(0,p.a); lg.addColorStop(0.42,p.b); lg.addColorStop(1,p.c);
   g.fillStyle = lg; g.fillRect(0,0,W,H);
 
   const g1 = g.createRadialGradient(W*0.18,H*0.14,0,W*0.18,H*0.14,Math.max(W,H)*0.62);
-  g1.addColorStop(0,'rgba(120,88,255,0.30)'); g1.addColorStop(0.55,'rgba(90,60,220,0.08)'); g1.addColorStop(1,'rgba(0,0,0,0)');
+  g1.addColorStop(0,p.g1); g1.addColorStop(1,'rgba(0,0,0,0)');
   g.fillStyle = g1; g.fillRect(0,0,W,H);
 
   const g2 = g.createRadialGradient(W*0.88,H*0.78,0,W*0.88,H*0.78,Math.max(W,H)*0.52);
-  g2.addColorStop(0,'rgba(45,210,196,0.16)'); g2.addColorStop(1,'rgba(0,0,0,0)');
+  g2.addColorStop(0,p.g2); g2.addColorStop(1,'rgba(0,0,0,0)');
   g.fillStyle = g2; g.fillRect(0,0,W,H);
 
   const g3 = g.createRadialGradient(W*0.55,H*1.02,0,W*0.55,H*1.02,Math.max(W,H)*0.42);
-  g3.addColorStop(0,'rgba(255,86,160,0.13)'); g3.addColorStop(1,'rgba(0,0,0,0)');
+  g3.addColorStop(0,p.g3); g3.addColorStop(1,'rgba(0,0,0,0)');
   g.fillStyle = g3; g.fillRect(0,0,W,H);
+
+  // 主题装饰：网格 / 星点 / 光斑 / 飞燼
+  if (p.deco === 'grid'){
+    g.strokeStyle = p.decoC; g.lineWidth = 1;
+    const step = Math.max(46, Math.round(Math.min(W,H)/13));
+    for (let x=0; x<W; x+=step){
+      g.beginPath(); g.moveTo(x,0); g.lineTo(x,H); g.stroke();
+    }
+    for (let y=0; y<H; y+=step){
+      g.beginPath(); g.moveTo(0,y); g.lineTo(W,y); g.stroke();
+    }
+  } else if (p.deco === 'stars'){
+    const n = Math.round((W*H)/9000);
+    for (let i=0;i<n;i++){
+      const x = Math.random()*W, y = Math.random()*H, r = Math.random()*1.5+0.3;
+      g.globalAlpha = 0.25 + Math.random()*0.65;
+      g.fillStyle = p.decoC;
+      g.beginPath(); g.arc(x,y,r,0,6.283); g.fill();
+    }
+    g.globalAlpha = 1;
+  } else if (p.deco === 'bokeh'){
+    for (let i=0;i<9;i++){
+      const x = Math.random()*W, y = Math.random()*H, r = Math.min(W,H)*(0.06+Math.random()*0.16);
+      const bg = g.createRadialGradient(x,y,0,x,y,r);
+      bg.addColorStop(0,p.decoC); bg.addColorStop(1,'rgba(0,0,0,0)');
+      g.fillStyle = bg; g.fillRect(x-r,y-r,r*2,r*2);
+    }
+  } else if (p.deco === 'embers'){
+    const n = Math.round((W*H)/12000);
+    for (let i=0;i<n;i++){
+      const x = Math.random()*W, y = Math.random()*H, r = Math.random()*1.8+0.4;
+      g.globalAlpha = 0.15 + Math.random()*0.55;
+      g.fillStyle = p.decoC;
+      g.beginPath(); g.arc(x,y,r,0,6.283); g.fill();
+    }
+    g.globalAlpha = 1;
+  }
 
   g.globalAlpha = 0.42;
   g.fillStyle = g.createPattern(noiseTile(128,13),'repeat');
@@ -293,9 +400,9 @@ function buildBackdrop(){
   vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,0.62)');
   g.fillStyle = vg; g.fillRect(0,0,W,H);
 
-  glowV = radialGlow('rgba(140,110,255,0.5)',160);
-  glowT = radialGlow('rgba(80,230,215,0.42)',160);
-  glowP = radialGlow('rgba(255,120,180,0.35)',160);
+  glowV = radialGlow(p.gv,160);
+  glowT = radialGlow(p.gt,160);
+  glowP = radialGlow(p.gp,160);
 }
 
 /* ============================================================
@@ -363,6 +470,15 @@ const AU = {
     if (kind === 'crack'){
       this.burst(t, 0.035, 5200, 0.9, 0.10, 'highpass');
       this.tone(t, 1800, 0.05, 0.03, 'triangle', 1200);
+      return;
+    }
+    if (kind === 'miss'){
+      this.tone(t, 240, 0.26, 0.15, 'sine', 78);
+      this.burst(t, 0.12, 300, 0.8, 0.11, 'lowpass');
+      return;
+    }
+    if (kind === 'level'){
+      [523, 659, 784, 1046].forEach((f,i)=>this.tone(t + i*0.055, f, 0.34, 0.055/(1+i*0.25), 'sine'));
       return;
     }
     const pack = S.pack;
@@ -480,6 +596,13 @@ function measure(text, size){
   _mcv.font = '600 ' + size + 'px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
   return _mcv.measureText(text).width;
 }
+// 不同形状的可用正文宽度（星形/心形收缩得最利）
+function fitWidth(shape, r){
+  if (shape === 'star' || shape === 'heart') return r*1.06;
+  if (shape === 'hex') return r*1.52;
+  if (shape === 'none') return r*1.86;
+  return r*1.46;
+}
 
 /* ---------- 形状 / 入场 / 破裂样式 ---------- */
 function pickBurstStyle(){
@@ -577,7 +700,7 @@ function buildRound(){
       dmg:0, cracked:false, dead:false, deadAt:0,
       phase: rand(0,9), hard: HARD[S.hard].mul * rand(0.92,1.1),
       c1:p.c1, c2:p.c2, h:p.h,
-      shape: S.shape, burstType: pickBurstStyle(),
+      shape: S.shape === 'mix' ? randomShape() : S.shape, burstType: pickBurstStyle(),
       sizeF: 1 + rand(-S.sizeVar, S.sizeVar),
       entOX:0, entOY:0, entS:1, entR:0, entA:1, ent:null,
       grad:null, fs:0, cracks:null, flash:0
@@ -605,8 +728,9 @@ function placeBubbles(){
     b.grad = null;
     if (b.kind === 'text'){
       let fs = b.r*0.60;
-      for (let k=0;k<10;k++){
-        if (measure(b.word, fs) <= b.r*1.46) break;
+      const cap = fitWidth(b.shape, b.r);
+      for (let k=0;k<12;k++){
+        if (measure(b.word, fs) <= cap) break;
         fs *= 0.92;
       }
       b.fs = fs;
@@ -709,7 +833,7 @@ function pickBubble(x,y){
     if (b.dead || (b.entA !== undefined && b.entA < 0.45)) continue;
     const p = bubblePos(b);
     const d = Math.hypot(x-p.x, y-p.y);
-    if (d < p.r*1.18 && d < bd){ best = b; bd = d; }
+    if (d < p.r*(S.rain.active ? 1.34 : 1.18) && d < bd){ best = b; bd = d; }
   }
   if (best) return best;
   for (const b of S.bubbles){
@@ -943,6 +1067,8 @@ function shatter(b, heavy){
   if (S.combo > (S.stats.bestCombo || 0)) S.stats.bestCombo = S.combo;
   store.set('stats', S.stats);
 
+  if (S.rain.active){ addRainScore(b); return; }
+
   renderDots();
   if (S.bubbles.every(x=>x.dead)) setTimeout(finishRound, 640);
 }
@@ -951,10 +1077,16 @@ function shatter(b, heavy){
    9. 循环
    ============================================================ */
 let last = performance.now();
+function isPaused(){
+  if (document.hidden) return true;
+  if (panelEl && panelEl.classList.contains('on')) return true;
+  if (document.querySelector('.modalCard.on')) return true;
+  return false;
+}
 function frame(now){
   let dt = (now-last)/1000; last = now;
   if (dt > 0.05) dt = 0.05;
-  if (window.QS && QS.locked && QS.locked()){
+  if ((window.QS && QS.locked && QS.locked()) || isPaused()){
     requestAnimationFrame(frame);
     return;
   }
@@ -1051,6 +1183,16 @@ function update(dt, t){
     m.vx *= Math.pow(0.3, dt);
     m.rot += m.vr*dt;
   }
+
+  if (S.rain.active) updateRain(dt, t);
+
+  for (let i=S.scores.length-1;i>=0;i--){
+    const s = S.scores[i];
+    s.life += dt;
+    if (s.life >= s.max){ S.scores.splice(i,1); continue; }
+    s.y += s.vy*dt;
+    s.vy *= Math.pow(0.25, dt);
+  }
 }
 
 /* ============================================================
@@ -1069,6 +1211,20 @@ function draw(t){
   ctx.globalAlpha = 0.09; ctx.drawImage(glowP, W*0.5-230, H*1.0-230, 460, 460);
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';
+
+  // 烦恼雨：危险区提示
+  if (S.rain.active){
+    const dh = Math.min(150, H*0.17);
+    const dz = ctx.createLinearGradient(0, H-dh, 0, H);
+    dz.addColorStop(0, 'rgba(255,60,90,0)');
+    dz.addColorStop(1, 'rgba(255,50,90,0.17)');
+    ctx.fillStyle = dz; ctx.fillRect(0, H-dh, W, dh);
+    ctx.save();
+    ctx.setLineDash([7,11]);
+    ctx.strokeStyle = 'rgba(255,95,125,0.26)'; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.moveTo(0, H-dh*0.62); ctx.lineTo(W, H-dh*0.62); ctx.stroke();
+    ctx.restore();
+  }
 
   S.rings.forEach(r=>{
     const k = r.life / r.max;
@@ -1092,6 +1248,19 @@ function draw(t){
     }
     drawBubble(b, t);
   });
+
+  // 即将漏掉的气泡：红色预警环
+  if (S.rain.active){
+    S.bubbles.forEach(b=>{
+      if (b.dead || !b.danger) return;
+      const p = bubblePos(b);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r*1.07, 0, Math.PI*2);
+      ctx.strokeStyle = 'rgba(255,90,120,' + (0.24 + b.danger*0.55).toFixed(3) + ')';
+      ctx.lineWidth = 2 + b.danger*2.6;
+      ctx.stroke();
+    });
+  }
 
   ctx.globalCompositeOperation = 'lighter';
   S.parts.forEach(p=>{
@@ -1188,6 +1357,22 @@ function draw(t){
     ctx.restore();
   });
 
+  // 得分飘字（烦恼雨）
+  S.scores.forEach(s=>{
+    const k = s.life / s.max;
+    const a = k < 0.7 ? 1 : 1 - (k-0.7)/0.3;
+    ctx.save();
+    ctx.globalAlpha = clamp(a, 0, 1);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = '800 ' + s.size + 'px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.lineWidth = s.size*0.18;
+    ctx.strokeStyle = 'rgba(8,6,20,0.7)';
+    ctx.strokeText(s.text, s.x, s.y);
+    ctx.fillStyle = s.c;
+    ctx.fillText(s.text, s.x, s.y);
+    ctx.restore();
+  });
+
   // 爆炸白闪（最顶层）
   if (S.flash > 0.005){
     ctx.fillStyle = 'rgba(255,255,255,' + S.flash.toFixed(3) + ')';
@@ -1198,9 +1383,10 @@ function draw(t){
 /* 内容分发：文字 / emoji / 内置图案 / 图片贴图，主画布与消散卡共用 */
 function paintKind(g, b, r, scale, shape){
   g.textAlign = 'center'; g.textBaseline = 'middle';
+  const cap = fitWidth(shape, r);
   if (b.kind === 'emoji'){
     g.font = (b.fs*scale) + 'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
-    g.fillText(b.word, 0, r*0.04, r*1.66);
+    g.fillText(b.word, 0, r*0.04, cap*1.1);
   } else if (b.kind === 'icon'){
     (ICONS[b.word]||ICONS.man)(g, r*0.58*scale);
   } else if (b.kind === 'image'){
@@ -1218,9 +1404,9 @@ function paintKind(g, b, r, scale, shape){
   } else {
     g.font = '600 ' + (b.fs*scale) + 'px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
     g.fillStyle = 'rgba(20,14,44,0.34)';
-    g.fillText(b.word, 0, 1.5, r*1.8);
+    g.fillText(b.word, 0, 1.5, cap);
     g.fillStyle = 'rgba(255,255,255,0.95)';
-    g.fillText(b.word, 0, 0, r*1.8);
+    g.fillText(b.word, 0, 0, cap);
   }
 }
 
@@ -1358,6 +1544,7 @@ function renderDots(){
   }).join('');
 }
 function updateCombo(){
+  if (S.rain.active){ comboEl.classList.remove('on'); return; }
   if (S.combo >= 2){
     comboEl.textContent = 'COMBO ×' + S.combo;
     comboEl.classList.add('on');
@@ -1387,6 +1574,7 @@ function startGame(){
   if (S.mode !== 'intro') return;
   AU.init(); AU.resume();
   guideEl.classList.add('gone');
+  if (S.gameMode === 'rain'){ startRain(); return; }
   dotsEl.classList.add('on');
   buildRound();
   S.mode = 'armed';
@@ -1426,6 +1614,11 @@ function finishRound(){
 
 function again(){
   resultEl.classList.remove('on');
+  if (rainResultEl) rainResultEl.classList.remove('on');
+  if (S.gameMode === 'rain'){
+    startRain();
+    return;
+  }
   buildRound();
   S.phrase = '';
   S.mode = 'armed';
@@ -1433,6 +1626,246 @@ function again(){
   dotsEl.classList.add('on');
   setHint(S.trigger === 'tap' ? '敲碎它们' : '摇一摇，撞碎它们', true);
   setTimeout(()=>{ if (S.mode === 'armed') setHint('', false); }, 6500);
+}
+
+/* ============================================================
+   11.5 烦恼雨（无尽下落模式）
+   ============================================================ */
+const rainHudEl = $('#rainHud'), levelBannerEl = $('#levelBanner'), burstBannerEl = $('#burstBanner');
+const rainResultEl = $('#rainResult');
+
+function rainBanner(el, text){
+  if (!el) return;
+  el.textContent = text;
+  el.classList.remove('on');
+  void el.offsetWidth;
+  el.classList.add('on');
+}
+if (levelBannerEl) levelBannerEl.addEventListener('animationend', ()=>levelBannerEl.classList.remove('on'));
+if (burstBannerEl) burstBannerEl.addEventListener('animationend', ()=>burstBannerEl.classList.remove('on'));
+
+function fmt(n){ return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+function updateRainHud(){
+  const R = S.rain;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('rhScore', fmt(R.score));
+  set('rhPops', R.pops);
+  set('rhBursts', R.bursts);
+  set('rhLevel', R.level);
+  const lv = document.getElementById('rhLives');
+  if (lv){
+    const base = (DIFF[S.diff] || DIFF.normal).lives;
+    const max = Math.max(R.lives, base);
+    let html = '';
+    for (let i=0;i<max;i++) html += '<i class="' + (i < R.lives ? '' : 'off') + '"></i>';
+    lv.innerHTML = html;
+  }
+  if (rainHudEl) rainHudEl.classList.toggle('on', !!R.active);
+}
+
+function startRain(){
+  const d = DIFF[S.diff] || DIFF.normal;
+  S.bubbles.length = 0; S.parts.length = 0; S.ghosts.length = 0;
+  S.rings.length = 0; S.marks.length = 0; S.scores.length = 0;
+  S.combo = 0; updateCombo();
+  Object.assign(S.rain, {
+    active:true, score:0, pops:0, bursts:0, lives:d.lives, level:1, miss:0,
+    chain:0, chainT:0, maxChain:0, spawnT:0.32, elapsed:0, rank:0, best:false, cardUrl:''
+  });
+  S.mode = 'play';
+  S.gameMode = 'rain'; store.set('gameMode','rain'); mark('#segMode','rain');
+  guideEl.classList.add('gone');
+  rainResultEl.classList.remove('on');
+  resultEl.classList.remove('on');
+  dotsEl.classList.remove('on');
+  setHint('', false);
+  buildBackdrop(bgKeyFor());
+  updateRainHud();
+  spawnRain(); spawnRain();
+  rainBanner(levelBannerEl, '烦恼雨 · ' + d.name);
+  AU.play('level');
+}
+
+function spawnRain(){
+  const conf = currentItems();
+  const pool = conf.items.length ? conf.items : ['烦'];
+  const word = pool[(Math.random()*pool.length)|0];
+  const d = DIFF[S.diff] || DIFF.normal;
+  const R = S.rain;
+  const minWH = Math.min(W,H);
+  const rMin = clamp(minWH*0.055, 25, 46);
+  const rMax = clamp(minWH*0.118, 52, 96);
+  const r = rand(rMin, rMax) * (1 + Math.min(0.28, (R.level-1)*0.018));
+  const p = PALETTE[(Math.random()*PALETTE.length)|0];
+  const kind = conf.kind === 'auto' ? (isEmojiStr(word) ? 'emoji' : 'text') : conf.kind;
+  const shape = (S.shape === 'mix') ? randomShape() : S.shape;
+  const tN = clamp((r - rMin) / Math.max(1, rMax - rMin), 0, 1);
+  const gold = Math.random() < 0.06;
+  const hp = (gold ? 0.42 : (0.52 + tN*0.78)) * d.hp * (1 + (R.level-1)*0.05);
+  const b = {
+    word: word, kind: kind,
+    pic: (conf.kind === 'image' && S.pics.length) ? S.pics[(Math.random()*S.pics.length)|0] : null,
+    x: rand(r+12, Math.max(r+13, W-r-12)), y: -r*1.35, r: r,
+    ox:0, oy:0, vx:0, vy:0, q:0, qv:0, rot:0, phase: rand(0,9),
+    dmg:0, cracked:false, dead:false, deadAt:0,
+    hard: hp,
+    c1: gold ? '#ffc94d' : p.c1, c2: gold ? '#c96a12' : p.c2, h: p.h,
+    shape: shape, burstType: gold ? 'blast' : pickBurstStyle(),
+    sizeF:1, entOX:0, entOY:0, entS:1, entR:0, entA:0,
+    ent: {type:'pop', delay:0, dur:0.32, t:0, fx:0, fy:-10, fs:0.74, fr:rand(-0.2,0.2)},
+    grad:null, fs:0, cracks:null, flash:0, danger:0,
+    gold: gold, bonus: gold ? 3 : 1,
+    fall: { vy: H*rand(0.068,0.104)*d.speed*(1 + (R.level-1)*0.062),
+            x0: 0, sway: rand(8, Math.max(10, minWH*0.045)),
+            freq: rand(0.35,0.9), ph: rand(0,6.283), spin: rand(-1.4,1.4) }
+  };
+  b.fall.x0 = b.x;
+  if (kind === 'text'){
+    let fs = r*0.60;
+    const cap = fitWidth(shape, r);
+    for (let k=0;k<12;k++){ if (measure(word, fs) <= cap) break; fs *= 0.92; }
+    b.fs = fs;
+  } else if (kind === 'emoji'){
+    b.fs = r*1.02;
+  }
+  S.bubbles.push(b);
+}
+
+function addRainScore(b){
+  const R = S.rain;
+  const now = performance.now();
+  R.chain = (now - R.chainT < 1100) ? R.chain + 1 : 1;
+  R.chainT = now;
+  R.pops++;
+  R.maxChain = Math.max(R.maxChain, R.chain);
+  const minWH = Math.min(W,H);
+  const sizeMul = b.r > minWH*0.092 ? 1.4 : (b.r < minWH*0.068 ? 0.82 : 1);
+  const gain = Math.round(10 * (1 + (R.level-1)*0.25) * (1 + Math.min(14, R.chain)*0.08) * sizeMul * (b.bonus||1));
+  R.score += gain;
+  S.scores.push({ x:b.x + (b.ox||0), y:b.y - b.r*0.5, vy:-70, life:0, max:0.85,
+                  text:'+' + gain, c:(b.gold ? '#ffe08a' : '#ffffff'), size:clamp(b.r*0.42, 15, 30) });
+  if (R.chain >= 3 && R.chain % 3 === 0){
+    R.bursts++;
+    const bonus = 20 * R.level * Math.round(R.chain/3);
+    R.score += bonus;
+    rainBanner(burstBannerEl, '爆裂 ×' + R.chain + '　+' + bonus);
+    S.flash = Math.min(0.5, S.flash + 0.12);
+    S.shakeAmp = Math.min(S.shakeAmp + 10, 30);
+    S.rings.push({x:b.x, y:b.y, r:b.r*1.1, grow:b.r*5.2, life:0, max:0.8, c:'#ffe6a8', w:3});
+    AU.play('level');
+  }
+  const next = 1 + Math.floor(R.pops / 12);
+  if (next > R.level) levelUp(next);
+  updateRainHud();
+}
+
+function levelUp(n){
+  const R = S.rain;
+  R.level = n;
+  buildBackdrop(bgKeyFor());
+  rainBanner(levelBannerEl, '第 ' + n + ' 层 · 更快了');
+  if (n % 3 === 0){ R.lives = Math.min(R.lives + 1, 8); }
+  updateRainHud();
+}
+
+function missBubble(b, idx){
+  const R = S.rain;
+  b.dead = true;
+  R.miss++;
+  R.lives = Math.max(0, R.lives - 1);
+  R.chain = 0;
+  S.combo = 0; updateCombo();
+  S.shakeAmp = Math.min(S.shakeAmp + 17, 28);
+  S.flash = Math.min(S.flash + 0.13, 0.42);
+  const px = b.x + (b.ox||0);
+  for (let i=0;i<9;i++){
+    const a = rand(-Math.PI*0.9, -Math.PI*0.1), sp = rand(120, 320);
+    S.parts.push({ type:'shard', x:px + rand(-b.r*0.5,b.r*0.5), y:H-16,
+      vx:Math.cos(a)*sp, vy:Math.sin(a)*sp, r:rand(2.5,6), rot:rand(0,6.28), vr:rand(-8,8),
+      life:0, max:rand(0.4,0.8), c:'#ff6b8a', a:0.85 });
+  }
+  S.rings.push({x:px, y:H-46, r:20, grow:W*0.32, life:0, max:0.5, c:'#ff6b8a', w:3});
+  S.scores.push({ x:px, y:H-86, vy:-46, life:0, max:1.1, text:'−1', c:'#ff7a94', size:26 });
+  AU.play('miss');
+  vibrate(34);
+  if (idx >= 0) S.bubbles.splice(idx, 1);
+  updateRainHud();
+  if (R.lives <= 0) setTimeout(finishRain, 420);
+}
+
+function updateRain(dt, t){
+  const R = S.rain, d = DIFF[S.diff] || DIFF.normal;
+  R.elapsed += dt;
+  R.spawnT -= dt;
+  let aliveN = 0;
+  for (const b of S.bubbles) if (!b.dead) aliveN++;
+  const cap = Math.round(d.max + Math.min(7, (R.level-1)*0.85));
+  if (R.spawnT <= 0 && aliveN < cap && R.lives > 0){
+    spawnRain();
+    R.spawnT = (d.spawn * rand(0.7,1.3)) / (1 + (R.level-1)*0.055);
+  }
+  for (let i=S.bubbles.length-1;i>=0;i--){
+    const b = S.bubbles[i];
+    if (b.dead || !b.fall) continue;
+    const f = b.fall;
+    b.y += f.vy * dt;
+    b.x = clamp(f.x0 + Math.sin(t*f.freq + f.ph)*f.sway, b.r + 8, Math.max(b.r + 9, W - b.r - 8));
+    b.rot = Math.sin(t*f.freq*0.8 + f.ph)*0.13 + Math.sin(t*0.6 + f.ph)*0.05;
+    const near = (b.y + b.r) / H;
+    b.danger = near > 0.78 ? clamp((near - 0.78)/0.2, 0, 1) : 0;
+    if (b.y - b.r*0.55 > H) missBubble(b, i);
+  }
+}
+
+function finishRain(){
+  const R = S.rain;
+  if (!R.active) return;
+  R.active = false;
+  S.mode = 'done';
+  const rec = { score:R.score, pops:R.pops, bursts:R.bursts, level:R.level,
+                chain:R.maxChain, diff:S.diff, at:Date.now() };
+  const board = Array.isArray(S.board) ? S.board.slice() : [];
+  board.push(rec);
+  board.sort((a,b)=> (Number(b.score)||0) - (Number(a.score)||0));
+  S.board = board.slice(0, 20);
+  store.set('board', S.board);
+  R.rank = S.board.indexOf(rec) + 1;
+  R.best = S.board.indexOf(rec) === 0;
+  S.stats.rounds = (S.stats.rounds||0) + 1;
+  S.stats.pops = (S.stats.pops||0) + R.pops;
+  if (R.maxChain > (S.stats.bestCombo||0)) S.stats.bestCombo = R.maxChain;
+  store.set('stats', S.stats);
+  fillRainResult();
+  rainResultEl.classList.add('on');
+  rainHudEl.classList.remove('on');
+  dotsEl.classList.remove('on');
+  comboEl.classList.remove('on');
+  setHint('', false);
+  AU.play('level');
+}
+
+function fillRainResult(){
+  const R = S.rain;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('rrScore', fmt(R.score));
+  set('rrPops', R.pops);
+  set('rrBursts', R.bursts);
+  set('rrLevel', R.level);
+  set('rrChain', R.maxChain);
+  const badge = document.getElementById('rrBadge');
+  if (badge){
+    if (R.best) badge.textContent = '本机最佳 · 第 1 名';
+    else if (R.rank > 0) badge.textContent = '本机第 ' + R.rank + ' 名';
+    else badge.textContent = '成绩已记录';
+  }
+  const tip = document.getElementById('rrTip');
+  if (tip){
+    const d = DIFF[S.diff] || DIFF.normal;
+    const dt = new Date();
+    const pad = n => (n<10?'0':'') + n;
+    tip.textContent = '难度：' + d.name + ' · ' + dt.getFullYear() + '.' + pad(dt.getMonth()+1) + '.' + pad(dt.getDate());
+  }
 }
 
 $('#startBtn').addEventListener('click', startGame);
@@ -1603,6 +2036,129 @@ function makeCard(){
   return c.toDataURL('image/png');
 }
 
+/* 烦恼雨战绩卡 900 × 1350 */
+function makeRainCard(){
+  const CW = 900, CH = 1350;
+  const c = document.createElement('canvas');
+  c.width = CW; c.height = CH;
+  const x = c.getContext('2d');
+  const R = S.rain;
+  const p = BG[bgKeyFor()] || BG.neon;
+  const now = new Date();
+  const pad = n => (n<10?'0':'')+n;
+  const dateStr = now.getFullYear()+' . '+pad(now.getMonth()+1)+' . '+pad(now.getDate());
+  const timeStr = pad(now.getHours())+':'+pad(now.getMinutes());
+  const sans = '-apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
+
+  const lg = x.createLinearGradient(0,0,CW,CH);
+  lg.addColorStop(0,p.a); lg.addColorStop(0.5,p.b); lg.addColorStop(1,p.c);
+  x.fillStyle = lg; x.fillRect(0,0,CW,CH);
+  const glow = (cx,cy,r,col)=>{
+    const g = x.createRadialGradient(cx,cy,0,cx,cy,r);
+    g.addColorStop(0,col); g.addColorStop(1,'rgba(0,0,0,0)');
+    x.fillStyle = g; x.fillRect(0,0,CW,CH);
+  };
+  glow(180,140,640,p.g1); glow(780,1140,560,p.g2); glow(450,620,420,p.g3);
+
+  x.globalAlpha = 0.4;
+  x.fillStyle = x.createPattern(noiseTile(128,16),'repeat');
+  x.fillRect(0,0,CW,CH);
+  x.globalAlpha = 1;
+
+  // 浮动装饰气泡
+  const deco = [[122,986,56,'#a99bff'],[812,306,42,'#6feadf'],[762,946,26,'#ff93c4'],[136,330,30,'#ffc57e']];
+  deco.forEach(([px,py,pr,col],i)=>{
+    x.save(); x.translate(px,py);
+    const g = x.createRadialGradient(-pr*0.3,-pr*0.35,pr*0.05,0,0,pr);
+    g.addColorStop(0,'rgba(255,255,255,0.8)');
+    g.addColorStop(0.45, rgba(col,0.4));
+    g.addColorStop(1, rgba(col,0.05));
+    shapePath(x, SHAPES[i % SHAPES.length], pr);
+    x.fillStyle = g; x.fill();
+    x.strokeStyle = 'rgba(255,255,255,0.22)'; x.lineWidth = 1.4; x.stroke();
+    x.restore();
+  });
+
+  x.strokeStyle = 'rgba(255,255,255,0.16)'; x.lineWidth = 1.5;
+  roundRect(x, 46, 46, CW-92, CH-92, 30); x.stroke();
+
+  x.fillStyle = 'rgba(255,255,255,0.42)';
+  x.font = '400 19px ' + sans;
+  x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+  x.fillText('WORRY  RAIN', 92, 132);
+  x.textAlign = 'right';
+  x.fillText(timeStr, CW-92, 132);
+
+  x.textAlign = 'center';
+  x.fillStyle = '#f4f0ff';
+  x.font = '600 44px "Songti SC","Noto Serif CJK SC",serif';
+  x.fillText('烦恼雨 · 本局战绩', CW/2, 232);
+
+  const st = fmt(R.score);
+  let fs = 152;
+  x.font = '700 ' + fs + 'px ' + sans;
+  while (x.measureText(st).width > CW-220 && fs > 70){
+    fs -= 6; x.font = '700 ' + fs + 'px ' + sans;
+  }
+  const sg = x.createLinearGradient(CW*0.18, 300, CW*0.82, 480);
+  sg.addColorStop(0,'#ffffff'); sg.addColorStop(0.55,'#cfc4ff'); sg.addColorStop(1,'#8ef0e8');
+  x.fillStyle = sg;
+  x.fillText(st, CW/2, 476);
+
+  x.font = '400 21px ' + sans;
+  x.fillStyle = 'rgba(255,255,255,0.45)';
+  x.fillText('SCORE · ' + (DIFF[S.diff] || DIFF.normal).name + ' 难度', CW/2, 528);
+
+  const bx = 92, by = 606, bw = CW-184, bh = 194;
+  roundRect(x, bx, by, bw, bh, 24);
+  x.fillStyle = 'rgba(255,255,255,0.05)'; x.fill();
+  x.strokeStyle = 'rgba(255,255,255,0.12)'; x.lineWidth = 1.2; x.stroke();
+  const cells = [['破损', R.pops], ['爆裂', R.bursts], ['层数', R.level], ['最高连击', R.maxChain]];
+  const cw = bw/4;
+  cells.forEach(([label,val],i)=>{
+    const cx0 = bx + cw*(i+0.5);
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillStyle = '#ffffff'; x.font = '600 52px ' + sans;
+    x.fillText(String(val), cx0, by+80);
+    x.fillStyle = 'rgba(255,255,255,0.42)'; x.font = '400 19px ' + sans;
+    x.fillText(label, cx0, by+138);
+    if (i){
+      x.strokeStyle = 'rgba(255,255,255,0.09)'; x.lineWidth = 1;
+      x.beginPath(); x.moveTo(bx+cw*i, by+32); x.lineTo(bx+cw*i, by+bh-32); x.stroke();
+    }
+  });
+
+  const badge = R.best ? '本机最佳 · 第 1 名' : (R.rank ? '本机第 ' + R.rank + ' 名' : '成绩已记录');
+  x.font = '400 20px ' + sans;
+  const bw2 = x.measureText(badge).width + 58;
+  roundRect(x, CW/2-bw2/2, 844, bw2, 50, 25);
+  x.fillStyle = 'rgba(255,230,168,0.12)'; x.fill();
+  x.strokeStyle = 'rgba(255,230,168,0.4)'; x.lineWidth = 1.2; x.stroke();
+  x.fillStyle = '#ffe6a8'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(badge, CW/2, 870);
+
+  const phrase = PHRASES[(R.pops + R.level) % PHRASES.length];
+  x.fillStyle = 'rgba(255,255,255,0.94)';
+  x.font = '600 ' + (phrase.length > 7 ? 56 : 66) + 'px "Songti SC","Noto Serif CJK SC",serif';
+  x.shadowColor = 'rgba(157,139,255,0.7)';
+  x.shadowBlur = 38;
+  x.fillText(phrase, CW/2, 1006);
+  x.shadowBlur = 0;
+
+  dashLine(x, 92, 1086, CW-92, 1086, 'rgba(255,255,255,0.16)');
+
+  x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+  x.fillStyle = 'rgba(255,255,255,0.40)';
+  x.font = '400 22px ' + sans;
+  x.fillText('敲散  ·  把今天轻轻放下', 92, CH-96);
+  x.textAlign = 'right';
+  x.fillStyle = 'rgba(255,255,255,0.24)';
+  x.font = '400 18px ' + sans;
+  x.fillText(dateStr, CW-92, CH-96);
+
+  return c.toDataURL('image/png');
+}
+
 function roundRect(g,x0,y0,w,h,r){
   g.beginPath();
   g.moveTo(x0+r,y0);
@@ -1696,24 +2252,155 @@ function bindSeg(sel, key, cast, after){
   }
 })();
 
-bindSeg('#segCount','qty', v=>parseInt(v,10), ()=>{ buildRound(); });
+bindSeg('#segCount','qty', v=>parseInt(v,10), ()=>{ if (!S.rain.active) buildRound(); });
 bindSeg('#segTrigger','trigger', v=>v, ()=>{
+  if (S.rain.active) return;
   if (S.mode === 'play' || S.mode === 'armed'){
     setHint(v==='tap' ? '敲碎它们' : '摇一摇，撞碎它们', true);
     setTimeout(()=>{ if (S.mode === 'play' || S.mode === 'armed') setHint('', false); }, 4200);
   }
   if (v === 'shake') requestMotion();
 });
-bindSeg('#segHard','hard', v=>v, ()=>{ buildRound(); });
-bindSeg('#segShape','shape', v=>v, ()=>{ buildRound(); });
-bindSeg('#segSize','sizeVar', v=>parseFloat(v)||0, ()=>{ buildRound(); });
-bindSeg('#segEnt','entrance', v=>v, ()=>{ buildRound(); });
+bindSeg('#segHard','hard', v=>v, ()=>{ if (!S.rain.active) buildRound(); });
+bindSeg('#segShape','shape', v=>v, ()=>{ if (!S.rain.active) buildRound(); });
+bindSeg('#segSize','sizeVar', v=>parseFloat(v)||0, ()=>{ if (!S.rain.active) buildRound(); });
+bindSeg('#segEnt','entrance', v=>v, ()=>{ if (!S.rain.active) buildRound(); });
 bindSeg('#segBurst','burst', v=>v, ()=>{
   S.bubbles.forEach(b=>{ b.burstType = pickBurstStyle(); });
 });
 bindSeg('#segPack','pack', v=>v, ()=>{ AU.play('shatter', 1); });
 bindSeg('#segVib','vib', v=>v==='1');
 bindSeg('#segSnd','snd', v=>v==='1');
+
+/* ---------- 游戏模式 / 难度 / 排行榜 ---------- */
+function syncGuideMode(){
+  document.querySelectorAll('.modeCard').forEach(b=>{
+    const on = b.dataset.gm === S.gameMode;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  const dr = document.getElementById('diffRow');
+  if (dr) dr.classList.toggle('on', S.gameMode === 'rain');
+  document.querySelectorAll('#diffRow button').forEach(b=>{
+    b.classList.toggle('on', b.dataset.diff === S.diff);
+  });
+  const sb = document.getElementById('startBtn');
+  if (sb) sb.textContent = S.gameMode === 'rain' ? '开始掉落' : '开始';
+  mark('#segMode', S.gameMode);
+  mark('#segDiff', S.diff);
+}
+function setGameMode(v){
+  if (S.rain.active){ syncGuideMode(); toast('本局结束后再切换模式'); return; }
+  S.gameMode = (v === 'rain') ? 'rain' : 'zen';
+  store.set('gameMode', S.gameMode);
+  syncGuideMode();
+  buildBackdrop(bgKeyFor());
+  if (S.gameMode === 'rain'){
+    rainBanner(levelBannerEl, '烦恼雨 · ' + (DIFF[S.diff] || DIFF.normal).name);
+  }
+}
+function setDiff(v){
+  if (S.rain.active){ syncGuideMode(); toast('本局结束后再改难度'); return; }
+  S.diff = DIFF[v] ? v : 'normal';
+  store.set('diff', S.diff);
+  syncGuideMode();
+  buildBackdrop(bgKeyFor());
+  updateRainHud();
+}
+$('#segMode').addEventListener('click', e=>{ const b=e.target.closest('button'); if (b) setGameMode(b.dataset.v); });
+$('#segDiff').addEventListener('click', e=>{ const b=e.target.closest('button'); if (b) setDiff(b.dataset.v); });
+const modeRowEl = document.getElementById('modeRow');
+if (modeRowEl) modeRowEl.addEventListener('click', e=>{
+  const b = e.target.closest('.modeCard'); if (!b) return;
+  AU.resume(); setGameMode(b.dataset.gm);
+});
+const diffRowEl = document.getElementById('diffRow');
+if (diffRowEl) diffRowEl.addEventListener('click', e=>{
+  const b = e.target.closest('button'); if (!b) return;
+  AU.resume(); setDiff(b.dataset.diff);
+});
+
+let rkFilter = 'all';
+function renderRank(){
+  const body = document.getElementById('rankBody');
+  if (!body) return;
+  const board = Array.isArray(S.board) ? S.board : [];
+  const list = board.filter(r => rkFilter === 'all' || r.diff === rkFilter);
+  const tabs = [['all','全部'],['chill','悠闲'],['normal','标准'],['frenzy','狂潮']];
+  let html = '<div class="rkTabs">' + tabs.map(([k,t])=>'<button data-rk="'+k+'" class="'+(rkFilter===k?'on':'')+'">'+t+'</button>').join('') + '</div>';
+  if (!list.length){
+    html += '<div class="rkEmpty">还没有记录<br>选「烦恼雨」打一局，成绩会出现在这里</div>';
+  } else {
+    const pad = n => (n<10?'0':'')+n;
+    list.forEach((r,i)=>{
+      const d = DIFF[r.diff] || DIFF.normal;
+      const dt = new Date(Number(r.at) || Date.now());
+      const when = (dt.getMonth()+1) + '-' + pad(dt.getDate());
+      html += '<div class="rkRow'+(i<3?' top'+(i+1):'')+'">' +
+        '<div class="rkNo">' + (i+1) + '</div>' +
+        '<div class="rkMain"><b>' + fmt(r.score||0) + ' 分</b>' +
+        '<span>破损 ' + (r.pops||0) + ' · 爆裂 ' + (r.bursts||0) + ' · 第 ' + (r.level||1) + ' 层 · 连击 ' + (r.chain||0) + '</span></div>' +
+        '<div class="rkDiff">' + d.name + ' · ' + when + '</div></div>';
+    });
+  }
+  html += '<div class="rkFoot"><span>共 ' + board.length + ' 局 · 每个档案独立</span>' +
+          '<button class="pfLink" id="rkClear">清空本档排行</button></div>';
+  body.innerHTML = html;
+  body.querySelectorAll('[data-rk]').forEach(b=>b.addEventListener('click', ()=>{
+    rkFilter = b.dataset.rk; renderRank();
+  }));
+  const clear = document.getElementById('rkClear');
+  if (clear) clear.addEventListener('click', ()=>{
+    if (clear.dataset.armed === '1'){
+      S.board = []; store.set('board', []); renderRank(); toast('排行榜已清空');
+    } else {
+      clear.dataset.armed = '1'; clear.textContent = '再点一次确认清空';
+    }
+  });
+}
+function openRank(){ renderRank(); openCard('#rankModal'); }
+const rankBtn = document.getElementById('rankBtn');
+if (rankBtn) rankBtn.addEventListener('click', openRank);
+const guideRank = document.getElementById('guideRank');
+if (guideRank) guideRank.addEventListener('click', openRank);
+const footRank = document.getElementById('footRank');
+if (footRank) footRank.addEventListener('click', openRank);
+
+function saveDataUrl(url, name){
+  try{
+    const a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    toast(IS_DESK ? '已下载到「下载」文件夹' : '已保存，也可长按图片保存');
+  }catch(e){ toast('保存失败，请截图保存'); }
+}
+function backToIntro(){
+  if (rainResultEl) rainResultEl.classList.remove('on');
+  resultEl.classList.remove('on');
+  S.rain.active = false;
+  S.mode = 'intro';
+  S.bubbles.length = 0; S.parts.length = 0; S.ghosts.length = 0;
+  S.rings.length = 0; S.marks.length = 0; S.scores.length = 0;
+  rainHudEl.classList.remove('on');
+  comboEl.classList.remove('on');
+  guideEl.classList.remove('gone');
+  buildBackdrop(bgKeyFor());
+  syncGuideMode();
+}
+const rrAgain = document.getElementById('rrAgain');
+if (rrAgain) rrAgain.addEventListener('click', again);const rrRank = document.getElementById('rrRank');
+if (rrRank) rrRank.addEventListener('click', openRank);
+const rrHome = document.getElementById('rrHome');
+if (rrHome) rrHome.addEventListener('click', backToIntro);
+const rrSave = document.getElementById('rrSave');
+if (rrSave) rrSave.addEventListener('click', ()=>{
+  if (!S.rain.cardUrl) S.rain.cardUrl = makeRainCard();
+  saveDataUrl(S.rain.cardUrl, '烦恼雨战绩_' + S.rain.score + '分.png');
+});
+const resHome = document.getElementById('resHome');
+if (resHome) resHome.addEventListener('click', ()=>{ resultEl.classList.remove('on'); backToIntro(); });
+const resRank = document.getElementById('resRank');
+if (resRank) resRank.addEventListener('click', openRank);
 
 $('#chipsTheme').addEventListener('click', e=>{
   const btn = e.target.closest('button');
@@ -1724,7 +2411,7 @@ $('#chipsTheme').addEventListener('click', e=>{
   $('#diyBox').style.display = S.theme === 'diy' ? 'block' : 'none';
   $('#picBox').style.display = S.theme === 'pics' ? 'block' : 'none';
   if (S.theme === 'diy') $('#diyInput').value = S.diy.join(' ');
-  buildRound();
+  if (!S.rain.active) buildRound();
   if (!EMOJI_OK && (S.theme === 'bugs' || S.theme === 'faces')) toast('当前环境不支持图案，已用文字代替');
   if (S.theme === 'pics' && !S.pics.length) toast('先在下方选择图片');
 });
@@ -1777,7 +2464,7 @@ $('#picFile').addEventListener('change', async e=>{
   [...$('#chipsTheme').children].forEach(b=>b.classList.toggle('on', b.dataset.v==='pics'));
   $('#picBox').style.display = 'block';
   applyPics(urls, true);
-  if (S.mode === 'done'){ resultEl.classList.remove('on'); S.mode = 'armed'; }
+  if (!S.rain.active && S.mode === 'done'){ resultEl.classList.remove('on'); S.mode = 'armed'; }
   toast('贴图已套进气泡，敲！');
 });
 $('#picClear').addEventListener('click', ()=>{
@@ -1810,8 +2497,8 @@ $('#diyApply').addEventListener('click', ()=>{
   S.diy = arr; store.set('diy', arr);
   S.theme = 'diy'; store.set('theme','diy');
   [...$('#chipsTheme').children].forEach(b=>b.classList.toggle('on', b.dataset.v==='diy'));
-  buildRound();
-  toast('已应用，敲起来试试');
+  if (!S.rain.active) buildRound();
+  toast(S.rain.active ? '已应用，下一个烦恼就用新内容' : '已应用，敲起来试试');
   closePanel();
   $('#diyInput').blur();
 });
@@ -1829,7 +2516,7 @@ function loadSettings(){
   if (!Array.isArray(S.markWords) || !S.markWords.length) S.markWords = MARKS.slice();
   S.markSize = store.get('markSize','m');
   S.shape = store.get('shape','bubble');
-  if (!['bubble','rounded','hex','star','heart','none'].includes(S.shape)) S.shape = 'bubble';
+  if (!['bubble','rounded','hex','star','heart','none','mix'].includes(S.shape)) S.shape = 'bubble';
   S.sizeVar = clamp(parseFloat(store.get('sizeVar',0)) || 0, 0, 0.4);
   S.entrance = store.get('entrance','mix');
   if (!['mix','fly','float','fall','pop','none'].includes(S.entrance)) S.entrance = 'mix';
@@ -1839,6 +2526,13 @@ function loadSettings(){
   S.picData = store.get('picData', []);
   if (!Array.isArray(S.picData)) S.picData = [];
   S.pics = S.picData.map(d=>({data:d, img:imgFor(d)}));
+  S.gameMode = store.get('gameMode','zen') === 'rain' ? 'rain' : 'zen';
+  const dv = store.get('diff','normal');
+  S.diff = DIFF[dv] ? dv : 'normal';
+  const bd = store.get('board', []);
+  S.board = Array.isArray(bd)
+    ? bd.filter(r=>r && typeof r.score === 'number' && isFinite(r.score)).slice(0, 20)
+    : [];
   mark('#segTrigger', S.trigger);
   mark('#segHard', S.hard);
   mark('#segPack', S.pack);
@@ -1855,6 +2549,7 @@ function loadSettings(){
   $('#picBox').style.display = S.theme === 'pics' ? 'block' : 'none';
   $('#diyInput').value = S.diy.join(' ');
   $('#markInput').value = S.markWords.join(' ');
+  syncGuideMode();
 }
 
 /* ============================================================
@@ -1896,10 +2591,14 @@ if (IS_DESK){
 resize();
 buildRound();
 S.mode = 'intro';
+syncGuideMode();
+updateRainHud();
 requestAnimationFrame(frame);
 window.__YS = {
   S:S, motion:motion, AU:AU, buildRound:buildRound, attack:attack, finish:finishRound,
   tick:update, draw:draw, shapePath:shapePath,
+  startRain:startRain, spawnRain:spawnRain, finishRain:finishRain,
+  bgKeyFor:bgKeyFor, makeRainCard:makeRainCard, openRank:openRank,
   emoji:()=>EMOJI_OK
 };
 
