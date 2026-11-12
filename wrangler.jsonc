@@ -11,6 +11,15 @@
   "compatibility_date": "2026-10-19",
   "compatibility_flags": ["nodejs_compat"],
 
+  // KV 绑定：敲散云榜单（/api/rank）的成绩存储；KV 是可继承字段，
+  // 顶层声明即对 production / preview 同时生效。
+  "kv_namespaces": [
+    {
+      "binding": "QS_RANK",
+      "id": "444ef48367c34f67aa7a7201baf278e3"
+    }
+  ],
+
   // Durable Object 绑定：Pages 项目不能创建 DO，必须指向独立部署的 Worker。
   // script_name 指向 cloudflare/room-worker（Worker 名 knowledge-game-room）。
   "durable_objects": {

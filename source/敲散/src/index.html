@@ -170,6 +170,14 @@
   </div>
 
   <div class="p-sec">
+    <div class="p-label">云榜单<small>开启后，烦恼雨结算时把昵称与成绩上传到本站云端（仅此一个请求）</small></div>
+    <div class="seg" id="segCloud">
+      <button data-v="0" class="on">关闭</button>
+      <button data-v="1">参与</button>
+    </div>
+  </div>
+
+  <div class="p-sec">
     <div class="p-label">显示数量<small>静心模式的单圈气泡数</small></div>
     <div class="seg" id="segCount"></div>
   </div>
@@ -258,7 +266,7 @@
     </div>
   </div>
 
-  <div class="p-foot">敲散 v3.1 · 敲击解压 · <button class="pfLink" id="footRank">排行榜</button> · <button class="pfLink" id="footHelp">帮助</button> · <button class="pfLink" id="footAbout">关于</button></div>
+  <div class="p-foot">敲散 v3.2 · 敲击解压 · <button class="pfLink" id="footRank">排行榜</button> · <button class="pfLink" id="footHelp">帮助</button> · <button class="pfLink" id="footAbout">关于</button></div>
 </div>
 
 <div id="modalScrim" class="mScrim"></div>
@@ -299,7 +307,7 @@
       <li>每敲碎一个得 10 分 × 层数加成 × 连击加成；气泡越大分数越高，金色气泡三倍分。</li>
       <li>爆裂：1.1 秒内连续敲碎，每到 3 / 6 / 9 连额外加分并触发全屏冲击环。</li>
       <li>漏掉一个扣一条命，初始命数随难度不同（悠闲 4 / 标准 3 / 狂潮 2）。</li>
-      <li>排行榜只存在本机，按每个档案分开记录，最多保留 20 局。</li>
+      <li>排行榜分开本机榜与全球榜：本机榜每个档案独立保留 20 局；全球榜需在设置里开启「云榜单」才会提交成绩。</li>
     </ul>
     <h3>常见问题</h3>
     <p><b>没有声音？</b>浏览器要求先点一下页面才能播放音频；再点一次「开始」即可。</p>
@@ -312,8 +320,9 @@
   <div class="mcHead"><h2 id="aboutTitle">关于敲散</h2><button class="mcClose" data-mc-close aria-label="关闭关于">✕</button></div>
   <div class="mcBody">
     <p class="mcLead">把烦心事做成气泡，敲碎它。两三下、几声脆响、一点点震动——不需要理由，也不需要登录。</p>
-    <h3>版本 3.1</h3>
+    <h3>版本 3.2</h3>
     <ul class="mcList mcLog">
+      <li><b>v3.2</b> 新增「全球榜」：可选开启云榜单，结算时把昵称与成绩上传到本站接口（每档难度前 20 名）；默认关闭，关闭时仍然零网络请求。</li>
       <li><b>v3.1</b> 新增「烦恼雨」无尽模式：烦恼从顶部落下，按破损数 / 爆裂数计分，三档难度配三套动态背景，每 12 个升一层，支持本机排行榜与战绩卡。</li>
       <li><b>v3.0</b> 形状系统（圆形/圆角/六边/星形/心形/无形状）、大小差异、飞入·飘入·落入·弹出入场动画、碎裂·炸裂·烟雾三种破裂效果；设置面板固定宽度；新增本地多档案、PIN 隐私锁、帮助与关于页面。</li>
       <li><b>v2.2</b> 桌面适配：悬停高亮、Shift/右键重击、Space/R/Esc 快捷键、宽屏布局。</li>
@@ -321,7 +330,8 @@
       <li><b>v2.0</b> 敲击触发、力度判定、COMBO、爆破字效、自定义内容、数量 1–9。</li>
     </ul>
     <h3>隐私与数据</h3>
-    <p>本作纯前端、零网络请求：不收集、不上传任何信息，也没有统计埋点。档案、设置与统计只写入本机 localStorage。PIN 只是同机访问锁，不是加密。</p>
+    <p>本作默认纯前端、零网络请求：不收集、不上传任何信息，也没有统计埋点。档案、设置与统计只写入本机 localStorage。PIN 只是同机访问锁，不是加密。</p>
+    <p>只有在设置里主动开启「云榜单」后，烦恼雨结算时才会向本站 <b>/api/rank</b> 上传你的档案昵称与成绩（分数、破损、爆裂、层数、连击、难度），用于展示全球榜。可随时关闭；关闭后立即恢复零请求。云榜单不记录 IP，也不下发其他玩家任何身份信息。</p>
     <h3>适龄提示</h3>
     <p>全年龄。无内购、无广告、无抽奖。健康游戏忠告：抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</p>
     <p class="mcDim">设计与开发：知作坊 · 尘世悟说　|　音效：WebAudio 实时合成　|　字体：系统字体</p>

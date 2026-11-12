@@ -401,3 +401,10 @@
   /* 引导层：内容超高时可从顶部完整滚动（grid 居中会裁掉上边） */
   #guide{display:flex;align-items:center;justify-content:center;padding:24px 28px}
   .g-inner{margin:auto}
+
+  /* ---------- 排行榜：本机 / 全球 ---------- */
+  .rkScopeTabs{margin-bottom:6px;background:rgba(157,139,255,.10)}
+  .rkScopeTabs button.on{background:rgba(157,139,255,.28)}
+  .rkName{color:rgba(243,240,255,.62)}
+  .rkDim{font-style:normal;font-size:10px;color:rgba(243,240,255,.32)}
+  .rkEmpty em{display:block;margin-top:6px}

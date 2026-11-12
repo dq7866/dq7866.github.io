@@ -269,6 +269,7 @@ const S = {
   pics: [],
   gameMode: store.get('gameMode','zen'),
   diff: store.get('diff','normal'),
+  cloudRank: store.get('cloudRank', false) === true,
   board: store.get('board', []),
   rain: {
     active:false, score:0, pops:0, bursts:0, lives:3, level:1, miss:0,
@@ -1838,6 +1839,12 @@ function finishRain(){
   S.stats.pops = (S.stats.pops||0) + R.pops;
   if (R.maxChain > (S.stats.bestCombo||0)) S.stats.bestCombo = R.maxChain;
   store.set('stats', S.stats);
+  if (S.cloudRank){
+    cloudSubmit(rec);
+  } else if (!cloudHinted){
+    cloudHinted = true;
+    setTimeout(()=>toast('开启「云榜单」可与其他玩家比分数'), 1600);
+  }
   fillRainResult();
   rainResultEl.classList.add('on');
   rainHudEl.classList.remove('on');
@@ -2273,6 +2280,15 @@ bindSeg('#segBurst','burst', v=>v, ()=>{
 bindSeg('#segPack','pack', v=>v, ()=>{ AU.play('shatter', 1); });
 bindSeg('#segVib','vib', v=>v==='1');
 bindSeg('#segSnd','snd', v=>v==='1');
+bindSeg('#segCloud','cloudRank', v=>v==='1', ()=>{
+  if (S.cloudRank){
+    cloudState.status = 'idle';
+    cloudLoad(true);
+    toast('已开启云榜单：结算时上传昵称与成绩');
+  } else {
+    toast('已关闭云榜单，不会再发起网络请求');
+  }
+});
 
 /* ---------- 游戏模式 / 难度 / 排行榜 ---------- */
 function syncGuideMode(){
@@ -2323,38 +2339,109 @@ if (diffRowEl) diffRowEl.addEventListener('click', e=>{
 });
 
 let rkFilter = 'all';
+let rkScope = 'local';
+let cloudHinted = false;
+const cloudState = { status:'idle', list:[], at:0 };
+
+function cloudReady(){ return cloudState.status === 'ready'; }
+function cloudLoad(force){
+  if (!force && cloudState.status === 'ready' && Date.now() - cloudState.at < 60000) return;
+  cloudState.status = 'loading';
+  renderRank();
+  fetch('/api/rank?diff=' + encodeURIComponent(rkFilter) + '&t=' + Date.now(), { cache:'no-store' })
+    .then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+    .then(d => {
+      if (d && d.configured === false){ cloudState.status = 'off'; cloudState.list = []; }
+      else { cloudState.status = 'ready'; cloudState.list = Array.isArray(d.list) ? d.list : []; cloudState.at = Date.now(); }
+      renderRank();
+    })
+    .catch(() => { cloudState.status = 'fail'; renderRank(); });
+}
+async function cloudSubmit(rec){
+  try{
+    const acc = (window.QS && QS.active) ? QS.active() : null;
+    const r = await fetch('/api/rank', {
+      method:'POST', cache:'no-store', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name: acc && acc.name, score:rec.score, pops:rec.pops,
+        bursts:rec.bursts, level:rec.level, chain:rec.chain, diff:rec.diff })
+    });
+    const d = await r.json();
+    if (d && d.ok){
+      cloudState.status = 'ready'; cloudState.at = 0;
+      toast('已上传云榜 · 第 ' + d.rank + ' 名');
+    } else if (d && d.configured === false){
+      toast('云端榜单尚未启用');
+    } else {
+      toast((d && d.error) || '云榜未收录这条成绩');
+    }
+  }catch(e){ /* 离线或未部署：静默回退到本机榜 */ }
+}
+
+function rankRows(list, cloud){
+  const pad = n => (n<10?'0':'')+n;
+  return list.map((r,i)=>{
+    const d = DIFF[r.diff] || DIFF.normal;
+    const dt = new Date(Number(r.at) || Date.now());
+    const when = (dt.getMonth()+1) + '-' + pad(dt.getDate());
+    const nm = cloud ? ('<span class="rkName">' + String(r.name || '匿名').replace(/[<>&]/g, '') + '</span> · ') : '';
+    return '<div class="rkRow'+(i<3?' top'+(i+1):'')+'">' +
+      '<div class="rkNo">' + (i+1) + '</div>' +
+      '<div class="rkMain"><b>' + fmt(r.score||0) + ' 分</b>' +
+      '<span>' + nm + '破损 ' + (r.pops||0) + ' · 爆裂 ' + (r.bursts||0) + ' · 第 ' + (r.level||1) + ' 层 · 连击 ' + (r.chain||0) + '</span></div>' +
+      '<div class="rkDiff">' + d.name + ' · ' + when + '</div></div>';
+  }).join('');
+}
+
 function renderRank(){
   const body = document.getElementById('rankBody');
   if (!body) return;
   const board = Array.isArray(S.board) ? S.board : [];
-  const list = board.filter(r => rkFilter === 'all' || r.diff === rkFilter);
-  const tabs = [['all','全部'],['chill','悠闲'],['normal','标准'],['frenzy','狂潮']];
-  let html = '<div class="rkTabs">' + tabs.map(([k,t])=>'<button data-rk="'+k+'" class="'+(rkFilter===k?'on':'')+'">'+t+'</button>').join('') + '</div>';
-  if (!list.length){
-    html += '<div class="rkEmpty">还没有记录<br>选「烦恼雨」打一局，成绩会出现在这里</div>';
+  const diffs = [['all','全部'],['chill','悠闲'],['normal','标准'],['frenzy','狂潮']];
+  let html = '<div class="rkTabs rkScopeTabs">' +
+    '<button data-scope="local" class="' + (rkScope==='local'?'on':'') + '">本机榜</button>' +
+    '<button data-scope="cloud" class="' + (rkScope==='cloud'?'on':'') + '">全球榜</button></div>';
+  html += '<div class="rkTabs">' + diffs.map(([k,t])=>'<button data-rk="'+k+'" class="'+(rkFilter===k?'on':'')+'">'+t+'</button>').join('') + '</div>';
+
+  if (rkScope === 'local'){
+    const list = board.filter(r => rkFilter === 'all' || r.diff === rkFilter);
+    html += list.length
+      ? rankRows(list, false)
+      : '<div class="rkEmpty">还没有记录<br>选「烦恼雨」打一局，成绩会出现在这里</div>';
+  } else if (cloudState.status === 'loading'){
+    html += '<div class="rkEmpty">正在连接云端…</div>';
+  } else if (cloudState.status === 'off'){
+    html += '<div class="rkEmpty">云端榜单尚未启用<br><em class="rkDim">站长在 Cloudflare 绑定 KV（QS_RANK）后自动生效</em></div>';
+  } else if (cloudState.status === 'fail'){
+    html += '<div class="rkEmpty">连不上云端<br><em class="rkDim">离线时仍可看本机榜</em><br><button class="pfLink" id="rkRetry">重试</button></div>';
+  } else if (cloudState.status === 'ready' && !cloudState.list.length){
+    html += '<div class="rkEmpty">云端还没有成绩<br>成为第一个上榜的人</div>';
   } else {
-    const pad = n => (n<10?'0':'')+n;
-    list.forEach((r,i)=>{
-      const d = DIFF[r.diff] || DIFF.normal;
-      const dt = new Date(Number(r.at) || Date.now());
-      const when = (dt.getMonth()+1) + '-' + pad(dt.getDate());
-      html += '<div class="rkRow'+(i<3?' top'+(i+1):'')+'">' +
-        '<div class="rkNo">' + (i+1) + '</div>' +
-        '<div class="rkMain"><b>' + fmt(r.score||0) + ' 分</b>' +
-        '<span>破损 ' + (r.pops||0) + ' · 爆裂 ' + (r.bursts||0) + ' · 第 ' + (r.level||1) + ' 层 · 连击 ' + (r.chain||0) + '</span></div>' +
-        '<div class="rkDiff">' + d.name + ' · ' + when + '</div></div>';
-    });
+    html += rankRows(cloudState.list, true);
   }
-  html += '<div class="rkFoot"><span>共 ' + board.length + ' 局 · 每个档案独立</span>' +
-          '<button class="pfLink" id="rkClear">清空本档排行</button></div>';
+
+  if (rkScope === 'local'){
+    html += '<div class="rkFoot"><span>共 ' + board.length + ' 局 · 每个档案独立</span>' +
+            '<button class="pfLink" id="rkClear">清空本档排行</button></div>';
+  } else {
+    html += '<div class="rkFoot"><span>云端共展示前 20 名 · 每档难度独立</span>' +
+            '<span>' + (S.cloudRank ? '已开启自动上传' : '未开启自动上传') + '</span></div>';
+  }
   body.innerHTML = html;
+
   body.querySelectorAll('[data-rk]').forEach(b=>b.addEventListener('click', ()=>{
-    rkFilter = b.dataset.rk; renderRank();
+    rkFilter = b.dataset.rk;
+    if (rkScope === 'cloud'){ cloudLoad(true); } else { renderRank(); }
   }));
+  body.querySelectorAll('[data-scope]').forEach(b=>b.addEventListener('click', ()=>{
+    rkScope = b.dataset.scope;
+    if (rkScope === 'cloud'){ cloudLoad(false); } else { renderRank(); }
+  }));
+  const retry = document.getElementById('rkRetry');
+  if (retry) retry.addEventListener('click', ()=>cloudLoad(true));
   const clear = document.getElementById('rkClear');
   if (clear) clear.addEventListener('click', ()=>{
     if (clear.dataset.armed === '1'){
-      S.board = []; store.set('board', []); renderRank(); toast('排行榜已清空');
+      S.board = []; store.set('board', []); renderRank(); toast('本机榜已清空');
     } else {
       clear.dataset.armed = '1'; clear.textContent = '再点一次确认清空';
     }
@@ -2535,6 +2622,7 @@ function loadSettings(){
   S.board = Array.isArray(bd)
     ? bd.filter(r=>r && typeof r.score === 'number' && isFinite(r.score)).slice(0, 20)
     : [];
+  S.cloudRank = store.get('cloudRank', false) === true;
   mark('#segTrigger', S.trigger);
   mark('#segHard', S.hard);
   mark('#segPack', S.pack);
@@ -2546,6 +2634,7 @@ function loadSettings(){
   mark('#segSize', String(S.sizeVar));
   mark('#segEnt', S.entrance);
   mark('#segBurst', S.burst);
+  mark('#segCloud', S.cloudRank ? '1' : '0');
   [...$('#chipsTheme').children].forEach(b=>b.classList.toggle('on', b.dataset.v === S.theme));
   $('#diyBox').style.display = S.theme === 'diy' ? 'block' : 'none';
   $('#picBox').style.display = S.theme === 'pics' ? 'block' : 'none';

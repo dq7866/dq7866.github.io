@@ -11,10 +11,64 @@
  */
 
 import { drawQuestions, buildQidIndex, gradeAnswer, json } from './shared/bank-core.js';
+import { RANK_DIFFS, mergeBoard, publicRow, sortBoard, validateEntry } from './shared/rank-core.js';
 import questionBank from './bank/questions.json' with { type: 'json' };
 
 const QUESTIONS = questionBank;
 const QID_INDEX = buildQidIndex(QUESTIONS);
+
+/** 云榜单存储绑定名（Cloudflare KV）；未绑定时接口返回 configured:false */
+const RANK_BINDING = 'QS_RANK';
+const RANK_SHOW = 20;
+
+async function handleRank(request, env, url) {
+  const kv = env && env[RANK_BINDING];
+  const diff = String(url.searchParams.get('diff') || 'all').toLowerCase();
+
+  if (request.method === 'GET') {
+    if (!kv) return json({ ok: false, configured: false, list: [], note: 'KV 未绑定' });
+    if (diff === 'all') {
+      const all = [];
+      for (const d of RANK_DIFFS) {
+        const raw = await kv.get('board:' + d, 'json');
+        if (Array.isArray(raw)) all.push(...raw);
+      }
+      return json({ ok: true, configured: true, diff: 'all', list: sortBoard(all).slice(0, RANK_SHOW).map(publicRow) });
+    }
+    if (!RANK_DIFFS.includes(diff)) return json({ ok: false, error: '未知难度' }, 400);
+    const raw = await kv.get('board:' + diff, 'json');
+    const list = (Array.isArray(raw) ? raw : []).slice(0, RANK_SHOW).map(publicRow);
+    return json({ ok: true, configured: true, diff, list });
+  }
+
+  if (request.method === 'POST') {
+    if (!kv) return json({ ok: false, configured: false, error: '云端榜单未启用' }, 503);
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return json({ ok: false, error: '请求体不是合法 JSON' }, 400);
+    }
+    const entry = validateEntry(body);
+    if (!entry) return json({ ok: false, error: '成绩未通过校验' }, 400);
+
+    // 限流：同一 IP、同一难度每分钟一次（KV 的 expirationTtl 最小 60 秒）
+    const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+    const bucket = Math.floor(Date.now() / 60000);
+    const rlKey = 'rl:' + entry.d + ':' + ip + ':' + bucket;
+    if (await kv.get(rlKey)) return json({ ok: false, error: '提交太频繁，稍后再试' }, 429);
+    await kv.put(rlKey, '1', { expirationTtl: 120 });
+
+    const key = 'board:' + entry.d;
+    const next = mergeBoard(await kv.get(key, 'json'), entry);
+    await kv.put(key, JSON.stringify(next));
+
+    const rank = next.findIndex(e => e.t === entry.t && e.s === entry.s) + 1;
+    return json({ ok: true, configured: true, rank, list: next.slice(0, RANK_SHOW).map(publicRow) });
+  }
+
+  return json({ ok: false, error: '不支持的请求方法' }, 405);
+}
 
 export default {
   async fetch(request, env) {
@@ -49,6 +103,11 @@ export default {
       const r = gradeAnswer(QUESTIONS, qid, picked);
       if (r.error) return json(r, 404);
       return json({ ok: r.ok, correct: r.correct });
+    }
+
+    // 云榜单：敲散 /api/rank（GET 读、POST 提交）
+    if (pathname === '/api/rank') {
+      return handleRank(request, env, url);
     }
 
     // 健康检查
