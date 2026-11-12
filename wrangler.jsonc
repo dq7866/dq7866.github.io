@@ -11,8 +11,9 @@
   "compatibility_date": "2026-10-19",
   "compatibility_flags": ["nodejs_compat"],
 
-  // KV 绑定：敲散云榜单（/api/rank）的成绩存储；KV 是可继承字段，
-  // 顶层声明即对 production / preview 同时生效。
+  // KV 绑定：敲散云榜单（/api/rank）的成绩存储。
+  // ⚠️ Pages 构建时 kv_namespaces 不会从顶层继承到 env，必须在
+  //    production / preview 里各写一份，否则 env.QS_RANK 为 undefined。
   "kv_namespaces": [
     {
       "binding": "QS_RANK",
@@ -36,6 +37,12 @@
   //    都在该 env 里重新声明，否则校验失败。preview 与 production 都要写全。
   "env": {
     "production": {
+      "kv_namespaces": [
+        {
+          "binding": "QS_RANK",
+          "id": "444ef48367c34f67aa7a7201baf278e3"
+        }
+      ],
       "durable_objects": {
         "bindings": [
           {
@@ -47,6 +54,12 @@
       }
     },
     "preview": {
+      "kv_namespaces": [
+        {
+          "binding": "QS_RANK",
+          "id": "444ef48367c34f67aa7a7201baf278e3"
+        }
+      ],
       "durable_objects": {
         "bindings": [
           {
