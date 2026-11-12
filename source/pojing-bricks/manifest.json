@@ -1,0 +1,17 @@
+{
+  "name": "破境积木 · 3D 创意搭建世界",
+  "short_name": "破境积木",
+  "description": "3D 积木创意搭建，靠旋转和堆叠搭出小屋、小车、城堡，锻炼动手与空间思维能力",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0d1024",
+  "theme_color": "#0d1024",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

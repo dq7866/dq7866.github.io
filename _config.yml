@@ -39,6 +39,7 @@ skip_render:
   - 'bike/**'
   - 'guardian/**'
   - 'toy-workshop/**'
+  - 'pojing-bricks/**'
   - 'offline/**'
   - 'admin/**'
   - 'stats.js'

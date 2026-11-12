@@ -71,6 +71,11 @@
       url: "/toy-workshop/", color: "#ff7a45"
     },
     {
+      k: "pojing", emoji: "🧱", name: "破境积木", sub: "Brick Builder 3D",
+      desc: "147 种积木形状 × 59 张图纸，自由搭建或照着蓝图复原",
+      url: "/pojing-bricks/", color: "#ff6f3c"
+    },
+    {
       k: "board", emoji: "💬", name: "留言板", sub: "公告 · 联系我",
       desc: "站内公告、留言与联系方式，无需注册即可留言",
       url: "/board/", color: "#7c6cf0"
@@ -86,7 +91,7 @@
   var GROUPS = [
     { t: "阅读与学习", keys: ["home", "edu", "forest"] },
     { t: "工具与下载", keys: ["symbolpass", "toolbox", "offline"] },
-    { t: "游戏", keys: ["games", "bike", "guardian", "toy"] },
+    { t: "游戏", keys: ["games", "bike", "guardian", "toy", "pojing"] },
     { t: "交流", keys: ["board"] }
   ];
 

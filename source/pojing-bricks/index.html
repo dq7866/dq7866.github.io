@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0d1024" />
+<meta name="description" content="破境积木：3D 积木创意搭建，锻炼孩子的动手、空间思维与构图能力" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="破境积木 · 3D 创意搭建世界" />
+<meta property="og:description" content="59 张创意图纸、147 种积木形状、8 个挑战关卡：用旋转与堆叠，把方块变成你想象的东西。" />
+<meta property="og:image" content="preview.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<title>破境积木 · 3D 创意搭建世界</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='12' width='24' height='16' rx='3' fill='%23ff6f3c'/%3E%3Crect x='8' y='6' width='8' height='6' rx='2' fill='%23ffcf5c'/%3E%3C/svg%3E" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<noscript>
+  <div style="max-width:520px;margin:14vh auto;padding:28px;border-radius:20px;background:#1a2046;color:#e8ecff;font:14px/1.9 system-ui,sans-serif;text-align:center">
+    <div style="font-size:36px">🧱</div>
+    <h2 style="font-size:18px;margin:10px 0">需要开启 JavaScript</h2>
+    <p style="color:#9aa4c8">这个游戏是用 JavaScript 实时绘制 3D 场景的，浏览器关掉脚本后就无法运行。请在浏览器设置里允许本页运行 JavaScript，然后刷新页面。</p>
+  </div>
+</noscript>
+<div id="app">
+  <canvas id="scene" aria-label="3D 积木搭建场景" role="img"></canvas>
+
+  <!-- 当前图纸徽标：从图纸页点进来后一直显示图纸名称，可一键退出回到自由创作 -->
+  <div id="bpBadge" class="bp-badge hidden" role="status" aria-live="polite">
+    <span>📐 图纸</span><b id="bpBadgeName">自由创作</b>
+    <i id="bpBadgeMeta"></i>
+    <button id="bpBadgeClose" title="退出这张图纸，继续自由创作" aria-label="退出图纸">✕</button>
+  </div>
+
+  <!-- 选择模式：选中零件的信息卡 -->
+  <div id="selInfo" class="sel-info hidden" role="status" aria-live="polite">
+    <div class="si-name"><span id="siName">零件</span><em id="siTag">结构件</em></div>
+    <div class="si-role" id="siRole"></div>
+    <div class="si-params" id="siParams"></div>
+    <div class="si-pos" id="siPos"></div>
+  </div>
+
+  <!-- 顶部状态栏 -->
+  <header id="topbar">
+    <div class="brand">
+      <div class="logo-mark">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M16 3 28 9.5v13L16 29 4 22.5v-13z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M4 9.5 16 16l12-6.5M16 16v13" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".7"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <b>破境积木<i class="ver" id="appVer">v1.32.0</i></b>
+        <span>3D 创意搭建</span>
+      </div>
+    </div>
+
+    <div class="tabs" id="tabs" role="tablist" aria-label="主视图切换">
+      <button class="tab active" data-view="build" role="tab" aria-selected="true">搭建</button>
+      <button class="tab" data-view="gallery" role="tab" aria-selected="false">图纸</button>
+      <button class="tab" data-view="workshop" role="tab" aria-selected="false">作品</button>
+      <button class="tab" data-view="help" role="tab" aria-selected="false">玩法</button>
+    </div>
+
+    <div class="top-actions">
+      <button class="icon-btn" id="btnUndo" title="撤销 (Ctrl+Z)" aria-label="撤销">
+        <svg viewBox="0 0 24 24"><path d="M9 7H5v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 7a9 9 0 1 1-1.5 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="btnRedo" title="重做 (Ctrl+Y)" aria-label="重做">
+        <svg viewBox="0 0 24 24"><path d="M15 7h4v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 7A9 9 0 1 0 20.5 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="btnVoice" title="语音引导开关" aria-label="语音引导开关" aria-pressed="true">
+        <svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="btnSound" title="音效开关" aria-label="音效开关" aria-pressed="true">
+        <svg viewBox="0 0 24 24"><path d="M4 9v6h3l5 4V5L7 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn danger" id="btnClear" title="清空全部积木" aria-label="清空全部积木">
+        <svg viewBox="0 0 24 24"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="icon-btn" id="btnAbout" title="关于本游戏 / 版本与许可" aria-label="关于">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 11v6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.3" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- 左：形状 + 颜色 -->
+  <aside id="leftbar">
+    <section class="panel">
+      <h3>积木形状</h3>
+      <div class="shape-search">
+        <input id="shapeSearch" type="search" placeholder="搜索形状：齿轮 / 轴 / 板…" autocomplete="off" aria-label="搜索积木形状">
+        <button id="shapeSearchClear" class="ss-clear" title="清空搜索" aria-label="清空搜索" hidden>✕</button>
+      </div>
+      <div id="shapeCats" class="cat-row"></div>
+      <div id="shapeGrid" class="shape-grid"></div>
+      <p id="shapeEmpty" class="shape-empty" hidden>没有匹配的形状，换个词试试。</p>
+    </section>
+    <section class="panel">
+      <h3>颜色</h3>
+      <div id="colorGrid" class="color-grid"></div>
+    </section>
+  </aside>
+
+  <!-- 右：工具与视图 -->
+  <aside id="rightbar">
+    <section class="panel">
+      <h3>摆放工具</h3>
+      <div class="tool-grid">
+        <button class="tool" data-tool="place" title="1">
+          <svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <span>搭建</span>
+        </button>
+        <button class="tool" data-tool="rotate" title="2">
+          <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M20 3v5h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>旋转</span>
+        </button>
+        <button class="tool" data-tool="paint" title="3">
+          <svg viewBox="0 0 24 24"><path d="M4 20s0-4 3-4c2 0 2 2 1 3" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M9 6l9 9 3-3-9-9z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+          <span>刷色</span>
+        </button>
+        <button class="tool" data-tool="erase" title="4">
+          <svg viewBox="0 0 24 24"><path d="M4 16 13 7l7 7-6 6H7z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M6 20h14" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+          <span>拆除</span>
+        </button>
+        <button class="tool tool-wide" data-tool="line" title="5">
+          <svg viewBox="0 0 24 24"><path d="M4 12h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M4 8v8M12 8v8M20 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span>连排（点两端）</span>
+        </button>
+        <button class="tool tool-wide" data-tool="adjust" title="6">
+          <svg viewBox="0 0 24 24"><path d="M14.5 6.5a4 4 0 0 0-5.6 5L4 16.4V20h3.6l4.9-4.9a4 4 0 0 0 5-5.6l-2.6 2.6-2.1-2.1z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+          <span>装配（调零件）</span>
+        </button>
+        <button class="tool tool-wide" data-tool="select" title="7">
+          <svg viewBox="0 0 24 24"><path d="M5 3l14 8-6 1.6L10 19z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><circle cx="18.5" cy="17.5" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M20.8 20.6l2 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span>选择（只看不改）</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>视角</h3>
+      <div class="view-row" id="viewRow">
+        <button class="chip" data-cam="orbit">环绕视角</button>
+        <button class="chip" data-cam="top">俯视</button>
+        <button class="chip" data-cam="front">正视</button>
+        <button class="chip" data-cam="fly">漫游</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>参考方块</h3>
+      <div class="switch-row">
+        <span>地面格子</span>
+        <label class="switch"><input type="checkbox" id="optGrid" checked><i></i></label>
+      </div>
+      <div class="switch-row">
+        <span>吸附对齐</span>
+        <label class="switch"><input type="checkbox" id="optSnap" checked><i></i></label>
+      </div>
+      <div class="switch-row">
+        <span>阳光阴影</span>
+        <label class="switch"><input type="checkbox" id="optShadow" checked><i></i></label>
+      </div>
+      <div class="switch-row">
+        <span>镜像对称</span>
+        <label class="switch"><input type="checkbox" id="optMirror"><i></i></label>
+      </div>
+      <div class="switch-row">
+        <span>积木凸点</span>
+        <label class="switch"><input type="checkbox" id="optStuds"><i></i></label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>机械动力</h3>
+      <div class="view-row" id="mechRow">
+        <button class="chip" id="btnRun" title="按传动关系让齿轮、车轮、活塞动起来">▶ 运转模拟</button>
+        <button class="chip hidden" id="btnRunStop">⏸ 停止</button>
+      </div>
+      <div class="switch-row">
+        <span>转速</span>
+        <input type="range" id="runSpeed" min="0.3" max="3" step="0.1" value="1">
+      </div>
+      <p class="panel-tip">摆好「电机」或「曲轴」，轴对准轴毂、齿轮挨着齿轮、链条接两头，按「运转」就能看到动力怎么传。「蒸汽机心」图纸是完整示范；「槽轮步进」看间歇运动，「蜗轮减速机」看自锁减速。</p>
+    </section>
+
+    <section class="panel stat-panel">
+      <div class="stat"><b id="statBricks">0</b><span>积木数</span></div>
+      <div class="stat"><b id="statTarget">小屋</b><span>当前目标</span></div>
+      <div class="stat-tools">
+        <button class="chip" id="btnParts" title="看看每种积木各用了多少块">🧮 零件清单</button>
+        <button class="chip" id="btnStability" title="找出没有支撑、会掉下来的积木">⚖️ 检查稳固</button>
+        <button class="chip" id="btnReplayBuild" title="按搭建顺序重演一遍">▶️ 回放搭建</button>
+      </div>
+    </section>
+
+    <section class="panel" id="versusCard" hidden>
+      <h3>双人比拼</h3>
+      <div class="vs-score">
+        <div class="vs-side a" id="vsA">
+          <b>红方</b><span id="vsCountA">0</span>
+        </div>
+        <div class="vs-mid" id="vsTurn">红方回合</div>
+        <div class="vs-side b" id="vsB">
+          <b>蓝方</b><span id="vsCountB">0</span>
+        </div>
+      </div>
+      <p class="vs-tip">轮流放积木，谁放的多谁赢。放一块自动换人，拆除不换。</p>
+      <button class="ch-btn" id="btnVsEnd">结束，宣布结果</button>
+      <button class="ch-quit" id="btnVsQuit">退出比拼</button>
+    </section>
+
+    <section class="panel" id="challengeCard" hidden>
+      <h3>关卡挑战</h3>
+      <div class="ch-head">
+        <b id="chName">小门楼</b>
+        <span id="chBudget">0 / 26 块</span>
+      </div>
+      <div class="ch-bar"><i id="chBar"></i></div>
+      <div class="ch-score">
+        <span>相似度</span><b id="chPct">0%</b>
+      </div>
+      <div class="ch-stars" id="chStars">
+        <i></i><i></i><i></i>
+      </div>
+      <button class="ch-btn" id="btnChRef">👻 显示参考影子</button>
+      <button class="ch-btn" id="btnChCheck">完成，看看得分</button>
+      <button class="ch-quit" id="btnChQuit">退出挑战</button>
+    </section>
+  </aside>
+
+  <!-- 装配台：零件缩放 / 细转 / 微移 -->
+  <div id="xformPanel" class="hidden">
+    <div class="xf-head">
+      <b id="xfName">零件</b>
+      <button id="xfClose" title="收起">✕</button>
+    </div>
+    <div class="xf-row">
+      <span>大小</span>
+      <input type="range" id="xfScale" min="0.4" max="3" step="0.05" value="1">
+      <b id="xfScaleV">1.00×</b>
+    </div>
+    <div id="xfParams" class="hidden"></div>
+    <div class="xf-row">
+      <span>转向</span>
+      <div class="xf-btns">
+        <button data-ax="x" data-dir="-1">X↺</button><button data-ax="x" data-dir="1">X↻</button>
+        <button data-ax="y" data-dir="-1">Y↺</button><button data-ax="y" data-dir="1">Y↻</button>
+        <button data-ax="z" data-dir="-1">Z↺</button><button data-ax="z" data-dir="1">Z↻</button>
+      </div>
+    </div>
+    <div class="xf-row">
+      <span>微移</span>
+      <div class="xf-btns">
+        <button data-mv="x,-1">←</button><button data-mv="x,1">→</button>
+        <button data-mv="y,1">↑</button><button data-mv="y,-1">↓</button>
+        <button data-mv="z,-1">前</button><button data-mv="z,1">后</button>
+      </div>
+    </div>
+    <div class="xf-foot">
+      <button id="xfReset">恢复原位</button>
+      <span>每步都可 Ctrl+Z 撤销</span>
+    </div>
+  </div>
+
+  <!-- 底部：放置控制条 -->
+  <div id="dock">
+    <div class="dock-group">
+      <button id="btnRotX" class="dock-btn" title="俯仰旋转">
+        <svg viewBox="0 0 24 24"><path d="M4 15a9 4.5 0 1 0 16 0" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18 19l2-4-4-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>俯仰</span>
+      </button>
+      <button id="btnRotY" class="dock-btn" title="水平旋转">
+        <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8" ry="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".5"/></svg>
+        <span>转向</span>
+      </button>
+      <button id="btnRotZ" class="dock-btn" title="摇摆旋转">
+        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2" transform="rotate(12 12 12)"/></svg>
+        <span>摇摆</span>
+      </button>
+    </div>
+    <div class="dock-hint" id="dockHint" aria-live="polite" aria-atomic="true">移动鼠标选择位置 · 单击放下积木</div>
+  </div>
+
+  <!-- 图纸面板 -->
+  <section id="galleryPanel" class="full-panel hidden" role="region" aria-label="创意图纸">
+    <div class="fp-head">
+      <h2>创意图纸</h2>
+      <p>从简单到宗师共 <span id="bpTotal">46</span> 张图纸：挑一张当灵感，或直接开始自由搭建。点开图纸时镜头会自动量出整台机器的大小并对准中心，小模型不空一大圈、高塔不会裁掉顶。图纸只是提示，不限制你的创造。</p>
+    </div>
+    <div id="bpFilters" class="bp-filters"></div>
+    <div id="blueprintList" class="bp-list"></div>
+    <div class="fp-foot">
+      <button class="ghost-btn" id="btnFreeBuild">清空地面，自由搭建</button>
+      <button class="ghost-btn accent" id="btnStartChallenge">🎯 开始关卡挑战</button>
+      <button class="ghost-btn" id="btnStartVersus">👥 双人轮流比拼</button>
+    </div>
+  </section>
+
+  <!-- 作品面板 -->
+  <section id="workshopPanel" class="full-panel hidden" role="region" aria-label="我的作品">
+    <div class="fp-head">
+      <h2>我的作品</h2>
+      <p>把搭建成果保存下来，随时回来继续，还能导出文件分享给别人。</p>
+    </div>
+    <div class="ws-actions">
+      <button class="ws-btn primary" id="btnWsSave">
+        <b>💾 存起来</b><span>把当前地面上的作品存进浏览器</span>
+      </button>
+      <button class="ws-btn" id="btnWsShot">
+        <b>📸 拍照片</b><span>保存一张作品截图到本地</span>
+      </button>
+      <button class="ws-btn" id="btnWsExport">
+        <b>📤 导出文件</b><span>下载 .json 作品文件，可以发给别人</span>
+      </button>
+      <button class="ws-btn" id="btnWsImport">
+        <b>📥 导入文件</b><span>选择一个 .json 作品文件打开</span>
+      </button>
+      <input type="file" id="wsFileInput" accept=".json,application/json" hidden>
+    </div>
+    <h3 class="ws-sub">已保存的作品</h3>
+    <div id="wsList" class="ws-list"></div>
+    <div class="fp-foot">
+      <button class="ghost-btn" id="btnWsClose">返回搭建</button>
+    </div>
+  </section>
+
+  <!-- 存为形状：在主平台搭好后，多选积木打包成一块新积木 -->
+  <div id="pickBar" class="pick-bar" hidden role="region" aria-label="存为形状">
+    <span class="pick-count" id="pickCount">已选 0 块</span>
+    <input id="pickName" class="pick-name" maxlength="8" placeholder="给形状起个名字" aria-label="形状名称">
+    <button class="pick-btn primary" id="btnPickSave" disabled>存为形状</button>
+    <button class="pick-btn" id="btnPickAll">全选</button>
+    <button class="pick-btn" id="btnPickClear">清空</button>
+    <button class="pick-btn" id="btnPickExit">退出</button>
+  </div>
+
+  <!-- 自定义形状工作台：用小方块堆出自己的零件 -->
+  <section id="voxPanel" class="full-panel hidden" role="region" aria-label="自定义形状">
+    <div class="fp-head">
+      <h2>自己拼一个形状</h2>
+      <p>在 6×6×6 的格子里点小方块，堆出来的就是一块新积木——它会出现在形状面板的「我的」里，能和别的积木一样吸附、堆叠、盖房子。</p>
+    </div>
+    <div class="vox-wrap">
+      <div class="vox-left">
+        <div class="vox-layers" id="voxLayers"></div>
+        <div class="vox-grid" id="voxGrid" role="grid" aria-label="第 1 层格子"></div>
+        <p class="vox-tip" id="voxCount">已放 0 块 · 点格子放/取，右键也是取</p>
+      </div>
+      <div class="vox-right">
+        <canvas id="voxPreview" width="360" height="300" aria-label="预览"></canvas>
+        <label class="vox-name">
+          <span>名字</span>
+          <input id="voxName" type="text" maxlength="8" placeholder="我的零件">
+        </label>
+      </div>
+    </div>
+    <div class="fp-foot">
+      <button class="ws-btn primary" id="btnVoxSave">保存并使用</button>
+      <button class="ws-btn" id="btnVoxClear">清空</button>
+      <button class="ws-btn danger" id="btnVoxDelete" hidden>删除这个形状</button>
+      <button class="ghost-btn" id="btnVoxClose">返回搭建</button>
+    </div>
+  </section>
+
+  <!-- 帮助中心 -->
+  <section id="helpPanel" class="full-panel hidden" role="region" aria-label="玩法帮助">
+    <div class="fp-head">
+      <h2>怎么玩</h2>
+      <p>用旋转和堆叠，把方块变成你想象的东西。</p>
+    </div>
+
+    <div class="help-tabs" id="helpTabs">
+      <button class="help-tab active" data-h="play">🎮 玩法</button>
+      <button class="help-tab" data-h="keys">⌨️ 快捷键</button>
+      <button class="help-tab" data-h="faq">❓ 常见问题</button>
+      <button class="help-tab" data-h="parent">👨‍👩‍👧 给家长</button>
+    </div>
+
+    <div class="help-body">
+      <!-- 玩法 -->
+      <div class="help-sec" data-h="play">
+        <div class="help-grid">
+          <div class="help-card"><b>1 · 选积木</b><p>左边点一个形状（方块、长条、斜块、拱门……），再点一个颜色。</p></div>
+          <div class="help-card"><b>2 · 旋转它</b><p>按 R 键或点底部"俯仰 / 转向 / 摇摆"，让方块朝你想要的方向。它会在半空跟着鼠标转给你看。</p></div>
+          <div class="help-card"><b>3 · 放下去</b><p>鼠标移动，方块会吸附到格子里，还会显示候选位置。单击一下，积木就放好了。</p></div>
+          <div class="help-card"><b>4 · 拆与改</b><p>切到"拆除"点方块就消失；"刷色"可以给已有方块换颜色。</p></div>
+          <div class="help-card"><b>5 · 连排</b><p>切到"连排"，点一下起点、再点一下终点，中间会自动填满一排，砌墙特别快。</p></div>
+          <div class="help-card"><b>6 · 镜像对称</b><p>打开右侧"镜像对称"开关，放一块积木，另一边会同时出现一模一样的一块。搭对称的房子、翅膀特别省事。</p></div>
+          <div class="help-card"><b>7 · 图纸与关卡</b><p>"图纸"页有 46 个现成模型（简单 → 宗师五档），点一下就搭好，可以拆开研究；"关卡挑战"则给你有限的积木，照着影子还原，相似度越高星星越多。</p></div>
+          <div class="help-card"><b>8 · 不怕丢</b><p>作品会自动保存，下次打开游戏还接着上次的搭。"作品"页可以存多个存档、导出文件、拍照留念。</p></div>
+          <div class="help-card"><b>9 · 咬合与连接</b><p>形状面板有「咬合」「连接」两类构件。咬合类：凸榫梁、卯眼梁、穿销、卡箍、燕尾榫——榫头真的伸出去插进旁边的积木，销子真的钉穿两层；连接类：铆钉、螺钉、螺栓、卯榫、木钉、粘合胶。它们都要贴着积木放，被它们锁住的积木在"检查稳固"里不再算悬空。</p></div>
+          <div class="help-card"><b>10 · 机械零件</b><p>形状面板新增「机械」类：大齿轮、小齿轮、车轮、皮带轮、传动轴、曲轴、连杆、活塞、链条、发条、电机、凸轮，全部是金属质感。齿轮和车轮默认竖着立（跟真机器一样），按 <b>Q</b> 放倒当转盘、按 <b>R</b> 转方向；齿轮挨着放就能互相咬合。</p></div>
+          <div class="help-card"><b>11 · 装配台与传动模拟</b><p>三种方式打开装配台：① 放下带参数的零件（形状卡右上角有 ⚙）时自动弹出；② <b>右键点</b>任何零件；③ 选「装配」工具再点。装配台里能把零件放大缩小（0.4–3 倍）、按 X/Y/Z 细转 45°、按方向微移 1/4 格——像真装配工一样先把零件调好再固定。然后按右侧「▶ 运转模拟」：只要电机或曲轴的轴对准了齿轮/车轮的轴毂，齿轮咬齿轮反向变速、链条皮带同向传动、曲轴带活塞往复、齿轮推着齿条走直线，全都按真实机械关系动起来。「蒸汽机心」「齿轮齿条」两张图纸是完整示范。运转中再动积木会自动停下，Esc 也能停。</p></div>
+          <div class="help-card"><b>12 · 零件参数工坊</b><p>装配台里带 ⚙ 的零件会多出一栏「参数」，拖滑块零件立即变形、传动比跟着变，松手才算一步、可撤销：<b>齿数</b>（8–16 齿，传动比就是齿数比）、<b>链条节数</b>/<b>皮带长度</b>（占地固定，节数越多链节越密）、<b>曲柄销偏距</b>（决定活塞行程）、<b>电机转速</b>、<b>凸轮升程</b>、<b>发条圈数</b>、<b>蜗杆头数</b>（1 头减速 = 蜗轮齿数，还自锁）、<b>拨盘销距</b>与<b>槽轮槽数</b>（每转步进 360°÷槽数）、<b>棘轮齿数</b>、<b>丝杠螺距</b>、<b>压簧圈数</b>。改了齿数，中心距不合适就真的咬不上——这正是要学的机械常识。运转时会自动念出这段机构的传动解读。</p></div>
+          <div class="help-card"><b>13 · 机械零件图鉴</b><p><b>传动</b>：电机、传动轴（带键槽）、联轴器、万向节、大/小齿轮、蜗杆、齿条、皮带轮、皮带、链条、车轮。<b>机构</b>：曲轴、连杆、活塞、凸轮、拨盘+槽轮、棘轮+棘爪、丝杠+丝杠螺母、飞轮、发条、压簧。<b>零件</b>：轴承、轴承座、导轨、滑块、筋板，外加固件里的螺栓、螺母、垫圈、铆钉。照着真机器的样子做的实体件：曲轴是哑铃形曲柄臂＋平衡配重，连杆有工字梁杆身和可拆分的大端轴瓦盖，活塞带三道活塞环与活塞销；电机有散热筋、风扇罩、接线盒，链条是双层链板＋滚子＋销轴＋铆头，滚珠轴承能看见滚珠和内外圈，轴承座带剖分盖与油嘴，导轨有两条淬硬滚道、滑块有端盖与注油嘴，齿轮有辐板和键槽，蜗杆/丝杠是真螺纹，发条是盘起来的扁钢带。<b>v1.19 新添的巧妙机构件</b>：锥齿轮（锥面梯形齿，把动力拐 90°）、苏格兰轭（带通槽的轭框＋曲柄销滚子）、摇杆、肘杆、夹爪，以及中间掏空、专门给往复件让出通道的<b>龙门架</b>。<b>电机也拆成了定子和转子</b>：机身、散热筋、风扇罩、接线盒、底脚都钉在机座上不动，只有出轴、平键和轴端联轴器法兰在转。</p></div>
+          <div class="help-card"><b>14 · 机械图纸怎么读</b><p>每张机械图纸都是一台<b>完整的小机器</b>：转动的轴由<b>滚珠轴承 / 轴承座</b>托住，长轴之间用<b>联轴器</b>一节节接起来，<b>飞轮</b>靠惯性抹平转速波动，<b>筋板</b>给机架抗扭，接缝上<b>螺栓＋垫圈＋螺母</b>锁死，走直线的机构配<b>导轨＋滑块</b>。运转时<b>电机只转芯轴</b>——机身、散热筋、接线盒纹丝不动，只有出轴和轴端法兰转；<b>轴承外圈静止、飞轮与齿轮才转</b>；<b>压簧会随顶杆／棘爪／活塞的行程真实压缩再弹回</b>，不再摆着不动。机架也都给运动件留了通道：齿条的端挡挪出了直线行程，凸轮压簧机改用<b>中空龙门架</b>让顶杆上下穿过，蒸汽机心去掉了会挡住连杆回摆的飞轮。想看完整示范：⚙️ 齿轮传动、🚂 蒸汽机心、🔨 凸轮压簧机（压簧压缩）、🔀 锥齿轮换向台（动力拐 90°）、⚒ 苏格兰轭冲床（纯正弦往复＋摇杆摆动），点开图纸再按「▶ 运转」；改改里面的联轴器、轴承座或筋板，就是自己的设计了。<b>18 张机械图纸逐张复核</b>：零重叠零悬空、外观不越格、动力源与传动链真的连通、机构特征真的被解算出来、支承导向紧固成套；这一版还新增了<b>贴合度</b>（不许零件分家、不许紧固件悬在半空当摆设）、<b>整机连通性</b>（一台机器必须连成单一整体，落地却跟主体隔着空档的小零件组也算分家）与<b>运动扫掠干涉</b>（不许往复件从别的零件身体里穿过去）三层检查。全 44 张图纸逐张渲染目检后，残留的分家零件组也都接回了机架。目前 18 张全部零提示、平均 100 分，没有一件摆着不转也不动的装饰件。压簧两端还装了<b>带导杆孔的弹簧压盖</b>，压缩时上盖留在机架、下盖跟着顶杆走；凸轮压簧机伸在机架外的那截输出轴也收进了轴承里，整机不再拖一条尾巴。这一版连<b>取景也收紧了</b>：镜头按包围盒自适应，44 张平均屏幕占用 0.91、零裁切，俯视／正视／环绕和挑战模式同样跟着模型尺寸走。<b>v1.20 起按装配图的标准检查配合</b>：所有装在轴上的轮件都有真实通孔（辐板轮、皮带轮、车轮以前是实心饼，只用一个圆环假装"看起来有孔"），电机出轴、平键、挡圈统一在一个比孔径更细的配合尺寸里，端盖、风扇罩、轮毂凸台都收进自己的占位格，相邻两件只贴合、不互相嵌进去。检查方式也从"数格子"升级成<b>真实三角网格的射线干涉检查</b>：把配合对的表面点投到对方实体里做奇偶测试，整套动力源转一圈取 8 个相位逐一验证，运动件扫掠则按 24 个姿态算包络。现在 18 张机械图纸在整周期里<b>零真实穿模</b>，效果向 SolidWorks 装配体靠拢。</p></div>
+          <div class="help-card"><b>15 · 巧妙机构对照（借鉴「机械原理馆」）</b><p>同站「玩具工坊 → 机械原理馆」里收了 40 个经典机构，这一版先借来四套<b>工程做法</b>：① <b>自动配孔</b>——细销轴穿过粗圆柱时，自动给圆柱和挤出轮廓挖出带间隙的孔；② <b>销轴让位</b>——销只待在自己零件这一段，不从别人身体里穿过去；③ <b>运动包络审计</b>——动力源转一整圈，逐姿态查运动件有没有侵入静止件；④ <b>轴瓦安全收拢</b>——轴承与轴肩只摆在零件背面的空隙里。落到破境积木，就是统一孔轴配合、轮毂真通孔、槽轮拨销收短、以及两套常驻干涉审计。<br><b>已经有对应图纸/零件的机构</b>：曲柄滑块、曲柄摇杆、苏格兰轭、凸轮顶杆、槽轮间歇、棘轮棘爪、外啮合齿轮对、齿轮齿条、蜗轮蜗杆（自锁）、锥齿轮换向、皮带与链传动、丝杠螺母、万向节、飞轮蓄能、肘杆与夹爪、卷扬滑轮组。<br><b>下一轮可以扩展的</b>：行星齿轮与差速器、谐波减速、不完全齿轮、凸轮分度、超越离合器、离心调速器、剪式升降、牛头刨六杆、平行四连杆。想先加哪一组，在装配台里把齿数／销距／升程调一调，就能先验证它的运动关系。</p></div>
+          <div class="help-card"><b>16 · 全组合装配审计与连接件</b><p>上一版的干涉检查只盯着「设计上应该接触的那一对零件」，结果放过了运动件跟旁边机架、车轮、导轨打架。这一版改成<b>所有零件两两都要查</b>，连电机里那根会自转的转子也单独算一件，动力源转一整圈取 8 个相位逐一验证；压簧顶在从动件端面上那种只有两三个采样点、深度不到 0.05 格的贴面接触，按工程容差放行，不算穿模。这样抓出来并修掉的典型问题：电机转子斜插车轮、连杆回摆扫进导轨、压簧压缩啃进螺母、实心机架梁挡在出轴正前方。<br><b>形状库新增 4 件</b>：跨接轴／长跨接轴（细光轴＋两端带孔轴承座，轴心高度可按被连接件对齐）、轴套（带配合孔的隔套）、机座支柱（顶端 U 形槽抱住细轴）。它们专门用来填「逻辑上连着、实体上断开」的那段空档——真机器里轴是一节节用轴承座和联轴器接起来的，不会隔空传动力。<br><b>新图纸</b>：⚙️ 双级减速箱与 🔀 锥齿轮分动台，都从零按紧密装配排布，20 张机械图纸逐张 100 分。<b>仍要如实说明</b>：历史图纸里还留着一些 0.3~3 格的实体缝隙，根因是积木用整数占位格摆位、而传动解算容许同轴件隔 2~3 格耦合；占位格本身是零重叠零分家的，但离 SolidWorks 那种端面严丝合缝还有距离。要彻底消掉，需要给图纸引入小数坐标的装配层并同步改造建造系统，这是下一轮的事。</p></div>
+          <div class="help-card"><b>17 · 亚格装配层与机座平台</b><p>这一版解决的是上一版留下的那句话：「离 SolidWorks 那种端面严丝合缝还有距离」。现在每件积木除了整数占位格，还能带一组 <b>ox/oy/oz 小数微调</b>——占位格、支撑判定、六邻贴合仍按整数格算（所以搭好的 44 张图纸一张没动），但实体可以精细对齐；传动旋转中心会跟着一起挪，轮子转起来不会偏心。<br>微调量不是拍脑袋定的，是<b>离线收敛器</b>算出来的：先把传动边分成「齿轮啮合」（中心距是传动比依据，不许拉近）和「同轴耦合」（该由一根轴串起来，端面要贴住）两类，只沿轴线做坐标下降；每走一步都校验传动解算的结果逐字节不变，收敛完再用真实几何全组合扫描验一遍，只要发现新的穿模就把相关零件的偏移减半回退。20 张机械图纸的<b>轴向同轴间隙从 3.53 格收到 1.14 格</b>，12 张图纸共 38 件参与微调，最大只挪 0.25 格——所以画面变化不夸张，但装配关系确实紧了。<br>要让变化<b>看得见</b>，还得靠新形状：<b>机座平台</b>是一块带 T 槽凸棱和四角沉头安装孔的连续底座。槽轮步进整图用它重排过：以前机构直接坐地上、只垫三块散板，俯视图一大片空白；现在四块平台铺满，整组机构整体坐上去，每个零件脚下都有实体。相对位置一毫不改，槽轮步进数学和传动契约都没动。<br>三套审计（全组合 / 配合对 / 收敛器）现在共用同一判据，配合审计也加了包围盒早停，8 相位全周期从 5 分钟降到 5 秒。<b>仍要如实说明</b>：还有 17 处结构断口，是传动解算认定同轴、实体却隔 2 格甚至错层的历史布局，亚格偏移补不上，得在中间插一根真轴并给底板让出轴通道，留到下一轮。</p></div>
+          <div class="help-card"><b>18 · 稳定性与可用性（v1.25）</b><p>这一版把「点开没反应」这类最伤人的故障当成发布红线来治。<b>先是找到了真正的病根</b>：机械图纸的零件没有自带编号，建造系统会给它们自动编上数字，而桥接轴那一步却按字符串去判断零件类型，数字没有这个方法，载入就在半路抛错——面板不关、镜头不动，看起来就是"点了没反应"。改掉之后 46 张图纸在浏览器里逐张点过，46/46 都能正常进入。<b>顺带发现穿轴一直没画出来</b>：同一个异常让"每个转动件都骑在轴上"这个效果从未真正生效，修复后齿轮传动 14 根、丝杠升降台 9 根、双级减速箱 9 根轴都实实在在出现了。<br><b>再加三道保险</b>：① 全局错误兜底——任何未捕获异常都会给一句人话提示并写进控制台，不再静默失败；启动失败不再是白屏，而是可读原因＋重新加载按钮。② 图纸数据自检——启动时把 46 张图纸整份体检（形状、颜色、坐标、占格冲突、取景参数），有问题的图纸标「暂不可用」，不让人点进空场；逐张载入失败还会回滚清场。③ 保存不再谎报——写不进浏览器存储时如实说明，而不是提示"已保存"下次却找不到。<br><b>可用性细节</b>：界面上的数量文案（形状/颜色/图纸/关卡）改成由数据现算，修掉写着「59 种形状」「44 张图纸」的过期文案；图纸卡片可以用 Tab 聚焦、回车打开，工具栏与色板补上读屏可识别的选中状态；补了无脚本降级页与分享信息；触屏设备像素比封顶 1.5×，中低端手机不再被 3 倍像素拖到掉帧。</p></div>
+          <div class="help-card"><b>19 · 装配精度（v1.26）</b><p>这一版按你指出的六处缺陷逐个改到根上。<b>带孔积木</b>：形状面板新增「带孔」一类（带孔砖／带孔梁／带孔大块／带孔长板／带孔大板／带孔方块），每一格都是<b>真通孔</b>，螺杆能真正穿过去，孔口带沉台让螺栓头与垫圈坐平；46 张图纸里坐在实心板面上的 25 处紧固件，宿主都换成了带孔板，机座平台四角的安装孔也从"盲沉头"改成通孔。<b>接缝收紧</b>：圆角倒角 0.018、格间留缝 0.006、接缝暗线 0.004——相邻积木拼在一起只剩一条细线分割，不再有空距造成的悬空感，鲁班锁、齿轮钟这类贴合场景逐张出图核对过。<b>芯轴与斜插</b>：轮件的通孔半径统一到配合尺寸，偏细的芯轴加粗，轴孔配合强制同心，斜插的轴逐根挑出来重排（齿轮钟的飞轮芯轴就在其中）。<b>运动件不许插进实体</b>：活塞改成顶部实心＋开口裙部、直径放大到 0.85 倍、活塞销改沿销轴方向，曲轴改成真单拐、中段留空给连杆大头让位，连杆小头伸进活塞内腔——连杆孔心偏差降到 0.000 格。<b>看得见的交互</b>：图纸页点开哪张哪张保持高亮，搭建页顶部一直显示这张图纸的名字；选择光标点到哪个零件，就报出它的名称。</p></div>
+          <div class="help-card"><b>20 · 行程、紧固与轴心（v1.27）</b><p>这一版专治四类"看着在动、其实不合理"的毛病。<b>直线件必须有行程</b>：齿条以前会一路滑出机架再也不回来——传动解算只算了"每秒走多远"，没算"能走多远"。现在齿条受两端挡块限制、丝杠螺母只走有效螺纹，走到头就换向，齿条实测往返 1.94 格。<b>紧固件不许当摆设</b>：46 张图纸里 19 处螺母／垫圈孤零零贴在板面上、既没有螺栓穿过也不压零件，全部删除；「螺栓」形状本身补成一整副（螺杆自带垫圈、顶端带螺母），图纸不必再单独摆一遍。<b>转动件必须骑在轴心上</b>：拨盘、联轴器、曲轴以前按"底面贴地"落格，转轴落在格子下沿，看着像悬空自转。现在转动件把自己的轴心送到格子中心——注意不同零件的建模基准不一样（齿轮／曲轴／拨盘绕原点造，联轴器／万向节按层板中线造），对中量各按各的算，否则整件会浮起半格。<b>连杆不许穿实体</b>：蒸汽机心的大头会切进曲柄臂，原因是配重顶面太高、曲柄销太粗、以及传动层硬算销方向（图纸把曲轴转倒后销的实际朝向变了，大头圆心错开 0.42 格）。三处一起改：配重下移、销径收到 0.72 倍主轴半径、<b>销点由几何烘焙导出</b>。三角面检查从 177 处降到 8 处，且都是销与轴瓦的正常擦面。</p></div>
+          <div class="help-card"><b>21 · 曲轴、搜索与自定义形状（v1.28.1）</b><p>这一版按你指出的四点逐个落地。<b>曲轴长得不对</b>：以前的曲柄臂是"2D 轮廓挤出后绕 Z 轴转 90°"，挤出方向没跟着转，两片臂就成了<b>平行于轴线的鳍片</b>——从侧面看整根曲轴只是一根直杆加两个小凸台，连杆摆过去就像从杆子里穿过。现在臂面法线沿轴（<code>rotateY</code>），轮廓取"绕主轴的大圆头＋绕销的小圆头＋等宽腰板＋对侧配重圆头"的二维凸包，一次挤出成<b>单壳梨形锻件</b>：两端轴颈、中间两片偏心臂、销穿在两臂之间，任何角度都是标准单拐曲轴。配套把三处"看着没事、转起来咬住"的贴面也改了——曲柄销收到 0.140（轴瓦内径 0.169）、剖分盖顶面停在轴瓦外圆、杆身起点退到轴瓦外圈，三角面级穿模从 259 处降到 0。<br><b>形状能搜了</b>：形状栏顶上加了搜索框，名称／分类／别名／内部 id 一起匹配，输入即过滤、120ms 防抖，<code>/</code> 或 <code>Ctrl+K</code> 聚焦、<code>Esc</code> 清空，没结果给提示而不是留白。<br><b>又添 9 种机械零件</b>（96 → 105）：蜗轮、链轮、双联齿轮、法兰、花键轴、曲柄盘、偏心轮、气缸、阀——喉部凹弧、齿槽减重孔、螺栓孔圈、外花键都按真零件比例造，偏心轮还会把销点交给传动层，直接就能带连杆。<br><b>自己拼形状</b>：它与内置件<b>完全同构</b>（占格、吸附、重力、进图纸进存档都一样），归到「我的」分类；做法见下文（v1.28.1 已改在主平台多选，不再另开工作台）。<br><b>可运动图纸复审</b>：20 张机械图纸逐张复核可视与运动，曲轴所在的 4 张（齿轮传动／卷扬机／蒸汽机心／苏格兰轭冲床）对着多相位渲染图逐件核过姿态，行程越界 0、悬空 0、8 相位与 24 姿态扫掠均零穿模。<br><b>那根银灰圆杆的真身</b>：不是曲轴有两种颜色，是传动层自动补的<b>桥接轴</b>——它半径 0.176，比曲轴主轴颈 0.16 还粗，把整根曲轴包了起来。现在自带轴颈的零件不再外挂穿轴（旧判断取的是 <code>def.shapeId</code>，而 def 根本不是零件对象，这条规则一直没生效），凡是要穿过曲轴本体的轴一律修剪到端面之外，主轴颈同时加粗到 0.189——比任何外挂轴都粗，剩下的轴全藏在里面。<br><b>自定义形状改在主平台做</b>：那个 6×6×6 的独立工作台去掉了。现在就在搭建台上搭，点形状栏末尾「＋ 存为形状」，点积木挑零件（再点取消，也有「全选」），起名即存；<b>颜色一起记住</b>——绿地基红墙蓝顶的小房子存成一块积木，拖出来还是那个配色，上限 512 格，齿轮这类曲面件没法用格子表达外形会被明确挡下。</p></div>
+          <div class="help-card"><b>22 · 装饰件：给作品加风景（v1.29.0）</b><p>形状面板多了「装饰」一类（123 种里的 18 种），专门用来给搭好的东西配环境——小屋门口摆一条长凳，院子角落栽两棵树，篱笆边蹲一只兔子，天上飞一只蝴蝶。<br><b>它们和水彩贴纸一样会转身看你</b>：装饰件没有实体网格，是一张<b>始终正面朝向相机的图片</b>（billboard）。所以从任何角度转镜头，鹿都正对着你，不会像一块薄板那样侧过来变成一条线。<br><b>怎么放</b>：和普通积木一样点一下就放，占 1 格；<b>不承重、也不被判定为悬空</b>——你可以把蝴蝶摆在半空、把路灯立在房顶，检查稳固时它们不参与，也不会连累旁边的结构。想要更自然，就按 <b>Q / R</b> 转方向、用方向键微调位置，把树贴着屋子放能遮住积木的直角。<br><b>为什么是这些图片</b>：动物八件（鹿、狐狸、兔、松鼠、刺猬、猫头鹰、蝴蝶、蜜蜂）取自站内 forest 图库的现成水彩插画；布景十件（大树、松树、灌木、花丛、蘑菇、石头、长凳、路灯、路牌、栅栏）是照同一支水彩笔的风格新画的，白底抠净、边缘带一点点纸的毛边，压缩后每张 20~110KB，整包不到 1MB，加载不拖慢搭建台。<br><b>搜索</b>：名字里没有但该搜得到的词也做了别名——搜「树」「篱笆」「长椅」「公园」都能翻出来。</p></div>
+        </div>
+      </div>
+
+      <!-- 快捷键 -->
+      <div class="help-sec hidden" data-h="keys">
+        <div class="keys-table" id="keysTable"></div>
+        <p class="help-note">提示：按住 <b>Shift</b> 再按旋转键，就是反方向转，转过头了不用连按三下。</p>
+      </div>
+
+      <!-- 常见问题 -->
+      <div class="help-sec hidden" data-h="faq">
+        <div class="faq-list" id="faqList"></div>
+      </div>
+
+      <!-- 给家长 -->
+      <div class="help-sec hidden" data-h="parent">
+        <div class="parent-grid">
+          <div class="help-card">
+            <b>🎯 适合年龄</b>
+            <p>5–12 岁。5–7 岁的孩子建议先从"图纸"里挑一个模型，和他一起拆开、装回去；8 岁以上可以让他直接挑战关卡。</p>
+          </div>
+          <div class="help-card">
+            <b>🧠 锻炼什么</b>
+            <p>空间想象（在脑子里转动积木）、手眼协调（对准格子）、规划能力（先搭哪块后搭哪块）、数数与分类（零件清单可以数各种形状用了多少）。</p>
+          </div>
+          <div class="help-card">
+            <b>⏱️ 时长建议</b>
+            <p>建议单次 20–30 分钟。游戏本身没有强制时限，也不会诱导连续游玩，家长可以和孩子约定好收尾时间。</p>
+          </div>
+          <div class="help-card">
+            <b>🔒 安全与隐私</b>
+            <p>游戏完全离线运行、不联网、无广告、无内购、不需要账号，也不收集任何个人信息。作品只存在本机浏览器里。</p>
+          </div>
+          <div class="help-card">
+            <b>👀 陪伴建议</b>
+            <p>孩子卡住时，别急着给答案，可以问"这块转一下会怎样？""如果先搭底座呢？"。达成成就或通关时，让他讲讲自己是怎么搭出来的，收获最大。</p>
+          </div>
+          <div class="help-card">
+            <b>💾 防止作品丢失</b>
+            <p>清理浏览器数据、换设备或换浏览器都会让本地作品消失。孩子在意的作品，请在"作品"页点「导出」保存成文件。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="ach-title">🏅 建筑师成就</h3>
+    <div class="ach-grid" id="achGrid"></div>
+    <div class="fp-foot">
+      <button class="ghost-btn" id="btnReplayTut">📖 重看新手引导</button>
+      <button class="ghost-btn" id="btnHelpAbout">ℹ️ 关于与许可</button>
+      <button class="ghost-btn" id="btnCloseHelp">知道了</button>
+    </div>
+  </section>
+
+  <!-- 关于面板：版本 / 隐私 / 许可 / 更新日志 -->
+  <section id="aboutPanel" class="full-panel hidden" role="region" aria-label="关于与许可">
+    <div class="fp-head">
+      <h2>关于 破境积木</h2>
+      <p>一款给孩子玩的 3D 积木搭建游戏：靠旋转和堆叠，把方块变成想象中的东西。</p>
+    </div>
+    <div class="about-grid">
+      <div class="about-card">
+        <h4>📦 版本</h4>
+        <p class="about-ver" id="aboutVer">v1.32.0</p>
+        <p class="about-dim">发布日期 <span id="aboutDate">2026-11-11</span> · 单文件网页版，双击即可游玩</p>
+        <ul class="about-list">
+          <li><span id="aboutShapeCount">123</span> 种积木形状（含带孔砖、楔形拱石、月洞环、榫卯咬合件、齿轮、车轮、曲轴、发条、电机……）· <span id="aboutColorCount">12</span> 种颜色</li>
+          <li><span id="aboutModelCount">46</span> 张图纸（简单 → 宗师五档）· <span id="aboutLevelCount">8</span> 个挑战关卡 · 双人比拼</li>
+          <li>三轴旋转（俯仰 / 转向 / 摇摆）</li>
+        </ul>
+      </div>
+
+      <div class="about-card">
+        <h4>🔒 隐私说明</h4>
+        <p class="about-lead">这个游戏<b>完全离线运行，不联网、不收集任何信息</b>。</p>
+        <ul class="about-list">
+          <li>没有账号、没有登录，也不会记录你是谁</li>
+          <li>没有统计代码、没有广告、没有第三方追踪</li>
+          <li>作品、成就、设置全部保存在<b>本机浏览器</b>里，不会上传到任何服务器</li>
+          <li>清除浏览器数据会一并清掉这些内容，重要作品请先「导出」</li>
+        </ul>
+        <p class="about-dim">因此本应用无需向儿童收集个人信息，家长可放心让孩子单独使用。</p>
+      </div>
+
+      <div class="about-card">
+        <h4>⚖️ 开源许可</h4>
+        <p>本游戏的 3D 渲染基于 <b>three.js</b>（MIT 许可）：</p>
+        <pre class="about-license">Copyright © 2010-2025 three.js authors
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.</pre>
+        <p class="about-dim">three.js 项目主页：<span class="mono">github.com/mrdoob/three.js</span></p>
+      </div>
+
+      <div class="about-card">
+        <h4>🧱 积木说明</h4>
+        <p>游戏中的积木是原创的几何造型，采用通用格子（1×1×1）体系自行设计，<b>并非任何实体积木品牌的官方产品</b>，也不隶属于、不获授权于任何积木厂商。</p>
+        <p class="about-dim">音效由 Web Audio 实时合成，语音使用设备内置的朗读引擎，均不含第三方素材。</p>
+      </div>
+
+      <div class="about-card wide">
+        <h4>📋 更新日志</h4>
+        <div class="changelog" id="changelog"></div>
+      </div>
+    </div>
+    <div class="fp-foot">
+      <button class="ghost-btn" id="btnAboutTut">📖 重看新手引导</button>
+      <button class="ghost-btn" id="btnAboutClose">返回搭建</button>
+    </div>
+  </section>
+
+  <!-- 关卡选择面板 -->
+  <section id="levelPanel" class="full-panel hidden" role="region" aria-label="关卡挑战">
+    <div class="fp-head">
+      <h2>关卡挑战</h2>
+      <p>看图纸、记住样子，再用有限的积木把它还原出来。相似度越高，星星越多。</p>
+    </div>
+    <div id="levelList" class="lv-list"></div>
+    <div class="fp-foot">
+      <button class="ghost-btn" id="btnLvClose">返回</button>
+    </div>
+  </section>
+
+  <!-- 结算弹窗 -->
+  <div id="resultModal" class="modal hidden">
+    <div class="modal-card">
+      <div class="rs-stars" id="rsStars"><i></i><i></i><i></i></div>
+      <h2 id="rsTitle">搭得真像！</h2>
+      <p id="rsDesc">和图纸的相似度是 82%</p>
+      <div class="rs-bars">
+        <div class="rs-bar"><span>形状位置</span><div><i id="rsCover"></i></div><b id="rsCoverTxt">0%</b></div>
+        <div class="rs-bar"><span>颜色搭配</span><div><i id="rsColor"></i></div><b id="rsColorTxt">0%</b></div>
+        <div class="rs-bar"><span>整洁程度</span><div><i id="rsClean"></i></div><b id="rsCleanTxt">0%</b></div>
+      </div>
+      <div class="rs-actions">
+        <button class="rs-btn primary" id="rsNext">下一关</button>
+        <button class="rs-btn" id="rsRetry">再来一次</button>
+        <button class="rs-btn" id="rsExit">离开</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 通用信息弹窗：零件清单 / 稳固检查等 -->
+  <div id="infoModal" class="modal hidden">
+    <div class="modal-card info-card">
+      <h2 id="infoTitle">零件清单</h2>
+      <p id="infoDesc" class="info-desc"></p>
+      <div id="infoBody" class="info-body"></div>
+      <div class="rs-actions">
+        <button class="rs-btn primary" id="infoClose">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新手引导 -->
+  <div id="tutorial" class="tutorial hidden">
+    <div class="tut-card">
+      <div class="tut-step" id="tutStep">1 / 3</div>
+      <div class="tut-icon" id="tutIcon">👆</div>
+      <h3 id="tutTitle">先挑一块积木</h3>
+      <p id="tutText">左边一排是积木形状，下面一排是颜色，点一下就选好了。</p>
+      <div class="tut-dots" id="tutDots"><i class="on"></i><i></i><i></i></div>
+      <div class="tut-actions">
+        <button class="tut-btn" id="tutSkip">跳过</button>
+        <button class="tut-btn primary" id="tutNext">下一步</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WebGL 不可用提示 -->
+  <div id="noWebGL" class="nowebgl hidden">
+    <div class="nowebgl-card">
+      <div style="font-size:38px">🧱</div>
+      <h2>浏览器需要开启 3D 功能</h2>
+      <p>这个游戏要用到 WebGL（网页 3D 绘图）。当前浏览器没能启动它，请试试：</p>
+      <ul>
+        <li>换用最新版 Chrome / Edge / Safari 打开</li>
+        <li>在浏览器设置里开启「硬件加速」后重启浏览器</li>
+        <li>如果是远程桌面或虚拟机，试着在本地电脑上打开</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="loading"><div class="spinner"></div><span>正在准备积木…</span></div>
+</div>
+
+<!-- 形状悬停放大预览：必须在 aside 之外（aside 是 overflow:auto，会把浮出面板的卡片裁掉），
+     并且必须在 game.js 之前——game.js 会同步执行 init() 去绑定 hover 事件。 -->
+<div id="shapePreview" hidden>
+  <canvas width="264" height="264"></canvas>
+  <img alt="" draggable="false">
+  <div class="sp-name"></div>
+</div>
+
+<!-- 装饰贴图内联：file:// 直开时 WebGL 纹理上传被 CORS 拦截，运行时加载的贴图放上台是空白的，
+     所以 18 张装饰图在这里以 dataURL 预注入，decoTexture 优先取用（见 geom.js）。 -->
+<script src="assets/deco/sprites.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
