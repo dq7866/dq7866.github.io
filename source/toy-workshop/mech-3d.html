@@ -2766,7 +2766,7 @@ return {PA,mat,buildGroup,buildGhost,WHEEL,GEAR,SPOKES,RADIAL};
 __REG["models"] = (function(){
 'use strict';
 /* ============================================================
- * models.js — 15 件玩具的三维模型与拆装顺序
+ * models.js — 24 件玩具的三维模型与拆装顺序
  *
  * 坐标：Y 轴向上，单位约等于「10 厘米」，物体底部落在 y = 0
  * 每个零件：
@@ -9694,7 +9694,7 @@ const MECH_GROUPS = [
   { id: 'timing', name: '击发时序', color: PA.metalD, desc: '只讲抽象的闭锁、待发与释放时序，不涉及外观' }
 ];
 
-/* 38 件总清单，done 表示已上线 */
+/* 43 件总清单，done 表示已上线 */
 const MECH_PLAN = [
   { group: 'linkage', items: [
     { id: 'crankRocker', name: '曲柄摇杆机构', done: true },
@@ -10092,7 +10092,7 @@ return {MECH_GROUPS,MECH_PLAN,MECHS,MECH_ORDER};
 'use strict';
 /* ============================================================
  * mech-hall.js — 机械原理馆 · 清单页
- *   分组展示 38 件机构；已上线的出卡片，缩略图按需渲染
+ *   分组展示 43 件机构；已上线的出卡片，缩略图按需渲染
  * ============================================================ */
 const { MECH_PLAN, MECH_GROUPS, MECHS } = __mod("./mech-models.js");
 const { ThumbRenderer } = __mod("./engine.js");

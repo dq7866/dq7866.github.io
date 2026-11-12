@@ -3832,7 +3832,7 @@ export const MECH_GROUPS = [
   { id: 'timing', name: '击发时序', color: PA.metalD, desc: '只讲抽象的闭锁、待发与释放时序，不涉及外观' }
 ];
 
-/* 38 件总清单，done 表示已上线 */
+/* 43 件总清单，done 表示已上线 */
 export const MECH_PLAN = [
   { group: 'linkage', items: [
     { id: 'crankRocker', name: '曲柄摇杆机构', done: true },
