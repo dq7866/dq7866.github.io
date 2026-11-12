@@ -78,6 +78,8 @@ const RULES = `# 由 build-scripts/gen-headers.js 生成，请勿手改
   Cache-Control: public, max-age=3600
 /qiaosan/*.css
   Cache-Control: public, max-age=3600
+/qiaosan/assets/*
+  Cache-Control: public, max-age=2592000
 
 # ---- forest 音频与视频：内容不变，给 1 年（604MB 的主要包袱）----
 /forest/assets/audio/*
