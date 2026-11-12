@@ -7,6 +7,7 @@
     python tools/build_single.py
 """
 import pathlib
+import base64
 import re
 import sys
 
@@ -41,6 +42,17 @@ for name in scripts:
         '<script src="%s"></script>' % name,
         "<script>\n" + code + "\n</script>",
     )
+
+# 图鉴素材内联成 data URI（单文件也能离线看图鉴）
+inlined = [0]
+def _inline_asset(m):
+    q = SRC / m.group(1)
+    if not q.exists():
+        return m.group(0)
+    b64 = base64.b64encode(q.read_bytes()).decode("ascii")
+    inlined[0] += 1
+    return chr(34) + "data:image/webp;base64," + b64 + chr(34)
+html = re.sub(r'"(assets/gallery/[a-z0-9-]+\.webp)"', _inline_asset, html)
 
 OUT.write_text(html, encoding="utf-8")
 print(f"[完成] {OUT}")

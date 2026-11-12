@@ -408,3 +408,22 @@
   .rkName{color:rgba(243,240,255,.62)}
   .rkDim{font-style:normal;font-size:10px;color:rgba(243,240,255,.32)}
   .rkEmpty em{display:block;margin-top:6px}
+
+  /* ---------- 情绪天气 chip ---------- */
+  #moodChip{position:fixed;left:50%;top:calc(126px + env(safe-area-inset-top));transform:translate(-50%,-6px);
+    z-index:7;display:none;align-items:center;gap:8px;padding:6px 12px 6px 10px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.11);background:rgba(10,8,22,.44);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    font-size:11px;letter-spacing:.08em;color:rgba(243,240,255,.7);
+    opacity:0;transition:opacity .4s,transform .4s,background .6s}
+  #moodChip.on{display:flex;opacity:1;transform:translate(-50%,0)}
+  #moodChip span{font-size:13px;line-height:1}
+  #moodChip b{font-weight:500;font-size:11px;letter-spacing:.14em}
+  #moodChip i{display:block;width:56px;height:3px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden}
+  #moodChip i s{display:block;width:0;height:100%;border-radius:2px;background:linear-gradient(90deg,#8ef0e8,#ffe6a8,#ff7a94);transition:width .3s}
+  #moodChip[data-w="3"]{border-color:rgba(150,190,255,.4);background:rgba(16,24,46,.6)}
+  #moodChip[data-w="3"] b{color:#cfe1ff}
+  @media (max-width:560px){
+    #moodChip{top:calc(120px + env(safe-area-inset-top));font-size:10px;padding:5px 10px}
+    #moodChip i{width:42px}
+  }

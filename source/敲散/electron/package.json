@@ -1,7 +1,7 @@
 {
   "name": "qiaosan",
-  "version": "3.1.0",
-  "description": "敲散 · 解压气泡 —— 通勤解压小游戏（桌面版 v3.1）",
+  "version": "3.2.0",
+  "description": "敲散 · 解压气泡 —— 通勤解压小游戏（桌面版 v3.2）",
   "main": "main.js",
   "scripts": {
     "start": "electron .",

@@ -35,6 +35,8 @@
 <div id="levelBanner"></div>
 <div id="burstBanner"></div>
 
+<div id="moodChip" data-w="0"><span id="moodIco">🌤️</span><b id="moodName">晴朗</b><i><s id="moodBarS"></s></i></div>
+
 <div id="combo"></div>
 <div id="dots"></div>
 <div id="hint"><em></em><span>敲碎它们</span></div>
@@ -122,6 +124,8 @@
       <button data-v="bugs">打虫子</button>
       <button data-v="patterns">小人·动植物</button>
       <button data-v="faces">臭脸</button>
+      <button data-v="pals">森林伙伴</button>
+      <button data-v="items">万物图鉴</button>
       <button data-v="diy">自定义文字</button>
       <button data-v="pics">照片贴图</button>
     </div>
@@ -166,6 +170,14 @@
       <button data-v="chill">悠闲</button>
       <button data-v="normal" class="on">标准</button>
       <button data-v="frenzy">狂潮</button>
+    </div>
+  </div>
+
+  <div class="p-sec">
+    <div class="p-label">情绪天气<small>根据敲击节奏与漏怪：晴朗 → 阴云 → 落雨 → 雷暴，带环境音与闪电</small></div>
+    <div class="seg" id="segWx">
+      <button data-v="1" class="on">开</button>
+      <button data-v="0">关</button>
     </div>
   </div>
 
@@ -322,6 +334,7 @@
     <p class="mcLead">把烦心事做成气泡，敲碎它。两三下、几声脆响、一点点震动——不需要理由，也不需要登录。</p>
     <h3>版本 3.2</h3>
     <ul class="mcList mcLog">
+      <li><b>v3.2</b> 新增「图鉴」气泡：森林伙伴（狐狸/兔子/小鹿/猫头鹰/刺猬/松鼠/蜜蜂/蝴蝶）与万物图鉴（苹果/蛋糕/气球/小汽车/胡萝卜/篮球/蘑菇/浆果/星星/宝石/磁铁/盾牌），共 20 张透明水彩素材；新增「情绪天气」：根据敲击节奏与漏怪在晴朗/阴云/落雨/雷暴之间变化，带雨声、风声、雷声与闪电。</li>
       <li><b>v3.2</b> 新增「全球榜」：可选开启云榜单，结算时把昵称与成绩上传到本站接口（每档难度前 20 名）；默认关闭，关闭时仍然零网络请求。</li>
       <li><b>v3.1</b> 新增「烦恼雨」无尽模式：烦恼从顶部落下，按破损数 / 爆裂数计分，三档难度配三套动态背景，每 12 个升一层，支持本机排行榜与战绩卡。</li>
       <li><b>v3.0</b> 形状系统（圆形/圆角/六边/星形/心形/无形状）、大小差异、飞入·飘入·落入·弹出入场动画、碎裂·炸裂·烟雾三种破裂效果；设置面板固定宽度；新增本地多档案、PIN 隐私锁、帮助与关于页面。</li>
@@ -351,6 +364,7 @@
 <div id="toast"></div>
 
 <script src="profile.js"></script>
+<script src="gallery.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

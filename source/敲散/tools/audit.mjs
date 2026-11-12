@@ -18,7 +18,7 @@ const out = [];
 const ok = (name, cond, detail = '') => out.push({ name, pass: !!cond, detail });
 
 /* 1. 结构 */
-const files = ['src/index.html', 'src/styles.css', 'src/app.js', 'src/profile.js', 'QiaoSan.html', 'README.md'];
+const files = ['src/index.html', 'src/styles.css', 'src/app.js', 'src/profile.js', 'src/gallery.js', 'QiaoSan.html', 'README.md'];
 files.forEach(f => ok('文件存在：' + f, exists(f)));
 
 const html = read('src/index.html');
@@ -39,7 +39,8 @@ for (const [name, code] of [['app.js', app], ['profile.js', profile]]) {
 /* 3. 离线与依赖 */
 ok('单文件无外部 script', !/<script\s+src=/i.test(single));
 ok('单文件无外部样式', !/<link[^>]+stylesheet/i.test(single));
-ok('源码无 fetch/XHR', !/\bfetch\s*\(|XMLHttpRequest/.test(app + profile));
+ok('源码仅云榜一个网络出口', /fetch\('\/api\/rank/.test(app) && !/fetch\(\s*['"`]https?:/.test(app));
+ok('档案模块零网络', !/\bfetch\s*\(|XMLHttpRequest/.test(profile));
 ok('源码无 http(s) 资源引用', !/https?:\/\/[^\s"']+\.(js|css|png|jpg|webp)/.test(app + profile + html));
 
 /* 4. CSS 与版式 */
@@ -88,6 +89,22 @@ ok('排行榜按分数降序', app.includes('(Number(b.score)||0) - (Number(a.sc
 ok('面板打开时暂停', app.includes('function isPaused()') && app.includes('isPaused()'));
 ok('雨局中不允许改模式', app.includes('本局结束后再切换模式'));
 
+/* 5.6 图鉴与情绪天气 */
+ok('图鉴清单脚本', exists('src/gallery.js') && read('src/gallery.js').includes('QS_GALLERY'));
+ok('图鉴两套素材', read('src/gallery.js').includes("pals:") && read('src/gallery.js').includes("items:"));
+ok('图鉴素材 20 张', (read('src/gallery.js').match(/assets\/gallery\//g) || []).length === 20);
+ok('图鉴图片均存在', (read('src/gallery.js').match(/assets\/gallery\/[a-z0-9-]+\.webp/g) || []).every(p => exists('src/' + p)));
+ok('图鉴主题可选', html.includes('data-v="pals"') && html.includes('data-v="items"'));
+ok('图鉴按形状裁剪', app.includes("b.kind === 'image' || b.kind === 'gallery'"));
+ok('情绪天气四阶', ['晴朗', '阴云', '落雨', '雷暴'].every(w => app.includes(w)));
+ok('天气由点击节奏驱动', app.includes('function noteTap()') && app.includes('R.taps.length / 5'));
+ok('漏怪推高情绪', app.includes('function noteMiss()') && app.includes('R.missHeat'));
+ok('闪电与雨滴', app.includes('function strikeLightning()') && app.includes('R.drops.push'));
+ok('天气环境音与雷声', app.includes('ambient(level)') && app.includes('thunder(delay)'));
+ok('天气开关', html.includes('id="segWx"') && app.includes("bindSeg('#segWx'"));
+ok('天气 HUD', html.includes('id="moodChip"') && html.includes('id="moodBarS"'));
+ok('云榜与前次改动完整', app.includes('function cloudLoad(') && html.includes('id="segCloud"') && read('src/index.html').includes('v3.2'));
+
 /* 6. 用户体系 */
 ok('档案注册表键', profile.includes("qs.accounts.v1") && profile.includes("qs.current"));
 ok('档案命名空间', profile.includes("'qs.u'"));
@@ -110,14 +127,15 @@ ok('保存失败提示', app.includes('__QS_ON_SAVE_ERROR'));
 ok('单文件包含 profile 逻辑', single.includes('qs.accounts.v1'));
 ok('单文件包含形状逻辑', single.includes("shape === 'heart'"));
 ok('单文件包含烦恼雨逻辑', single.includes('function spawnRain') && single.includes('makeRainCard'));
+ok('单文件内联图鉴', (single.match(/data:image\/webp;base64,/g) || []).length >= 20);
 ok('单文件体积 > 100KB', single.length > 100000, (single.length / 1024).toFixed(1) + ' KB');
 ok('单文件无未内联的 src 引用', !single.includes('src="app.js"'));
 
 /* 9. 版本一致 */
-ok('页面版本 3.1', html.includes('敲散 v3.1'));
-ok('关于页含 3.1 更新', html.includes('版本 3.1') && html.includes('烦恼雨'));
-ok('README 版本 3.1', read('README.md').includes('v3.1'));
-ok('Electron 版本 3.1', read('electron/package.json').includes('"version": "3.1.0"'));
+ok('页面版本 3.2', html.includes('敲散 v3.2'));
+ok('关于页含 3.2 更新', html.includes('版本 3.2') && html.includes('图鉴') && html.includes('情绪天气'));
+ok('README 版本 3.2', read('README.md').includes('v3.2'));
+ok('Electron 版本 3.2', read('electron/package.json').includes('"version": "3.2.0"'));
 
 /* 10. id 唯一 */
 const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(m => m[1]);

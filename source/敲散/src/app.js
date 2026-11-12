@@ -57,7 +57,9 @@ const THEMES = {
     items:['😤','😩','🤯','😑','🥱','😖','🙄','😮\u200d💨'],
     fallback:['怒','丧','炸','呆','困','苦']
   },
-  diy:{ name:'自定义', mode:'auto', items:[] }
+  diy:{ name:'自定义', mode:'auto', items:[] },
+  pals:{ name:'森林伙伴', mode:'gallery', items:[] },
+  items:{ name:'万物图鉴', mode:'gallery', items:[] }
 };
 const PHRASES = ['今天也辛苦了','都敲散了','这一站，轻一点','烦恼已碎，请下车','你比泡泡结实'];
 const MARKS = ['草','切','淦','啧','啪','哎','哈','嗤','咔'];
@@ -270,13 +272,16 @@ const S = {
   gameMode: store.get('gameMode','zen'),
   diff: store.get('diff','normal'),
   cloudRank: store.get('cloudRank', false) === true,
+  wx: store.get('wx', true) !== false,
   board: store.get('board', []),
   rain: {
     active:false, score:0, pops:0, bursts:0, lives:3, level:1, miss:0,
-    chain:0, chainT:0, maxChain:0, spawnT:0, elapsed:0, rank:0, best:false
+    chain:0, chainT:0, maxChain:0, spawnT:0, elapsed:0, rank:0, best:false,
+    weather:0, heat:0, taps:[], missHeat:0, drops:[], bolt:null, wT:0, nextBolt:0, chipT:0
   },
   scores: [],
   combo: 0, lastHitT: 0, comboUntil: 0,
+  boltFlash: 0,
   shakeAmp: 0, flash: 0,
   hover: null,
   cardUrl:'',
@@ -430,6 +435,58 @@ const AU = {
     if (!this.ctx) this.init();
     if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
   },
+  amb:null,
+  ambient(level){
+    if (!S.snd){ level = 0; }
+    if (!this.ctx) this.init();
+    this.resume();
+    if (!this.ok) return;
+    if (!this.amb){
+      const src = this.ctx.createBufferSource();
+      src.buffer = this.noise; src.loop = true;
+      const rf = this.ctx.createBiquadFilter();
+      rf.type = 'bandpass'; rf.frequency.value = 1500; rf.Q.value = 0.65;
+      const rg = this.ctx.createGain(); rg.gain.value = 0;
+      src.connect(rf); rf.connect(rg); rg.connect(this.master);
+      const wf = this.ctx.createBiquadFilter();
+      wf.type = 'lowpass'; wf.frequency.value = 420;
+      const wg = this.ctx.createGain(); wg.gain.value = 0;
+      src.connect(wf); wf.connect(wg); wg.connect(this.master);
+      src.start();
+      this.amb = { src, rg, wg };
+    }
+    const now = this.ctx.currentTime;
+    const rain = level >= 3 ? 0.075 : (level === 2 ? 0.05 : 0);
+    const wind = level >= 2 ? 0.026 : (level === 1 ? 0.02 : 0);
+    this.amb.rg.gain.setTargetAtTime(rain, now, 0.9);
+    this.amb.wg.gain.setTargetAtTime(wind, now, 1.1);
+  },
+  thunder(delay){
+    if (!S.snd || !this.ok) return;
+    const t = this.ctx.currentTime + (delay || 0.2);
+    const src = this.ctx.createBufferSource();
+    src.buffer = this.noise; src.loop = true;
+    const f = this.ctx.createBiquadFilter();
+    f.type = 'lowpass';
+    f.frequency.setValueAtTime(340, t);
+    f.frequency.exponentialRampToValueAtTime(90, t + 0.5);
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.26, t + 0.06);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.7);
+    src.connect(f); f.connect(g); g.connect(this.master);
+    src.start(t); src.stop(t + 1.9);
+    const o = this.ctx.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(72, t);
+    o.frequency.exponentialRampToValueAtTime(34, t + 0.95);
+    const og = this.ctx.createGain();
+    og.gain.setValueAtTime(0.0001, t);
+    og.gain.exponentialRampToValueAtTime(0.15, t + 0.09);
+    og.gain.exponentialRampToValueAtTime(0.0001, t + 1.45);
+    o.connect(og); og.connect(this.master);
+    o.start(t); o.stop(t + 1.55);
+  },
   burst(t,dur,freq,q,gain,type,rate){
     if (!this.ok) return;
     const src = this.ctx.createBufferSource(); src.buffer = this.noise;
@@ -544,6 +601,12 @@ function currentItems(){
   if (S.theme === 'pics'){
     if (!S.pics.length) return { items: ['贴图'], kind: 'text' };
     return { items: S.pics.map((p,i)=>'#img'+i), kind: 'image' };
+  }
+  if (S.theme === 'pals' || S.theme === 'items'){
+    const g = (window.QS_GALLERY || {})[S.theme];
+    const list = (g && g.items && g.items.length) ? g.items : [];
+    if (!list.length) return { items: ['图鉴'], kind: 'text' };
+    return { items: list.map(x=>x.id), kind: 'gallery' };
   }
   const t = THEMES[S.theme] || THEMES.commute;
   if (S.theme === 'patterns'){
@@ -707,12 +770,18 @@ function buildRound(){
       grad:null, fs:0, cracks:null, flash:0
     };
     if (kind === 'image' && S.pics.length) b.pic = S.pics[i % S.pics.length];
+    if (kind === 'gallery'){
+      const g = galleryFind(word);
+      if (g){ b.pic = { img: imgFor(g.src), label: g.label, emoji: g.emoji }; b.word = g.label; }
+      else { b.kind = 'text'; b.word = '图鉴'; }
+    }
     S.bubbles.push(b);
     b.ent = makeEntrance(i, n);
     if (b.ent) b.entA = 0;
   });
   S.items = picked.slice();
   S.kinds = S.bubbles.map(b=>b.kind);
+  S.roundPics = S.bubbles.map(b=>b.pic || null);
   placeBubbles();
   renderDots();
 }
@@ -907,6 +976,7 @@ function attack(x, y, power, target){
   S.comboUntil = now + 1100;
   S.tapCount++;
   S.stats.taps = (S.stats.taps || 0) + 1;
+  if (S.rain.active) noteTap();
   if (S.combo > (S.stats.bestCombo || 0)) S.stats.bestCombo = S.combo;
 
   const mul = 1 + Math.min(S.combo, 10) * 0.055;
@@ -1186,6 +1256,7 @@ function update(dt, t){
   }
 
   if (S.rain.active) updateRain(dt, t);
+  if (S.rain.active) updateWeather(dt, t);
 
   for (let i=S.scores.length-1;i>=0;i--){
     const s = S.scores[i];
@@ -1215,6 +1286,7 @@ function draw(t){
 
   // 烦恼雨：危险区提示
   if (S.rain.active){
+    drawWxBack(t);
     const dh = Math.min(150, H*0.17);
     const dz = ctx.createLinearGradient(0, H-dh, 0, H);
     dz.addColorStop(0, 'rgba(255,60,90,0)');
@@ -1320,7 +1392,7 @@ function draw(t){
       ctx.fillText(g.text, g.x, g.y);
     } else if (g.kind === 'icon'){
       (ICONS[g.text]||ICONS.man)(ctx, g.size);
-    } else if (g.kind === 'image' && g.pic && g.pic.img && g.pic.img.complete && g.pic.img.naturalWidth){
+    } else if ((g.kind === 'image' || g.kind === 'gallery') && g.pic && g.pic.img && g.pic.img.complete && g.pic.img.naturalWidth){
       const img = g.pic.img;
       ctx.beginPath(); ctx.arc(g.x, g.y, g.size*0.6, 0, Math.PI*2); ctx.clip();
       const sc = Math.max(g.size*1.2/img.naturalWidth, g.size*1.2/img.naturalHeight);
@@ -1358,6 +1430,8 @@ function draw(t){
     ctx.restore();
   });
 
+  if (S.rain.active) drawWxFront(t);
+
   // 得分飘字（烦恼雨）
   S.scores.forEach(s=>{
     const k = s.life / s.max;
@@ -1390,7 +1464,7 @@ function paintKind(g, b, r, scale, shape){
     g.fillText(b.word, 0, r*0.04, cap*1.1);
   } else if (b.kind === 'icon'){
     (ICONS[b.word]||ICONS.man)(g, r*0.58*scale);
-  } else if (b.kind === 'image'){
+  } else if (b.kind === 'image' || b.kind === 'gallery'){
     const pic = b.pic;
     if (pic && pic.img && pic.img.complete && pic.img.naturalWidth){
       g.save();
@@ -1672,8 +1746,11 @@ function startRain(){
   S.combo = 0; updateCombo();
   Object.assign(S.rain, {
     active:true, score:0, pops:0, bursts:0, lives:d.lives, level:1, miss:0,
-    chain:0, chainT:0, maxChain:0, spawnT:0.32, elapsed:0, rank:0, best:false, cardUrl:''
+    chain:0, chainT:0, maxChain:0, spawnT:0.32, elapsed:0, rank:0, best:false, cardUrl:'',
+    weather:0, heat:0, taps:[], missHeat:0, drops:[], bolt:null, wT:0, nextBolt:0, chipT:0
   });
+  S.boltFlash = 0;
+  AU.ambient(0);
   S.mode = 'play';
   S.gameMode = 'rain'; store.set('gameMode','rain'); mark('#segMode','rain');
   guideEl.classList.add('gone');
@@ -1683,6 +1760,14 @@ function startRain(){
   setHint('', false);
   buildBackdrop(bgKeyFor());
   updateRainHud();
+  const chip = document.getElementById('moodChip');
+  if (chip){
+    chip.dataset.w = '0';
+    chip.classList.add('on');
+    const ic = document.getElementById('moodIco'); if (ic) ic.textContent = WX[0].ico;
+    const nm = document.getElementById('moodName'); if (nm) nm.textContent = WX[0].name;
+    const bar = document.getElementById('moodBarS'); if (bar) bar.style.width = '0%';
+  }
   spawnRain(); spawnRain();
   rainBanner(levelBannerEl, '烦恼雨 · ' + d.name);
   setHint(S.trigger === 'shake' ? '摇一摇，敲碎落下的烦恼' : '点碎落下的烦恼', true);
@@ -1702,13 +1787,19 @@ function spawnRain(){
   const r = rand(rMin, rMax) * (1 + Math.min(0.28, (R.level-1)*0.018));
   const p = PALETTE[(Math.random()*PALETTE.length)|0];
   const kind = conf.kind === 'auto' ? (isEmojiStr(word) ? 'emoji' : 'text') : conf.kind;
+  let word2 = word, pic = null;
+  if (kind === 'image' && S.pics.length) pic = S.pics[(Math.random()*S.pics.length)|0];
+  if (kind === 'gallery'){
+    const g = galleryFind(word);
+    if (g){ pic = { img: imgFor(g.src), label: g.label, emoji: g.emoji }; word2 = g.label; }
+  }
   const shape = (S.shape === 'mix') ? randomShape() : S.shape;
   const tN = clamp((r - rMin) / Math.max(1, rMax - rMin), 0, 1);
   const gold = Math.random() < 0.06;
   const hp = (gold ? 0.42 : (0.52 + tN*0.78)) * d.hp * (1 + (R.level-1)*0.05);
   const b = {
-    word: word, kind: kind,
-    pic: (conf.kind === 'image' && S.pics.length) ? S.pics[(Math.random()*S.pics.length)|0] : null,
+    word: word2, kind: kind,
+    pic: pic,
     x: rand(r+12, Math.max(r+13, W-r-12)), y: -r*1.35, r: r,
     ox:0, oy:0, vx:0, vy:0, q:0, qv:0, rot:0, phase: rand(0,9),
     dmg:0, cracked:false, dead:false, deadAt:0,
@@ -1727,7 +1818,7 @@ function spawnRain(){
   if (kind === 'text'){
     let fs = r*0.60;
     const cap = fitWidth(shape, r);
-    for (let k=0;k<12;k++){ if (measure(word, fs) <= cap) break; fs *= 0.92; }
+    for (let k=0;k<12;k++){ if (measure(word2, fs) <= cap) break; fs *= 0.92; }
     b.fs = fs;
   } else if (kind === 'emoji'){
     b.fs = r*1.02;
@@ -1778,6 +1869,7 @@ function missBubble(b, idx){
   R.miss++;
   R.lives = Math.max(0, R.lives - 1);
   R.chain = 0;
+  noteMiss();
   S.combo = 0; updateCombo();
   S.shakeAmp = Math.min(S.shakeAmp + 17, 28);
   S.flash = Math.min(S.flash + 0.13, 0.42);
@@ -1813,7 +1905,9 @@ function updateRain(dt, t){
     if (b.dead || !b.fall) continue;
     const f = b.fall;
     b.y += f.vy * dt;
-    b.x = clamp(f.x0 + Math.sin(t*f.freq + f.ph)*f.sway, b.r + 8, Math.max(b.r + 9, W - b.r - 8));
+    const windAmp = S.wx ? (R.weather >= 3 ? 18 : (R.weather === 2 ? 7 : 0)) : 0;
+    b.x = clamp(f.x0 + Math.sin(t*f.freq + f.ph)*f.sway +
+      (windAmp ? Math.sin(t*0.55 + f.ph*1.7)*windAmp : 0), b.r + 8, Math.max(b.r + 9, W - b.r - 8));
     b.rot = Math.sin(t*f.freq*0.8 + f.ph)*0.13 + Math.sin(t*0.6 + f.ph)*0.05;
     const near = (b.y + b.r) / H;
     b.danger = near > 0.78 ? clamp((near - 0.78)/0.2, 0, 1) : 0;
@@ -1848,6 +1942,10 @@ function finishRain(){
   fillRainResult();
   rainResultEl.classList.add('on');
   rainHudEl.classList.remove('on');
+  const chip = document.getElementById('moodChip');
+  if (chip) chip.classList.remove('on');
+  AU.ambient(0);
+  R.drops.length = 0; R.bolt = null; S.boltFlash = 0;
   dotsEl.classList.remove('on');
   comboEl.classList.remove('on');
   setHint('', false);
@@ -1887,6 +1985,213 @@ $('#saveBtn').addEventListener('click', ()=>{
     toast(IS_DESK ? '消散卡已下载到「下载」文件夹' : '已保存，也可长按图片保存');
   }catch(e){ toast('请长按图片保存'); }
 });
+
+/* ============================================================
+   11.6 情绪天气（根据敲击节奏 & 漏怪变化）
+   ============================================================ */
+const WX = [
+  { key:'clear', name:'晴朗', ico:'🌤️', tint:0.00, drops:0,  cloud:0.00 },
+  { key:'cloud', name:'阴云', ico:'☁️', tint:0.09, drops:0,  cloud:0.55 },
+  { key:'rain',  name:'落雨', ico:'🌧️', tint:0.16, drops:46, cloud:0.85 },
+  { key:'storm', name:'雷暴', ico:'⛈️', tint:0.24, drops:80, cloud:1.00 }
+];
+let cloudSprite = null;
+
+function wxCloudSprite(){
+  const c = document.createElement('canvas');
+  c.width = 360; c.height = 200;
+  const g = c.getContext('2d');
+  for (let i=0;i<7;i++){
+    const x = rand(70,290), y = rand(70,140), r = rand(38,80);
+    const rg = g.createRadialGradient(x,y,0,x,y,r);
+    rg.addColorStop(0,'rgba(226,236,255,0.55)');
+    rg.addColorStop(0.55,'rgba(198,214,242,0.22)');
+    rg.addColorStop(1,'rgba(190,205,240,0)');
+    g.fillStyle = rg;
+    g.beginPath(); g.arc(x,y,r,0,6.283); g.fill();
+  }
+  return c;
+}
+function wxState(){
+  if (!S.rain.active || !S.wx) return WX[0];
+  return WX[S.rain.weather] || WX[0];
+}
+function noteTap(){
+  const R = S.rain;
+  if (!R.active) return;
+  R.taps.push(performance.now());
+  if (R.taps.length > 40) R.taps.shift();
+}
+function noteMiss(){
+  const R = S.rain;
+  R.missHeat = Math.min(0.65, (R.missHeat || 0) + 0.18);
+}
+function setWeather(n){
+  const R = S.rain;
+  if (R.weather === n) return;
+  R.weather = n;
+  R.wT = 0;
+  R.nextBolt = rand(1.4, 3.2);
+  if (S.wx) AU.ambient(n); else AU.ambient(0);
+  const chip = document.getElementById('moodChip');
+  if (chip){
+    document.getElementById('moodIco').textContent = WX[n].ico;
+    document.getElementById('moodName').textContent = WX[n].name;
+    chip.dataset.w = String(n);
+    chip.classList.toggle('on', R.active);
+  }
+}
+function strikeLightning(){
+  const R = S.rain;
+  const x0 = rand(W*0.12, W*0.88);
+  const y1 = rand(H*0.30, H*0.55);
+  const pts = [{ x:x0, y:-12 }];
+  let x = x0, y = -12;
+  while (y < y1){
+    y += rand(16, 38);
+    x += rand(-24, 24);
+    pts.push({ x:x, y:y });
+  }
+  R.bolt = { pts: pts, life: 0, max: 0.4, w: 2.2 };
+  S.boltFlash = Math.min(0.45, (S.boltFlash || 0) + 0.36);
+  S.shakeAmp = Math.min(S.shakeAmp + 4, 18);
+  AU.thunder(rand(0.1, 0.45));
+}
+function updateWeather(dt, t){
+  const R = S.rain;
+  const now = performance.now();
+  while (R.taps.length && now - R.taps[0] > 5000) R.taps.shift();
+  R.missHeat = Math.max(0, (R.missHeat || 0) - dt*0.05);
+
+  if (!S.wx){
+    if (R.weather !== 0) setWeather(0);
+    R.drops.length = 0; R.bolt = null;
+    if (S.boltFlash) S.boltFlash = Math.max(0, S.boltFlash - dt*2.2);
+    return;
+  }
+
+  const rate = R.taps.length / 5;
+  let target = clamp((rate - 1.0) / 2.8, 0, 1);
+  target = Math.min(1, target + (R.missHeat || 0) * 0.55);
+  R.heat += (target - R.heat) * Math.min(1, dt*0.55);
+
+  R.wT += dt;
+  const th = [0.30, 0.56, 0.80];
+  let want = R.weather;
+  if (R.wT > 2.4){
+    if (R.weather < 3 && R.heat > th[R.weather] + 0.04) want = R.weather + 1;
+    else if (R.weather > 0 && R.heat < th[R.weather-1] - 0.05) want = R.weather - 1;
+  }
+  if (want !== R.weather) setWeather(want);
+
+  const st = WX[R.weather] || WX[0];
+  while (R.drops.length < st.drops){
+    R.drops.push({ x: rand(-20, W+20), y: rand(-H*0.6, -10),
+      len: rand(12,34), sp: rand(760,1250), drift: rand(-90,40) });
+  }
+  while (R.drops.length > st.drops) R.drops.pop();
+  for (const d of R.drops){
+    d.y += d.sp*dt;
+    d.x += d.drift*dt;
+    if (d.y > H+20 || d.x < -70 || d.x > W+70){
+      d.x = rand(-30, W+30); d.y = rand(-70, -10);
+      d.len = rand(12,34); d.sp = rand(760,1250);
+    }
+  }
+
+  if (R.weather >= 3){
+    R.nextBolt -= dt;
+    if (R.nextBolt <= 0){ strikeLightning(); R.nextBolt = rand(2.6, 6.5); }
+  } else {
+    R.nextBolt = rand(1.2, 2.6);
+  }
+  if (S.boltFlash > 0.004) S.boltFlash = Math.max(0, S.boltFlash - dt*2.6);
+  else S.boltFlash = 0;
+  if (R.bolt){
+    R.bolt.life += dt;
+    if (R.bolt.life >= R.bolt.max) R.bolt = null;
+  }
+
+  R.chipT -= dt;
+  if (R.chipT <= 0){
+    R.chipT = 0.2;
+    const bar = document.getElementById('moodBarS');
+    if (bar) bar.style.width = Math.round(clamp(R.heat, 0, 1) * 100) + '%';
+  }
+}
+function drawWxBack(t){
+  const st = wxState();
+  if (st.tint > 0.001){
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, 'rgba(18,28,52,' + (st.tint*1.15).toFixed(3) + ')');
+    g.addColorStop(0.6, 'rgba(12,18,34,' + (st.tint*0.75).toFixed(3) + ')');
+    g.addColorStop(1, 'rgba(8,10,20,' + (st.tint*0.45).toFixed(3) + ')');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  }
+  if (st.cloud > 0.01){
+    const tg = ctx.createLinearGradient(0, 0, 0, H*0.5);
+    tg.addColorStop(0, 'rgba(20,28,50,' + (0.34*st.cloud).toFixed(3) + ')');
+    tg.addColorStop(1, 'rgba(20,28,50,0)');
+    ctx.fillStyle = tg;
+    ctx.fillRect(0, 0, W, H*0.5);
+    if (!cloudSprite) cloudSprite = wxCloudSprite();
+    const cw = Math.max(300, W*0.55);
+    for (let i=0;i<4;i++){
+      const span = W + cw*2;
+      const drift = ((t*(5 + i*4) + i*280) % span) - cw;
+      const y = -40 + i*26 + Math.sin(t*0.12 + i)*7;
+      ctx.globalAlpha = st.cloud * (0.30 + i*0.07);
+      ctx.drawImage(cloudSprite, drift, y, cw, cw*0.55);
+    }
+    ctx.globalAlpha = 1;
+  }
+}
+function drawWxFront(t){
+  const st = wxState();
+  const R = S.rain;
+  if (st.drops > 0 && R.drops.length){
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(190,215,255,' + (0.10 + st.tint*0.6).toFixed(3) + ')';
+    ctx.lineWidth = 1.15;
+    ctx.beginPath();
+    for (const d of R.drops){
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x + d.drift*0.02, d.y + d.len);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+  if (R.bolt){
+    const k = R.bolt.life / R.bolt.max;
+    const a = (1-k)*(1-k);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = 'rgba(212,236,255,' + (a*0.95).toFixed(3) + ')';
+    ctx.lineWidth = R.bolt.w + 1.8*a;
+    ctx.shadowColor = 'rgba(150,200,255,0.9)';
+    ctx.shadowBlur = 18;
+    ctx.beginPath();
+    R.bolt.pts.forEach((p,i)=> i ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y));
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 1.1;
+    ctx.strokeStyle = 'rgba(200,225,255,' + (a*0.5).toFixed(3) + ')';
+    ctx.beginPath();
+    for (let i=2;i<R.bolt.pts.length-1;i+=2){
+      const p = R.bolt.pts[i];
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x + rand(-24,24), p.y + rand(14,32));
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+  if (S.boltFlash > 0.004){
+    ctx.fillStyle = 'rgba(205,225,255,' + S.boltFlash.toFixed(3) + ')';
+    ctx.fillRect(0, 0, W, H);
+  }
+}
 
 /* ============================================================
    12. 消散卡
@@ -1979,7 +2284,7 @@ function makeCard(){
       x.globalAlpha = 1;
     } else if (kind === 'image'){
       const idx = parseInt(String(w).replace('#img',''),10) || 0;
-      const pic = S.pics.length ? S.pics[idx % S.pics.length] : null;
+      const pic = (S.roundPics && S.roundPics[i]) || (S.pics.length ? S.pics[idx % S.pics.length] : null);
       if (pic && pic.img && pic.img.complete && pic.img.naturalWidth){
         x.save();
         shapePath(x, cardShape, size*1.45); x.clip();
@@ -2279,7 +2584,23 @@ bindSeg('#segBurst','burst', v=>v, ()=>{
 });
 bindSeg('#segPack','pack', v=>v, ()=>{ AU.play('shatter', 1); });
 bindSeg('#segVib','vib', v=>v==='1');
-bindSeg('#segSnd','snd', v=>v==='1');
+bindSeg('#segSnd','snd', v=>v==='1', ()=>{
+  if (!S.snd) AU.ambient(0);
+  else if (S.rain.active) AU.ambient(S.rain.weather);
+});
+bindSeg('#segWx','wx', v=>v==='1', ()=>{
+  if (!S.wx){
+    AU.ambient(0);
+    S.rain.drops.length = 0; S.rain.bolt = null; S.rain.weather = 0;
+    const chip = document.getElementById('moodChip');
+    if (chip) chip.classList.remove('on');
+  } else if (S.rain.active){
+    AU.ambient(S.rain.weather);
+    const chip = document.getElementById('moodChip');
+    if (chip) chip.classList.add('on');
+  }
+  toast(S.wx ? '情绪天气已开启' : '情绪天气已关闭');
+});
 bindSeg('#segCloud','cloudRank', v=>v==='1', ()=>{
   if (S.cloudRank){
     cloudState.status = 'idle';
@@ -2471,6 +2792,10 @@ function backToIntro(){
   S.bubbles.length = 0; S.parts.length = 0; S.ghosts.length = 0;
   S.rings.length = 0; S.marks.length = 0; S.scores.length = 0;
   rainHudEl.classList.remove('on');
+  const mchip = document.getElementById('moodChip');
+  if (mchip) mchip.classList.remove('on');
+  AU.ambient(0);
+  S.rain.drops.length = 0; S.rain.bolt = null; S.boltFlash = 0;
   comboEl.classList.remove('on');
   guideEl.classList.remove('gone');
   buildBackdrop(bgKeyFor());
@@ -2501,11 +2826,16 @@ $('#chipsTheme').addEventListener('click', e=>{
   $('#picBox').style.display = S.theme === 'pics' ? 'block' : 'none';
   if (S.theme === 'diy') $('#diyInput').value = S.diy.join(' ');
   if (!S.rain.active) buildRound();
+  if (S.theme === 'pals' || S.theme === 'items'){
+    const g = (window.QS_GALLERY || {})[S.theme];
+    if (g && g.items) g.items.forEach(x=>imgFor(x.src));
+    toast(S.theme === 'pals' ? '森林伙伴已就位' : '万物图鉴已就位');
+  }
   if (!EMOJI_OK && (S.theme === 'bugs' || S.theme === 'faces')) toast('当前环境不支持图案，已用文字代替');
   if (S.theme === 'pics' && !S.pics.length) toast('先在下方选择图片');
 });
 
-/* ---------- 图片贴图 ---------- */
+/* ---------- 图片贴图 / 图鉴 ---------- */
 const IMG_CACHE = new Map();
 function imgFor(data){
   if (!IMG_CACHE.has(data)){
@@ -2515,6 +2845,17 @@ function imgFor(data){
   }
   return IMG_CACHE.get(data);
 }
+function galleryFind(id){
+  const G = window.QS_GALLERY || {};
+  for (const k of ['pals','items']){
+    const g = G[k];
+    if (!g || !g.items) continue;
+    const hit = g.items.find(x=>x.id === id);
+    if (hit) return hit;
+  }
+  return null;
+}
+function galleryAll(){ return Object.assign({}, (window.QS_GALLERY || {})); }
 function compressImage(file){
   return new Promise(res=>{
     const url = URL.createObjectURL(file);
@@ -2623,6 +2964,7 @@ function loadSettings(){
     ? bd.filter(r=>r && typeof r.score === 'number' && isFinite(r.score)).slice(0, 20)
     : [];
   S.cloudRank = store.get('cloudRank', false) === true;
+  S.wx = store.get('wx', true) !== false;
   mark('#segTrigger', S.trigger);
   mark('#segHard', S.hard);
   mark('#segPack', S.pack);
@@ -2635,6 +2977,7 @@ function loadSettings(){
   mark('#segEnt', S.entrance);
   mark('#segBurst', S.burst);
   mark('#segCloud', S.cloudRank ? '1' : '0');
+  mark('#segWx', S.wx ? '1' : '0');
   [...$('#chipsTheme').children].forEach(b=>b.classList.toggle('on', b.dataset.v === S.theme));
   $('#diyBox').style.display = S.theme === 'diy' ? 'block' : 'none';
   $('#picBox').style.display = S.theme === 'pics' ? 'block' : 'none';
@@ -2651,6 +2994,8 @@ window.addEventListener('orientationchange', ()=>setTimeout(resize, 220));
 document.addEventListener('visibilitychange', ()=>{
   if (document.hidden) detachMotion();
   else if (S.mode === 'armed' || S.mode === 'play') attachMotion();
+  if (document.hidden) AU.ambient(0);
+  else if (S.rain.active && S.wx) AU.ambient(S.rain.weather);
 });
 
 loadSettings();
