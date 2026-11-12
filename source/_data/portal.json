@@ -1,7 +1,61 @@
 {
   "_说明": "首页产品门户数据源。改这里即可调整首页首屏的产品卡片。构建时由 scripts/inject-home.js 生成静态 HTML 注入首页（服务端渲染，无白屏闪烁）。",
-  "_字段": "k=唯一键 | emoji=图标 | name=名称 | sub=英文/副名 | desc=一句话说明 | stat=数据量标签 | url=链接 | color=主题色",
+  "_字段": "k=唯一键 | emoji=图标 | name=名称 | sub=英文/副名 | desc=一句话说明 | stat=数据量标签 | url=链接 | color=主题色 | cover=（可选）封面图，有则渲染成大卡",
   "groups": [
+    {
+      "title": "我的作品",
+      "sub": "WORKS",
+      "items": [
+        {
+          "k": "naturelab",
+          "emoji": "🌱",
+          "name": "自然培育所",
+          "sub": "Nature Lab",
+          "desc": "把一株生命从种子养到收获：调温、调湿、补光、施肥，看品质曲线，留种、杂交、远缘嫁接，18 种动植物与四季市价",
+          "stat": "18 物种",
+          "tags": ["模拟经营", "自然科普"],
+          "url": "/naturelab/",
+          "color": "#2e7d5b",
+          "cover": "/images/showcase/naturelab.webp"
+        },
+        {
+          "k": "qiaosan",
+          "emoji": "🫧",
+          "name": "敲散 · 解压气泡",
+          "sub": "Tap It Off",
+          "desc": "把烦心事做成气泡，两三下敲碎它。六种形状、三种爆法，烦恼雨无尽模式、20 张水彩图鉴、随敲击变化的情绪天气",
+          "stat": "6 种气泡",
+          "tags": ["解压", "无尽模式"],
+          "url": "/qiaosan/",
+          "color": "#5b46ff",
+          "cover": "/images/showcase/qiaosan.webp"
+        },
+        {
+          "k": "pojing",
+          "emoji": "🧱",
+          "name": "破境积木",
+          "sub": "Brick Builder 3D",
+          "desc": "147 种积木形状、59 张图纸：从一张小方桌到月洞门小院、海边灯塔，照蓝图复原或从零自由搭建",
+          "stat": "147 形状 · 59 图纸",
+          "tags": ["3D 搭建", "创意启蒙"],
+          "url": "/pojing-bricks/",
+          "color": "#ff6f3c",
+          "cover": "/images/showcase/pojing-bricks.webp"
+        },
+        {
+          "k": "toy",
+          "emoji": "🔧",
+          "name": "巧手拆装工坊",
+          "sub": "Toy Workshop 3D",
+          "desc": "3D 拆装闯关：24 件玩具按真实结构拆装，另有 38 件机械机构动画与拆解",
+          "stat": "24 玩具 · 38 机构",
+          "tags": ["3D 拆装", "机械原理"],
+          "url": "/toy-workshop/",
+          "color": "#ff7a45",
+          "cover": "/images/showcase/toy-workshop.webp"
+        }
+      ]
+    },
     {
       "title": "玩",
       "sub": "PLAY",
@@ -60,17 +114,6 @@
           "tags": ["每日挑战", "触屏操作"],
           "url": "/guardian/",
           "color": "#7c3aed"
-        },
-        {
-          "k": "toy",
-          "emoji": "🔧",
-          "name": "巧手拆装工坊",
-          "sub": "Toy Workshop 3D",
-          "desc": "3D 拆装闯关：24 件玩具按真实结构拆装，另有 38 件机械机构动画与拆解",
-          "stat": "24 玩具 · 38 机构",
-          "tags": ["3D 拆装", "机械原理"],
-          "url": "/toy-workshop/",
-          "color": "#ff7a45"
         }
       ]
     },

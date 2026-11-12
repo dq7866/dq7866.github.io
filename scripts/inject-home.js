@@ -115,17 +115,27 @@ function portalBlock(portal) {
   portal.groups.forEach(function (g) {
     var items = Array.isArray(g.items) ? g.items : [];
     if (!items.length) return;
+    // 只要组里有带封面的条目，整组按"作品大卡"排（两列、图在上、字在下）
+    var showcase = items.some(function (it) { return !!it.cover; });
     h += '<div class="zhz-portal-group">';
     h += '<div class="zhz-portal-head"><h2>' + esc(g.title) + "</h2>" +
          (g.sub ? '<span class="zhz-portal-sub">' + esc(g.sub) + "</span>" : "") + "</div>";
-    h += '<div class="zhz-portal-grid">';
+    h += '<div class="zhz-portal-grid' + (showcase ? " zhz-portal-grid--showcase" : "") + '">';
     items.forEach(function (it) {
       var tags = (Array.isArray(it.tags) ? it.tags : [])
         .filter(Boolean)
         .map(function (t) { return "<span>" + esc(t) + "</span>"; })
         .join("");
-      h += '<a class="zhz-pcard" href="' + esc(it.url) + '" style="--zhz-c:' + esc(it.color || "#6b7280") + '">' +
-             '<span class="zhz-pcard-ico" aria-hidden="true">' + esc(it.emoji || "\u2022") + "</span>" +
+      var cover = it.cover
+        ? '<span class="zhz-pcard-cover">' +
+            '<img src="' + esc(it.cover) + '" alt="' + esc(it.name) + ' 界面截图" loading="lazy" decoding="async">' +
+            (it.emoji ? '<em class="zhz-pcard-badge" aria-hidden="true">' + esc(it.emoji) + "</em>" : "") +
+          "</span>"
+        : "";
+      h += '<a class="zhz-pcard' + (it.cover ? " zhz-pcard--showcase" : "") + '" href="' + esc(it.url) +
+             '" style="--zhz-c:' + esc(it.color || "#6b7280") + '">' +
+             cover +
+             (!it.cover ? '<span class="zhz-pcard-ico" aria-hidden="true">' + esc(it.emoji || "\u2022") + "</span>" : "") +
              '<span class="zhz-pcard-body">' +
                '<span class="zhz-pcard-t">' + esc(it.name) +
                  (it.sub ? "<em>" + esc(it.sub) + "</em>" : "") +

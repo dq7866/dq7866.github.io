@@ -63,6 +63,91 @@ body:has(.zhz-portal) #recent-posts {
   gap: .8rem;
 }
 
+/* ---------- 作品大卡（带封面） ---------- */
+/* 首页最上面那一组：两列、图在上、字在下。第一眼先看见作品长什么样，
+   而不是一排文字卡片。 */
+.zhz-portal-grid--showcase {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.zhz-pcard--showcase {
+  padding: 0;
+  min-height: 0;
+  gap: 0;
+}
+
+/* 有封面时不要顶部色条，留给图片干净的一条边 */
+.zhz-pcard--showcase::before {
+  display: none;
+}
+
+/* 封面：16:9，hover 时轻微推近，像视频站的海报 */
+.zhz-pcard-cover {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #0f1224;
+}
+
+.zhz-pcard-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  transition: transform .45s cubic-bezier(.2, .7, .3, 1);
+}
+
+.zhz-pcard--showcase:hover .zhz-pcard-cover img {
+  transform: scale(1.035);
+}
+
+/* 封面右下角压一层暗角，让右上角的 stat 标签永远读得清 */
+.zhz-pcard-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, .28) 0%, rgba(0, 0, 0, 0) 34%);
+  pointer-events: none;
+}
+
+/* 封面左上角的小图标，代替常规卡片里的方形图标 */
+.zhz-pcard-badge {
+  position: absolute;
+  left: .7rem;
+  top: .65rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  font-size: 16px;
+  font-style: normal;
+  line-height: 1;
+  background: rgba(255, 255, 255, .9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+}
+
+.zhz-pcard--showcase .zhz-pcard-body {
+  padding: .8rem .95rem 1rem;
+  gap: .35rem;
+}
+
+.zhz-pcard--showcase .zhz-pcard-stat {
+  top: .72rem;
+  right: .72rem;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .22);
+}
+
+.zhz-pcard--showcase .zhz-pcard-t {
+  font-size: 1.02rem;
+}
+
 /* ---------- 卡片 ---------- */
 .zhz-pcard {
   position: relative;
@@ -221,6 +306,12 @@ body:has(.zhz-portal) #recent-posts {
   color: #a8b0ba;
 }
 
+/* 暗色下标签底色偏深、字又是产品色，容易糊在一起——把字提亮一档 */
+[data-theme="dark"] .zhz-pcard-tags span {
+  color: color-mix(in srgb, var(--zhz-c, #6b7280) 42%, #ffffff);
+  background: color-mix(in srgb, var(--zhz-c, #6b7280) 24%, transparent);
+}
+
 /* ---------- 响应式 ---------- */
 @media (max-width: 900px) {
   /* 2 列 */
@@ -233,6 +324,21 @@ body:has(.zhz-portal) #recent-posts {
   .zhz-portal-grid {
     grid-template-columns: 1fr;
     gap: .65rem;
+  }
+
+  /* 作品大卡在窄屏仍然是"图在上、字在下"，不跟着普通卡横排
+     （选择器要比后面的 .zhz-pcard 更具体，否则会被覆盖） */
+  .zhz-portal-grid--showcase .zhz-pcard--showcase {
+    flex-direction: column;
+  }
+
+  /* 数据量标签继续压在封面右上角，不要被挤到卡片底部 */
+  .zhz-portal-grid--showcase .zhz-pcard--showcase .zhz-pcard-stat {
+    position: absolute;
+    top: .62rem;
+    right: .7rem;
+    align-self: auto;
+    margin-left: 0;
   }
 
   .zhz-pcard {
