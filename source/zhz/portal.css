@@ -63,62 +63,203 @@ body:has(.zhz-portal) #recent-posts {
   gap: .8rem;
 }
 
-/* ---------- 作品大卡（带封面） ---------- */
-/* 首页最上面那一组：两列、图在上、字在下。第一眼先看见作品长什么样，
-   而不是一排文字卡片。 */
-.zhz-portal-grid--showcase {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+/* ---------- 海报墙（横向滚动） ---------- */
+/* 首页最上面那一组：一张张 16:10 的海报横着排，手指/滚轮/箭头都能翻。
+   卡片宽度固定、右侧故意露半张下一张——一眼就知道还能往右看。 */
+.zhz-portal-group--wall {
+  position: relative;
 }
 
-.zhz-pcard--showcase {
+/* 翻页箭头：默认不显示，由 poster.js 判定"确实能滚动"后再亮出来
+   （没有 JS 时靠触摸/触控板仍可滚动，不依赖按钮） */
+.zhz-wall-nav {
+  display: none;
+  margin-left: auto;
+  gap: .35rem;
+  align-items: center;
+  align-self: center;
+}
+
+.zhz-portal-group--wall.is-scrollable .zhz-wall-nav {
+  display: flex;
+}
+
+.zhz-wall-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 29px;
+  height: 29px;
   padding: 0;
-  min-height: 0;
-  gap: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, .13);
+  background: #fff;
+  color: #3a424c;
+  cursor: pointer;
+  transition: background .18s, color .18s, border-color .18s, opacity .18s;
 }
 
-/* 有封面时不要顶部色条，留给图片干净的一条边 */
-.zhz-pcard--showcase::before {
+.zhz-wall-btn:hover:not(:disabled) {
+  background: #1f2328;
+  border-color: #1f2328;
+  color: #fff;
+}
+
+.zhz-wall-btn:disabled {
+  opacity: .3;
+  cursor: default;
+}
+
+.zhz-wall-btn:focus-visible {
+  outline: 2px solid #6a5ae0;
+  outline-offset: 2px;
+}
+
+/* 滚动容器：隐藏原生滚动条，左右边缘做羽化，
+   滚到头时由 .is-start / .is-end 把对应一侧的羽化收掉 */
+.zhz-wall {
+  --fade-l: 22px;
+  --fade-r: 22px;
+  display: flex;
+  gap: .85rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* proximity 而不是 mandatory：滚轮/拖动小幅移动不会被强行拽回原位 */
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior-x: contain;
+  padding: .2rem .1rem .55rem;
+  margin: 0 -.1rem;
+  /* 拖动时不要顺手框选文字 */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--fade-l),
+                          #000 calc(100% - var(--fade-r)), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 var(--fade-l),
+                          #000 calc(100% - var(--fade-r)), transparent 100%);
+}
+
+.zhz-wall::-webkit-scrollbar {
   display: none;
 }
 
-/* 封面：16:9，hover 时轻微推近，像视频站的海报 */
-.zhz-pcard-cover {
-  position: relative;
-  display: block;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: #0f1224;
+.zhz-wall.is-start {
+  --fade-l: 0px;
 }
 
-.zhz-pcard-cover img {
+.zhz-wall.is-end {
+  --fade-r: 0px;
+}
+
+.zhz-wall:focus-visible {
+  outline: 2px solid #6a5ae0;
+  outline-offset: 5px;
+  border-radius: 16px;
+}
+
+/* 海报卡：宽度固定 + 吸附对齐；拖动时关掉 snap，松手再恢复 */
+.zhz-wall > .zhz-pcard--poster {
+  flex: 0 0 auto;
+  width: clamp(270px, 34vw, 500px);
+  scroll-snap-align: start;
+}
+
+.zhz-wall.is-dragging,
+.zhz-wall.is-free {
+  scroll-snap-type: none;
+  scroll-behavior: auto;
+  cursor: grabbing;
+}
+
+.zhz-wall.is-dragging .zhz-pcard--poster {
+  pointer-events: none;
+}
+
+/* 进度条：只在能滚动时出现，长度代表可视比例 */
+.zhz-wall-rail {
+  height: 3px;
+  margin: .5rem .1rem 0;
+  border-radius: 99px;
+  background: rgba(0, 0, 0, .07);
+  overflow: hidden;
+}
+
+.zhz-wall-rail i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #6a5ae0, #ff6f3c);
+  transform-origin: left center;
+  transform: scaleX(.3);
+  transition: transform .18s linear;
+}
+
+/* ---------- 海报卡本体 ---------- */
+.zhz-wall .zhz-pcard--poster {
+  position: relative;
+  display: block;
+  padding: 0;
+  min-height: 0;
+  aspect-ratio: 16 / 10;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0e1118;
+  isolation: isolate;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .07);
+}
+
+/* 顶部色条改成底部一条更细的产品色：海报的"装订线" */
+.zhz-wall .zhz-pcard--poster::before {
+  top: auto;
+  bottom: 0;
+  height: 3px;
+  opacity: 1;
+  z-index: 4;
+}
+
+.zhz-wall .zhz-pcard--poster:hover {
+  box-shadow: 0 16px 30px -14px rgba(16, 24, 40, .5);
+  border-color: rgba(0, 0, 0, .06);
+}
+
+.zhz-poster-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: top center;
   display: block;
-  transition: transform .45s cubic-bezier(.2, .7, .3, 1);
+  /* 按住拖拽时别触发浏览器的图片拖放 */
+  -webkit-user-drag: none;
+  user-select: none;
+  transition: transform .55s cubic-bezier(.2, .7, .3, 1);
 }
 
-.zhz-pcard--showcase:hover .zhz-pcard-cover img {
-  transform: scale(1.035);
+.zhz-wall .zhz-pcard--poster:hover .zhz-poster-img {
+  transform: scale(1.045);
 }
 
-/* 封面右下角压一层暗角，让右上角的 stat 标签永远读得清 */
-.zhz-pcard-cover::after {
-  content: "";
+/* 压暗层：上沿压一点让右上角标签读得清，底部压深让文字浮起来 */
+.zhz-poster-shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, .28) 0%, rgba(0, 0, 0, 0) 34%);
+  z-index: 1;
   pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(6, 9, 15, .45) 0%, rgba(6, 9, 15, 0) 26%),
+    linear-gradient(180deg, rgba(6, 9, 15, 0) 40%, rgba(6, 9, 15, .62) 70%, rgba(6, 9, 15, .95) 100%);
 }
 
-/* 封面左上角的小图标，代替常规卡片里的方形图标 */
+/* 左上角小图标 */
 .zhz-pcard-badge {
   position: absolute;
   left: .7rem;
   top: .65rem;
-  z-index: 2;
+  z-index: 3;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -129,23 +270,70 @@ body:has(.zhz-portal) #recent-posts {
   font-style: normal;
   line-height: 1;
   background: rgba(255, 255, 255, .9);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
 }
 
-.zhz-pcard--showcase .zhz-pcard-body {
-  padding: .8rem .95rem 1rem;
-  gap: .35rem;
+/* 右上角数据量：压一层玻璃感底，任何截图上都读得清 */
+.zhz-wall .zhz-pcard--poster .zhz-pcard-stat {
+  position: absolute;
+  top: .7rem;
+  right: .7rem;
+  z-index: 3;
+  font-size: .67rem;
+  padding: .05rem .4rem;
+  color: #fff;
+  background: rgba(10, 14, 22, .55);
+  border: 1px solid rgba(255, 255, 255, .18);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 1;
 }
 
-.zhz-pcard--showcase .zhz-pcard-stat {
-  top: .72rem;
-  right: .72rem;
-  z-index: 2;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .22);
+/* 海报文字：全部压在封面底部 */
+.zhz-poster-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 3px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: .28rem;
+  padding: .55rem .9rem .95rem;
 }
 
-.zhz-pcard--showcase .zhz-pcard-t {
-  font-size: 1.02rem;
+.zhz-poster-body .zhz-pcard-t {
+  color: #fff;
+  font-size: 1.04rem;
+  line-height: 1.3;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, .4);
+}
+
+.zhz-poster-body .zhz-pcard-t em {
+  color: rgba(255, 255, 255, .62);
+  font-size: .66rem;
+}
+
+.zhz-poster-body .zhz-pcard-d {
+  color: rgba(255, 255, 255, .8);
+  font-size: .765rem;
+  line-height: 1.5;
+  -webkit-line-clamp: 2;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, .35);
+}
+
+.zhz-poster-body .zhz-pcard-tags {
+  padding-top: .1rem;
+  margin-top: 0;
+}
+
+/* 标签压在图上：一律白色玻璃片，不用产品色（深底上糊） */
+.zhz-poster-body .zhz-pcard-tags span {
+  color: #fff;
+  background: rgba(255, 255, 255, .17);
+  border: 1px solid rgba(255, 255, 255, .16);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 }
 
 /* ---------- 卡片 ---------- */
@@ -312,6 +500,30 @@ body:has(.zhz-portal) #recent-posts {
   background: color-mix(in srgb, var(--zhz-c, #6b7280) 24%, transparent);
 }
 
+/* 海报墙：箭头与进度条在暗色下换成浅底深字 */
+[data-theme="dark"] .zhz-wall-btn {
+  background: #232830;
+  border-color: rgba(255, 255, 255, .2);
+  color: #dfe6ee;
+}
+
+[data-theme="dark"] .zhz-wall-btn:hover:not(:disabled) {
+  background: #e6edf3;
+  border-color: #e6edf3;
+  color: #12151b;
+}
+
+[data-theme="dark"] .zhz-wall-rail {
+  background: rgba(255, 255, 255, .16);
+}
+
+/* 海报上的标签一律白玻璃片，不走产品色（写在最后才压得住上面的通用规则） */
+[data-theme="dark"] .zhz-poster-body .zhz-pcard-tags span {
+  color: #fff;
+  background: rgba(255, 255, 255, .17);
+  border-color: rgba(255, 255, 255, .16);
+}
+
 /* ---------- 响应式 ---------- */
 @media (max-width: 900px) {
   /* 2 列 */
@@ -326,19 +538,33 @@ body:has(.zhz-portal) #recent-posts {
     gap: .65rem;
   }
 
-  /* 作品大卡在窄屏仍然是"图在上、字在下"，不跟着普通卡横排
-     （选择器要比后面的 .zhz-pcard 更具体，否则会被覆盖） */
-  .zhz-portal-grid--showcase .zhz-pcard--showcase {
-    flex-direction: column;
+  /* 海报墙：窄屏卡片按视口宽度走，右侧露一角提示可滑 */
+  .zhz-wall > .zhz-pcard--poster {
+    width: min(78vw, 330px);
   }
 
-  /* 数据量标签继续压在封面右上角，不要被挤到卡片底部 */
-  .zhz-portal-grid--showcase .zhz-pcard--showcase .zhz-pcard-stat {
-    position: absolute;
-    top: .62rem;
-    right: .7rem;
-    align-self: auto;
-    margin-left: 0;
+  .zhz-wall {
+    gap: .7rem;
+    --fade-l: 14px;
+    --fade-r: 14px;
+  }
+
+  .zhz-poster-body {
+    padding: .45rem .8rem .8rem;
+  }
+
+  .zhz-poster-body .zhz-pcard-t {
+    font-size: .97rem;
+  }
+
+  .zhz-poster-body .zhz-pcard-d {
+    font-size: .73rem;
+    -webkit-line-clamp: 2;
+  }
+
+  /* 手机上左右箭头没意义（本来就能滑），把标题行留干净 */
+  .zhz-portal-group--wall.is-scrollable .zhz-wall-nav {
+    display: none;
   }
 
   .zhz-pcard {
