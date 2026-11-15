@@ -75,3 +75,9 @@ source/human-body-bricks/assets/source/
 source/human-body-bricks/assets/test-hq.glb
 source/human-body-bricks/review/
 source/human-body-bricks/人体积木.html
+
+# 《地球拼图·自然地理版》：构建期原始输入（约 40MB geojson + terrarium 瓦片）、
+# 审阅截图与可重建的单文件版都不入库；线上只需 原型/ 下的运行时文件。
+source/地球拼图-自然地理版/data/
+source/地球拼图-自然地理版/截图/
+source/地球拼图-自然地理版/发布/

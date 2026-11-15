@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="deep">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='29' fill='%232a5f7d'/%3E%3Cpath d='M8 26h48M8 40h48M32 3v58' stroke='%23cfe3ef' stroke-width='2.5' fill='none' opacity='.55'/%3E%3C/svg%3E">
+  <title>地球拼图 · 3D 立体球面拼装 · 自然地理版</title>
+<meta name="description" content="3D 地球拼图（自然地理版）：按真实海岸线切成带厚度、可抓取、可旋转的球面壳片，含七大洲 / 主要岛屿 / 全球 52 个地质板块 / 柯本气候区，以及山脉 / 大河 / 洋流 / 海洋 / 气压带风带 / 山峰海沟 / 国家点位七套可拆装的专题拼片、真实地形起伏、地理百科、成就系统与平面展开图。只表示自然地理，不画国界与行政区域界线。">
+<meta name="theme-color" content="#0b1420">
+<meta name="app-version" content="2.5.0">
+<meta name="robots" content="index,follow">
+<meta name="color-scheme" content="dark light">
+<!-- 部署到别的路径时，改这里的 canonical / og:url / og:image；app-addons.js 也会在 http(s) 下按实际地址自动校正。 -->
+<link rel="canonical" href="https://dq7866.online/earth-puzzle/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="地球仪拼图 · 自然地理版">
+<meta property="og:title" content="地球拼图 · 3D 立体球面拼装 · 自然地理版">
+<meta property="og:description" content="把地球按真实海岸线切成 10 套可拆装的球面拼片，边拼边学自然地理。免费、无广告、无账号，离线可用。只表示自然要素，不画国界与行政区域界线。">
+<meta property="og:url" content="https://dq7866.online/earth-puzzle/">
+<meta property="og:image" content="https://dq7866.online/earth-puzzle/assets/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="地球拼图 · 3D 立体球面拼装 · 自然地理版">
+<meta name="twitter:description" content="10 套可拆装球面拼片、真实地形起伏、15 项成就与平面展开图。免费无广告，浏览器打开即玩。">
+<meta name="twitter:image" content="https://dq7866.online/earth-puzzle/assets/og-cover.png">
+<link rel="stylesheet" href="style.css">
+<script>
+/* 商业发布级启动兜底：必须在任何业务脚本之前注册。
+   1) 抓启动期同步异常 / Promise 拒绝；2) WebGL 预检与上下文丢失；
+   3) 9 秒未就绪显示可操作的失败卡片，不再出现「一直转圈的白/黑屏」。 */
+(function () {
+  var W = window;
+  W.__GP_ERRORS = [];
+  W.__GP_READY = false;
+  W.__GP_FATAL = null;
+  W.__GP_WEBGL_OK = null;
+  function push(m) { if (W.__GP_ERRORS.length < 40) W.__GP_ERRORS.push(String(m)); }
+  function fail(title, detail) {
+    if (W.__GP_FATAL && W.__GP_FATAL.shown) return;
+    var prev = W.__GP_FATAL;
+    // WebGL 预检的诊断比「后续脚本抛错」更有用：保留主因，把异常作为附加信息。
+    if (prev && !prev.shown && /WebGL|显卡|硬件加速/.test(prev.title)) {
+      W.__GP_FATAL = { title: prev.title, detail: prev.detail + (detail ? '（附加信息：' + detail + '）' : ''), shown: false };
+    } else {
+      W.__GP_FATAL = { title: title, detail: detail || '', shown: false };
+    }
+    render();
+  }
+  W.__GP_FAIL = fail;
+  W.addEventListener('error', function (e) {
+    var resource = !!(e && e.target && e.target !== W && e.target.tagName && !e.message);
+    push(e && e.message ? e.message : ('资源加载失败: ' + (e && e.target && (e.target.src || e.target.href) || '')));
+    if (!resource && !W.__GP_READY) fail('页面启动失败', (e && e.message) || '脚本执行出错');
+  }, true);
+  W.addEventListener('unhandledrejection', function (e) {
+    var r = e && e.reason, m = r && (r.message || r) || '未处理的异步异常';
+    push(m);
+    if (!W.__GP_READY) fail('页面资源加载失败', m);
+  });
+  try {
+    var c = document.createElement('canvas');
+    var gl = c.getContext('webgl2') || c.getContext('webgl') || c.getContext('experimental-webgl');
+    W.__GP_WEBGL_OK = !!gl;
+    if (!gl) W.__GP_FATAL = { title: '当前浏览器无法启用 WebGL', detail: '3D 地球需要 WebGL。请开启浏览器硬件加速，或改用较新版本的 Edge / Chrome / Firefox。', shown: false };
+    else { var ext = gl.getExtension('WEBGL_lose_context'); if (ext) ext.loseContext(); }
+  } catch (err) {
+    W.__GP_WEBGL_OK = false;
+    W.__GP_FATAL = { title: 'WebGL 初始化失败', detail: (err && err.message) || '显卡驱动或浏览器设置阻止了 3D 渲染。', shown: false };
+  }
+  function render() {
+    var f = W.__GP_FATAL;
+    if (!f || f.shown) return;
+    if (!document.body) { setTimeout(render, 30); return; }
+    if (document.getElementById('gp-boot-fail')) { f.shown = true; return; }
+    f.shown = true;
+    var box = document.createElement('div');
+    box.id = 'gp-boot-fail';
+    box.setAttribute('role', 'alert');
+    box.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(6,12,20,.97);color:#dbe5ef;font:14px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;';
+    var card = document.createElement('div');
+    card.style.cssText = 'max-width:460px;width:100%;padding:26px 28px;border:1px solid rgba(150,180,210,.28);border-radius:14px;background:rgba(16,26,40,.95);box-shadow:0 20px 60px rgba(0,0,0,.5);';
+    var h = document.createElement('h2');
+    h.textContent = f.title;
+    h.style.cssText = 'margin:0 0 10px;font-size:19px;font-weight:600;color:#eaf3fb;';
+    var p = document.createElement('p');
+    p.textContent = f.detail || '请刷新页面重试。若持续出现，可尝试清除站点数据后重新打开。';
+    p.style.cssText = 'margin:0 0 14px;color:#a9bdd0;font-size:13px;';
+    var tip = document.createElement('p');
+    tip.textContent = '本作品完全离线运行，不上传任何数据；重新加载不会丢失本机存档。';
+    tip.style.cssText = 'margin:0 0 18px;color:#8fa3b8;font-size:12px;';
+    var btn = document.createElement('button');
+    btn.textContent = '重新加载';
+    btn.style.cssText = 'padding:9px 20px;border:1px solid rgba(131,182,220,.55);border-radius:8px;background:linear-gradient(180deg,#2b6a92,#1d4a68);color:#fff;font:inherit;font-size:13px;cursor:pointer;';
+    btn.onclick = function () { location.reload(); };
+    card.appendChild(h); card.appendChild(p); card.appendChild(tip); card.appendChild(btn);
+    box.appendChild(card);
+    document.body.appendChild(box);
+  }
+  W.addEventListener('DOMContentLoaded', function () {
+    if (W.__GP_FATAL) render();
+    var cv = document.getElementById('gp-canvas');
+    if (cv) cv.addEventListener('webglcontextlost', function (e) {
+      e.preventDefault();
+      fail('显卡上下文已丢失', '浏览器回收了 3D 渲染资源（常见于切换显卡、长时间后台或驱动重置），重新加载即可恢复。');
+    });
+    setTimeout(function () {
+      if (!W.__GP_READY && !W.__GP_FATAL) fail('启动超时', '3D 资源加载超过 9 秒。请检查网络或浏览器扩展后重新加载。');
+    }, 9000);
+  });
+})();
+</script>
+<script src="profiles.js"></script>
+</head>
+<body>
+<canvas id="gp-canvas" tabindex="0" aria-label="3D 地球拼图画布：可用方向键旋转视角、加减号缩放、0 复位视角"></canvas>
+
+<div class="gp-ui">
+
+  <header class="gp-header">
+    <div class="gp-brand">
+      <span class="gp-mark"></span>
+      <div>
+        <h1>地球仪拼图</h1>
+        <p>GLOBE PUZZLE <span id="gp-version"></span> · 立体球面拼装</p>
+      </div>
+    </div>
+    <div class="gp-modebar">
+      <div class="gp-modes" role="group" aria-label="拼片内容">
+        <button class="gp-mode active" data-mode="regions">大洲与岛屿</button>
+        <button class="gp-mode" data-mode="plates">地质板块</button>
+        <button class="gp-mode" data-mode="climate">柯本气候区</button>
+      </div>
+      <div class="gp-modes gp-modes-thematic" role="group" aria-label="专题要素">
+        <span class="gp-modebar-tag">专题要素</span>
+        <button class="gp-mode gp-mode-sm" data-mode="mountains">山脉</button>
+        <button class="gp-mode gp-mode-sm" data-mode="rivers">大河</button>
+        <button class="gp-mode gp-mode-sm" data-mode="currents">洋流</button>
+        <button class="gp-mode gp-mode-sm" data-mode="oceans">海洋</button>
+        <button class="gp-mode gp-mode-sm" data-mode="belts">气压带·风带</button>
+        <button class="gp-mode gp-mode-sm" data-mode="peaks">山峰·海沟</button>
+        <button class="gp-mode gp-mode-sm" data-mode="countries">国家点位</button>
+      </div>
+    </div>
+    <div class="gp-head-right">
+      <span class="gp-sub" id="gp-mode-sub"></span>
+      <button class="gp-plain" id="gp-bp-cycle" data-short="关卡">切换关卡</button>
+      <button class="gp-plain" id="gp-help-btn" data-short="帮助">玩法帮助</button>
+      <button class="gp-plain" id="gp-ach-btn" data-short="成就">成就 <span id="gp-ach-count">0/15</span></button>
+      <button class="gp-plain" id="gp-about-btn" data-short="关于">关于 / 数据源</button>
+      <span class="gp-profile-chip" id="gp-profile-chip" title="当前本地档案（点击可切换）" role="button" tabindex="0">我</span>
+      <button class="gp-plain gp-profile-btn" id="gp-profile-btn" data-short="档案" title="本地档案：新建 / 切换 / 备份进度">档案</button>
+      <button class="gp-plain gp-tip-btn" id="gp-tip-btn" data-short="支持" title="支持作者 · 完全自愿">支持作者</button>
+    </div>
+  </header>
+
+  <div class="gp-train" id="gp-train" hidden>
+    <span class="gp-train-idx" id="gp-train-idx">1/10</span>
+    <b id="gp-train-name">找到：中国</b>
+    <span class="gp-train-score">得分 <b id="gp-train-score">0</b></span>
+    <button class="gp-train-exit" id="gp-train-exit" title="退出训练">×</button>
+  </div>
+
+  <aside class="gp-left">
+
+    <section class="gp-support-card" aria-label="支持作者">
+      <div class="gp-support-txt">
+        <b>喜欢这颗地球吗？</b>
+        <span>免费 · 无广告 · 无账号 · 完全离线</span>
+      </div>
+      <button class="gp-support-btn" id="gp-support-btn" type="button">请作者喝杯茶</button>
+    </section>
+
+    <section class="gp-panel" id="gp-theme-panel">
+      <h2>主题</h2>
+      <div class="gp-themes" id="gp-theme">
+        <button data-theme="deep" class="active"><i style="background:#0b1420"></i>深空</button>
+        <button data-theme="aurora"><i style="background:#06121a"></i>极光</button>
+        <button data-theme="dawn"><i style="background:#1a1426"></i>黎明</button>
+        <button data-theme="daylight"><i style="background:#9cc6e6"></i>白昼晴空</button>
+      </div>
+      <p class="gp-note">切换整体视觉风格：背景、光照、星空、大气辉光与界面配色一起变。选择会存到本机，下次打开自动沿用。</p>
+    </section>
+
+    <section class="gp-panel gp-scope-panel">
+      <h2>当前作用域</h2>
+      <div class="gp-crumbs" id="gp-crumbs"></div>
+      <div class="gp-scope-row">
+        <button class="gp-btn gp-btn-sm" id="gp-up">↑ 返回上级</button>
+        <button class="gp-btn gp-btn-sm" id="gp-flat-btn">平面展开图</button>
+      </div>
+      <!-- v2.5 发布级清理：移除从「中国行政区划版」继承的「选择省 / 选择市」控件。
+           本版只有自然地理层级，不存在省 / 市数据，留着会造成合规误解。 -->
+      <p class="gp-note">拖动拼片吸附上球 · 点拼片看知识卡 · F 平面展开图 · R 重来</p>
+    </section>
+
+    <section class="gp-panel gp-ops-panel">
+      <h2>拼图操作</h2>
+      <div class="gp-scope-row">
+        <button class="gp-btn gp-btn-sm" id="gp-focus2">转到下一片</button>
+        <button class="gp-btn gp-btn-sm" id="gp-detach2">拆解已拼片</button>
+        <button class="gp-btn gp-btn-sm" id="gp-reset2">重新打散</button>
+      </div>
+      <div class="gp-scope-row">
+        <button class="gp-btn gp-btn-sm" id="gp-train-btn">定位训练</button>
+      </div>
+      <p class="gp-note">球面片单击拆下 / 再单击装回，双击飞回托盘；双击脱离片标出它在球上的位置。「拆解已拼片」是一键版本。定位训练会拿当前这套拼片出题。</p>
+    </section>
+
+    <section class="gp-panel" id="gp-belts-panel" hidden>
+      <h2>气候联动</h2>
+      <div class="gp-linkmode" id="gp-linkmode">
+        <button data-link="belt" class="active">按气候带</button>
+        <button data-link="lat">按纬度带</button>
+      </div>
+      <div class="gp-belts" id="gp-belts"></div>
+      <p class="gp-note" id="gp-belt-note">点一条气候带（或直接点球面上的气候区），全球同类气候一起亮起，其余淡出。</p>
+    </section>
+
+    <section class="gp-panel">
+      <h2>专题图层</h2>
+      <div class="gp-layers" id="gp-layers"></div>
+      <label class="gp-check"><input type="checkbox" id="gp-terrain" checked> 地形起伏（真实 DEM）</label>
+      <label class="gp-check"><input type="checkbox" id="gp-hints" checked> 显示目标轮廓提示</label>
+      <label class="gp-check"><input type="checkbox" id="gp-pnames"> 拼片名称（球面上显示每片的名字）</label>
+      <p class="gp-sub">名称语言</p>
+      <div class="gp-linkmode gp-lang" id="gp-lang">
+        <button data-lang="zh" class="active">中文</button>
+        <button data-lang="en">English</button>
+        <button data-lang="both">双语</button>
+      </div>
+      <p class="gp-sub">标注样式</p>
+      <div class="gp-linkmode" id="gp-label-font">
+        <button data-font="sans" class="active">黑体</button>
+        <button data-font="serif">宋体</button>
+        <button data-font="kai">楷体</button>
+        <button data-font="mono">等宽</button>
+      </div>
+      <div class="gp-linkmode" id="gp-label-size">
+        <button data-size="0.95">小</button>
+        <button data-size="1.2" class="active">中</button>
+        <button data-size="1.45">大</button>
+        <button data-size="1.7">特大</button>
+      </div>
+      <div class="gp-linkmode" id="gp-label-weight">
+        <button data-weight="600">常规</button>
+        <button data-weight="800" class="active">加粗</button>
+      </div>
+      <div class="gp-linkmode" id="gp-label-stroke">
+        <button data-stroke="0">无描边</button>
+        <button data-stroke="1" class="active">细描边</button>
+        <button data-stroke="2">粗描边</button>
+      </div>
+      <p class="gp-note gp-thematic-note" id="gp-thematic-note" title="完整声明见「关于 / 数据源」"></p>
+    </section>
+
+    <section class="gp-panel" id="gp-currents-panel" hidden>
+      <h2>洋流</h2>
+      <div class="gp-months" id="gp-cur-months">
+        <button data-month="1" class="active">1 月</button>
+        <button data-month="7">7 月</button>
+      </div>
+      <div class="gp-curs" id="gp-current-chips"></div>
+      <p class="gp-note" id="gp-current-note">暖流（红）增温增湿，寒流（蓝）降温减湿。点一条洋流，看它把沿岸气候改成了什么样。</p>
+    </section>
+
+    <section class="gp-panel" id="gp-wind-panel" hidden>
+      <h2>气压带 · 风带</h2>
+      <div class="gp-months" id="gp-months">
+        <button data-month="1" class="active">1 月</button>
+        <button data-month="7">7 月</button>
+      </div>
+      <div class="gp-centers" id="gp-centers"></div>
+      <p class="gp-note" id="gp-wind-note">示意环带，不是实测等压线。切换月份看整套气压带风带随太阳直射点南北移动。</p>
+    </section>
+    <section class="gp-panel gp-hide-narrow">
+      <h2>关卡图纸</h2>
+      <div class="gp-blueprints" id="gp-blueprints"></div>
+      <p class="gp-note">大洲与岛屿按真实海岸线切分；板块取 PB2002 实测边界；气候区取柯本分类实测边界；山脉、河流、海域为国家地理数据实测面；洋流、气压带为教学示意；山峰与海沟为真实峰顶 / 水深；国家点位片只标首都位置。十套内容各自成局，进度分别统计。</p>
+    </section>
+
+    <section class="gp-panel gp-hide-narrow">
+      <h2>难度 <b class="gp-gval" id="gp-granularity-val"></b></h2>
+      <div class="gp-chips" id="gp-levels"></div>
+      <p class="gp-note">先拼 7 块大洲，再拼 38 块（岛屿独立成片），然后挑战 52 块地质板块；顶栏第二排是七套专题片——32 条山脉、24 条大河、25 条洋流、51 片海域、13 条气压带风带、22 个山峰海沟点位、195 个国家点位片，形状各异、拼起来更考验位置感。</p>
+    </section>
+
+    <section class="gp-panel gp-hide-narrow">
+      <h2>地理百科</h2>
+      <select id="gp-encyclopedia" class="gp-native-select"></select>
+      <p class="gp-note">山脉 / 河流 / 海洋专题要素的科普卡片；不表示精确位置与国界。</p>
+    </section>
+
+  </aside>
+
+  <aside class="gp-right">
+    <section class="gp-panel gp-progress">
+      <h2>拼装进度</h2>
+      <div class="gp-progress-num" id="gp-progress-text">0 / 0 片</div>
+      <div class="gp-track"><div class="gp-bar" id="gp-progress-bar"></div></div>
+      <div class="gp-meta">
+        <span>数据源：<b id="gp-provider"></b></span>
+        <span>托盘：<b id="gp-batch">—</b></span>
+        <span>球面三角面：<b id="gp-stat-tri">—</b></span>
+      </div>
+      <div class="gp-actions">
+        <button class="gp-btn" id="gp-focus">转到下一片</button>
+        <button class="gp-btn" id="gp-detach">拆解已拼片</button>
+        <button class="gp-btn" id="gp-reset">重新打散</button>
+        <button class="gp-btn" id="gp-view">复位视角</button>
+      </div>
+    </section>
+
+    <section class="gp-panel gp-find-panel" id="gp-find-panel">
+      <h2>找片</h2>
+      <input class="gp-find-input" id="gp-find-input" type="search" placeholder="名称 / 英文 / 首都" autocomplete="off">
+      <div class="gp-find-scope" id="gp-find-scope" hidden></div>
+      <div class="gp-find-list" id="gp-find-list"></div>
+      <p class="gp-note">输入关键字即时筛选；点结果把片<b>取到托盘并高亮</b>，同时把地球转到它该拼的位置。↑↓ 选择，回车确认。清空关键字列出所有已拆下的片。</p>
+    </section>
+
+    <section class="gp-card" id="gp-card" aria-live="polite">
+      <button class="gp-card-x" id="gp-card-close" aria-label="关闭">×</button>
+      <div class="gp-card-head">
+        <span class="gp-card-kicker">已归位 · 地理卡片</span>
+        <h2 id="gp-card-name"></h2>
+        <p id="gp-card-en"></p>
+      </div>
+      <dl>
+        <div><dt>行政区划</dt><dd id="gp-card-area"></dd></div>
+        <div><dt>归属与类型</dt><dd id="gp-card-span"></dd></div>
+        <div><dt>地形与构造</dt><dd id="gp-card-terrain"></dd></div>
+      </dl>
+      <div class="gp-fact"><span>地理札记</span><p id="gp-card-fact"></p></div>
+    </section>
+  </aside>
+
+  <div class="gp-drag-info" id="gp-drag-info"></div>
+  <div class="gp-spot" id="gp-spot"></div>
+  <div class="gp-complete" id="gp-complete">全部归位 · 点拼片看知识卡</div>
+  <div class="gp-toast" id="gp-toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <footer class="gp-footer">
+    <span class="gp-warn official" id="gp-badge">自然地理</span>
+    <span class="gp-sheet" id="gp-sheet"></span>
+    <span class="gp-compliance-text" id="gp-compliance"></span>
+    <span class="gp-coarse" id="gp-coarse-note"></span>
+    <span class="gp-review" id="gp-review"></span>
+  </footer>
+</div>
+
+<div class="gp-flat" id="gp-flat">
+  <div class="gp-flat-bar">
+    <b>平面展开图</b>
+    <span id="gp-flat-label"></span>
+    <button id="gp-flat-close" aria-label="关闭">×</button>
+  </div>
+  <canvas id="gp-flat-canvas"></canvas>
+</div>
+
+<div class="gp-modal" id="gp-help">
+  <div class="gp-modal-card">
+    <button class="gp-card-x" id="gp-help-close" aria-label="关闭">×</button>
+    <h2>玩法帮助</h2>
+
+    <h3>目标</h3>
+    <p>把散落在球外托盘里的拼片，一片片<b>拖回球面上它本来的位置</b>，直到整颗地球拼装完成。顶栏分两排，共<b>十套内容</b>：上排三套是「实心剖分」——<b>大洲与岛屿 → 地质板块 → 柯本气候区</b>，下排七套是「专题要素」——<b>山脉 / 大河 / 洋流 / 海洋 / 气压带·风带 / 山峰·海沟 / 国家点位</b>，把原本只能看的专题图层也切成可以拆装的片。难度（片数）在左栏「难度」里选。</p>
+
+    <h3>基本操作</h3>
+    <p><b>拖拼片</b>：按住托盘里的拼片拖到球面附近，转正到角度偏差 ≤ 3.6° 松手即吸附；偏差太大会弹回托盘并提示差多少度。<b>转地球</b>：在空白处（球面外的深空或已拼区域）按住拖动；<b>缩放</b>：滚轮。<b>看属性</b>：单击任何拼片（托盘里的或已归位的都行），右下角会弹出它的地理卡片——名称、面积、地形、冷知识。<b>找位置</b>：双击托盘里的拼片，地球会转到它对应的位置并打一圈黄色脉冲光标，告诉你它该拼到哪儿。<b>下钻</b>：双击已归位的拼片可继续进入更细一级（部分关卡支持）。</p>
+
+    <h3>托盘与批次</h3>
+    <p>拼片不一次全倒出来，按批次悬浮在地球两侧（竖屏在球前）；拼完一批自动补下一批。滚轮缩放时托盘会跟着重排，「转到下一片」可以自动把视角转到任一未拼片的位置。</p>
+
+    <h3>拼装与拆解</h3>
+    <p><b>拆装是常驻交互，不需要先进入某个“台”</b>：球面上的任意拼片，<b>单击</b>就沿法线弹起、离开球面（完整可见、随地球转动、轻微漂浮）；<b>单击</b>脱离球面的片就落回原位拼合；<b>双击</b>球面上的片，它沿法线飞离、缩小，<b>飞回拼装前的位置（托盘原位）</b>，之后照常从托盘拖出重拼；<b>双击</b>脱离球面的片，地球转到它该在的位置并打一圈黄色脉冲光标，标出它在球体上的位置。按住拖开（>6px）仍是旋转地球，不会误触。</p>
+    <p>左栏「拼图操作」里：「转到下一片」把镜头转到未拼的片；「拆解已拼片」是一键版本——有脱离片时全部拼合回去，否则先拼出完整地球再全部拆下；「重新打散」则是整局重来（清空进度）。只想看完成态可以点「全部归位」。</p>
+
+    <h3>专题片：七套专题要素，与三套剖分同级</h3>
+    <p>这三套和板块、气候区<b>完全同级</b>：同样从托盘拖到球面、单击拆下、双击飞回、双击标位置，「拆解已拼片」和「定位训练」也照样可用。区别在几何来源——<b>山脉</b>是 Natural Earth 的 32 条实测山脉范围面（安第斯、喜马拉雅、落基山、天山、祁连山……），拆下来是一块块<b>山体薄片</b>；<b>大河</b>是 24 条世界主要河流的中心线按球面法向加宽成的<b>蓝色水带</b>（真实的河宽在地图上不到 1 像素，做成拼片必须夸张），长江—金沙江、澜沧江—湄公河这类被数据改了名的河段已经合并成一条；<b>洋流</b>是 25 条主干流路的示意带子，暖流橙红、寒流亮蓝，北印度洋的季风洋流只保留冬季态，夏季反向写在知识卡里。</p>
+    <p><b>海洋</b>（51 片）取 Natural Earth 1:10m 海域面：<b>五大洋</b>按南北两半合成一整片（太平洋、大西洋本来就是两块数据拼起来的，所以这类片不出侧壁，接缝处不会划出一道白线），另收 46 个主要边缘海、海湾——地中海、加勒比海、南海、红海、波斯湾、北海、波罗的海、白令海、珊瑚海……拆下来是一片片<b>贴着海岸线的蓝绿色水域</b>。知识卡上的面积：大洋用教材通行口径（含边缘海），边缘海按范围面估算，个别海域（如地中海）因为把亚得里亚海、爱琴海单独列成了别的数据，会比教科书数字小一些。</p>
+    <p><b>气压带·风带</b>（13 片）是三圈环流按纬度切成的<b>整圈环带</b>：7 条气压带（赤道低压、南北副热带高压、南北副极地低压、南北极地高压）+ 6 条风带（信风、西风、极地东风），从北极到南极首尾相接、不重叠也不留缝，拼完是一颗「条纹球」。高压橙、低压蓝、西风青、信风黄绿，颜色就是它们的性质。这是理解气候成因最直观的一层：为什么赤道多雨、为什么 30° 附近是沙漠带、为什么西欧常年西风。</p>
+    <p><b>山峰·海沟</b>（22 片）是点要素做成的小圆片：14 座各洲最高峰（珠峰、乔戈里、阿空加瓜、乞力马扎罗、文森峰、查亚峰……）+ 8 处海沟与死海（马里亚纳、汤加、日本海沟、波多黎各海沟……）。片心就是峰顶 / 海沟的位置，知识卡给真实海拔与水深，并说明它是哪个板块俯冲带。</p>
+    <p><b>国家点位</b>（195 片）把 v2.0 的「首都一点 + 国名」再往前推一步：每国一个小圆片，<b>圆心是首都</b>，片的大小按标注等级分三档（大国大一点、小国小一点，<b>不代表国土面积</b>），颜色按大洲区分。它仍然<b>不是政区图</b>——没有国界、没有领土轮廓、没有填色，拼完是一层撒在陆地上的彩色圆点，而不是一张上色的世界政区图。欧洲小国密集处圆片会叠在一起，所以每片按序微抬升千分之几，避免共面闪烁。想按轮廓拼国家请另找政区拼图，那一类涉及国界，需按地图审核流程走。</p>
+
+    <p>进入这三套内容时，左栏同名的专题图层会自动关闭——否则拆下来的片会和底下的山川河流重影。想对照底图，可以再手动把「山脉」「河流」图层打开。</p>
+
+    <h3>找片：片太多、名字太长怎么办</h3>
+    <p>右栏「找片」是给 195 个国家点位片准备的工具。关键字支持<b>中文名、英文名、首都名</b>三种检索——「法国」「France」「巴黎」都能找到同一片；<b>清空关键字</b>时它直接列出所有<b>已拆下 / 待拼</b>的片，一键拆解之后这就是一份待找清单。点任意一条：还没摆出来的片会<b>直接取到托盘里</b>（放大闪一下、上方弹出名字气泡），同时地球转到它该拼的位置、打一圈脉冲光标；已经拆下的片则直接把镜头转过去。<b>双击托盘里的片</b>同样会转过去标位置——这两条路都能让你马上把它拖到球面上。</p>
+    <p>国家点位模式下还有一排<b>大洲筛选</b>：点「非洲」，球面上只留非洲的片、其他洲暂时藏起来，195 片立刻减到 50 多片；再配合搜索，找任何一国都在两步之内。筛选只影响显示，归位状态与进度都不变。</p>
+
+    <h3>名称语言与标注样式</h3>
+    <p>左栏「名称语言」把球面上的<b>所有名称</b>在<b>中文 / English / 双语</b>之间切换——拼片名、山峰海沟、河流、洋流、气压中心、国家名一起换，知识卡与定位训练的题面也跟着换，不会出现「一半中文一半英文」。双语模式把英文并排放在中文后面，遇到没有英文名的条目自动退回中文，不留空标签。</p>
+    <p>下面的「标注样式」可调<b>字体（黑体 / 宋体 / 楷体 / 等宽）、字号（小 / 中 / 大 / 特大）、字重（常规 / 加粗）、描边（无 / 细 / 粗）</b>，改完立即重绘到球面上。字太小看不清就调「大」，字挡住球面就调「小」；设置对当前这套内容与之后切换的内容都生效。</p>
+
+    <h3>主题</h3>
+    <p>左栏新增「主题」面板，四个预设一键切换整体视觉：<b>深空</b>（默认，午夜深蓝 + 青蓝高光）、<b>极光</b>（深青绿调，青绿大气辉光与海洋）、<b>黎明</b>（暖紫调，玫红暖辉光）、<b>白昼晴空</b>（浅蓝天空背景 + 白色面板深色字，并自动隐藏星空）。主题不是只换界面皮肤——它同时改 3D 场景（背景、光照、星空、大气辉光、海洋色调、脉冲圈）与界面配色（面板、文字、强调色），切换时地球光影与界面是统一的；选择存到本机，下次打开自动沿用。</p>
+
+    <h3>专题图层</h3>
+    <p>左栏「专题图层」可叠加<b>地形起伏、山脉、河流、海洋名称、气压带风带、洋流</b>。气压带可切 1 月 / 7 月看整套系统随太阳直射点南北移动；洋流层暖流红、寒流蓝，北印度洋冬夏环流反向，可逐条点选看它对沿岸气候的影响。建议一次开一层，信息量刚好。</p>
+
+    <h3>气候联动（柯本气候区模式）</h3>
+    <p>切到「柯本气候区」后左栏出现联动面板：<b>按气候带</b>点亮 A–E 同类气候区、其余淡出；<b>按纬度带</b>点一片气候区或快捷纬线（赤道 / 回归线 / 40° / 极圈），这条纬线穿过的气候区一起亮起——「同纬度为什么气候不同」一眼可见，面板还会列出这条纬线附近的冷暖洋流。</p>
+
+    <h3>平面展开图</h3>
+    <p>左栏「平面展开图」把球面摊平成世界地图，拼片进度、洋流、气压中心同步显示，便于对照经纬位置找拼片。点图中的拼片同样能触发联动。</p>
+
+    <h3>小贴士</h3>
+    <p>先拼大块（亚洲、非洲）定骨架，再拼小岛；开「显示拼图轮廓」提示可以让目标位置显影；成就面板里 15 项成就会随玩法逐个点亮，进度存在本机。一家人共用一台设备时，用顶栏「档案」各建一个档案，成就与主题互不串档；「导出备份」可以把进度搬去另一台电脑。</p>
+
+    <h3>键盘与无障碍</h3>
+    <p>点一下画布让它获得键盘焦点后，<b>方向键</b>旋转地球、<b>+ / −</b> 缩放、<b>0</b> 复位视角。在搜索框里打字不会误触发快捷键；<b>Esc</b> 会从最上层的弹窗开始逐层退出。所有按钮都能用 Tab 聚焦，焦点有高亮描边。</p>
+  </div>
+</div>
+
+<div class="gp-modal" id="gp-about">
+  <div class="gp-modal-card">
+    <button class="gp-card-x" id="gp-about-close" aria-label="关闭">×</button>
+    <h2>关于与数据源</h2>
+    <p>这是一个 <b>3D 立体地球拼图</b>：把地球按真实海岸线切成有厚度、能拿起来、能旋转、能嵌合的壳片，再拼回球面。十套内容——<b>七大洲（7 片）→ 大洲与主要岛屿（38 片）→ 地质板块（52 片）→ 柯本气候区（24 片）→ 山脉（32 片）→ 大河（24 片）→ 洋流（25 片）→ 海洋（51 片）→ 气压带·风带（13 片）→ 山峰·海沟（22 片）→ 国家点位（195 片）</b>。</p>
+
+    <h3>合规基线</h3>
+    <p id="gp-compliance-long" class="gp-legal"></p>
+    <p id="gp-data-detail" class="gp-legal"></p>
+    <p class="gp-legal">本版<b>只表示自然地理要素</b>：大陆与岛屿的陆块轮廓、地质板块、山脉 / 河流 / 海洋等自然要素。不绘制国界线、行政区域界线、领海线或断续线，也不以任何方式表示主权归属或出现国家名称作为主权表述。因此不属于《地图管理条例》所称「向社会公开的地图」中涉及国界、行政区域界线的情形，无需申请审图号。</p>
+
+    <h3>数据来源</h3>
+    <p>陆块轮廓取自 <b>Natural Earth 1:50m</b>（公有领域，U.S. Government work）。构建时按大洲把国界全部溶解（共享边抵消），只保留海岸线；岛屿按公开的岛屿中心坐标匹配命名。生成脚本见 <code>build_nature.py</code>，构建输入不随产品分发。</p>
+    <p>地质板块边界取自 <b>PB2002</b>：Peter Bird, <i>An updated digital model of plate boundaries</i>, G<sup>3</sup>, 4(3), 1027, 2003；GeoJSON 转制 Hugo Ahlenius / Nordpil（github.com/fraxen/tectonicplates），许可 <b>ODC Attribution License 1.0</b>。52 个板块是全球岩石圈的无缝剖分，面积由多边形球面计算，相邻关系由共享边界统计得出。</p>
+    <p>气候分类取自 <b>Köppen–Geiger</b>：M. C. Peel, B. L. Finlayson &amp; T. A. McMahon, <i>Updated world map of the Köppen–Geiger climate classification</i>, HESS 11, 1633–1644, 2007（0.1° 全球格网）。矢量化数据经 github.com/rjerue/koppen-map 的 <code>raw-data.json</code> 取得（原始图层 IGRAC / Kartoza · <code>other_climate_2007_koppen_geiger</code>）。仅构建期使用，原始数据不随产品分发。</p>
+    <p>河流中心线取自 <b>Natural Earth 1:10m rivers + lake centerlines</b>（公有领域），仅取河流要素共 <b>1,372 条</b>（19,875 点，0.05° 简化），按 scalerank 分干流 / 二级 / 支流三档线宽，以三角带绘制（WebGL 线宽恒 1px，只有带子能做出粗细），半径跟随地表起伏。不含任何界线。</p>
+    <p>山脉范围取自 <b>Natural Earth 1:50m geography regions</b>（公有领域）中 <code>Range/mtn</code> 的 129 个要素，同名碎块合并为 <b>124 条山脉</b>（喜马拉雅、安第斯、落基山、阿尔卑斯、东非高原……），贴在地形表面。山体明暗分两层：<b>逐像素晕渲贴图</b>（由 0.25° 高程格网按坡向烘出，山脊、沟谷可辨，4500 m 以上雪线提亮）与拼片顶点的宏观明暗。它是山脉的粗略范围，不是山脊线或高程数据。仅洋名（太平洋、大西洋等）为示意位置。</p>
+    <p>地形起伏与<b>海水深度</b>取自 <b>Mapzen terrarium z=4</b>（AWS Terrain Tiles，公有领域），重采样为 <b>0.25°×0.25° 全球格网</b>（1440×721，1 字节非线性量化、海岸带与浅海加密）；极区（纬度高于 ±85.05°，墨卡托瓦片缺失）用 NOAA ETOPO 1° 补齐。陆上按高程起伏，海面以下保留真实水深（约 −10,000 ~ +6,000 m），海洋按深度分档着色，大陆架、洋盆与海沟能分出层次。地形大势同时烘成晕渲贴图挂在拼片表面。两者都只表达地形大势，<b>不作高程 / 海深量算依据</b>（0.25° 格网会把珠峰平均成约 5000 m，峰顶真高见「山峰·海沟」图层）；可在左侧「专题图层」关闭地形起伏。</p>
+    <p><b>山峰·海沟</b>图层为独立数据表（14 座名山 + 8 处海沟与死海，含真实海拔，如珠穆朗玛峰 +8848.86 m、马里亚纳海沟 −10,909 m），弥补格网分辨率对极值的抹平；<b>云层</b>为程序化噪声生成的示意云图，缓慢自转，默认关闭；大气辉光与星空为着色器与点云绘制，不对应任何实测数据。</p>
+    <p><b>国家点位</b>图层取自 <b>Natural Earth 1:10m admin-0 countries</b> 与 <b>1:10m populated places</b>（公有领域）。构建时<b>只读取五项属性</b>——名称、首都、首都经纬度、所属大洲、标注等级，<b>所有国界与领土多边形在读入后即丢弃，不进入产品</b>。清单限定为联合国 <b>193 个会员国 + 梵蒂冈、巴勒斯坦两个观察员国</b>，共 195 条；数据源中单列的<b>中国台湾、中国香港、中国澳门</b>等地区一律不单独成条，<b>中国只保留一条（首都北京）</b>；科索沃、西撒哈拉、北塞浦路斯、索马里兰、阿布哈兹、南奥塞梯等争议实体亦<b>均不在表内</b>（白名单缺省即排除）；以色列首都取特拉维夫、巴勒斯坦取拉姆安拉；中文名按我国规范订正（北马其顿、埃斯瓦蒂尼等）。生成脚本 <code>build_countries.py</code>，构建输入不随产品分发。</p>
+    <p><b>海域面</b>取自 <b>Natural Earth 1:10m geography marine polys</b>（公有领域），306 个要素按 <code>scalerank</code> 与要素类型筛选：五大洋按中文名合并南北两半，边缘海取 scalerank ≤ 2 并剔除海峡与水道，共 51 片。中文名用数据自带的 <code>name_zh</code>，混入的繁体与个别旧译（巴芬灣、孟加拉灣、哈德森湾、裏海）已按规范订正。生成脚本 <code>build_thematic.mjs</code>。</p>
+
+    <h3>为什么没有国界</h3>
+    <p>世界地图、全国地图只要表示国界或行政区域界线，即属于地图审核范围，而送审要求编制单位具备测绘资质。本产品把内容限定在自然地理，从设计上避开这一依赖——既不改变「拼地球」的玩法与教学价值，也不需要审图号。</p>
+    <p>国家点位图层遵守同一条线：球面上只有<b>一个首都点 + 一行国名</b>，没有国界线、没有领土色块、没有国家轮廓，点位不表示领土范围、不作为主权归属依据。它是<b>地理知识标注</b>，不是政区地图——训练的是「这个国家在哪个位置、首都在哪」，而不是「国界怎么走」。</p>
+
+    <h3>十套内容</h3>
+    <p><b>七大洲 → 大洲与主要岛屿 → 地质板块 → 柯本气候区</b>。气候区不再是「沿纬线切一刀」的示意分带，而是<b>实测气候分类</b>：Köppen–Geiger 分类（Peel、Finlayson &amp; McMahon 2007）的 30 个气候型、0.1° 全球格网，按柯本第一级字母归为 <b>A 热带 / B 干旱带 / C 温带 / D 冷温带 / E 极地带</b>，再按大洲切开，得到 24 片形状不规则的陆块——撒哈拉、阿拉伯、中亚、澳大利亚内陆连成一条跨三洲的干旱带，这些边界都能在图上直接看出来。</p>
+    <p>原始气候数据是栅格矢量化的结果，所有边都落在 0.1° 网格上、且只沿经纬方向。构建时把每条边拆成 0.1° 的单位边再两两抵消（奇偶溶解），同一气候带内相邻碎块的接缝被完全消除，所以看到的是一条连续的带，而不是一堆小方块。数据代表 20 世纪后期（约 1951–2000）的常年平均状况，不是某一年的实况。</p>
+    <p><b>山脉片</b>取 Natural Earth 1:50m 山脉范围面里 rank ≤ 2 的 29 条主要山系，再补喀尔巴阡、斯堪的纳维亚、德拉肯斯堡、比利牛斯、祁连山、南岭 6 条教学常见的山脉，共 32 片（环极分布的横贯南极山脉、毛德皇后山脉绕南极一整圈，做成一块片就是一个半球，不单列）。每片是一个或多个范围面的集合，面积按球面多边形计算，卡片里的「范围面约 xx 万 km²」是这么来的。</p>
+    <p><b>大河片</b>取 Natural Earth 1:10m 河网中 24 条世界主要河流，每条按 0.5° 半宽、沿球面法向加宽成带状面（端点做半圆帽，不像剪断的胶带），相邻河段与别名的碎段合并进同一片；卡片里的「河道总长（数据）」是各段球面长度之和，与教科书上的河口—源头长度会有出入，因为数据本身是分段的。</p>
+    <p><b>洋流片</b>取教学示意图层里的 25 条主干流路，按原线宽加宽成带状面。洋流是流动的水、不是固定地物，做成静态拼片只为记住位置与冷暖属性；流路按教科书主干手写，不是实测流场。夏季反向的季风洋流、上升流型的索马里寒流只作为说明写在冬季那片的知识卡里，不单独成片——否则同一海域会有两条带子叠在一起。</p>
+    <p><b>海洋片</b>取 Natural Earth 1:10m <code>geography_marine_polys</code>（公有领域，306 个海域要素），按中文名把南北太平洋、南北大西洋各合成一整片，得五大洋；再取 scalerank ≤ 2 的 46 个边缘海、海湾（去掉海峡与水道——德雷克海峡、吕宋海峡这类宽度不到 1°，做成片几乎看不见），合计 51 片。几何按 Douglas–Peucker 0.06–0.08° 简化，面积用球面多边形公式计算；<b>五大洋的面积不用算出来的数</b>，因为 NE 的范围面只覆盖开阔洋面、不含被单列出去的边缘海（太平洋只算出约 1.39 亿 km²，比教科书的 1.65 亿少一成多），卡片上直接给教材口径并注明「含边缘海」。边缘海按范围面估算并标「（范围面估算）」，地中海、波罗的海这类被继续拆分了子海域的会偏小。</p>
+    <p><b>气压带·风带片</b>是三圈环流按纬度切的 13 条整圈环带：7 条气压带（赤道低压 −7°~7°、副热带高压 ±24°~±40°、副极地低压 ±55°~±70°、极地高压 ±78°~±90°）与 6 条风带（信风 ±7°~±24°、西风 ±40°~±55°、极地东风 ±70°~±78°）。区间首尾相接，从北极到南极不重叠、不留缝，拼完正好铺满一整颗球。几何不是多边形，而是「从 lat0 到 lat1 绕一圈的带状网格」（96 × 分段），上下两条边就是闭合的纬线圈——用经度矩形加三角剖分做会在大圆上出长边。</p>
+    <p><b>山峰·海沟片</b>是点要素做成的小圆片：14 座各洲最高峰 + 8 处海沟与死海，片心就是峰顶 / 海沟位置，半径 1.15°~1.3°（约 130~145 km，真实峰顶没有面积，做成片必须给一个可抓取的尺寸）。同一座山的相邻峰（珠峰与干城章嘉只隔 1.2°）会叠在一起，所以每片按序微抬升千分之几的球半径，深度缓冲不打架。</p>
+    <p><b>国家点位片</b>是 195 个以首都为圆心的小圆片，半径按标注等级分 1.05° / 0.9° / 0.75° 三档，颜色按大洲。它是 v2.0「首都一点 + 国名」的可拆装版本，<b>仍然不含任何国界与领土轮廓</b>：片是圆，不是国家的形状，大小也不代表国土面积，只代表「这个国家的首都标得多显眼」。</p>
+
+<h3>难度与玩法</h3>
+    <p>拼片全部散落在球外的托盘里，拖动即可吸附到球面；吸附角度、厚度、地形起伏都按真实几何计算。<b>单击</b>任何拼片（托盘里的或已归位的）随时弹出它的地理卡片；<b>双击</b>托盘里的拼片，地球转到它对应的位置并打一圈黄色脉冲光标提示该拼到哪儿；球面上的片可随时<span>单击拆下 / 再单击装回</span>，<b>双击</b>球面上的片飞回托盘原位，<b>双击</b>脱离球面的片标出它在球体上的位置；一键「全部归位」可看完成态。平面展开图把球面摊平，便于对照经纬位置。左栏「<b>定位训练</b>」按当前这套拼片出 10 道题：大洲模式考国家位置，板块 / 气候区 / 山脉 / 大河 / 洋流 / 海洋 / 气压带 / 山峰海沟 / 国家点位模式考这一套片的名称与位置，在球面上点出它的所在，按球面距离判对错（细长片比到片的最近点，大片按跨度放宽），答错自动把球转到正确位置。顶栏「玩法帮助」里有完整说明。</p>
+    <p><b>气压带 · 风带</b>：专题图层里可打开一层示意环带——7 条气压带（赤道低压、南北副热带高压、南北副极地低压、南北极地高压）与三圈环流的 6 条风带箭头，左栏可切 1 月 / 7 月，整套系统随太阳直射点南北移动约 8°。环带之外还叠了<b>季节性活动中心</b>（1 月西伯利亚高压、阿留申低压、冰岛低压；7 月南亚低压、亚速尔高压、夏威夷高压）：三圈环流画的是纬向平均，真实气压场被海陆热力差异切断，冬夏两组中心几乎互换，这正是南亚季风与西欧暖冬的由来。<b>活动中心按中心气压分三级</b>（强 / 中 / 弱，以 1013 hPa 为基准，偏差 ≥15 / ≥8 hPa 分级）：强中心是深色斑块加双环，弱中心只留淡影；点任一中心可单独高亮，看它是怎么切断气压带、改写风向的。全部为教学示意，中心气压取气候平均量级，不是实测等压线。</p>
+    <p><b>洋流</b>：专题图层可打开一层主干洋流——<b>暖流红、寒流蓝</b>，共 28 条（黑潮、墨西哥湾暖流、北大西洋暖流、秘鲁寒流、本格拉寒流、西风漂流……），线宽按流量分级（湾流、黑潮、西风漂流最粗），光点沿流向移动表示水体在走。点左栏任一条，其余淡出，面板给出这条洋流对沿岸气候的影响：为什么同纬度上西欧是温带海洋性、拉布拉多是苔原，为什么南美西岸 20°S 会是阿塔卡马沙漠。<b>季节摆动</b>：切到 7 月，北印度洋那组洋流会整套换掉——1 月受东北季风驱动自东向西、整体逆时针；7 月受西南季风驱动自西向东、反转为顺时针，索马里沿岸从南向流变成上升流寒流。面板可单独切月份，与气压带共用同一个「1 月 / 7 月」状态。<b>注意</b>：流路按教科书主干手写，不是实测流场，不表示流速。</p>
+    <p><b>气候联动</b>：切到「柯本气候区」后，左侧会多出一栏，有两种口径。<b>按气候带</b>：A–E 五个气候带。点其中一条，全球同类气候区一起亮起、其余淡出成深蓝灰，面板下方随即给出这一带的片数、面积合计与共同气候特征；也可以直接点球面上或平面图里的某块气候区来触发，再点一次取消。平面展开图里效果最明显——能一眼看到干旱带如何横跨撒哈拉、阿拉伯、中亚与澳大利亚内陆。<b>按纬度带</b>：点一片气候区或一条快捷纬线（赤道、南北回归线、南北纬 40°、南北极圈），这条纬线穿过的所有气候区一起亮起，球面出现一条贴合地形的纬度环带——30°N 上既有撒哈拉沙漠，也有中国东部的湿润温带，「同纬度为什么气候不同」一眼可见。面板还会列出这条纬线附近的洋流：30°N 上大陆东岸是黑潮与墨西哥湾暖流（暖），西岸是加利福尼亚寒流与加那利寒流（寒），冷暖分流正是同纬度不同气候的另一半原因。</p>
+
+    <h3>扩展接口</h3>
+    <p>数据层通过 <code>GlobePuzzle.registerProvider()</code> 整体替换；常用 API：<code>setMode / setLevel / loadBlueprint / focusPiece / solveAll / toggleFlat / setElevationScale / setWindMonth / setCurrentMonth / setCenterFocus / on / getState</code>。事件包括 <code>piece:placed</code>、<code>puzzle:complete</code>、<code>layer:change</code>、<code>flat:pick</code>、<code>knowledge:show</code>、<code>current:month</code>、<code>center:focus</code>。</p>
+
+    <h3>版本</h3>
+    <p>M0 手感验证 → M1–M3 中国行政区划版（存档，需送审）→ <b>v1.0 自然地理版</b>：真实海岸线的大洲 / 岛屿、PB2002 实测板块边界、真实地形起伏、地理百科、成就系统。v1.1 起板块由 7 片示意粗块换为 52 片真实边界。<b>v1.2</b>：气候带由「沿纬线切的五带」换成柯本分类实测边界的 24 片气候区；新几内亚岛不再被洲界切成两片；平面展开图铺满画布。<b>v1.3</b>：山脉由 9 条手绘折线换成 Natural Earth 的 124 条实测山脉范围；气候区加入气候带联动高亮。<b>v1.4</b>：山脉改用 DEM 晕渲着色、海洋按真实水深分层；气候联动新增「同纬度对比」；新增气压带风带示意图层（可切 1 月 / 7 月看季节性南北移动）。<b>v1.5</b>：新增洋流层（24 条主干流路，暖流红 / 寒流蓝，可逐条查看它对沿岸气候的影响）；气压带补上层活动中心（西伯利亚高压、阿留申低压、南亚低压……），说明带状气压如何被海陆热力差异切断；主要河流补中文名。<b>v1.6</b>：洋流加季节摆动——北印度洋整套环流冬夏反向（1 月逆时针、7 月顺时针），索马里沿岸夏季转为上升流寒流，洋流线与光点随月份重组；气压活动中心按中心气压分强 / 中 / 弱三级（斑块深浅与双环），可逐点高亮；洋流线宽按流量分级、加入沿流向移动的光点；平面展开图补画气压活动中心椭圆。<b>v1.7</b>：新增「玩法帮助」面板；单击任何拼片即时弹出地理卡片（原来只在归位时弹）；双击托盘拼片转到目标位置并打黄色脉冲光标（「转到下一片」同样带脉冲）；新增「拆解已拼片」——已归位的片逐片弹起、飞离球面、收回托盘，可反复拼-拆。<b>v1.8</b>：地形格网从 1° 升到 0.25°（Mapzen terrarium 高程瓦片 + 极区 ETOPO 补齐）；地形明暗改为逐像素晕渲贴图（山脊、沟谷第一次「画出来」而不是「插值出来」，4500 m 以上雪线提亮）；拼片细分加密近 20 倍；河流换 1:10m 河网（1,372 条、三档线宽三角带）；球缘加菲涅尔大气辉光、背景加星空；新增「山峰·海沟」图层（14 座名山 + 8 处海沟/死海真实海拔）与「云层」图层（程序化噪声云图，默认关闭）。<b>v1.8.1</b>：左栏新增「拼图操作」区（转到下一片 / 拆解已拼片 / 重新打散，与右侧「拼装进度」面板同组按钮）；专题图层新增「拼片名称」开关——打开后每块拼片上浮现自己的名字（宽度按拼片大小缩放，随片旋转、跟随托盘缩放，只显示朝向相机的一面）；「拆解已拼片」改为拆解平台：新局先拼出完整地球（完整拼合框架保留），单击球面片拆下、单击悬浮片装回、双击片飞回拼装前的托盘原位，手动逐片拆装，按钮可一键拼合悬浮片。<b>v1.9</b>：拆装交互改为<b>常驻</b>，不再有「搭建台 / 拆解台」之分——球面上的片单击弹离球面、再单击落回拼合；双击球面上的片飞离回托盘原位；双击脱离球面的片，地球转到它的位置并打脉冲光标；拾取改为按片状态动态判定并剔除球背面片，修掉「有时点了没反应」。<b>v2.0</b>：新增「<b>国家点位</b>」图层——195 国只标首都一点与国名，<b>不画国界、不画领土轮廓、不做填色</b>，仍是免审的自然地理表述；国名支持<b>中文 / English / 双语</b>三档切换；标签按相机距离分级、并在屏幕空间自动避让（大国先占位、小国让位），球面不会糊成一片；新增「<b>国家定位训练</b>」：10 题一轮，出题后在球面上点位置，按大圆距离判定（≤6.5° 满分、≤13° 给部分分），答错自动转球标出正确位置。面向地理爱好者与课堂教学。<b>v2.1</b>：把专题图层里能切片的要素单列成与板块、气候区同级的<b>三套可拆装内容</b>——<b>山脉（32 片，实测范围面）、大河（24 片，中心线加宽成水带）、洋流（25 片，暖流橙红 / 寒流亮蓝）</b>；顶栏改为六套内容分组（实心剖分 / 专题要素），窄屏自动换成两行；专题片用纯色薄片材质（不贴地形晕渲、厚度减半），河流与洋流端点做圆头，三角数控制在万级；「定位训练」泛化到全部六套内容，细长片按最近点判定；进入专题片时自动关闭同名覆盖层，避免拆下的片与底图重影。<b>v2.2</b>：专题图层里能切片的要素<b>全部升格为同级内容</b>，顶栏从六套扩到十套并拆成两排（实心剖分 / 专题要素）——新增<b>海洋（51 片：五大洋 + 46 个边缘海，实测海域面）、气压带·风带（13 条整圈纬向环带，拼完是一颗条纹球）、山峰·海沟（22 个点位圆片）、国家点位（195 个以首都为圆心的圆片，仍无国界）</b>；纯色片不再参与地形明暗（顶点色压成 1），海域片与纬度带不出侧壁，接缝处不划白线；新增带状网格生成器（整圈纬向环带专用），点位片按序微抬升避免共面闪烁；绕极盖面（北冰洋）与环带（南大洋）在展开后跨度正好 360°，闭合边会拖出一条横贯全图的长边，构建时改为沿极点补顶边、按 180° 窗裁块；海域片改成低漫反射 + 高自发光，海底地形的光照不再压出暗带；平面展开图补画多边形内环（岛屿不再被海水糊平）；「定位训练」覆盖全部十套内容。<b>v2.3</b>：<b>名称语言升级为全局</b>——球面上所有名称（拼片名、山峰海沟、河流、洋流、气压中心、国家名）与知识卡、定位训练题面一起在中文 / English / 双语之间切换，不再只有国家名响应；新增<b>「找片」面板</b>：按中文名 / 英文名 / 首都名检索、按大洲筛选、清空时列出全部已拆下的片，点结果把地球转过去并高亮；国家点位片半径放大约三成（1.05°/0.9°/0.75° → 1.35°/1.18°/1.0°），拆解悬浮高度提高到 0.34–0.64 球半径，195 片不再叠在球面附近；新增<b>「标注样式」</b>：字体、字号、字重、描边四组可调，所有球面标签即时重绘。<b>v2.3.1</b>：修「找片找到了却摸不到」——未摆出的片原来被大洲筛选函数强行置为可见，195 片里有 187 片以 0.42 倍大小堆在屏幕中央，看得见却点不动、双击只把视角复位；现在可见性重新由片自身状态决定，点找片结果会把片<b>真正取进托盘</b>并放大高亮，<b>双击托盘片</b>转球标位置并弹出名字气泡，托盘小片另加按屏幕距离的拾取容差。<b>v2.4</b>：新增「<b>主题</b>」设置项——左栏「主题」面板四个预设（深空 / 极光 / 黎明 / 白昼晴空）一键切换：背景、光照、星空、大气辉光、海洋色调、脉冲圈色与界面配色一起变，白昼晴空下星空自动隐藏、面板反色为白底深字，选择存本机下次自动沿用。</p>
+    <h3>v2.5 · 本地档案与赞赏</h3>
+    <p>顶栏「<b>档案</b>」可新建、切换、重命名或删除本地档案：一台设备上的几个人各用各的成就进度与主题偏好，互不串档。旧版单存档在首次打开时自动迁入默认档案「我」，原有进度不会丢。档案面板里还能<b>导出 / 导入 JSON 备份</b>，换电脑时自己搬迁数据；也可以只清空当前档案的成就。全部数据仅写入本机浏览器（localStorage），不注册、不登录、不联网、不上传。</p>
+    <p>顶栏「<b>支持作者</b>」与左栏支持卡是完全自愿的赞赏入口，收款二维码是一张随页面内置的本地图片，不请求任何外部接口；不打赏不影响任何功能，本作品也没有广告、会员与行为统计。</p>
+
+    <h3>键盘与无障碍</h3>
+    <p>画布可获得键盘焦点：<b>方向键</b>旋转地球、<b>+ / −</b> 缩放、<b>0</b> 复位视角。原有快捷键 <b>R</b> 重来、<b>H</b> 显隐轮廓、<b>F</b> 平面展开图、<b>1 / 2 / 3</b> 切换内容、<b>[ ]</b> 调难度、<b>Backspace</b> 返回上级仍然可用；在搜索框或输入框里打字时不会误触发这些快捷键。<b>Esc</b> 逐层关闭弹窗、平面展开图与知识卡。所有按钮支持键盘焦点高亮，提示信息带屏幕阅读器播报。</p>
+
+    <h3>免责与许可</h3>
+    <p>本作品是<b>免费的自然地理科普与益智工具</b>，不是标准地图，也不作导航、测绘、边界认定、教学考试或任何权属依据；示意图层（洋流、气压带风带、云层、脉冲圈等）为教学可视化，不代表实测数据。数据许可与完整署名见上文「数据来源」，构建期输入数据不随产品分发。若页面无法启用 WebGL，会给出明确的错误卡片与重新加载入口，不会停留在空白画面。</p>
+  </div>
+</div>
+
+<div class="gp-modal" id="gp-ach">
+  <div class="gp-modal-card">
+    <button class="gp-card-x" id="gp-ach-close" aria-label="关闭">×</button>
+    <h2>成就 <span id="gp-ach-progress" class="gp-ach-progress"></span></h2>
+    <p class="gp-note" style="margin:0 0 12px">进度保存在本机浏览器（localStorage），不会上传；切换设备不互通。</p>
+    <div class="gp-ach-grid" id="gp-ach-grid"></div>
+  </div>
+</div>
+
+<div class="gp-modal" id="gp-profile" role="dialog" aria-modal="true" aria-labelledby="gp-profile-title">
+  <div class="gp-modal-card gp-profile-card">
+    <button class="gp-card-x" id="gp-profile-close" aria-label="关闭">×</button>
+    <h2 id="gp-profile-title">本地档案</h2>
+    <p class="gp-note gp-profile-intro">一台设备上可以有几个独立的档案，各自记录成就进度与主题偏好，适合一家人轮流玩。全部数据只存在这台设备的浏览器里，不注册、不登录、不联网、不上传；换设备或清除浏览器数据后不会自动同步，可用下面的「导出备份」自行搬迁。</p>
+
+    <div class="gp-profile-current">
+      当前档案：<b id="gp-profile-current-name">我</b>
+      <span id="gp-profile-current-stat"></span>
+    </div>
+    <div class="gp-profile-list" id="gp-profile-list" role="list"></div>
+
+    <div class="gp-profile-new">
+      <input id="gp-profile-new-name" type="text" maxlength="16" placeholder="新档案名称（最多 16 字）" aria-label="新档案名称">
+      <button class="gp-btn gp-btn-sm" id="gp-profile-new-btn" type="button">新建档案</button>
+    </div>
+
+    <div class="gp-profile-actions">
+      <button class="gp-btn gp-btn-sm" id="gp-profile-export" type="button">导出备份</button>
+      <button class="gp-btn gp-btn-sm" id="gp-profile-import" type="button">导入备份</button>
+      <button class="gp-btn gp-btn-sm gp-danger" id="gp-profile-clear" type="button">清空当前进度</button>
+      <input type="file" id="gp-profile-file" accept=".json,application/json" hidden>
+    </div>
+    <p class="gp-note">导入会整包覆盖现有档案，请先导出备份。删除档案会同时移除它的成就记录；至少保留一个档案。「清空当前进度」只清成就，不动主题与档案本身。</p>
+  </div>
+</div>
+
+<div class="gp-modal" id="gp-tip" role="dialog" aria-modal="true" aria-labelledby="gp-tip-title">
+  <div class="gp-modal-card gp-tip-card">
+    <button class="gp-card-x" id="gp-tip-close" aria-label="关闭">×</button>
+    <h2 id="gp-tip-title">支持作者</h2>
+    <p class="gp-note">这颗地球是免费、无广告、无账号的科普小工具，打开浏览器就能玩。如果它让你或孩子少翻了几页地图册，可以自愿请作者喝杯茶——不打赏也不影响任何功能。</p>
+    <div class="gp-tip-qr-wrap">
+      <img id="gp-tip-qr" src="assets/sponsor-qr.png" alt="微信 / 支付宝收款二维码" width="260" height="299">
+    </div>
+    <p class="gp-tip-caption">微信 / 支付宝「扫一扫」 · 二维码图片随页面内置，不请求任何外部接口</p>
+    <div class="gp-tip-actions">
+      <button class="gp-btn gp-btn-primary" id="gp-tip-save" type="button">保存二维码</button>
+    </div>
+    <p class="gp-note">赞赏完全自愿。本作品不收集个人信息、不设会员、不做统计追踪；收款码仅是一张本地图片。</p>
+  </div>
+</div>
+
+<script src="game.js"></script>
+<script src="app-addons.js"></script>
+</body>
+</html>

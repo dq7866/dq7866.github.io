@@ -38,6 +38,7 @@ const DIRS = {
   'pojing-bricks': 'pojing',
   'toy-workshop': 'toy',
   'human-body': 'humanbody',
+  'earth-puzzle': 'earth',
 };
 
 const GUARD_TAG = '<script src="/works-guard.js" defer></script>';

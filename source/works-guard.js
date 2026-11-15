@@ -8,7 +8,7 @@
  *   3. 可用性优先：guard.js 挂掉时由内联哨兵 5 秒兜底，游戏照常能玩。
  *   4. 不依赖任何第三方库、不改动原作品源码，样式与 DOM 全部自带。
  *
- * 覆盖：/naturelab/ /qiaosan/ /pojing-bricks/ /toy-workshop/ /human-body/
+ * 覆盖：/naturelab/ /qiaosan/ /pojing-bricks/ /toy-workshop/ /human-body/ /earth-puzzle/
  */
 (function () {
   'use strict';
@@ -23,14 +23,16 @@
     qiaosan: 'qiaosan',
     'pojing-bricks': 'pojing',
     'toy-workshop': 'toy',
-    'human-body': 'humanbody'
+    'human-body': 'humanbody',
+    'earth-puzzle': 'earth'
   };
   var WORKS = {
     naturelab:  { name: '自然培育所', color: '#2e7d5b', line: '把一株生命从种子养到收获' },
     qiaosan:    { name: '敲散 · 解压气泡', color: '#5b46ff', line: '把烦心事做成气泡，两三下敲碎它' },
     pojing:     { name: '破境积木', color: '#ff6f3c', line: '147 种形状、59 张图纸的 3D 搭建世界' },
     toy:        { name: '巧手拆装工坊', color: '#ff7a45', line: '24 件玩具、38 个机构的 3D 拆装闯关' },
-    humanbody:  { name: '人体积木', color: '#c8503f', line: '把真实解剖模型拆成骨块、肌肉与内脏，边拆边学' }
+    humanbody:  { name: '人体积木', color: '#c8503f', line: '把真实解剖模型拆成骨块、肌肉与内脏，边拆边学' },
+    earth:      { name: '地球拼图 · 自然地理版', color: '#2a6f97', line: '把地球拆成 10 套球面拼片，边拼边学自然地理' }
   };
   var seg = (location.pathname.split('/').filter(Boolean)[0] || '').toLowerCase();
   var APP = MAP[seg] || 'pojing';

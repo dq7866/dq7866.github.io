@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "node build-scripts/post-build-game.js && hexo generate && node build-scripts/post-build-naturelab.js && node build-scripts/post-build-qiaosan.js && node build-scripts/post-build-humanbody.js && node build-scripts/gen-search-index.js && node build-scripts/gen-headers.js && node build-scripts/post-build-assets.js && node build-scripts/post-build-worker.js && node build-scripts/post-build-works-guard.js",
+    "build": "node build-scripts/post-build-game.js && hexo generate && node build-scripts/post-build-naturelab.js && node build-scripts/post-build-qiaosan.js && node build-scripts/post-build-humanbody.js && node build-scripts/post-build-earthpuzzle.js && node build-scripts/gen-search-index.js && node build-scripts/gen-headers.js && node build-scripts/post-build-assets.js && node build-scripts/post-build-worker.js && node build-scripts/post-build-works-guard.js",
     "build:globe": "esbuild source/globe-puzzle/src/main.js --bundle --format=iife --outfile=source/globe-puzzle/game.js --target=es2020",
     "clean": "hexo clean",
     "deploy": "hexo deploy",

@@ -115,6 +115,9 @@ include:
   - '.nojekyll'
 exclude:
   - 'forest - 副本/**'
+  # 《地球拼图·自然地理版》开发包含 58MB 原始地理数据 / 26MB 截图，
+  # 线上只由 build-scripts/post-build-earthpuzzle.js 挑运行时发到 /earth-puzzle/
+  - '地球拼图-自然地理版/**'
   - 'bike - 副本/**'
   - 'guardian - 副本/**'
   # 巧手拆装工坊的完整副本（约 5.7 MB，含 4 个 1 MB 单文件），只作本地备份，

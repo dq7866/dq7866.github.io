@@ -66,6 +66,18 @@
           "url": "/human-body/",
           "color": "#c8503f",
           "cover": "/images/showcase/human-body.webp"
+        },
+        {
+          "k": "earth",
+          "emoji": "🌍",
+          "name": "地球拼图 · 自然地理版",
+          "sub": "Globe Puzzle · Nature",
+          "desc": "把地球按真实海岸线切成带厚度的球面拼片：七大洲、52 个地质板块、柯本气候区，再加山脉大河、洋流、气压带风带等七套专题拼片；真实地形起伏、地理百科、15 项成就、平面展开图与本地多档案。只表示自然要素，不画国界与行政区域界线。",
+          "stat": "10 套拼片 · 15 成就",
+          "tags": ["3D 拼装", "自然地理", "本地存档"],
+          "url": "/earth-puzzle/",
+          "color": "#2a6f97",
+          "cover": "/images/showcase/earth-puzzle.webp"
         }
       ]
     },
