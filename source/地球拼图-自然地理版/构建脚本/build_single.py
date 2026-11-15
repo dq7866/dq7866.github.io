@@ -34,7 +34,7 @@ def main():
     html = read(os.path.join(SRC, 'index.html'))
     css = read(os.path.join(SRC, 'style.css'))
     scripts = {n: guard(read(os.path.join(SRC, n)), n)
-               for n in ('profiles.js', 'game.js', 'app-addons.js')}
+               for n in ('profiles.js', 'game.js', 'app-addons.js', 'earth-3d.js', 'earth-nasa.js', 'earth-knowledge.js')}
 
     qr_path = os.path.join(SRC, 'assets', 'sponsor-qr.png')
     with open(qr_path, 'rb') as f:
@@ -49,7 +49,7 @@ def main():
     html = pat.sub(lambda m, r=css_repl: r, html, count=1)
 
     # 2) 脚本（按页面里的顺序逐个内联）
-    for name in ('profiles.js', 'game.js', 'app-addons.js'):
+    for name in ('profiles.js', 'game.js', 'app-addons.js', 'earth-3d.js', 'earth-nasa.js', 'earth-knowledge.js'):
         pat = re.compile(r'<script src="%s"></script>' % re.escape(name))
         if len(pat.findall(html)) != 1:
             raise SystemExit('定位 %s 引用失败' % name)
@@ -80,7 +80,7 @@ def main():
     assert 'rel="stylesheet" href="style.css"' not in html, '仍有外部样式引用'
     assert 'data:image/png;base64,' in html, '收款码未内联'
     assert '2.5.0-nature' in html, '版本号缺失'
-    assert html.count('<script>') >= 4, '内联脚本数量异常'
+    assert html.count('<script>') >= 5, '内联脚本数量异常'
     print('单文件版：%s  %.2f MB' % (OUT, os.path.getsize(OUT) / 1048576.0))
     print('分享封面：%s' % os.path.join(cover_dir, 'og-cover.png'))
 

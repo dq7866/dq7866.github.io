@@ -34,8 +34,8 @@ const FILES = [
   'assets/og-cover.png',     // 1200×630 社交分享封面，页面本身不加载
 ];
 
-// 顺序不可调整：档案命名空间 → 3D 引擎 → 发布级增强层
-const SCRIPTS = ['profiles.js', 'game.js', 'app-addons.js'];
+// 顺序不可调整：档案命名空间 → 3D 引擎 → 发布级增强层 → 地球知识（含 3D 内部圈层）
+const SCRIPTS = ['profiles.js', 'game.js', 'app-addons.js', 'earth-3d.js', 'earth-nasa.js', 'earth-knowledge.js'];
 
 function copyOne(rel) {
   const s = path.join(SRC, rel);
@@ -60,7 +60,7 @@ function buildBundle() {
 function buildHtml() {
   let html = fs.readFileSync(path.join(SRC, 'index.html'), 'utf8');
   const head = /<script src="profiles\.js"><\/script>\s*/;
-  const tail = /<script src="game\.js"><\/script>\s*<script src="app-addons\.js"><\/script>/;
+  const tail = /<script src="game\.js"><\/script>\s*<script src="app-addons\.js"><\/script>\s*<script src="earth-3d\.js"><\/script>\s*<script src="earth-nasa\.js"><\/script>\s*<script src="earth-knowledge\.js"><\/script>/;
   if ((html.match(head) || []).length !== 1) throw new Error('定位 profiles.js 引用失败');
   if ((html.match(tail) || []).length !== 1) throw new Error('定位 game.js / app-addons.js 引用失败');
   html = html.replace(head, '');

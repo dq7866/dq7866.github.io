@@ -10,7 +10,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var P = window.GPProfiles;
   var GP = window.GlobePuzzle || null;
-  var MODAL_IDS = ['gp-help', 'gp-about', 'gp-ach', 'gp-profile', 'gp-tip'];
+  var MODAL_IDS = ['gp-help', 'gp-about', 'gp-ach', 'gp-profile', 'gp-tip', 'gp-knowledge'];
   var lastFocus = null, syncing = false, toastTimer = null;
 
   function toast(msg, ms) {
