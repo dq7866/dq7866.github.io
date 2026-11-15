@@ -1,0 +1,152 @@
+{
+ "generatedAt": "2026-11-14T03:18:21.672Z",
+ "file": "assets/daily.glb",
+ "unit": "meter",
+ "shapeCount": 17,
+ "triangles": 148430,
+ "shapes": {
+  "head": {
+   "center": [
+    -0.00011,
+    1.59557,
+    0.01938
+   ],
+   "triangles": 25999
+  },
+  "neck": {
+   "center": [
+    0.00096,
+    1.46879,
+    -0.00311
+   ],
+   "triangles": 5401
+  },
+  "arms": {
+   "center": [
+    -0.00009,
+    1.15482,
+    -0.03182
+   ],
+   "triangles": 13999
+  },
+  "hands": {
+   "center": [
+    0,
+    0.82686,
+    0.03643
+   ],
+   "triangles": 9000
+  },
+  "fingers": {
+   "center": [
+    0.00003,
+    0.74752,
+    0.03989
+   ],
+   "triangles": 7999
+  },
+  "chest": {
+   "center": [
+    0.00029,
+    1.30919,
+    -0.0183
+   ],
+   "triangles": 15999
+  },
+  "abdomen": {
+   "center": [
+    -0.00062,
+    1.1588,
+    -0.01825
+   ],
+   "triangles": 13999
+  },
+  "legs": {
+   "center": [
+    0.00006,
+    0.47908,
+    -0.02574
+   ],
+   "triangles": 16000
+  },
+  "feet": {
+   "center": [
+    -0.00004,
+    0.04753,
+    -0.02988
+   ],
+   "triangles": 8000
+  },
+  "toes": {
+   "center": [
+    0,
+    0.03313,
+    0.09584
+   ],
+   "triangles": 7000
+  },
+  "hair": {
+   "center": [
+    -0.00229,
+    1.62106,
+    0.00963
+   ],
+   "triangles": 19999
+  },
+  "eyes": {
+   "center": [
+    -0.0053,
+    1.63468,
+    0.10861
+   ],
+   "triangles": 810
+  },
+  "nose": {
+   "center": [
+    0.00007,
+    1.5817,
+    0.13772
+   ],
+   "triangles": 327
+  },
+  "mouth": {
+   "center": [
+    -0.00119,
+    1.56705,
+    0.12903
+   ],
+   "triangles": 1183
+  },
+  "lips": {
+   "center": [
+    0.00002,
+    1.56838,
+    0.12908
+   ],
+   "triangles": 799
+  },
+  "ears": {
+   "center": [
+    -0.00225,
+    1.64052,
+    0.00566
+   ],
+   "triangles": 1610
+  },
+  "cheeks": {
+   "center": [
+    0.00026,
+    1.59084,
+    0.10245
+   ],
+   "triangles": 306
+  }
+ },
+ "sources": [
+  {
+   "id": "ai-daily",
+   "file": "assets/source/ai/ai-models/*.glb",
+   "license": "AI 生成（腾讯混元 3D），站内使用"
+  }
+ ]
+}

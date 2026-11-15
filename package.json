@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "node build-scripts/post-build-game.js && hexo generate && node build-scripts/post-build-naturelab.js && node build-scripts/post-build-qiaosan.js && node build-scripts/gen-search-index.js && node build-scripts/gen-headers.js && node build-scripts/post-build-assets.js && node build-scripts/post-build-worker.js",
+    "build": "node build-scripts/post-build-game.js && hexo generate && node build-scripts/post-build-naturelab.js && node build-scripts/post-build-qiaosan.js && node build-scripts/post-build-humanbody.js && node build-scripts/gen-search-index.js && node build-scripts/gen-headers.js && node build-scripts/post-build-assets.js && node build-scripts/post-build-worker.js && node build-scripts/post-build-works-guard.js",
+    "build:globe": "esbuild source/globe-puzzle/src/main.js --bundle --format=iife --outfile=source/globe-puzzle/game.js --target=es2020",
     "clean": "hexo clean",
     "deploy": "hexo deploy",
     "publish": "git add -A && git commit -m \"update\" && git push origin HEAD:source",
@@ -29,6 +30,7 @@
     "hexo-server": "^3.0.0",
     "hexo-theme-landscape": "^1.0.0",
     "hexo-theme-shiro": "^1.6.1",
+    "meshoptimizer": "^0.20.0",
     "moment-timezone": "^0.6.5",
     "pinyin-pro": "^3.29.5",
     "wrangler": "^4.151.1"

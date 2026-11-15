@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>body{margin:0;background:#202830;display:flex;flex-wrap:wrap}canvas{border:1px solid #444}</style></head><body>
+<script type="module">
+import * as THREE from '../lib/three.module.js';
+import { GLTFLoader } from '../lib/GLTFLoader.js';
+const YAWS = [40, 50, 55, 60, 65, 75];
+const W = 200, H = 240;
+const buf = await (await fetch('../assets/source/ai/ai-models/hair.glb')).arrayBuffer();
+new GLTFLoader().parse(buf, '', (g) => {
+  // 预裁剪：脖子以下去掉（trimFrac 0.26 同款），只看头
+  const src = g.scene;
+  src.updateMatrixWorld(true);
+  const all = [];
+  src.traverse(o => { if (o.isMesh) all.push(o); });
+  const root = new THREE.Group();
+  let hi = -Infinity, lo = Infinity;
+  for (const m of all) { m.geometry.computeBoundingBox(); hi = Math.max(hi, m.geometry.boundingBox.max.y); lo = Math.min(lo, m.geometry.boundingBox.min.y); }
+  const cutY = lo + (hi - lo) * 0.26;
+  for (const m of all) {
+    const pos = m.geometry.attributes.position;
+    let maxY = -Infinity;
+    for (let i = 0; i < pos.count; i++) maxY = Math.max(maxY, pos.getY(i));
+    if (maxY < cutY) continue; // 丢掉低于裁剪线的整块（简化：不逐三角裁）
+    root.add(m);
+  }
+  for (const yaw of YAWS) {
+    const scene = new THREE.Scene();
+    const cam = new THREE.PerspectiveCamera(35, W / H, 0.001, 10);
+    scene.add(new THREE.AmbientLight(0xffffff, 1.6));
+    const dl = new THREE.DirectionalLight(0xffffff, 1.2); dl.position.set(1.5, 3, 4); scene.add(dl);
+    const clone = root.clone(true);
+    clone.rotation.y = yaw * Math.PI / 180;
+    clone.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(clone);
+    const c = box.getCenter(new THREE.Vector3());
+    const s = box.getSize(new THREE.Vector3());
+    cam.position.set(c.x, c.y, c.z + Math.max(s.x, s.y, s.z) * 1.15);
+    cam.lookAt(c.x, c.y, c.z);
+    scene.add(clone);
+    const r = new THREE.WebGLRenderer({ antialias: true });
+    r.setSize(W, H);
+    r.render(scene, cam);
+    const d = document.createElement('div');
+    d.style.cssText = 'position:relative';
+    d.appendChild(r.domElement);
+    const lb = document.createElement('span');
+    lb.textContent = 'yaw' + yaw;
+    lb.style.cssText = 'position:absolute;top:4px;left:6px;color:#fff;font:bold 13px monospace';
+    d.appendChild(lb);
+    document.body.appendChild(d);
+    if (yaw === YAWS[YAWS.length - 1]) window.__ready = true;
+  }
+});
+</script>
+</body></html>

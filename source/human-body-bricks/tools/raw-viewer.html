@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>body{margin:0;background:#202830}</style></head><body>
+<script type="module">
+import * as THREE from '../lib/three.module.js';
+import { GLTFLoader } from '../lib/GLTFLoader.js';
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(720, 1000);
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x202830);
+const camera = new THREE.PerspectiveCamera(40, 0.72, 0.01, 50);
+camera.position.set(0, 0.5, 2.2);
+camera.lookAt(0, 0.5, 0);
+scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+const dl = new THREE.DirectionalLight(0xffffff, 1.5); dl.position.set(2, 4, 5); scene.add(dl);
+const buf = await (await fetch('../assets/source/ai/ai-models/body.glb')).arrayBuffer();
+new GLTFLoader().parse(buf, '', (g) => {
+  const box = new THREE.Box3().setFromObject(g.scene);
+  window.__bbox = { min: box.min.toArray(), max: box.max.toArray() };
+  scene.add(g.scene);
+  window.__ready = true;
+});
+renderer.setAnimationLoop(() => renderer.render(scene, camera));
+</script>
+</body></html>

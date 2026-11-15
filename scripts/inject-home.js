@@ -154,6 +154,9 @@ function portalBlock(portal) {
     h += '<div class="zhz-portal-group' + (wall ? " zhz-portal-group--wall" : "") + '">';
     h += '<div class="zhz-portal-head"><h2>' + esc(g.title) + "</h2>" +
          (g.sub ? '<span class="zhz-portal-sub">' + esc(g.sub) + "</span>" : "");
+    if (g.support) {
+      h += '<a class="zhz-support-link" href="' + esc(g.support) + '">&#9825; 支持作者</a>';
+    }
     if (wall) {
       h += '<span class="zhz-wall-nav" data-wall-nav aria-hidden="true">' +
              '<button type="button" class="zhz-wall-btn" data-wall-prev aria-label="看前一张" tabindex="-1">' + ARROW_L + "</button>" +

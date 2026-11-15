@@ -42,6 +42,9 @@ skip_render:
   - 'pojing-bricks/**'
   - 'offline/**'
   - 'admin/**'
+  - 'support/**'
+  - 'globe-puzzle/**'
+  - 'works-guard.js'
   - 'stats.js'
   - 'fs-button.js'
   - 'site-cards.js'
@@ -129,6 +132,9 @@ exclude:
   # 《敲散》完整开发包（单文件版、Electron 壳、启动脚本）不直接发布；
   # 只由 build-scripts/post-build-qiaosan.js 把 src/ 复制到 /qiaosan/。
   - '敲散/**'
+  # 《人体积木》完整开发包（含 16MB 原始解剖数据集、烘焙工具、审阅截图、7MB 单文件版）
+  # 不直接发布；只由 build-scripts/post-build-humanbody.js 复制运行时文件到 /human-body/。
+  - 'human-body-bricks/**'
 ignore:
 
 # Extensions

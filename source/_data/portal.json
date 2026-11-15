@@ -1,10 +1,11 @@
 {
   "_说明": "首页产品门户数据源。改这里即可调整首页首屏的产品卡片。构建时由 scripts/inject-home.js 生成静态 HTML 注入首页（服务端渲染，无白屏闪烁）。",
-  "_字段": "k=唯一键 | emoji=图标 | name=名称 | sub=英文/副名 | desc=一句话说明 | stat=数据量标签 | url=链接 | color=主题色 | cover=（可选）封面图，有则渲染成大卡",
+  "_字段": "k=唯一键 | emoji=图标 | name=名称 | sub=英文/副名 | desc=一句话说明 | stat=数据量标签 | url=链接 | color=主题色 | cover=（可选）封面图，有则渲染成大卡 | 组可加 support=（可选）组标题右侧的支持链接",
   "groups": [
     {
       "title": "我的作品",
       "sub": "WORKS",
+      "support": "/support/",
       "items": [
         {
           "k": "naturelab",
@@ -53,6 +54,18 @@
           "url": "/toy-workshop/",
           "color": "#ff7a45",
           "cover": "/images/showcase/toy-workshop.webp"
+        },
+        {
+          "k": "humanbody",
+          "emoji": "🫀",
+          "name": "人体积木",
+          "sub": "Human Body Bricks",
+          "desc": "真实解剖模型拆成可拆可装的骨块、肌肉与内脏：拆下来看结构，装回去认位置；13 套生理动画从循环、消化、神经、呼吸一路讲到泌尿过滤、吞咽发声、运动响应、损伤修复与视觉听觉，另有 6 个常见病病理演示",
+          "stat": "47 形状 · 13 套动画",
+          "tags": ["3D 拆装", "人体科普", "生理动画"],
+          "url": "/human-body/",
+          "color": "#c8503f",
+          "cover": "/images/showcase/human-body.webp"
         }
       ]
     },

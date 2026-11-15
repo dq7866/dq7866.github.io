@@ -269,6 +269,8 @@ const S = {
   stats: Object.assign({rounds:0,pops:0,taps:0,bestCombo:0}, store.get('stats',{})),
   picData: store.get('picData', []),
   pics: [],
+  galleryItems: store.get('galleryItems', []),
+  rainPic: store.get('rainPic', true) !== false,
   gameMode: store.get('gameMode','zen'),
   diff: store.get('diff','normal'),
   cloudRank: store.get('cloudRank', false) === true,
@@ -539,6 +541,15 @@ const AU = {
       [523, 659, 784, 1046].forEach((f,i)=>this.tone(t + i*0.055, f, 0.34, 0.055/(1+i*0.25), 'sine'));
       return;
     }
+    if (kind === 'slice'){
+      // 划切：一声短刀风 + 气泡破裂的脆响，比敲击更轻更利
+      this.burst(t, 0.10, 3200 + p*1400, 0.75, 0.085 + p*0.05, 'bandpass', rand(1.15,1.4));
+      this.burst(t + 0.012, 0.055, rand(1300,1700), 1.15, 0.20 + p*0.06);
+      this.tone(t + 0.012, rand(470,540), 0.11, 0.13, 'sine', 150);
+      this.tone(t + 0.02, rand(1050,1400), 0.055, 0.045, 'triangle', 700);
+      this.tone(t, 62, 0.15, 0.09 + p*0.05, 'sine', 40);
+      return;
+    }
     const pack = S.pack;
     if (pack === 'bubble'){
       this.burst(t, 0.085, rand(1100,1600), 1.1, 0.30 + p*0.10);
@@ -603,8 +614,7 @@ function currentItems(){
     return { items: S.pics.map((p,i)=>'#img'+i), kind: 'image' };
   }
   if (S.theme === 'pals' || S.theme === 'items'){
-    const g = (window.QS_GALLERY || {})[S.theme];
-    const list = (g && g.items && g.items.length) ? g.items : [];
+    const list = galleryItems(S.theme);
     if (!list.length) return { items: ['图鉴'], kind: 'text' };
     return { items: list.map(x=>x.id), kind: 'gallery' };
   }
@@ -915,30 +925,132 @@ function pickBubble(x,y){
   return best;
 }
 
+/* ---------- 划切手势：按住划过气泡即切开 ---------- */
+const SLICE = {
+  down:false, active:false, id:null, sx:0, sy:0, lx:0, ly:0,
+  power:1, hit:null, target:null
+};
+const SLICE_TRAIL = [];                 // 刀光轨迹 {x,y,t}
+const SLICE_TRAIL_MAX = 42;
+const SLICE_MIN = IS_DESK ? 8 : 14;     // 位移超过这个值才算划切，否则仍是点击
+const SLICE_SND = { t:0, n:0 };         // 划切音效密度限制（150ms 内最多 5 声）
+
+/* 线段与气泡圆是否相交 */
+function segHitsCircle(x1,y1,x2,y2,cx,cy,r){
+  const dx = x2-x1, dy = y2-y1;
+  const l2 = dx*dx + dy*dy;
+  let t = l2 > 0 ? ((cx-x1)*dx + (cy-y1)*dy) / l2 : 0;
+  t = clamp(t, 0, 1);
+  return Math.hypot(x1 + dx*t - cx, y1 + dy*t - cy) <= r;
+}
+
+/* 一次划动沿轨迹判定所有经过的气泡（同一刀不重复切） */
+function sliceTo(x, y){
+  const now = performance.now();
+  const x1 = SLICE.lx, y1 = SLICE.ly;
+  SLICE_TRAIL.push({x:x, y:y, t:now});
+  while (SLICE_TRAIL.length > SLICE_TRAIL_MAX) SLICE_TRAIL.shift();
+  for (const b of S.bubbles){
+    if (b.dead || (SLICE.hit && SLICE.hit.has(b))) continue;
+    if (b.entA !== undefined && b.entA < 0.45) continue;
+    const p = bubblePos(b);
+    const rr = p.r * (S.rain.active ? 1.34 : 1.20) + 2;
+    if (segHitsCircle(x1, y1, x, y, p.x, p.y, rr)){
+      if (SLICE.hit) SLICE.hit.add(b);
+      cutBubble(b, x, y, Math.atan2(y - y1, x - x1));
+    }
+  }
+  SLICE.lx = x; SLICE.ly = y;
+}
+
+/* 划切即破：一记刀光把气泡整个切开，计入连击、泄压与烦恼雨得分 */
+function cutBubble(b, x, y, ang){
+  if (b.dead) return;
+  if (S.mode === 'intro' || S.mode === 'done') return;
+  if (window.QS && QS.locked && QS.locked()) return;
+  if (S.mode === 'armed') arm();
+  const now = performance.now();
+  if (now - S.lastHitT < 950) S.combo = Math.min(S.combo + 1, 12);
+  else S.combo = 1;
+  S.lastHitT = now;
+  S.comboUntil = now + 1100;
+  S.tapCount++;
+  S.stats.taps = (S.stats.taps || 0) + 1;
+  if (S.rain.active) noteTap();
+  if (S.combo > (S.stats.bestCombo || 0)) S.stats.bestCombo = S.combo;
+  S.lastPower = 1.2;
+  // 刀痕：沿划动方向横贯被切开的气泡
+  const bp = bubblePos(b);
+  S.parts.push({
+    type:'cut', x:bp.x, y:bp.y,
+    a:(typeof ang === 'number' && isFinite(ang)) ? ang : rand(0, Math.PI*2),
+    len:b.r*3.0, life:0, max:0.36, w:4.4
+  });
+  // 划切音效：刀风 + 气泡脆裂；一刀连切多颗时限制同段密度，避免叠成噪音
+  const sn = performance.now();
+  if (!SLICE_SND.t || sn - SLICE_SND.t > 150){ SLICE_SND.t = sn; SLICE_SND.n = 0; }
+  if (SLICE_SND.n < 5){ SLICE_SND.n++; AU.play('slice', 0.7); }
+  b.dmg = 1;
+  shatter(b, true, x, y, true);
+  updateCombo();
+}
+
 cv.addEventListener('pointerdown', e=>{
   if (e.target !== cv) return;
   e.preventDefault();
   if (S.mode === 'intro' || S.mode === 'done') return;
   if (window.QS && QS.locked && QS.locked()) return;
   const x = e.clientX, y = e.clientY;
-  const power = estimatePower(e);
-  attack(x, y, power, pickBubble(x, y));
+  SLICE.down = true; SLICE.active = false;
+  SLICE.sx = SLICE.lx = x; SLICE.sy = SLICE.ly = y;
+  SLICE.power = estimatePower(e);
+  SLICE.hit = new Set();
+  SLICE.target = pickBubble(x, y);
+  SLICE.id = e.pointerId;
+  SLICE_TRAIL.length = 0;
+  SLICE_TRAIL.push({x:x, y:y, t:performance.now()});
+  try { cv.setPointerCapture(e.pointerId); } catch(err){}
 }, {passive:false});
 
-/* 桌面：悬停高亮（鼠标移到气泡上给一点反馈） */
+cv.addEventListener('pointermove', e=>{
+  if (SLICE.down){
+    const x = e.clientX, y = e.clientY;
+    if (!SLICE.active && Math.hypot(x - SLICE.sx, y - SLICE.sy) > SLICE_MIN) SLICE.active = true;
+    if (SLICE.active) sliceTo(x, y);
+    return;
+  }
+  /* 桌面：悬停高亮 */
+  if (!IS_DESK || e.target !== cv || S.mode === 'intro' || S.mode === 'done'){ S.hover = null; return; }
+  let best = null, bd = 1e9;
+  for (const b of S.bubbles){
+    if (b.dead) continue;
+    const p = bubblePos(b);
+    const d = Math.hypot(e.clientX-p.x, e.clientY-p.y);
+    if (d < p.r*1.06 && d < bd){ best = b; bd = d; }
+  }
+  S.hover = best;
+}, {passive:false});
+
+/* 抬手时才判定：没划动就是普通点击，划过则已切开的不再补一次点击 */
+function endSlice(){
+  if (!SLICE.down) return;
+  const sliced = SLICE.active;
+  SLICE.down = false;
+  if (SLICE.id !== null){ try { cv.releasePointerCapture(SLICE.id); } catch(err){} }
+  SLICE.id = null;
+  SLICE.active = false;
+  SLICE.hit = null;
+  if (!sliced){
+    const t = (SLICE.target && !SLICE.target.dead) ? SLICE.target : pickBubble(SLICE.sx, SLICE.sy);
+    attack(SLICE.sx, SLICE.sy, SLICE.power, t);
+  }
+  SLICE.target = null;
+}
+cv.addEventListener('pointerup', endSlice);
+cv.addEventListener('pointercancel', endSlice);
+
 if (IS_DESK){
-  cv.addEventListener('pointermove', e=>{
-    if (e.target !== cv || S.mode === 'intro' || S.mode === 'done'){ S.hover = null; return; }
-    let best = null, bd = 1e9;
-    for (const b of S.bubbles){
-      if (b.dead) continue;
-      const p = bubblePos(b);
-      const d = Math.hypot(e.clientX-p.x, e.clientY-p.y);
-      if (d < p.r*1.06 && d < bd){ best = b; bd = d; }
-    }
-    S.hover = best;
-  });
-  cv.addEventListener('pointerleave', ()=>{ S.hover = null; });
+  cv.addEventListener('pointerleave', ()=>{ if (!SLICE.down) S.hover = null; });
   // 右键 = 重击，屏蔽系统菜单
   window.addEventListener('contextmenu', e=>{ if (e.target === cv) e.preventDefault(); });
 }
@@ -1002,7 +1114,7 @@ function attack(x, y, power, target){
 
   if (target){
     const dmg = power >= 1.4 ? 1.6 : (power * 0.61) / target.hard;
-    addDamage(target, heavy ? Math.max(dmg, 0.55) : dmg, heavy);
+    addDamage(target, heavy ? Math.max(dmg, 0.55) : dmg, heavy, x, y);
   }
   updateCombo();
 }
@@ -1019,7 +1131,7 @@ function spawnMark(x, y, power, color){
   });
 }
 
-function addDamage(b, amt, heavy){
+function addDamage(b, amt, heavy, hx, hy){
   if (b.dead) return;
   b.dmg += amt;
   if (!b.cracked && b.dmg >= 0.24){
@@ -1029,7 +1141,7 @@ function addDamage(b, amt, heavy){
     vibrate(6);
     b.qv += rand(-2.4,-1.3);
   }
-  if (b.dmg >= 1) shatter(b, heavy);
+  if (b.dmg >= 1) shatter(b, heavy, hx, hy);
 }
 
 function makeCracks(r){
@@ -1052,7 +1164,92 @@ function makeCracks(r){
   return arr;
 }
 
-function shatter(b, heavy){
+/* 取图片主色（忽略透明像素），用于冲击环、细屑与烟雾，避免气泡调色板残留 */
+const TINT_CACHE = new WeakMap();
+function liftHex(hex, t){
+  const n = parseInt(hex.slice(1), 16);
+  const f = v => Math.round(v + (255-v)*t).toString(16).padStart(2,'0');
+  return '#' + f((n>>16)&255) + f((n>>8)&255) + f(n&255);
+}
+function picTint(pic){
+  const img = pic && pic.img;
+  if (!img || !img.complete || !img.naturalWidth) return '#ffffff';
+  const cached = TINT_CACHE.get(img);
+  if (cached) return cached;
+  let col = '#ffffff';
+  try{
+    const c = document.createElement('canvas');
+    c.width = 16; c.height = 16;
+    const g = c.getContext('2d');
+    g.drawImage(img, 0, 0, 16, 16);
+    const d = g.getImageData(0, 0, 16, 16).data;
+    let r=0, gg=0, bb=0, n=0;
+    for (let i=0;i<d.length;i+=4){
+      if (d[i+3] < 48) continue;
+      r += d[i]; gg += d[i+1]; bb += d[i+2]; n++;
+    }
+    if (n){
+      const to = v => Math.round(v/n).toString(16).padStart(2,'0');
+      col = '#' + to(r) + to(gg) + to(bb);
+    }
+  }catch(e){ col = '#ffffff'; }
+  TINT_CACHE.set(img, col);
+  return col;
+}
+
+/* 图片本体碎片：整张图按抖动网格切开，每片带着原图对应的图案飞散 */
+function picShards(b, cxp, cyp, style, heavy, hx, hy){
+  const img = b.pic.img;
+  const iw = img.naturalWidth, ih = img.naturalHeight;
+  const r = b.r;
+  const sc = (r*2)/Math.max(iw, ih);
+  const w = iw*sc, h = ih*sc;
+  const cols = style === 'blast' ? 4 : 3;
+  const rows = 3;
+  const gw = w/cols, gh = h/rows;
+  const grid = [];
+  for (let yy=0; yy<=rows; yy++){
+    const row = [];
+    for (let xx=0; xx<=cols; xx++){
+      const border = (xx===0 || yy===0 || xx===cols || yy===rows);
+      row.push({
+        x: -w/2 + xx*gw + (border ? 0 : rand(-0.34,0.34)*gw),
+        y: -h/2 + yy*gh + (border ? 0 : rand(-0.34,0.34)*gh)
+      });
+    }
+    grid.push(row);
+  }
+  // 爆点相对图片中心的偏移（敲哪儿就从哪儿崩开）
+  const ox = clamp((typeof hx === 'number' ? hx : cxp) - cxp, -r*0.9, r*0.9);
+  const oy = clamp((typeof hy === 'number' ? hy : cyp) - cyp, -r*0.9, r*0.9);
+  const lo = style === 'blast' ? 190 : style === 'puff' ? 38 : 110;
+  const hi = style === 'blast' ? 500 : style === 'puff' ? 120 : 300;
+  for (let yy=0; yy<rows; yy++){
+    for (let xx=0; xx<cols; xx++){
+      const quad = [grid[yy][xx], grid[yy][xx+1], grid[yy+1][xx+1], grid[yy+1][xx]];
+      const ccx = (quad[0].x + quad[1].x + quad[2].x + quad[3].x) / 4;
+      const ccy = (quad[0].y + quad[1].y + quad[2].y + quad[3].y) / 4;
+      const dx = ccx - ox, dy = ccy - oy;
+      const ang = Math.atan2(dy, dx) + rand(-0.2, 0.2);
+      const dist = Math.hypot(dx, dy);
+      const sp = rand(lo, hi) * (0.72 + Math.min(1, dist / Math.max(1, r*1.4)) * 0.55);
+      S.parts.push({
+        type:'pic', img:img, w:w, h:h, cx:ccx, cy:ccy,
+        poly: quad.map(q=>({x:q.x-ccx, y:q.y-ccy})),
+        x: cxp + ccx + Math.cos(ang)*1.5,
+        y: cyp + ccy + Math.sin(ang)*1.5,
+        vx: Math.cos(ang)*sp + rand(-24,24),
+        vy: Math.sin(ang)*sp - (style === 'puff' ? 30 : 84),
+        rot: rand(-0.05,0.05), vr: rand(-3.6,3.6),
+        grav: style === 'puff' ? 220 : 520,
+        life:0, max: rand(1.05, style === 'blast' ? 1.55 : 1.35),
+        a:1
+      });
+    }
+  }
+}
+
+function shatter(b, heavy, hx, hy, quiet){
   b.dead = true;
   b.deadAt = performance.now();
   b.flash = 1;
@@ -1062,21 +1259,35 @@ function shatter(b, heavy){
   const blast = style === 'blast';
   const puff = style === 'puff';
   const accent = b.c2 || b.c1;
+  /* 图片飘落物：碎片直接取自图片本体，不再产生气泡壳弧片 */
+  const picMode = !!(b.picStyle && b.pic && b.pic.img && b.pic.img.complete && b.pic.img.naturalWidth);
+  /* 爆点（限制在图片范围内），碎片按敲击位置向外崩开 */
+  const hitX = (typeof hx === 'number') ? cxp + clamp(hx - cxp, -b.r*0.9, b.r*0.9) : cxp;
+  const hitY = (typeof hy === 'number') ? cyp + clamp(hy - cyp, -b.r*0.9, b.r*0.9) : cyp;
+  /* 图片模式：冲击环、细屑与烟雾改用图片主色，不再沿用气泡配色 */
+  const tint = picMode ? picTint(b.pic) : null;
+  const ringC = tint ? liftHex(tint, 0.28) : b.c1;
+  const accentC = tint ? liftHex(tint, 0.12) : accent;
 
-  AU.play('shatter', heavy ? 1 : 0.6);
+  if (!quiet) AU.play('shatter', heavy ? 1 : 0.6);
   vibrate(blast ? 36 : puff ? 12 : (heavy ? 30 : 20));
   S.shakeAmp = Math.min(S.shakeAmp + (blast ? 31 : puff ? 8 : (heavy ? 22 : 14)), blast ? 42 : 30);
   S.flash = Math.min(S.flash + (blast ? 0.62 : puff ? 0.16 : (heavy ? 0.5 : 0.34)), 0.9);
 
-  // 大弧片（醒目的"壳"碎片）
-  for (let i=0;i<(puff ? 2 : blast ? 8 : 5);i++){
-    const a = rand(0,Math.PI*2), sp = rand(150, blast ? 520 : 380);
-    S.parts.push({
-      type:'big', x:cxp, y:cyp,
-      vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-80,
-      r:rand(9, blast ? 20 : 15), rot:rand(0,6.28), vr:rand(-7,7),
-      life:0, max:rand(0.6,1.05), c: Math.random()<0.6 ? b.c1 : accent, a:0.9
-    });
+  if (picMode){
+    // 图片本体碎片：整张图按抖动网格炸开，每片都带着原来的图案
+    picShards(b, cxp, cyp, style, heavy, hitX, hitY);
+  } else {
+    // 大弧片（醒目的"壳"碎片）
+    for (let i=0;i<(puff ? 2 : blast ? 8 : 5);i++){
+      const a = rand(0,Math.PI*2), sp = rand(150, blast ? 520 : 380);
+      S.parts.push({
+        type:'big', x:cxp, y:cyp,
+        vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-80,
+        r:rand(9, blast ? 20 : 15), rot:rand(0,6.28), vr:rand(-7,7),
+        life:0, max:rand(0.6,1.05), c: Math.random()<0.6 ? b.c1 : accent, a:0.9
+      });
+    }
   }
   // 速度线（放射冲击）
   for (let i=0;i<(blast ? 12 : puff ? 0 : 8);i++){
@@ -1086,27 +1297,29 @@ function shatter(b, heavy){
       life:0, max:rand(0.22,0.4), c:'#ffffff', w:rand(1.6,3.2)
     });
   }
-  // 玻璃碎屑
-  const shardN = puff ? 8 : blast ? 44 : (heavy ? 30 : 24);
-  for (let i=0;i<shardN;i++){
-    const a = rand(0,Math.PI*2), sp = rand(70, blast ? 620 : 350);
-    S.parts.push({
-      type:'shard',
-      x: cxp + Math.cos(a)*b.r*rand(0.15,0.85),
-      y: cyp + Math.sin(a)*b.r*rand(0.15,0.85),
-      vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - 60,
-      r: rand(2.4, blast ? 9.5 : 7.6), rot: rand(0,6.28), vr: rand(-9,9),
-      life: 0, max: rand(0.55,1.15),
-      c: Math.random()<0.5 ? b.c1 : (Math.random()<0.6 ? '#ffffff' : accent),
-      a: rand(0.55,0.95)
-    });
+  // 玻璃碎屑（图片模式不产生气泡玻璃屑）
+  if (!picMode){
+    const shardN = puff ? 8 : blast ? 44 : (heavy ? 30 : 24);
+    for (let i=0;i<shardN;i++){
+      const a = rand(0,Math.PI*2), sp = rand(70, blast ? 620 : 350);
+      S.parts.push({
+        type:'shard',
+        x: cxp + Math.cos(a)*b.r*rand(0.15,0.85),
+        y: cyp + Math.sin(a)*b.r*rand(0.15,0.85),
+        vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - 60,
+        r: rand(2.4, blast ? 9.5 : 7.6), rot: rand(0,6.28), vr: rand(-9,9),
+        life: 0, max: rand(0.55,1.15),
+        c: Math.random()<0.5 ? b.c1 : (Math.random()<0.6 ? '#ffffff' : accent),
+        a: rand(0.55,0.95)
+      });
+    }
   }
   for (let i=0;i<(blast ? 16 : puff ? 0 : (heavy ? 10 : 6));i++){
     const a = rand(0,Math.PI*2), sp = rand(140, blast ? 620 : 470);
     S.parts.push({
       type:'spark', x:cxp, y:cyp, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-70,
       r: rand(1, blast ? 3.4 : 2.6), rot:0, vr:0, life:0, max: rand(0.35,0.9),
-      c: Math.random()<0.7 ? '#ffffff' : accent, a:1
+      c: Math.random()<0.7 ? '#ffffff' : accentC, a:1
     });
   }
   // 色雾（炸裂带少量烟，烟雾模式为主）
@@ -1118,21 +1331,22 @@ function shatter(b, heavy){
         type:'puff', x:cxp + Math.cos(a)*b.r*rand(0.1,0.6), y:cyp + Math.sin(a)*b.r*rand(0.1,0.6),
         vx:Math.cos(a)*sp, vy:Math.sin(a)*sp - 30,
         r: b.r*rand(0.16, puff ? 0.38 : 0.26), life:0, max:rand(0.75,1.35),
-        c: Math.random()<0.55 ? b.c1 : accent, a: puff ? 0.30 : 0.16
+        c: Math.random()<0.55 ? ringC : accentC, a: puff ? 0.30 : 0.16
       });
     }
   }
   // 冲击环
   if (puff){
-    S.rings.push({x:cxp, y:cyp, r:b.r*0.55, grow:b.r*1.9, life:0, max:0.7, c:b.c1, w:2.4});
+    S.rings.push({x:cxp, y:cyp, r:b.r*0.55, grow:b.r*1.9, life:0, max:0.7, c:ringC, w:2.4});
   } else {
-    S.rings.push({x:cxp, y:cyp, r:b.r*0.7, grow:b.r*(blast ? 2.9 : 2.1), life:0, max:blast ? 0.72 : 0.5, c:b.c1, w:blast ? 7 : 4});
+    S.rings.push({x:cxp, y:cyp, r:b.r*0.7, grow:b.r*(blast ? 2.9 : 2.1), life:0, max:blast ? 0.72 : 0.5, c:ringC, w:blast ? 7 : 4});
     S.rings.push({x:cxp, y:cyp, r:b.r*0.4, grow:b.r*(blast ? 4.2 : 3.0), life:0, max:blast ? 0.85 : 0.66, c:'#ffffff', w:2});
-    if (blast) S.rings.push({x:cxp, y:cyp, r:b.r*0.9, grow:b.r*3.5, life:0, max:0.56, c:accent, w:5});
+    if (blast) S.rings.push({x:cxp, y:cyp, r:b.r*0.9, grow:b.r*3.5, life:0, max:0.56, c:accentC, w:5});
   }
-  S.ghosts.push({text:b.word, kind:b.kind, pic:b.pic, x:cxp, y:cyp, vy:-30, life:0, max:1.0,
-                 size: b.kind==='text' ? b.r*0.55 : b.r*0.8, a:0.9});
-  spawnMark(cxp, cyp, Math.min(1.5, heavy?1.35:1.05), Math.random()<0.35 ? accent : b.c1);
+  S.ghosts.push({text:b.word, kind:(b.picStyle ? 'gallery' : b.kind), pic:b.pic, picStyle:!!b.picStyle,
+                 x:cxp, y:cyp, vy:-30, life:0, max:1.0,
+                 size: (b.kind==='text' && !b.picStyle) ? b.r*0.55 : b.r*0.8, a:0.9});
+  spawnMark(cxp, cyp, Math.min(1.5, heavy?1.35:1.05), Math.random()<0.35 ? accentC : ringC);
 
   S.stats.pops = (S.stats.pops || 0) + 1;
   if (S.combo > (S.stats.bestCombo || 0)) S.stats.bestCombo = S.combo;
@@ -1221,7 +1435,7 @@ function update(dt, t){
     const p = S.parts[i];
     p.life += dt;
     if (p.life >= p.max){ S.parts.splice(i,1); continue; }
-    if (p.type === 'ray') continue;
+    if (p.type === 'ray' || p.type === 'cut') continue;
     if (p.type === 'puff'){
       p.vy -= 34*dt;
       p.vx *= Math.pow(0.45, dt);
@@ -1229,7 +1443,7 @@ function update(dt, t){
       p.r += p.r*0.85*dt;
       continue;
     }
-    p.vy += (p.type==='spark' ? 300 : 640) * dt;
+    p.vy += (p.type==='spark' ? 300 : (p.type==='pic' ? (p.grav || 540) : 640)) * dt;
     p.vx *= Math.pow(0.35, dt);
     p.x += p.vx*dt; p.y += p.vy*dt;
     p.rot += p.vr*dt;
@@ -1270,6 +1484,39 @@ function update(dt, t){
 /* ============================================================
    10. 绘制
    ============================================================ */
+/* 刀光：最近 420ms 的划动轨迹，外圈冷光 + 内圈白芯，越新越粗越亮 */
+function drawSliceTrail(now){
+  if (SLICE_TRAIL.length < 2) return;
+  const TTL = 420;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  for (let i=1;i<SLICE_TRAIL.length;i++){
+    const a = SLICE_TRAIL[i-1], b = SLICE_TRAIL[i];
+    const k = 1 - (now - b.t)/TTL;
+    if (k <= 0) continue;
+    ctx.strokeStyle = 'rgba(150,195,255,' + (0.34*k).toFixed(3) + ')';
+    ctx.lineWidth = 3 + 14*k;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,' + (0.86*k).toFixed(3) + ')';
+    ctx.lineWidth = 1 + 3.6*k;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+  }
+  // 刀尖：最新一点的冷光晕，按住划动时跟着手走
+  const head = SLICE_TRAIL[SLICE_TRAIL.length-1];
+  const hk = 1 - (now - head.t)/TTL;
+  if (hk > 0){
+    const rr = 12 + 12*hk;
+    const hg = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, rr);
+    hg.addColorStop(0, 'rgba(255,255,255,' + (0.5*hk).toFixed(3) + ')');
+    hg.addColorStop(0.45, 'rgba(160,205,255,' + (0.28*hk).toFixed(3) + ')');
+    hg.addColorStop(1, 'rgba(120,170,255,0)');
+    ctx.fillStyle = hg;
+    ctx.beginPath(); ctx.arc(head.x, head.y, rr, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
 function draw(t){
   ctx.drawImage(bgCanvas, 0, 0, W, H);
 
@@ -1319,8 +1566,11 @@ function draw(t){
       }
       return;
     }
-    drawBubble(b, t);
+    if (b.picStyle) drawPicBubble(b, t);
+    else drawBubble(b, t);
   });
+
+  drawSliceTrail(performance.now());
 
   // 即将漏掉的气泡：红色预警环
   if (S.rain.active){
@@ -1337,6 +1587,7 @@ function draw(t){
 
   ctx.globalCompositeOperation = 'lighter';
   S.parts.forEach(p=>{
+    if (p.type === 'pic') return;   // 图片碎片按原色绘制，不能叠加发光
     const k = p.life / p.max;
     const alpha = p.a*(1-k)*(1-k);
     if (p.type === 'ray'){
@@ -1346,6 +1597,23 @@ function draw(t){
       ctx.beginPath();
       ctx.moveTo(p.x+Math.cos(p.a)*p.len*0.25, p.y+Math.sin(p.a)*p.len*0.25);
       ctx.lineTo(p.x+Math.cos(p.a)*len, p.y+Math.sin(p.a)*len);
+      ctx.stroke();
+    } else if (p.type === 'cut'){
+      // 刀痕：横贯气泡的一道亮线
+      const len = p.len*(0.55 + k*0.45);
+      const fa = (1-k);
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = 'rgba(170,210,255,' + (fa*0.42).toFixed(3) + ')';
+      ctx.lineWidth = p.w*fa*3.4 + 0.6;
+      ctx.beginPath();
+      ctx.moveTo(p.x - Math.cos(p.a)*len/2, p.y - Math.sin(p.a)*len/2);
+      ctx.lineTo(p.x + Math.cos(p.a)*len/2, p.y + Math.sin(p.a)*len/2);
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,' + (fa*0.92).toFixed(3) + ')';
+      ctx.lineWidth = p.w*fa + 0.35;
+      ctx.beginPath();
+      ctx.moveTo(p.x - Math.cos(p.a)*len/2, p.y - Math.sin(p.a)*len/2);
+      ctx.lineTo(p.x + Math.cos(p.a)*len/2, p.y + Math.sin(p.a)*len/2);
       ctx.stroke();
     } else if (p.type === 'big'){
       ctx.save();
@@ -1381,6 +1649,28 @@ function draw(t){
   });
   ctx.globalCompositeOperation = 'source-over';
 
+  // 图片碎片：按原图颜色绘制，带撕裂亮边
+  S.parts.forEach(p=>{
+    if (p.type !== 'pic') return;
+    const k = p.life / p.max;
+    const alpha = k < 0.55 ? 1 : (1-k)/0.45;   // 先看清图案，再淡出
+    ctx.save();
+    ctx.globalAlpha = clamp(alpha, 0, 1);
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+    ctx.beginPath();
+    p.poly.forEach((q,i)=> i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y));
+    ctx.closePath();
+    ctx.save();
+    ctx.clip();
+    ctx.drawImage(p.img, -p.cx - p.w/2, -p.cy - p.h/2, p.w, p.h);
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(255,255,255,' + (0.26*(1-k)).toFixed(3) + ')';
+    ctx.lineWidth = 1.1;
+    ctx.stroke();
+    ctx.restore();
+  });
+
   S.ghosts.forEach(g=>{
     const k = g.life / g.max;
     ctx.save();
@@ -1394,9 +1684,15 @@ function draw(t){
       (ICONS[g.text]||ICONS.man)(ctx, g.size);
     } else if ((g.kind === 'image' || g.kind === 'gallery') && g.pic && g.pic.img && g.pic.img.complete && g.pic.img.naturalWidth){
       const img = g.pic.img;
-      ctx.beginPath(); ctx.arc(g.x, g.y, g.size*0.6, 0, Math.PI*2); ctx.clip();
-      const sc = Math.max(g.size*1.2/img.naturalWidth, g.size*1.2/img.naturalHeight);
-      ctx.drawImage(img, g.x-img.naturalWidth*sc/2, g.y-img.naturalHeight*sc/2, img.naturalWidth*sc, img.naturalHeight*sc);
+      if (g.picStyle){
+        // 图片模式：原图按比例淡出，不再裁成圆形
+        const sc = (g.size*2.1)/Math.max(img.naturalWidth, img.naturalHeight);
+        ctx.drawImage(img, g.x-img.naturalWidth*sc/2, g.y-img.naturalHeight*sc/2, img.naturalWidth*sc, img.naturalHeight*sc);
+      } else {
+        ctx.beginPath(); ctx.arc(g.x, g.y, g.size*0.6, 0, Math.PI*2); ctx.clip();
+        const sc = Math.max(g.size*1.2/img.naturalWidth, g.size*1.2/img.naturalHeight);
+        ctx.drawImage(img, g.x-img.naturalWidth*sc/2, g.y-img.naturalHeight*sc/2, img.naturalWidth*sc, img.naturalHeight*sc);
+      }
     } else {
       ctx.font = '600 ' + g.size + 'px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
       ctx.fillStyle = '#ffffff';
@@ -1604,6 +1900,74 @@ function drawBubble(b, t){
   ctx.restore();
 }
 
+/* 烦恼雨 · 飘落图片：图片本体下落，带落影、命中裂纹与悬停描边 */
+function drawPicBubble(b, t){
+  const r = b.r;
+  const pic = b.pic;
+  const img = pic && pic.img;
+  if (!img || !img.complete || !img.naturalWidth){ drawBubble(b, t); return; }
+
+  const ea = (b.entA === undefined) ? 1 : b.entA;
+  const es = (b.entS === undefined) ? 1 : b.entS;
+  const jitter = b.cracked ? Math.sin(t*30 + b.phase)*1.8*b.dmg : 0;
+  const hov = (IS_DESK && S.hover === b && !b.dead) ? 1 : 0;
+  const breathe = 1 + Math.sin(t*1.4 + b.phase)*0.018;
+  const hoverK = hov ? 1.035 : 1;
+  const iw = img.naturalWidth, ih = img.naturalHeight;
+  const sc = (r*2)/Math.max(iw, ih);
+  const w = iw*sc, h = ih*sc;
+
+  ctx.save();
+  ctx.translate(b.x + b.ox + (b.entOX||0) + jitter,
+                b.y + b.oy + (b.entOY||0) + Math.sin(t*1.15 + b.phase)*3.2);
+  ctx.rotate(b.rot + (b.entR||0) + Math.sin(t*0.8 + b.phase)*0.05);
+  ctx.scale(breathe*hoverK*es, breathe*hoverK*es);
+
+  // 落影：给图片一点离屏厚度
+  const sg = ctx.createRadialGradient(0, r*0.34, r*0.08, 0, r*0.34, r*1.12);
+  sg.addColorStop(0, 'rgba(4,2,12,0.46)');
+  sg.addColorStop(0.62, 'rgba(4,2,12,0.18)');
+  sg.addColorStop(1, 'rgba(4,2,12,0)');
+  ctx.globalAlpha = 0.75*ea;
+  ctx.fillStyle = sg;
+  ctx.beginPath(); ctx.ellipse(0, r*0.42, r*0.92, r*0.5, 0, 0, Math.PI*2); ctx.fill();
+
+  // 金色：背后一圈暖光
+  if (b.gold){
+    ctx.globalAlpha = 0.34*ea;
+    ctx.drawImage(glowOf('#ffc94d'), -r*2, -r*2, r*4, r*4);
+  }
+
+  ctx.globalAlpha = (0.94 + 0.06*Math.sin(t*2 + b.phase))*ea;
+  ctx.drawImage(img, -w/2, -h/2, w, h);
+
+  // 命中裂纹
+  if (b.cracked && b.cracks){
+    const a = clamp(b.dmg/0.9, 0, 1);
+    ctx.save();
+    ctx.globalAlpha = (0.34 + a*0.56)*ea;
+    ctx.strokeStyle = 'rgba(255,255,255,0.92)';
+    ctx.lineWidth = 1.4 + a*0.9;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    b.cracks.forEach(pts=>{
+      pts.forEach((p,i)=> i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+    });
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  if (hov){
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r*1.02, r*0.94, 0, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.42)'; ctx.lineWidth = 1.6; ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r*1.09, r*1.0, 0, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 3; ctx.stroke();
+  }
+  ctx.restore();
+}
+
 /* ============================================================
    11. 流程
    ============================================================ */
@@ -1799,7 +2163,7 @@ function spawnRain(){
   const hp = (gold ? 0.42 : (0.52 + tN*0.78)) * d.hp * (1 + (R.level-1)*0.05);
   const b = {
     word: word2, kind: kind,
-    pic: pic,
+    pic: pic, picStyle: false,
     x: rand(r+12, Math.max(r+13, W-r-12)), y: -r*1.35, r: r,
     ox:0, oy:0, vx:0, vy:0, q:0, qv:0, rot:0, phase: rand(0,9),
     dmg:0, cracked:false, dead:false, deadAt:0,
@@ -1822,6 +2186,17 @@ function spawnRain(){
     b.fs = fs;
   } else if (kind === 'emoji'){
     b.fs = r*1.02;
+  }
+  /* 飘落图片：直接用图片本体下落，不再套进气泡/形状轮廓 */
+  if (S.rainPic){
+    if (!b.pic || !b.pic.img){
+      const pool = rainPicPool();
+      if (pool.length) b.pic = pool[(Math.random()*pool.length)|0];
+    }
+    if (b.pic && b.pic.img){
+      b.picStyle = true;
+      b.kind = 'gallery';
+    }
   }
   S.bubbles.push(b);
 }
@@ -2196,6 +2571,16 @@ function drawWxFront(t){
 /* ============================================================
    12. 消散卡
    ============================================================ */
+/* 跨域图片画进导出画布会污染 canvas 导致保存失败，卡片里只画同源 / data 图 */
+function cardSafeSrc(src){
+  if (!src) return false;
+  if (src.indexOf('data:') === 0 || src.indexOf('blob:') === 0) return true;
+  try{
+    const u = new URL(src, location.href);
+    if (location.protocol === 'file:') return u.protocol === 'file:';
+    return u.origin === location.origin;
+  }catch(e){ return true; }
+}
 function makeCard(){
   const CW = 900, CH = 1350;
   const c = document.createElement('canvas');
@@ -2282,10 +2667,11 @@ function makeCard(){
       x.globalAlpha = 0.55;
       (ICONS[w]||ICONS.man)(x, size*1.15);
       x.globalAlpha = 1;
-    } else if (kind === 'image'){
+    } else if (kind === 'image' || kind === 'gallery'){
       const idx = parseInt(String(w).replace('#img',''),10) || 0;
       const pic = (S.roundPics && S.roundPics[i]) || (S.pics.length ? S.pics[idx % S.pics.length] : null);
-      if (pic && pic.img && pic.img.complete && pic.img.naturalWidth){
+      if (pic && pic.img && pic.img.complete && pic.img.naturalWidth
+          && cardSafeSrc(pic.img.src || '')){
         x.save();
         shapePath(x, cardShape, size*1.45); x.clip();
         const iw = pic.img.naturalWidth, ih = pic.img.naturalHeight;
@@ -2294,6 +2680,10 @@ function makeCard(){
         x.globalAlpha = 0.5;
         x.fillStyle = 'rgba(20,14,44,0.35)'; x.fillRect(-size*1.5,-size*1.5,size*3,size*3);
         x.restore();
+      } else if (pic && (pic.emoji || pic.label)){
+        x.font = size + 'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
+        x.fillStyle = 'rgba(255,255,255,0.6)';
+        x.fillText(pic.emoji || String(pic.label).slice(0, 1), 0, 2);
       }
     } else {
       x.font = '500 ' + size + 'px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
@@ -2576,6 +2966,9 @@ bindSeg('#segTrigger','trigger', v=>v, ()=>{
   if (v === 'shake') requestMotion();
 });
 bindSeg('#segHard','hard', v=>v, ()=>{ if (!S.rain.active) buildRound(); });
+bindSeg('#segRainPic','rainPic', v=>v==='1', ()=>{
+  toast(S.rainPic ? '下落物改为飘落图片' : '下落物改回形状气泡');
+});
 bindSeg('#segShape','shape', v=>v, ()=>{ if (!S.rain.active) buildRound(); });
 bindSeg('#segSize','sizeVar', v=>parseFloat(v)||0, ()=>{ if (!S.rain.active) buildRound(); });
 bindSeg('#segEnt','entrance', v=>v, ()=>{ if (!S.rain.active) buildRound(); });
@@ -2824,11 +3217,12 @@ $('#chipsTheme').addEventListener('click', e=>{
   store.set('theme', S.theme);
   $('#diyBox').style.display = S.theme === 'diy' ? 'block' : 'none';
   $('#picBox').style.display = S.theme === 'pics' ? 'block' : 'none';
+  $('#galleryBox').style.display = S.theme === 'items' ? 'block' : 'none';
+  if (S.theme === 'items') renderGalleryBox();
   if (S.theme === 'diy') $('#diyInput').value = S.diy.join(' ');
   if (!S.rain.active) buildRound();
   if (S.theme === 'pals' || S.theme === 'items'){
-    const g = (window.QS_GALLERY || {})[S.theme];
-    if (g && g.items) g.items.forEach(x=>imgFor(x.src));
+    galleryItems(S.theme).forEach(x=>imgFor(x.src));
     toast(S.theme === 'pals' ? '森林伙伴已就位' : '万物图鉴已就位');
   }
   if (!EMOJI_OK && (S.theme === 'bugs' || S.theme === 'faces')) toast('当前环境不支持图案，已用文字代替');
@@ -2840,22 +3234,66 @@ const IMG_CACHE = new Map();
 function imgFor(data){
   if (!IMG_CACHE.has(data)){
     const im = new Image();
+    if (typeof data === 'string' && /^https?:/i.test(data)) im.crossOrigin = 'anonymous';
     im.src = data;
     IMG_CACHE.set(data, im);
   }
   return IMG_CACHE.get(data);
 }
+const GALLERY_MAX = 24;
+/* 图鉴取数：万物图鉴优先用户自定义池，没有自定义时回退内置素材 */
+function galleryItems(key){
+  if (key === 'items' && Array.isArray(S.galleryItems) && S.galleryItems.length) return S.galleryItems;
+  const g = (window.QS_GALLERY || {})[key];
+  return (g && Array.isArray(g.items) && g.items.length) ? g.items : [];
+}
 function galleryFind(id){
-  const G = window.QS_GALLERY || {};
-  for (const k of ['pals','items']){
-    const g = G[k];
-    if (!g || !g.items) continue;
-    const hit = g.items.find(x=>x.id === id);
+  const k = String(id);
+  for (const key of ['items','pals']){
+    const hit = galleryItems(key).find(x=>x && x.id === k);
     if (hit) return hit;
   }
   return null;
 }
 function galleryAll(){ return Object.assign({}, (window.QS_GALLERY || {})); }
+/* 烦恼雨飘落图片池：照片贴图 / 森林伙伴 / 万物图鉴（含自定义），默认取万物图鉴 */
+function rainPicPool(){
+  if (S.theme === 'pics' && S.pics.length) return S.pics.slice();
+  const key = S.theme === 'pals' ? 'pals' : 'items';
+  return galleryItems(key).map(x=>({ img: imgFor(x.src), label: x.label, src: x.src, emoji: x.emoji }));
+}
+function gallerySave(list){
+  S.galleryItems = (Array.isArray(list) ? list : []).slice(0, GALLERY_MAX);
+  store.set('galleryItems', S.galleryItems);
+  renderGalleryBox();
+  if (S.theme === 'items' && !S.rain.active) buildRound();
+}
+function galleryId(){ return 'g' + Date.now().toString(36) + ((Math.random()*46656)|0).toString(36); }
+/* 本地图片 → 保留透明的 256px 压缩图（webp 优先，失败回退 png） */
+function fileToPic(file){
+  return new Promise(res=>{
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = ()=>{
+      try{
+        const w = img.naturalWidth || 1, h = img.naturalHeight || 1;
+        const sc = Math.min(1, 256/Math.max(w,h));
+        const c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(w*sc));
+        c.height = Math.max(1, Math.round(h*sc));
+        const g = c.getContext('2d');
+        g.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        let out = '';
+        try { out = c.toDataURL('image/webp', 0.86); } catch(e){ out = ''; }
+        if (!out || out.indexOf('data:image/webp') !== 0){ out = c.toDataURL('image/png'); }
+        res(out || null);
+      }catch(e){ URL.revokeObjectURL(url); res(null); }
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); res(null); };
+    img.src = url;
+  });
+}
 function compressImage(file){
   return new Promise(res=>{
     const url = URL.createObjectURL(file);
@@ -2908,6 +3346,139 @@ $('#picClear').addEventListener('click', ()=>{
   toast('已清除贴图');
 });
 
+/* ---------- 万物图鉴：自由填入 / 更换图片 ---------- */
+let galleryReplaceIdx = -1;
+let gallerySeq = 0;
+function galleryNextId(){ gallerySeq++; return 'g' + Date.now().toString(36) + gallerySeq.toString(36); }
+function galleryEsc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function galleryIsCustom(){
+  return Array.isArray(S.galleryItems) && S.galleryItems.length > 0;
+}
+/* 从内置素材复制成可编辑的自定义池（保留原图，只换 id 以便增删） */
+function galleryToCustom(){
+  if (galleryIsCustom()) return S.galleryItems.slice();
+  return galleryItems('items').map(x=>({ id:galleryNextId(), label:x.label || '图鉴', src:x.src }));
+}
+function renderGalleryBox(){
+  const grid = document.getElementById('galleryGrid');
+  if (!grid) return;
+  const list = galleryItems('items');
+  const custom = galleryIsCustom();
+  grid.innerHTML = list.map((it,i)=>{
+    const tip = custom ? '点击更换图片' : '点击换成自己的图片';
+    return '<div class="gCell" data-i="'+i+'" title="'+tip+'">'
+      + '<img src="'+galleryEsc(it.src)+'" alt="'+galleryEsc(it.label || '图鉴')+'">'
+      + '<button class="gDel" data-del="'+i+'" aria-label="删除">×</button>'
+      + '</div>';
+  }).join('') + '<label class="gAdd" for="galleryFile">＋<span>添加</span></label>';
+}
+(function bindGalleryUI(){
+  const grid = document.getElementById('galleryGrid');
+  const file = document.getElementById('galleryFile');
+  const repFile = document.getElementById('galleryReplaceFile');
+  const urlBtn = document.getElementById('galleryUrlBtn');
+  const urlWrap = document.getElementById('galleryUrlWrap');
+  const urlInput = document.getElementById('galleryUrl');
+  const urlAdd = document.getElementById('galleryUrlAdd');
+  const reset = document.getElementById('galleryReset');
+  if (!grid || !file || !repFile || !urlBtn || !urlWrap || !urlInput || !urlAdd || !reset) return;
+
+  grid.addEventListener('click', e=>{
+    const del = e.target.closest('.gDel');
+    const list = galleryToCustom();
+    if (del){
+      const i = parseInt(del.dataset.del, 10);
+      if (!(i >= 0) || i >= list.length) return;
+      if (list.length <= 1){ toast('至少留一张；想全恢复请点「恢复默认」'); return; }
+      list.splice(i, 1);
+      gallerySave(list);
+      toast('已删除这张图鉴');
+      return;
+    }
+    const cell = e.target.closest('.gCell');
+    if (!cell) return;
+    const i = parseInt(cell.dataset.i, 10);
+    if (!(i >= 0) || i >= list.length) return;
+    S.galleryItems = list; store.set('galleryItems', S.galleryItems);
+    renderGalleryBox();
+    galleryReplaceIdx = i;
+    repFile.click();
+  });
+
+  file.addEventListener('change', async e=>{
+    const picked = [...e.target.files].slice(0, GALLERY_MAX);
+    e.target.value = '';
+    if (!picked.length) return;
+    const base = galleryToCustom();
+    if (base.length + picked.length > GALLERY_MAX){
+      toast('最多 ' + GALLERY_MAX + ' 张，已按顺序装入前 ' + (GALLERY_MAX - base.length) + ' 张');
+    }
+    toast('处理图片中…');
+    const list = base.slice();
+    for (const f of picked){
+      if (list.length >= GALLERY_MAX) break;
+      const data = await fileToPic(f);
+      if (data) list.push({ id:galleryNextId(), label:'图鉴 ' + (list.length + 1), src:data });
+    }
+    if (list.length === base.length){ toast('图片读取失败'); return; }
+    gallerySave(list);
+    S.theme = 'items'; store.set('theme','items');
+    [...$('#chipsTheme').children].forEach(b=>b.classList.toggle('on', b.dataset.v==='items'));
+    $('#galleryBox').style.display = 'block';
+    if (!S.rain.active) buildRound();
+    toast('图鉴已更新，共 ' + list.length + ' 张');
+  });
+
+  repFile.addEventListener('change', async e=>{
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    const data = await fileToPic(f);
+    if (!data){ toast('图片读取失败'); return; }
+    const list = galleryToCustom();
+    const i = galleryReplaceIdx;
+    if (!(i >= 0) || i >= list.length){ toast('位置已变化，请重新点选'); return; }
+    list[i] = { id:list[i].id, label:list[i].label || ('图鉴 ' + (i+1)), src:data };
+    gallerySave(list);
+    galleryReplaceIdx = -1;
+    toast('已更换这张图鉴');
+  });
+
+  urlBtn.addEventListener('click', ()=>{
+    const on = urlWrap.style.display !== 'none';
+    urlWrap.style.display = on ? 'none' : 'flex';
+    if (!on) urlInput.focus();
+  });
+  const addByUrl = ()=>{
+    const v = urlInput.value.trim();
+    if (!v) return;
+    if (!/^(https?:\/\/|data:image\/)/i.test(v)){ toast('请填 http/https 或 data:image 图片地址'); return; }
+    const list = galleryToCustom();
+    if (list.length >= GALLERY_MAX){ toast('最多 ' + GALLERY_MAX + ' 张，请先删掉一张'); return; }
+    list.push({ id:galleryNextId(), label:'图鉴 ' + (list.length + 1), src:v });
+    gallerySave(list);
+    urlInput.value = '';
+    urlWrap.style.display = 'none';
+    S.theme = 'items'; store.set('theme','items');
+    [...$('#chipsTheme').children].forEach(b=>b.classList.toggle('on', b.dataset.v==='items'));
+    $('#galleryBox').style.display = 'block';
+    if (!S.rain.active) buildRound();
+    toast('已填入这张图片');
+  };
+  urlAdd.addEventListener('click', addByUrl);
+  urlInput.addEventListener('keydown', e=>{ if (e.key === 'Enter'){ e.preventDefault(); addByUrl(); } });
+
+  reset.addEventListener('click', ()=>{
+    gallerySave([]);
+    galleryReplaceIdx = -1;
+    if (S.theme === 'items' && !S.rain.active) buildRound();
+    toast('已恢复内置 12 张图鉴');
+  });
+})();
+
 /* ---------- 字效自定义 ---------- */
 bindSeg('#segMark','markSize', v=>v);
 $('#markApply').addEventListener('click', ()=>{
@@ -2947,6 +3518,7 @@ function loadSettings(){
   S.markSize = store.get('markSize','m');
   S.shape = store.get('shape','bubble');
   if (!['bubble','rounded','hex','star','heart','none','mix'].includes(S.shape)) S.shape = 'bubble';
+  S.rainPic = store.get('rainPic', true) !== false;
   S.sizeVar = clamp(parseFloat(store.get('sizeVar',0)) || 0, 0, 0.4);
   S.entrance = store.get('entrance','mix');
   if (!['mix','fly','float','fall','pop','none'].includes(S.entrance)) S.entrance = 'mix';
@@ -2956,6 +3528,15 @@ function loadSettings(){
   S.picData = store.get('picData', []);
   if (!Array.isArray(S.picData)) S.picData = [];
   S.pics = S.picData.map(d=>({data:d, img:imgFor(d)}));
+  const gi = store.get('galleryItems', []);
+  S.galleryItems = Array.isArray(gi)
+    ? gi.filter(x=>x && typeof x.src === 'string' && x.src).map((x,i)=>({
+        id: typeof x.id === 'string' && x.id ? x.id : ('g'+i),
+        label: typeof x.label === 'string' && x.label ? x.label : ('图鉴 ' + (i+1)),
+        src: x.src
+      })).slice(0, GALLERY_MAX)
+    : [];
+  S.galleryItems.forEach(x=>imgFor(x.src));
   S.gameMode = store.get('gameMode','zen') === 'rain' ? 'rain' : 'zen';
   const dv = store.get('diff','normal');
   S.diff = DIFF[dv] ? dv : 'normal';
@@ -2973,6 +3554,7 @@ function loadSettings(){
   mark('#segCount', S.qty);
   mark('#segMark', S.markSize);
   mark('#segShape', S.shape);
+  mark('#segRainPic', S.rainPic ? '1' : '0');
   mark('#segSize', String(S.sizeVar));
   mark('#segEnt', S.entrance);
   mark('#segBurst', S.burst);
@@ -2981,6 +3563,8 @@ function loadSettings(){
   [...$('#chipsTheme').children].forEach(b=>b.classList.toggle('on', b.dataset.v === S.theme));
   $('#diyBox').style.display = S.theme === 'diy' ? 'block' : 'none';
   $('#picBox').style.display = S.theme === 'pics' ? 'block' : 'none';
+  $('#galleryBox').style.display = S.theme === 'items' ? 'block' : 'none';
+  if (S.theme === 'items') renderGalleryBox();
   $('#diyInput').value = S.diy.join(' ');
   $('#markInput').value = S.markWords.join(' ');
   syncGuideMode();

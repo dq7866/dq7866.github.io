@@ -64,6 +64,8 @@ const RULES = `# 由 build-scripts/gen-headers.js 生成，请勿手改
   Cache-Control: public, max-age=3600
 /gate.js
   Cache-Control: public, max-age=3600
+/works-guard.js
+  Cache-Control: public, max-age=3600
 
 # ---- 自然培育所（/naturelab/）：HTML 回源，脚本样式 1 小时，图片 30 天 ----
 /naturelab/js/*
@@ -122,6 +124,9 @@ const RULES = `# 由 build-scripts/gen-headers.js 生成，请勿手改
 # ---- 安全：不要给 HTML 之外的目录做自动列表 ----
 /admin/*
   X-Robots-Tag: noindex
+/downloads/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: public, max-age=0, must-revalidate
 `;
 
 function main() {

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#090e1a" />
+<meta name="description" content="人体积木：把骨骼、肌肉、器官拆成形状，拆开看结构、装回懂身体。65 个可拆形状、13 套生理动画、病理课堂与视频工坊，每个形状都有七项功能作用与注意事项，边玩边学人体知识。" />
+<meta name="author" content="知作坊" />
+<meta name="robots" content="index,follow" />
+<meta name="app-version" content="1.5.0" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="知作坊" />
+<meta property="og:title" content="人体积木 · 拆开看结构，装回懂身体" />
+<meta property="og:description" content="65 个可拆解剖形状、13 套生理动画、病理课堂与视频工坊。纯本地运行，不上传任何数据。" />
+<meta property="og:url" content="https://dq7866.online/human-body/" />
+<meta property="og:image" content="https://dq7866.online/human-body/assets/og-cover.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="canonical" href="https://dq7866.online/human-body/" />
+<title>人体积木 · 拆开看结构，装回懂身体</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='7' r='3.4' fill='%23f2e6cb'/%3E%3Cpath d='M16 11v9M16 13l-6 4M16 13l6 4M16 20l-4 8M16 20l4 8' stroke='%23f2e6cb' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="style.css" />
+<script>
+/* 发布级启动兜底：WebGL 不可用、顶层脚本异常或显卡上下文丢失时给出可操作的提示，
+   而不是永远停在「正在载入真实解剖模型…」。纯本地，不发起任何网络请求。 */
+(function () {
+  var shown = false;
+  function fail(title, detail) {
+    if (shown) return;
+    shown = true;
+    var l = document.getElementById('loader');
+    if (!l) {
+      l = document.createElement('div');
+      l.id = 'loader'; l.className = 'loader';
+      document.body.appendChild(l);
+    }
+    l.classList.remove('hide');
+    l.classList.add('loader-fail');
+    // 引导页与遮罩同为 z-index:80 且在 DOM 中更靠后；出错时必须移除它并提级，
+    // 否则用户看到的仍是「开始拆解身体」，点进去也找不到任何提示。
+    var intro = document.getElementById('intro');
+    if (intro) intro.remove();
+    l.style.zIndex = '2147483000';
+    var card = document.createElement('div'); card.className = 'loader-card';
+    var h = document.createElement('div'); h.className = 'loader-title'; h.textContent = '人体积木';
+    var t = document.createElement('p'); t.className = 'loader-text loader-error'; t.textContent = title;
+    var d = document.createElement('p'); d.className = 'loader-note'; d.textContent = detail;
+    var btn = document.createElement('button'); btn.className = 'start-btn'; btn.textContent = '重新加载';
+    btn.addEventListener('click', function () { location.reload(); });
+    card.appendChild(h); card.appendChild(t); card.appendChild(d); card.appendChild(btn);
+    l.innerHTML = ''; l.appendChild(card);
+  }
+  window.__HB_FAIL = fail;
+  // 先做 WebGL 能力预检：顶层渲染器创建失败时，游戏脚本根本不会继续往下跑
+  try {
+    var c = document.createElement('canvas');
+    var gl = c.getContext('webgl2') || c.getContext('webgl') || c.getContext('experimental-webgl');
+    if (!gl) window.__HB_NO_WEBGL = true;
+    else { var ext = gl.getExtension('WEBGL_lose_context'); if (ext) ext.loseContext(); }
+  } catch (e) { window.__HB_NO_WEBGL = true; }
+  window.addEventListener('DOMContentLoaded', function () {
+    if (window.__HB_NO_WEBGL) fail('这台设备暂时打不开 3D 画面',
+      '《人体积木》需要浏览器支持 WebGL / 硬件加速。请换用较新的 Chrome、Edge 或 Safari，或在浏览器设置里开启「硬件加速」后重试。学习进度保存在本机，不会丢失。');
+  });
+  window.addEventListener('error', function (e) {
+    if (e.target && e.target !== window) return;  // 资源 404 交给控制台，不误弹
+    if (window.__HB_BOOTED) return;
+    if (window.__HB_NO_WEBGL) {
+      fail('这台设备暂时打不开 3D 画面',
+        '《人体积木》需要浏览器支持 WebGL / 硬件加速。请换用较新的 Chrome、Edge 或 Safari，或在浏览器设置里开启「硬件加速」后重试。学习进度保存在本机，不会丢失。');
+      return;
+    }
+    fail('载入时遇到了问题', '请刷新页面重试；若一直出现，可换用较新的浏览器或清理站点数据。学习进度保存在本机，不会因刷新丢失。');
+  });
+  window.addEventListener('unhandledrejection', function () {
+    if (window.__HB_BOOTED) return;
+    fail('载入时遇到了问题', '请刷新页面重试；若一直出现，可换用较新的浏览器或清理站点数据。');
+  });
+  document.addEventListener('webglcontextlost', function (e) {
+    e.preventDefault();
+    if (window.__HB_BOOTED) fail('3D 画面中断了', '显卡上下文被系统回收，点「重新加载」即可恢复；学习进度保存在本机，不会丢失。');
+  }, true);
+})();
+</script>
+</head>
+<body>
+<div id="app" data-mode="explore">
+  <canvas id="scene" tabindex="0" aria-label="人体 3D 拆解与搭建场景；聚焦后可用方向键旋转、加号减号缩放、0 复位视角" role="img"></canvas>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 40 40">
+          <circle cx="20" cy="8" r="4.2" fill="currentColor" opacity=".95"/>
+          <path d="M20 13v11M20 16l-7 5M20 16l7 5M20 24l-5 10M20 24l5 10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="20" cy="20" r="17" fill="none" stroke="currentColor" stroke-width=".8" opacity=".35"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <b>人体积木</b>
+        <span>拆开看结构 · 装回懂身体</span>
+      </div>
+    </div>
+
+    <div class="mode-switch" role="group" aria-label="玩法切换">
+      <button class="mode-btn active" data-mode="explore">探索拆解</button>
+      <button class="mode-btn" data-mode="build">重建搭建</button>
+    </div>
+
+    <div class="top-right">
+      <div class="stats">
+        <div class="stat"><em>已认识</em><b id="statLearn">0/47</b></div>
+        <div class="stat"><em>徽章</em><b id="statBadge">0/3</b></div>
+        <div class="stat-bar"><span id="learnBar"></span></div>
+      </div>
+      <button class="profile-chip" id="profileChip" type="button" title="当前档案 · 点开管理">我</button>
+      <button class="icon-btn" id="btnProfile" title="我的档案 · 本地多用户进度" aria-label="我的档案" aria-pressed="false">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c0-4 3.2-6.4 7.5-6.4s7.5 2.4 7.5 6.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <button class="coffee-btn" id="btnTip" type="button" title="请作者喝杯咖啡 · 微信 / 支付宝扫码" aria-label="支持作者">
+        <svg viewBox="0 0 24 24"><path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M17 9h2.2a2.4 2.4 0 0 1 0 4.8H17" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7.4 4.4c0 1.2 1 1.4 1 2.4M11.4 4c0 1.2 1 1.4 1 2.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>赞赏</span>
+      </button>
+      <button class="icon-btn icon-film" id="btnFilm" title="影片模式 · 完整结构" aria-label="影片模式" aria-pressed="false">
+        <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 10h18M8.6 6l-1.5 4M15.4 6l-1.5 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10.4 13.1v3.4l3.2-1.7z" fill="currentColor"/></svg>
+      </button>
+      <button class="icon-btn icon-studio" id="btnStudio" title="视频工坊 · 导出同款短视频" aria-label="视频工坊" aria-pressed="false">
+        <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="1" fill="currentColor"/><path d="M7.4 8.6v6.8M16.6 8.6v6.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.55"/></svg>
+      </button>
+      <button class="icon-btn icon-clinic" id="btnClinic" title="病理课堂 · 常见病发病原理动画" aria-label="病理课堂" aria-pressed="false">
+        <svg viewBox="0 0 24 24"><path d="M12 3.2v17.6M3.2 12h17.6" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.45"/><path d="M3 12.5h3.1l1.8-4.2 2.8 8.6 2.3-6.4 1.6 3.6H21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="icon-btn icon-physio" id="btnPhysio" title="生理动画" aria-label="生理动画" aria-pressed="false">
+        <svg viewBox="0 0 24 24"><path d="M3 12.5h3.2l2-5.2 3 10.4 2.4-7 1.7 4.2H21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="icon-btn" id="btnSound" title="音效开关" aria-label="音效开关" aria-pressed="true">
+        <svg viewBox="0 0 24 24"><path d="M4 9v6h3l5 4V5L7 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="btnTheme" title="主题外观 · 换配色与场景氛围" aria-label="主题外观" aria-pressed="false">
+        <svg viewBox="0 0 24 24"><path d="M12 3.2a8.8 8.8 0 1 0 0 17.6c1.4 0 1.9-.9 1.9-1.7 0-1.4-1.3-1.7-1.3-2.9 0-1.1.9-1.8 2.2-1.8h1.6c2.4 0 4.1-1.9 4.1-4.6 0-3.8-3.4-6.6-8.5-6.6z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8.2" cy="9.4" r="1.3" fill="currentColor"/><circle cx="12" cy="7.6" r="1.3" fill="currentColor"/><circle cx="15.8" cy="9.4" r="1.3" fill="currentColor"/><circle cx="7.4" cy="13.8" r="1.3" fill="currentColor"/></svg>
+      </button>
+      <button class="icon-btn" id="btnHelp" title="玩法说明" aria-label="玩法说明">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.3c-.8.4-1 .9-1 1.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="1.1" fill="currentColor"/></svg>
+      </button>
+      <button class="icon-btn" id="btnReset" title="清空进度" aria-label="清空进度">
+        <svg viewBox="0 0 24 24"><path d="M4 5v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M5.2 10a8 8 0 1 1-1 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <aside class="left-panel">
+    <div class="panel-label">身体三层</div>
+    <button class="support-card" id="supportCard" type="button" title="请作者喝杯咖啡 · 微信 / 支付宝扫码">
+      <span class="sup-ico"><svg viewBox="0 0 24 24"><path d="M12 20.2S3.8 15 3.8 9.6A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 8.2 2.2c0 5.4-8.2 10.6-8.2 10.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+      <span class="sup-txt"><b>请作者喝杯咖啡</b><em>免费无广告 · 扫码支持一下</em></span>
+      <span class="sup-arrow">›</span>
+    </button>
+    <div id="systemList" class="system-list"></div>
+    <div class="tip-card">
+      <h4 id="tipTitle">守护提示</h4>
+      <ul id="tipList"></ul>
+    </div>
+    <div class="legend">
+      <span><i class="dot bone"></i>骨骼</span>
+      <span><i class="dot muscle"></i>肌肉</span>
+      <span><i class="dot organ"></i>器官</span>
+    </div>
+  </aside>
+
+  <aside class="right-panel">
+    <div id="cardPanel" class="card-panel"></div>
+    <div id="physioPanel" class="physio-panel"></div>
+  </aside>
+
+  <div id="physioBar" class="physio-bar">
+    <div class="physio-head">
+      <b>生理动画</b>
+      <span>13 套 · 左右翻页</span>
+    </div>
+    <button id="physioScrollL" class="pb-scroll" title="向左翻页" aria-label="向左翻页">‹</button>
+    <div id="physioModes" class="physio-modes"></div>
+    <button id="physioScrollR" class="pb-scroll" title="向右翻页" aria-label="向右翻页">›</button>
+    <div class="physio-ctrl">
+      <button id="physioPlay" class="pb-btn" aria-pressed="false" title="播放 / 暂停">暂停</button>
+      <button id="physioSpeed" class="pb-btn" title="播放速度">1×</button>
+      <button id="physioExit" class="pb-btn ghost" title="收起动画">收起</button>
+    </div>
+  </div>
+
+  <div class="tray-wrap">
+    <div class="tray-head">
+      <b id="trayTitle">零件盘</b>
+      <div class="tray-tools">
+        <span>单击装回 / 双击看位置</span>
+        <button id="trayReset" class="tray-reset" hidden>重置本层</button>
+      </div>
+    </div>
+    <div id="tray" class="tray"></div>
+  </div>
+
+  <!-- 影片模式覆盖层：上下黑边、字幕、章节、进度、控制 -->
+  <div id="filmUI" class="film-ui" aria-hidden="true">
+    <div class="film-bar top"></div>
+    <div class="film-bar bottom"></div>
+
+    <div class="film-hud">
+      <div class="fh-left"><i class="fh-dot"></i><span id="filmChapter">01 / 08</span></div>
+      <div class="fh-right">4K · 医学可视化</div>
+    </div>
+
+    <div id="filmTitle" class="film-title">
+      <span>HUMAN · COMPLETE STRUCTURE</span>
+      <b>人体 · 完整结构</b>
+      <i></i>
+      <em>从皮肤到脏器，一次看完身体的三层构造</em>
+    </div>
+
+    <div id="filmCap" class="film-cap">
+      <em id="filmCapIdx">01</em>
+      <div>
+        <b id="filmCapZh">皮肤</b>
+        <span id="filmCapEn">Skin</span>
+      </div>
+    </div>
+
+    <div class="film-progress"><span id="filmProg"></span></div>
+
+    <div class="film-ctrl">
+      <button id="filmPlay" class="fc-btn">暂停</button>
+      <button id="filmNext" class="fc-btn ghost">下一章</button>
+      <button id="filmExit" class="fc-btn ghost">退出</button>
+    </div>
+  </div>
+
+  <!-- 视频工坊：X 光透视风短视频导出 -->
+  <div id="studioPanel" class="studio-panel" hidden>
+    <div class="sp-head">
+      <b>视频工坊</b>
+      <button class="modal-x" id="studioClose" aria-label="关闭">✕</button>
+    </div>
+    <p class="sp-note">X 光透视风短视频，同款抖音画面语言：黑底 / 蓝底透视人体，主体器官高亮，镜头自动环绕。选好风格和主体，点「开始录制」，结束后视频自动下载。</p>
+    <div class="sp-row"><span>画面风格</span>
+      <div class="sp-opts" id="studioStyle">
+        <button data-style="noir" class="on">X光黑银</button>
+        <button data-style="scan">蓝光扫描</button>
+        <button data-style="aurora">翡翠透视</button>
+      </div>
+    </div>
+    <div class="sp-row"><span>拍摄主体 · 器官</span>
+      <div class="sp-opts" id="studioSubject">
+        <button data-subject="heart" class="on">心脏</button>
+        <button data-subject="lungs">肺</button>
+        <button data-subject="brain">大脑</button>
+        <button data-subject="liver">肝</button>
+        <button data-subject="stomach">胃</button>
+        <button data-subject="kidney">肾</button>
+        <button data-subject="intestine">小肠</button>
+        <button data-subject="largeBowel">大肠</button>
+      </div>
+    </div>
+    <div class="sp-row"><span>拍摄主体 · 骨骼</span>
+      <div class="sp-opts" id="studioBone">
+        <button data-subject="skull">颅骨</button>
+        <button data-subject="ribcage">胸廓</button>
+        <button data-subject="spine">脊柱</button>
+        <button data-subject="pelvis">骨盆</button>
+        <button data-subject="skeleton">全身骨骼</button>
+      </div>
+    </div>
+    <div class="sp-row"><span>拍摄主体 · 整体</span>
+      <div class="sp-opts" id="studioWhole">
+        <button data-subject="body">全身透视</button>
+      </div>
+    </div>
+    <div class="sp-row"><span>拍摄主体 · 循环联动</span>
+      <div class="sp-opts" id="studioLink">
+        <button data-subject="circuit">全身联动</button>
+        <button data-subject="circuitTorso">脏器联动</button>
+      </div>
+    </div>
+    <div class="sp-row"><span>拍摄主体 · 系统联动</span>
+      <div class="sp-opts" id="studioSystem">
+        <button data-subject="neuro">神经联动</button>
+        <button data-subject="digest">消化链联动</button>
+        <button data-subject="immune">免疫联动</button>
+      </div>
+    </div>
+    <div class="sp-row sp-case-row"><span>病理课堂 · 常见病（位置 / 原理 / 处置 / 预防逐幕动画）</span>
+      <div class="sp-opts" id="studioCase">
+        <button data-subject="caseCarotid">颈动脉狭窄</button>
+        <button data-subject="caseCoronary">冠心病 · 心梗</button>
+        <button data-subject="caseStent">冠脉支架</button>
+        <button data-subject="caseStone">肾结石</button>
+        <button data-subject="caseStroke">脑梗死</button>
+        <button data-subject="caseDVT">血栓 · 肺栓塞</button>
+      </div>
+    </div>
+    <div class="sp-row"><span>画幅 / 时长</span>
+      <div class="sp-opts" id="studioFormat">
+        <button data-format="v" class="on">竖屏 9:16</button>
+        <button data-format="h">横屏 16:9</button>
+      </div>
+      <div class="sp-opts" id="studioDur">
+        <button data-dur="8">8 秒</button>
+        <button data-dur="12" class="on">12 秒</button>
+        <button data-dur="20">20 秒</button>
+      </div>
+    </div>
+    <button id="studioRec" class="sp-rec">● 开始录制</button>
+    <p class="sp-fmt" id="studioMime"></p>
+  </div>
+
+  <div id="studioRecUI" class="studio-rec" hidden>
+    <div class="sr-dot"></div>
+    <span id="srTime">00:00 / 00:12</span>
+    <div class="sr-bar"><i id="srProg"></i></div>
+  </div>
+
+  <!-- 工坊交互控制条：DOM 覆盖层，不会被录进视频 -->
+  <div id="studioCtl" class="studio-ctl" hidden>
+    <div class="sc-line">
+      <button id="studioPlay" class="sc-btn sc-main" title="暂停 / 继续（空格）">⏸ 暂停</button>
+      <button id="studioOrbit" class="sc-btn on" title="自动环绕开关（O）">⟳ 自动环绕</button>
+      <button id="studioSpeed" class="sc-btn" title="播放速度">1×</button>
+      <span class="sc-sep"></span>
+      <button id="studioZoomOut" class="sc-btn sc-ico" title="缩小（-）">－</button>
+      <span id="studioZoomVal" class="sc-val">×1.00</span>
+      <button id="studioZoomIn" class="sc-btn sc-ico" title="放大（+）">＋</button>
+      <button id="studioReset" class="sc-btn" title="复位视角（R / 双击画面）">↺ 复位</button>
+      <span class="sc-tip">拖动旋转 · 滚轮缩放 · Shift+拖动平移 · 空格暂停</span>
+    </div>
+    <div class="sc-line sc-mark-line">
+      <span class="sc-label">定机位</span>
+      <div id="studioPresets" class="sc-mark-list"></div>
+      <span class="sc-sep"></span>
+      <span class="sc-label">书签</span>
+      <div id="studioMarks" class="sc-mark-list"></div>
+      <input id="studioMarkName" class="sc-mark-input" type="text" maxlength="18" placeholder="名称（可选）" />
+      <button id="studioMarkSave" class="sc-btn" title="保存当前机位（B）">＋ 存书签</button>
+      <button id="studioMarkDel" class="sc-btn sc-ico" title="删除当前书签（Delete）">✕</button>
+      <span class="sc-tip sc-tip-mark">1–6 切定机位 · [ ] 翻书签 · B 保存 · 病理课堂 , . 翻幕</span>
+    </div>
+  </div>
+
+  <!-- 病理课堂讲解面板：DOM 层，详细文字；画面里的字幕由 HUD 直接绘制并录进视频 -->
+  <div id="clinicPanel" class="clinic-panel" hidden>
+    <div class="cp-head">
+      <div class="cp-head-text">
+        <span class="cp-kicker">病理课堂 · CLINICAL ANIMATION</span>
+        <b id="cpName">—</b>
+      </div>
+      <button class="modal-x" id="clinicClose" aria-label="收起讲解">✕</button>
+    </div>
+    <div class="cp-site"><i></i><span id="cpSite">—</span></div>
+    <div id="clinicCases" class="cp-cases">
+      <button data-subject="caseCarotid" class="cp-case">颈动脉狭窄</button>
+      <button data-subject="caseCoronary" class="cp-case">冠心病</button>
+      <button data-subject="caseStent" class="cp-case">冠脉支架</button>
+      <button data-subject="caseStone" class="cp-case">肾结石</button>
+      <button data-subject="caseStroke" class="cp-case">脑梗死</button>
+      <button data-subject="caseDVT" class="cp-case">血栓/肺栓塞</button>
+    </div>
+    <div id="clinicStages" class="cp-stages"></div>
+    <div class="cp-scroll">
+      <div class="cp-stage-head"><span id="cpStageNum">01 / 05</span><b id="cpStageTitle">—</b></div>
+      <p id="cpDetail" class="cp-detail"></p>
+      <ul id="cpLines" class="cp-lines"></ul>
+      <div class="cp-cards">
+        <section><h5>怎么预防</h5><ul id="cpPrevent"></ul></section>
+        <section><h5>注意事项</h5><ul id="cpCaution"></ul></section>
+        <section class="cp-em"><h5>就医警示 · 立即拨打 120</h5><ul id="cpEmergency"></ul></section>
+      </div>
+    </div>
+    <div class="cp-foot">
+      <button id="clinicPrev" class="cp-btn">‹ 上一幕</button>
+      <button id="clinicPlay" class="cp-btn cp-main">⏸ 暂停</button>
+      <button id="clinicNext" class="cp-btn">下一幕 ›</button>
+    </div>
+    <div class="cp-foot cp-foot2">
+      <button id="clinicRec" class="cp-btn cp-rec">● 录制整段讲解</button>
+      <button id="clinicSettings" class="cp-btn">⚙ 风格 / 画幅</button>
+    </div>
+    <p class="cp-keys">拖动旋转 · 滚轮缩放 · 空格暂停 · , . 翻幕 · 1–6 定机位 · C 收起面板</p>
+    <p class="cp-note">动画为科普示意，不替代诊断与治疗；具体用药、筛查与处置请遵医嘱。</p>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <div id="tooltip" class="tooltip"></div>
+
+  <!-- 主题外观面板：顶栏调色盘按钮打开 -->
+  <div id="themePanel" class="theme-panel" hidden>
+    <div class="sp-head">
+      <b>主题外观</b>
+      <button class="modal-x" id="themeClose" aria-label="关闭">✕</button>
+    </div>
+    <p class="tp-note">一键切换界面配色与场景氛围（背景、灯光、光环同步换装）；深色 5 套 + 明亮 2 套，选择会记住，刷新后仍然生效。</p>
+    <div id="themeList" class="theme-list"></div>
+  </div>
+
+  <!-- 本地用户档案面板：顶栏人像按钮 / 顶栏昵称打开 -->
+  <div id="profilePanel" class="theme-panel profile-panel" hidden>
+    <div class="sp-head">
+      <b>我的档案</b>
+      <button class="modal-x" id="profileClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="pf-now">
+      <span class="pf-dot" id="profileNowDot"></span>
+      <span class="pf-now-txt"><b id="profileNowName">我</b><em id="profileNowStat"></em></span>
+    </div>
+    <p class="tp-note">多人共用一台设备时，各建一个档案，已认识的形状与徽章互不干扰。</p>
+    <div id="profileList" class="pf-list"></div>
+    <div class="pf-new">
+      <input id="profileNewName" type="text" maxlength="12" placeholder="新档案名字，如：小明" aria-label="新档案名字" />
+      <button id="profileAdd" class="btn subtle" type="button">＋ 新建</button>
+    </div>
+    <p class="pf-note">档案只存在这台设备的浏览器里，不上传、不联网、无账号密码；换设备或清缓存不会同步。「清空进度」只清当前档案。</p>
+  </div>
+
+  <!-- 赞赏弹窗：静态收款码，不经过服务器 -->
+  <div id="tipModal" class="modal">
+    <div class="modal-card tip-modal-card">
+      <button class="modal-x" data-close aria-label="关闭">✕</button>
+      <h2>请作者喝杯咖啡</h2>
+      <p class="tip-lead">《人体积木》<b>完全免费、无广告、无追踪</b>：真实解剖模型、13 套生理动画、病理课堂与视频工坊，所有数据都留在你自己的设备上。</p>
+      <p class="tip-sub">如果它帮你把身体看明白了，欢迎扫码支持一下——金额随意，你的支持就是继续打磨内容、并保持免费的动力。</p>
+      <div class="tip-body">
+        <img id="tipQr" class="tip-qr" src="assets/sponsor-qr.png" alt="微信 / 支付宝收款码" />
+        <div class="tip-side">
+          <div class="tip-steps">
+            <b>怎么扫</b>
+            <p>打开 <b>微信</b> 或 <b>支付宝</b> →「扫一扫」→ 扫描左侧二维码 → 金额随意，直接支付。</p>
+          </div>
+          <p class="tip-hint">手机上不方便对着屏幕扫？先把二维码保存到相册，再用「扫一扫 → 相册」识别。</p>
+          <a id="tipSave" class="btn primary tip-save" download="人体积木-赞赏码.png" href="assets/sponsor-qr.png">保存二维码</a>
+        </div>
+      </div>
+      <p class="help-note">收款码是一张静态图片，不经过任何服务器；打赏完全自愿，不影响任何功能，也不收集任何信息。</p>
+    </div>
+  </div>
+
+  <!-- 浏览返回：视图打开时逐层退；都没打开时返回上一页 -->
+  <button id="backBtn" class="back-btn" hidden title="返回上一层；没有打开的视图时返回上一页">‹ 返回</button>
+
+  <div id="loader" class="loader">
+    <div class="loader-card">
+      <div class="loader-title">人体积木</div>
+      <p class="loader-text">正在载入真实解剖模型…</p>
+      <div class="loader-bar"><i></i></div>
+      <p class="loader-note">骨骼 / 肌肉：Écorché（CC BY-SA 4.0）· 内脏：CT Anatomy GLB（CC BY 4.0）</p>
+    </div>
+  </div>
+
+  <div id="intro" class="intro">
+    <div class="intro-inner">
+      <div class="intro-kicker">人体知识 · 拆解与搭建</div>
+      <h1>把身体<span>拆成形状</span>，再装回去</h1>
+      <p class="intro-lead">骨骼拆到 25 个真实骨块（含 200 余块骨），肌肉、器官，一共 <b>47 个解剖形状</b>；另有 <b>18 个日常认知部位</b>——头发、眼睛、嘴唇、脸颊、手指、脚趾……合计 <b>65 个可拆形状</b>。每个形状都带 <b>七项功能作用</b> 和 <b>注意事项</b>：拆下来看它做什么，装回去想它为什么重要。</p>
+      <p class="intro-lead intro-lead-2">默认呈现 <b>正常人体</b>——装好的完整的人；再往下看它怎么运转：<b>血液循环、消化吸收、神经控制、呼吸换气、免疫防御、淋巴回流、内分泌调节、运动联动</b>，以及泌尿过滤、吞咽与发声、运动响应、损伤修复、视觉与听觉，共 <b>13 套</b> 生理动画，边流动边讲解。</p>
+      <div class="intro-cards">
+        <div><b>01 探索拆解</b><p>单击身体上的形状，它离开身体浮在旁边；再单击装回，双击放进零件盘。</p></div>
+        <div><b>02 重建搭建</b><p>面对蓝色空位，把形状从零件盘拖回正确的位置。</p></div>
+        <div><b>03 生理动画</b><p>心跳泵血、食物消化、神经传导、呼吸换气，免疫淋巴、内分泌、运动联动，再到泌尿过滤、吞咽发声、运动响应、损伤修复、视觉听觉，一共 13 套，一站一站看明白。</p></div>
+        <div><b>04 影片模式</b><p>顶栏场记板按钮，一段约 70 秒的纪录短片：皮肤、骨骼、肌肉、内脏逐层溶接，带景深、宽银幕光条与字幕。</p></div>
+      </div>
+      <button id="startBtn" class="start-btn">开始拆解身体</button>
+      <p class="intro-note">纯本地运行 · 不上传任何数据 · 无广告 · 内容为健康科普，不替代医生诊断</p>
+    </div>
+  </div>
+
+  <div id="helpModal" class="modal">
+    <div class="modal-card help-card">
+      <button class="modal-x" data-close>✕</button>
+      <h2>怎么玩</h2>
+      <div class="help-grid">
+        <section><b>形状的单击与双击</b><p>两种模式下规则一致：单击身体上的形状，它离开身体一定距离浮在旁边；单击浮着的形状，它装回原位；双击形状，它飞进零件盘；双击零件盘里的形状，模型上会用金色轮廓标出它该在的位置。</p></section>
+        <section><b>探索拆解</b><p>左侧默认是「正常人体」（完整站立的人），也能切换日常人体 / 骨骼 / 肌肉 / 器官——「日常人体」是日常看到的裸身人，头、五官、躯干、四肢一眼能认；点击身体上的形状打开知识卡，卡里有七项功能、注意事项和一条守护提示。</p></section>
+        <section><b>重建搭建</b><p>切换模式后，当前系统会被拆空，只剩蓝色轮廓。从零件盘拿起形状，拖到对应空位上；装错会提示这里属于谁。全部装回后自动进入系统挑战。</p></section>
+        <section><b>三层透视</b><p>看肌肉时骨骼自动变淡，看器官时骨骼更透，方便理解"谁包着谁、谁挨着谁"。拖动旋转、滚轮缩放、Shift 拖动平移。</p></section>
+        <section><b>生理动画 · 13 套</b><p>顶栏的脉冲按钮打开动画条，左右滑动可切换：血液循环 / 消化吸收 / 神经控制 / 呼吸换气 / 免疫防御 / 淋巴回流 / 内分泌调节 / 运动联动，以及泌尿过滤 / 吞咽与发声 / 运动响应 / 损伤修复 / 视觉与听觉。右侧按当前阶段逐步讲解，可暂停、调速度；动画里身体转成半透明，才看得见里面的滤过、蠕动、声波与修复过程。</p></section>
+        <section><b>影片模式</b><p>顶栏的场记板按钮，播放一段约 70 秒的「人体完整结构」纪录短片：皮肤 → 骨骼 → 胸腔 → 肌肉 → 内脏 → 心脏 → 三层合体。自动运镜配景深、宽银幕光条、转场闪白与中英字幕；空格暂停、→ 跳下一章、Esc 退出。</p></section>
+        <section><b>视频工坊</b><p>顶栏的取景器按钮：X 光透视风短视频导出。25 个拍摄主体（器官 / 骨骼 / 全身 / 循环 · 神经 · 消化 · 免疫四套联动 / 六个常见病病理演示），黑底银白人体配实体器官高亮。画面可拖动旋转、滚轮缩放、Shift 平移、暂停定格；1–6 一键切正面/侧面/俯视等定机位，也能把调好的机位存成书签。可选竖屏 1080×1920（抖音/视频号）或横屏，录完自动下载 MP4。</p></section>
+        <section><b>病理课堂</b><p>顶栏的十字心电按钮，或在工坊里选「病理课堂」分组：颈动脉狭窄与堵塞、冠心病与心梗、冠脉支架置入、肾结石与输尿管梗阻、脑梗死、下肢血栓与肺栓塞。每个病例 5 幕，从发生位置、发病原理、急性事件到处置过程逐帧演绎——斑块长出来、管腔真的变窄、血流射流与停滞、支架撑开、结石碎裂排出。字幕、部位定位图和「预防 / 注意 / 就医警示」会一起录进视频；右侧讲解面板可点幕跳转，快捷键 <em>,</em> <em>.</em> 翻幕、<em>C</em> 收起面板。动画为科普示意，不替代诊疗。</p></section>
+        <section><b>主题外观 · 7 套</b><p>顶栏的调色盘按钮：深色氛围 5 套（深空蓝默认 / 墨黑银 / 翡翠青 / 暗夜紫 / 暖夜橙），明亮主题 2 套（晴空白 / 暖纸白）。界面配色、场景背景、地面网格、灯光色温与呼吸光环一起换装；明亮主题会把卡片、按钮、弹窗的叠层与文字同步翻成深色以保证对比度，影片、视频工坊、病理课堂仍保留各自的深色画面。选择记住在本机，刷新后仍生效，清空进度不会清掉主题。</p></section>
+        <section><b>返回上一层 / 上一页</b><p>左下角的 <em>‹ 返回</em> 按钮：打开着帮助、工坊、病理课堂、生理动画等界面时按一次退一层；都没有打开时按浏览器习惯返回上一页。浏览器 / 手机的后退键同样会先逐层关闭这些界面，全部关完再后退才离开。</p></section>
+        <section><b>进度与徽章</b><p>点开一个形状即记为已认识；系统内全部认识后可做 3 道题，答对 2 道获得徽章。进度只存在本机浏览器里，可随时清空。</p></section>
+        <section><b>本地用户档案</b><p>顶栏的人像按钮（或昵称标签）打开「我的档案」：可新建、切换、重命名、删除档案，多人共用一台设备时每人的进度与徽章各自独立。首次进入会自动把旧版进度无损搬进默认档案「我」。这是纯本地档案，不注册、不登录、不上传，换设备不同步；「清空进度」只清当前档案。</p></section>
+        <section><b>支持作者</b><p>顶栏的「赞赏」按钮、左侧面板顶部的「请作者喝杯咖啡」卡片都能打开收款码：微信 / 支付宝扫一扫，金额随意。程序完全免费、无广告、无追踪，收款码只是一张静态图片，不经任何服务器；打赏自愿，不影响任何功能。</p></section>
+        <section><b>键盘与无障碍</b><p>所有按钮都能用 <em>Tab</em> 聚焦、<em>Enter / 空格</em> 触发；聚焦 3D 画面后，<em>方向键</em> 旋转、<em>+</em> / <em>-</em> 缩放、<em>0</em> 复位视角，按住 Shift 可大幅转动。<em>Esc</em> 可收起帮助、主题、档案、赞赏等面板；影片、视频工坊等全屏视图用各自的退出控件，左下角「‹ 返回」可逐层退出。页面允许浏览器自由缩放，也遵循系统的「减少动态效果」设置。</p></section>
+        <section><b>数据来源与许可</b><p>解剖模型由两个开放数据集离线烘焙、简化、换算并合并：骨骼与肌肉取自 <b>Écorché</b>（CC BY-SA 4.0），内脏取自 <b>CT Anatomy GLB</b>（CC BY 4.0，基于 TotalSegmentator v2.0.1 的 CT 分割）。几何经过简化、坐标轴与单位换算、按形状重新居中，属于改编后的衍生作品；依 CC BY-SA 4.0，其中源自 Écorché 的部分同样按该许可共享。原始出处与完整许可说明见项目文档，程序运行时不会在线请求这些数据。</p></section>
+        <section><b>关于与版本</b><p>《人体积木》<b id="appVersion">v1.5.0</b>（2026-11-15）：65 个可拆形状、13 套生理动画、6 个病理课堂病例、7 套主题、本地多档案、视频工坊与影片模式。纯前端、纯本地运行：不联网取数、不上传进度、不设账号、无广告与追踪，所有数据只保存在你这台设备的浏览器里。内容用于健康科普与学习，不替代医生诊断。</p></section>
+      </div>
+      <div class="help-more">
+        <b>13 套动画 · 全部上线</b>
+        <div id="physioMore" class="more-list"></div>
+      </div>
+      <p class="help-note">内容用于健康科普与学习，身体不适请咨询专业医生。</p>
+    </div>
+  </div>
+
+  <div id="quizModal" class="modal"></div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>

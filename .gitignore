@@ -51,8 +51,27 @@ cloudflare/room-worker/tmp/
 # ⚠️ 本仓库是公开仓库，推送即全网可见。手册只留本地，绝不入库。
 /docs/
 
+# 地球仪拼图：天地图官方原始边界（可用 --fetch / fetch_regions.py 重建，不入库）
+source/globe-puzzle/data/*.geojson
+source/globe-puzzle/data/raw/
+
 # 本地测试产物
 tmp/
 
 # 本地备份文件
 *.bak
+
+# 本机协作/记忆缓存（只留本地，不进公开仓库）
+/.cowork-temp/
+/.workbuddy/
+**/.dumate/
+**/.workbuddy/
+
+# 《人体积木》开发包：仓库只保留线上运行时 + 源码，中间产物不入库。
+# 与线上构建无关且体积巨大：原始解剖数据集(152MB)、AI 3D 任务(含 token.txt 凭据)、
+# 审阅截图/样片(329MB)、测试模型、可重建的单文件版(18MB)。
+# ⚠️ assets/source/ai/ai-jobs/token.txt 是第三方平台令牌，公开仓库严禁入库。
+source/human-body-bricks/assets/source/
+source/human-body-bricks/assets/test-hq.glb
+source/human-body-bricks/review/
+source/human-body-bricks/人体积木.html

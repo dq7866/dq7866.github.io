@@ -140,6 +140,22 @@
     <input type="file" id="picFile" accept="image/*" multiple style="display:none">
   </div>
 
+  <div class="p-sec" id="galleryBox" style="display:none">
+    <div class="p-label">图鉴图片<small>点图片可换图，× 删除；没有自定义时用内置 12 张，最多 24 张</small></div>
+    <div class="gGrid" id="galleryGrid"></div>
+    <div class="gRow">
+      <label class="mini" for="galleryFile" style="display:inline-block;cursor:pointer">添加图片</label>
+      <button class="mini ghost" id="galleryUrlBtn">填入图片地址</button>
+      <button class="mini ghost" id="galleryReset">恢复默认</button>
+    </div>
+    <input type="file" id="galleryFile" accept="image/*" multiple style="display:none">
+    <input type="file" id="galleryReplaceFile" accept="image/*" style="display:none">
+    <div class="gUrlWrap" id="galleryUrlWrap" style="display:none">
+      <input type="text" id="galleryUrl" placeholder="粘贴图片链接，或本地图片的 http 地址">
+      <button class="mini" id="galleryUrlAdd">加入</button>
+    </div>
+  </div>
+
   <div class="p-sec">
     <div class="p-label">敲击字效<small>空格分隔，留空恢复默认；想敲什么字自己定</small></div>
     <textarea id="markInput" rows="2" placeholder="草 切 淦 啧 啪"></textarea>
@@ -170,6 +186,14 @@
       <button data-v="chill">悠闲</button>
       <button data-v="normal" class="on">标准</button>
       <button data-v="frenzy">狂潮</button>
+    </div>
+  </div>
+
+  <div class="p-sec">
+    <div class="p-label">烦恼雨外观<small>飘落图片：下落物直接用图鉴/贴图里的图片；形状气泡：套进气泡轮廓</small></div>
+    <div class="seg" id="segRainPic">
+      <button data-v="1" class="on">飘落图片</button>
+      <button data-v="0">形状气泡</button>
     </div>
   </div>
 
@@ -278,7 +302,7 @@
     </div>
   </div>
 
-  <div class="p-foot">敲散 v3.2 · 敲击解压 · <button class="pfLink" id="footRank">排行榜</button> · <button class="pfLink" id="footHelp">帮助</button> · <button class="pfLink" id="footAbout">关于</button></div>
+  <div class="p-foot">敲散 v3.3 · 敲击解压 · <button class="pfLink" id="footRank">排行榜</button> · <button class="pfLink" id="footHelp">帮助</button> · <button class="pfLink" id="footAbout">关于</button></div>
 </div>
 
 <div id="modalScrim" class="mScrim"></div>
@@ -290,11 +314,14 @@
     <ol class="mcList">
       <li>点「开始」，屏幕上会出现一圈情绪气泡。</li>
       <li>用指腹点击气泡，两三下就会碎裂；敲得越急，COMBO 越高、爆得越爽。</li>
+      <li>也可以<b>按住鼠标 / 手指划过气泡</b>：像挥刀切西瓜，刀光扫过的气泡直接裂开，每切破一颗都有一声刀风 + 破裂脆响，一次划过能连切好几颗。</li>
       <li>全部敲碎后生成一张「情绪消散卡」，可以保存成图片。</li>
     </ol>
     <h3>怎么玩 · 烦恼雨</h3>
     <ol class="mcList">
-      <li>烦恼会从屏幕顶部不断落下，大小、形状、颜色、速度都不一样，大的更耐敲。</li>
+      <li>烦恼会从屏幕顶部不断落下来，默认是图片本体飘落（取自万物图鉴 / 森林伙伴 / 照片贴图），大小、速度和旋转都不一样，大的更耐敲。</li>
+      <li>图片被敲碎时会整张裂成几片带着原图图案的碎片，从你敲的位置往外崩开；冲击环和烟雾也取图片的主色，不再是气泡壳。</li>
+      <li>想换回原来的气泡外观，在设置里把「烦恼雨外观」切到「形状气泡」；图鉴图片可在设置里自由填入、更换或删除。</li>
       <li>敲碎得分：敲得越快连击越高；1.1 秒内连续敲碎 3 个以上会触发「爆裂」额外加分。</li>
       <li>漏掉一个扣一条命，命用完本局结束；每敲碎 12 个升一层，下落更快、背景换色。</li>
       <li>结算后可保存战绩卡，成绩会记入本机排行榜（每个档案独立）。</li>
@@ -302,6 +329,7 @@
     <h3>桌面端操作</h3>
     <ul class="mcList">
       <li>鼠标左键点击 = 敲一下；<b>Shift + 点击</b> 或右键 = 重击，一击爆破。</li>
+      <li>按住左键拖动 = 挥刀：划过的气泡直接切开，松开前不走点击判定；按住不动再松手仍是普通敲击。</li>
       <li><b>Space</b> 敲击最近的气泡，<b>R</b> 重开一轮，<b>Esc</b> 关闭面板。</li>
     </ul>
     <h3>设置项说明</h3>
@@ -332,8 +360,10 @@
   <div class="mcHead"><h2 id="aboutTitle">关于敲散</h2><button class="mcClose" data-mc-close aria-label="关闭关于">✕</button></div>
   <div class="mcBody">
     <p class="mcLead">把烦心事做成气泡，敲碎它。两三下、几声脆响、一点点震动——不需要理由，也不需要登录。</p>
-    <h3>版本 3.2</h3>
+    <h3>版本 3.3</h3>
     <ul class="mcList mcLog">
+      <li><b>v3.3</b> 万物图鉴改为可编辑图片池：本地上传或填图片地址，点图换图、× 删除、一键恢复默认（最多 24 张）；烦恼雨默认改为「飘落图片」外观，下落物直接用图鉴 / 森林伙伴 / 照片贴图里的图片，设置里可切回形状气泡；图片破碎改成整张图炸成带图案的碎片，从敲击点崩开，冲击环与烟雾取图片主色。</li>
+      <li><b>v3.3</b> 新增「划切」：按住鼠标 / 手指划过气泡即可切开，刀光所过之处连续切破多颗，与点击、空格一样计入连击与烦恼雨得分。</li>
       <li><b>v3.2</b> 新增「图鉴」气泡：森林伙伴（狐狸/兔子/小鹿/猫头鹰/刺猬/松鼠/蜜蜂/蝴蝶）与万物图鉴（苹果/蛋糕/气球/小汽车/胡萝卜/篮球/蘑菇/浆果/星星/宝石/磁铁/盾牌），共 20 张透明水彩素材；新增「情绪天气」：根据敲击节奏与漏怪在晴朗/阴云/落雨/雷暴之间变化，带雨声、风声、雷声与闪电。</li>
       <li><b>v3.2</b> 新增「全球榜」：可选开启云榜单，结算时把昵称与成绩上传到本站接口（每档难度前 20 名）；默认关闭，关闭时仍然零网络请求。</li>
       <li><b>v3.1</b> 新增「烦恼雨」无尽模式：烦恼从顶部落下，按破损数 / 爆裂数计分，三档难度配三套动态背景，每 12 个升一层，支持本机排行榜与战绩卡。</li>

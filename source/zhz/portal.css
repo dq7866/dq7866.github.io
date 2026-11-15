@@ -54,6 +54,31 @@ body:has(.zhz-portal) #recent-posts {
   text-transform: uppercase;
 }
 
+/* 组标题右侧的「支持作者」入口（我的作品组专用） */
+.zhz-support-link {
+  align-self: center;
+  font-size: .72rem;
+  font-weight: 700;
+  color: #c84100;
+  background: #fff1e9;
+  border: 1px solid #ffd9c4;
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.zhz-support-link:hover {
+  background: #ffe3d2;
+  text-decoration: none;
+}
+
+[data-theme="dark"] .zhz-support-link {
+  color: #ffb38f;
+  background: rgba(255, 122, 69, .14);
+  border-color: rgba(255, 122, 69, .28);
+}
+
 /* ---------- 网格 ---------- */
 /* 用 grid 保证所有卡片同宽（flex 拉伸会让第一行 3 个、后面 2 个宽度不一致，
    反而更乱）。每组末尾可能留 1 格空白，视觉上像未满的网格，可接受。 */

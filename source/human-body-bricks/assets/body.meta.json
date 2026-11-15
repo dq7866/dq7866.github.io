@@ -1,0 +1,498 @@
+{
+ "generatedAt": "2026-11-14T01:31:02.062Z",
+ "file": "assets/body.glb",
+ "unit": "meter",
+ "bounds": {
+  "min": [
+   -0.3239,
+   0,
+   -0.1309
+  ],
+  "max": [
+   0.3239,
+   1.7101,
+   0.1309
+  ]
+ },
+ "shapeCount": 46,
+ "triangles": 443232,
+ "shapes": {
+  "otherMuscle": {
+   "center": [
+    0,
+    0.83635,
+    -0.00285
+   ],
+   "triangles": 69212,
+   "vertices": 32340,
+   "sourceMeshes": 304,
+   "residual": true
+  },
+  "ribs": {
+   "center": [
+    -0.00065,
+    1.2631,
+    0.0033
+   ],
+   "triangles": 26000,
+   "vertices": 13074,
+   "sourceMeshes": 38
+  },
+  "skull": {
+   "center": [
+    -0.00065,
+    1.60555,
+    -0.0099
+   ],
+   "triangles": 25996,
+   "vertices": 13071,
+   "sourceMeshes": 54
+  },
+  "erector": {
+   "center": [
+    0,
+    1.2378,
+    -0.06605
+   ],
+   "triangles": 25934,
+   "vertices": 12987,
+   "sourceMeshes": 20
+  },
+  "lungs": {
+   "center": [
+    -0.00576,
+    1.3184,
+    -0.00569
+   ],
+   "triangles": 26000,
+   "vertices": 13011,
+   "sourceMeshes": 5
+  },
+  "rectus": {
+   "center": [
+    0,
+    1.0565,
+    0.066
+   ],
+   "triangles": 26000,
+   "vertices": 13004,
+   "sourceMeshes": 2
+  },
+  "thoracic": {
+   "center": [
+    -0.00045,
+    1.28725,
+    -0.05445
+   ],
+   "triangles": 22518,
+   "vertices": 11258,
+   "sourceMeshes": 23
+  },
+  "trapezius": {
+   "center": [
+    0,
+    1.35385,
+    -0.0674
+   ],
+   "triangles": 19836,
+   "vertices": 9188,
+   "sourceMeshes": 6
+  },
+  "quadriceps": {
+   "center": [
+    0,
+    0.66685,
+    -0.00025
+   ],
+   "triangles": 17952,
+   "vertices": 8988,
+   "sourceMeshes": 8
+  },
+  "scapula": {
+   "center": [
+    0.00005,
+    1.34075,
+    -0.05625
+   ],
+   "triangles": 15196,
+   "vertices": 7602,
+   "sourceMeshes": 2
+  },
+  "lumbar": {
+   "center": [
+    -0.0007,
+    1.05715,
+    -0.038
+   ],
+   "triangles": 14426,
+   "vertices": 7208,
+   "sourceMeshes": 10
+  },
+  "smallIntestine": {
+   "center": [
+    0.02368,
+    1.03815,
+    -0.0074
+   ],
+   "triangles": 14254,
+   "vertices": 7107,
+   "sourceMeshes": 2
+  },
+  "liver": {
+   "center": [
+    -0.04496,
+    1.15208,
+    -0.00353
+   ],
+   "triangles": 10476,
+   "vertices": 5240,
+   "sourceMeshes": 1
+  },
+  "cervical": {
+   "center": [
+    -0.0006,
+    1.4946,
+    -0.04845
+   ],
+   "triangles": 9762,
+   "vertices": 4864,
+   "sourceMeshes": 13
+  },
+  "pectoralis": {
+   "center": [
+    0,
+    1.2936,
+    0.04505
+   ],
+   "triangles": 9436,
+   "vertices": 4726,
+   "sourceMeshes": 6
+  },
+  "largeIntestine": {
+   "center": [
+    0.00949,
+    1.04625,
+    -0.01829
+   ],
+   "triangles": 8318,
+   "vertices": 4161,
+   "sourceMeshes": 1
+  },
+  "heart": {
+   "center": [
+    0.00639,
+    1.29167,
+    0.02364
+   ],
+   "triangles": 6782,
+   "vertices": 3391,
+   "sourceMeshes": 2
+  },
+  "gastrocnemius": {
+   "center": [
+    0,
+    0.3515,
+    -0.0563
+   ],
+   "triangles": 6196,
+   "vertices": 3106,
+   "sourceMeshes": 4
+  },
+  "brain": {
+   "center": [
+    -0.00065,
+    1.64645,
+    -0.0187
+   ],
+   "triangles": 6050,
+   "vertices": 3027,
+   "sourceMeshes": 1
+  },
+  "tarsal": {
+   "center": [
+    0,
+    0.0411,
+    -0.02285
+   ],
+   "triangles": 6038,
+   "vertices": 3047,
+   "sourceMeshes": 14
+  },
+  "eye": {
+   "center": [
+    -0.00065,
+    1.5919,
+    0.0473
+   ],
+   "triangles": 5348,
+   "vertices": 2677,
+   "sourceMeshes": 4
+  },
+  "femur": {
+   "center": [
+    0.00005,
+    0.675,
+    -0.0242
+   ],
+   "triangles": 5136,
+   "vertices": 2572,
+   "sourceMeshes": 2
+  },
+  "deltoid": {
+   "center": [
+    0,
+    1.34565,
+    -0.04305
+   ],
+   "triangles": 4844,
+   "vertices": 2368,
+   "sourceMeshes": 6
+  },
+  "sacrum": {
+   "center": [
+    -0.00065,
+    0.92885,
+    -0.0681
+   ],
+   "triangles": 4714,
+   "vertices": 2343,
+   "sourceMeshes": 1
+  },
+  "kidney": {
+   "center": [
+    -0.00546,
+    1.13625,
+    -0.04963
+   ],
+   "triangles": 4274,
+   "vertices": 2141,
+   "sourceMeshes": 2
+  },
+  "phalangesFoot": {
+   "center": [
+    0.00005,
+    0.01285,
+    0.0873
+   ],
+   "triangles": 4258,
+   "vertices": 2187,
+   "sourceMeshes": 28
+  },
+  "phalangesHand": {
+   "center": [
+    0,
+    0.78395,
+    0.0597
+   ],
+   "triangles": 4220,
+   "vertices": 2166,
+   "sourceMeshes": 28
+  },
+  "pelvis": {
+   "center": [
+    -0.00005,
+    0.9288,
+    -0.03505
+   ],
+   "triangles": 4132,
+   "vertices": 2066,
+   "sourceMeshes": 2
+  },
+  "humerus": {
+   "center": [
+    0.00005,
+    1.25675,
+    -0.0295
+   ],
+   "triangles": 3924,
+   "vertices": 1966,
+   "sourceMeshes": 2
+  },
+  "metatarsal": {
+   "center": [
+    0,
+    0.0298,
+    0.03565
+   ],
+   "triangles": 3882,
+   "vertices": 1961,
+   "sourceMeshes": 10
+  },
+  "sternum": {
+   "center": [
+    0.00005,
+    1.31845,
+    0.06725
+   ],
+   "triangles": 3242,
+   "vertices": 1618,
+   "sourceMeshes": 3
+  },
+  "metacarpal": {
+   "center": [
+    0,
+    0.83205,
+    0.02795
+   ],
+   "triangles": 3056,
+   "vertices": 1548,
+   "sourceMeshes": 10
+  },
+  "biceps": {
+   "center": [
+    0,
+    1.2411,
+    -0.0166
+   ],
+   "triangles": 2920,
+   "vertices": 1454,
+   "sourceMeshes": 4
+  },
+  "tibia": {
+   "center": [
+    0.00005,
+    0.2577,
+    -0.0217
+   ],
+   "triangles": 2648,
+   "vertices": 1328,
+   "sourceMeshes": 2
+  },
+  "stomach": {
+   "center": [
+    0.02207,
+    1.18059,
+    0.02205
+   ],
+   "triangles": 2432,
+   "vertices": 1218,
+   "sourceMeshes": 1
+  },
+  "spleen": {
+   "center": [
+    0.08617,
+    1.19719,
+    -0.05184
+   ],
+   "triangles": 2348,
+   "vertices": 1176,
+   "sourceMeshes": 1
+  },
+  "carpal": {
+   "center": [
+    0.00005,
+    0.87035,
+    0.01895
+   ],
+   "triangles": 2308,
+   "vertices": 1182,
+   "sourceMeshes": 14
+  },
+  "mandible": {
+   "center": [
+    -0.00065,
+    1.53765,
+    0.0267
+   ],
+   "triangles": 2230,
+   "vertices": 1117,
+   "sourceMeshes": 1
+  },
+  "gluteus": {
+   "center": [
+    0,
+    0.8741,
+    -0.07595
+   ],
+   "triangles": 2188,
+   "vertices": 1079,
+   "sourceMeshes": 2
+  },
+  "ear": {
+   "center": [
+    -0.00065,
+    1.58205,
+    -0.0199
+   ],
+   "triangles": 1746,
+   "vertices": 873,
+   "sourceMeshes": 1
+  },
+  "fibula": {
+   "center": [
+    -0.00005,
+    0.2407,
+    -0.0418
+   ],
+   "triangles": 1556,
+   "vertices": 782,
+   "sourceMeshes": 2
+  },
+  "clavicle": {
+   "center": [
+    -0.0007,
+    1.4058,
+    -0.00435
+   ],
+   "triangles": 1474,
+   "vertices": 741,
+   "sourceMeshes": 2
+  },
+  "bladder": {
+   "center": [
+    -0.0031,
+    0.90276,
+    -0.0011
+   ],
+   "triangles": 1280,
+   "vertices": 642,
+   "sourceMeshes": 1
+  },
+  "ulna": {
+   "center": [
+    -0.00005,
+    1.00265,
+    -0.0211
+   ],
+   "triangles": 1186,
+   "vertices": 597,
+   "sourceMeshes": 2
+  },
+  "radius": {
+   "center": [
+    -0.0002,
+    0.99425,
+    -0.01095
+   ],
+   "triangles": 1040,
+   "vertices": 524,
+   "sourceMeshes": 2
+  },
+  "patella": {
+   "center": [
+    -0.00005,
+    0.45495,
+    0.0067
+   ],
+   "triangles": 464,
+   "vertices": 236,
+   "sourceMeshes": 2
+  }
+ },
+ "sources": [
+  {
+   "id": "ecorche",
+   "file": "ecorche.glb",
+   "license": "CC BY-SA 4.0",
+   "author": "Charles (Charleeh/ecorche)",
+   "geometry": "BodyParts3D + Z-Anatomy"
+  },
+  {
+   "id": "ct",
+   "file": "ct_body.glb",
+   "license": "CC BY 4.0",
+   "author": "codepawl/ct-anatomy-glb",
+   "geometry": "TotalSegmentator v2.0.1"
+  }
+ ]
+}

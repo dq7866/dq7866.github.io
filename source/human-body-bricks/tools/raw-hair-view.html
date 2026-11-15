@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>body{margin:0;background:#202830;display:flex}canvas{border:1px solid #444}</style></head><body>
+<script type="module">
+import * as THREE from '../lib/three.module.js';
+import { GLTFLoader } from '../lib/GLTFLoader.js';
+const views = [[0,'front'],[90,'rot90']];
+for (let i = 0; i < views.length; i++) (async (idx) => {
+  const [yaw, tag] = views[idx];
+  const W = 250, H = 300;
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(W, H);
+  const el = renderer.domElement;
+  const label = document.createElement('div');
+  label.textContent = tag; label.style.cssText = 'color:#fff;font:12px monospace;position:absolute';
+  document.body.appendChild(el); document.body.appendChild(label);
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x202830);
+  const camera = new THREE.PerspectiveCamera(40, W / H, 0.001, 10);
+  scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.5); dl.position.set(2, 4, 5); scene.add(dl);
+  const buf = await (await fetch('../assets/source/ai/ai-models/hair.glb')).arrayBuffer();
+  new GLTFLoader().parse(buf, '', (g) => {
+    g.scene.rotation.y = yaw * Math.PI / 180;
+    g.scene.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(g.scene);
+    const size = box.getSize(new THREE.Vector3());
+    const c = box.getCenter(new THREE.Vector3());
+    window.__dims = window.__dims || {};
+    window.__dims[tag] = { size: size.toArray().map(v => +v.toFixed(3)), center: c.toArray().map(v => +v.toFixed(3)) };
+    const maxDim = Math.max(size.x, size.y, size.z);
+    camera.position.set(c.x, c.y, c.z + maxDim * 1.6);
+    camera.lookAt(c.x, c.y, c.z);
+    scene.add(g.scene);
+    renderer.render(scene, camera);
+    if (idx === views.length - 1) window.__ready = true;
+  });
+})(i);
+</script>
+</body></html>

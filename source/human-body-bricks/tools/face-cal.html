@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>body{margin:0;background:#202830;display:flex}canvas{border:1px solid #444}</style></head><body>
+<script type="module">
+import * as THREE from '../lib/three.module.js';
+import { GLTFLoader } from '../lib/GLTFLoader.js';
+const W = 420, H = 500, YAW = 50;
+const buf = await (await fetch('../assets/source/ai/ai-models/hair.glb')).arrayBuffer();
+new GLTFLoader().parse(buf, '', (g) => {
+  const root = new THREE.Group();
+  const geos = [];
+  g.scene.updateMatrixWorld(true);
+  g.scene.traverse(o => { if (o.isMesh) geos.push(o.geometry.clone()); }); // raw模型无变换，直接用几何
+  // 裁颈
+  let hi = -Infinity, lo = Infinity;
+  for (const geo of geos) { geo.computeBoundingBox(); hi = Math.max(hi, geo.boundingBox.max.y); lo = Math.min(lo, geo.boundingBox.min.y); }
+  const cutY = lo + (hi - lo) * 0.26;
+  const P = [], C = [], IDX = [];
+  let base = 0;
+  for (const geo of geos) {
+    const pos = geo.attributes.position, col = geo.attributes.color, idx = geo.index;
+    const pArr = pos.array, cArr = col ? col.array : null;
+    const remap = new Map(); let next = 0;
+    const get = (src) => {
+      let li = remap.get(src);
+      if (li === undefined) {
+        li = next++; remap.set(src, li);
+        P.push(pArr[src * 3], pArr[src * 3 + 1], pArr[src * 3 + 2]);
+        if (cArr) C.push(cArr[src * 4], cArr[src * 4 + 1], cArr[src * 4 + 2], cArr[src * 4 + 3] ?? 1);
+        else C.push(1, 1, 1, 1);
+      }
+      return li;
+    };
+    for (let t = 0; t < idx.count; t += 3) {
+      const i0 = idx.getX(t), i1 = idx.getX(t + 1), i2 = idx.getX(t + 2);
+      const cy = (pArr[i0 * 3 + 1] + pArr[i1 * 3 + 1] + pArr[i2 * 3 + 1]) / 3;
+      if (cy < cutY) continue;
+      IDX.push(get(i0), get(i1), get(i2));
+      base = next;
+    }
+  }
+  const n = P.length / 3;
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(P, 3));
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(C, 4));
+  geo.setIndex(IDX);
+  geo.computeVertexNormals();
+  const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.62, side: THREE.DoubleSide });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.rotation.y = YAW * Math.PI / 180;
+  mesh.updateMatrixWorld(true);
+  window.__report(P, C, IDX, mesh);
+  // 渲染 + 标记
+  const scene = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(35, W / H, 0.001, 10);
+  scene.add(new THREE.AmbientLight(0xffffff, 1.7));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.0); dl.position.set(1.5, 3, 4); scene.add(dl);
+  scene.add(mesh);
+  const box = new THREE.Box3().setFromObject(mesh);
+  const c = box.getCenter(new THREE.Vector3()), s = box.getSize(new THREE.Vector3());
+  window.__bbox = { min: box.min.toArray(), max: box.max.toArray() };
+  cam.position.set(c.x, c.y, c.z + Math.max(s.x, s.y, s.z) * 1.35);
+  cam.lookAt(c.x, c.y, c.z);
+  const r = new THREE.WebGLRenderer({ antialias: true });
+  r.setSize(W, H);
+  document.body.appendChild(r.domElement);
+  r.render(scene, cam);
+  window.__addMarkers = (pts, color) => {
+    for (const p of pts) {
+      const m = new THREE.Mesh(new THREE.SphereGeometry(0.006, 12, 12), new THREE.MeshBasicMaterial({ color }));
+      m.position.set(p[0], p[1], p[2]);
+      scene.add(m);
+    }
+    r.render(scene, cam);
+  };
+  window.__ready = true;
+});
+window.__report = () => {};
+</script>
+</body></html>

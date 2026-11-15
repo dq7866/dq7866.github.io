@@ -12,7 +12,11 @@
  *   public/naturelab/index.html
  *   public/naturelab/css|js|assets/...
  *
- * 幂等：每次构建先删后拷，避免旧文件残留。
+ * 幂等：采用覆盖式复制（同名文件直接覆盖），不做整目录删除。
+ *   原先"先 rmSync 整个目录再拷"会一次删掉 200+ 文件，本机安全删除保护
+ *   会直接拦下（SAFE_DELETE_BULK_CONFIRM_REQUIRED），npm run build 后半条链
+ *   就全断了。线上 Cloudflare 每次全新 clone，public 本来就是干净的，
+ *   覆盖式复制没有任何副作用；本地若想清掉残留文件，手动删一次目录即可。
  */
 
 const fs = require('fs');
@@ -36,6 +40,21 @@ function countFiles(dir) {
   return { n, bytes };
 }
 
+/** 逐文件复制：不用 fs.cpSync 一次性搬 200+ 文件。
+ *  Windows 下批量复制容易触发 EMFILE / 句柄占用，本机实测 cpSync 会静默中断
+ *  （进程退出 127、没有任何报错），导致 npm run build 后半条链全部不执行。
+ *  改成同步逐个复制，每步都是独立小操作，日志也更可控。
+ */
+function copyDir(src, dest) {
+  fs.mkdirSync(dest, { recursive: true });
+  for (const e of fs.readdirSync(src, { withFileTypes: true })) {
+    const s = path.join(src, e.name);
+    const d = path.join(dest, e.name);
+    if (e.isDirectory()) copyDir(s, d);
+    else if (e.isFile()) fs.copyFileSync(s, d);
+  }
+}
+
 function main() {
   if (!fs.existsSync(SRC)) {
     console.error('[naturelab] 找不到 source/自然培育所/game/，跳过');
@@ -48,8 +67,7 @@ function main() {
     return;
   }
 
-  fs.rmSync(DEST, { recursive: true, force: true });
-  fs.cpSync(SRC, DEST, { recursive: true });
+  copyDir(SRC, DEST);   // 覆盖同名文件，不整目录删除
 
   const { n, bytes } = countFiles(DEST);
   console.log('[naturelab] 已发布 %s 个文件（%s MB）到 /naturelab/', n, (bytes / 1048576).toFixed(1));
